@@ -51,7 +51,7 @@ public class ReadingListExample {
     book2.setAuthor(new PersonObject("Rene Descartes"));
     stream.addItem(
       gen.startNew()
-         .set("verb", Verb.READ)
+         .set("verb", Extra.READ)
          .set("object", book2)
          .set("format", Extra.HARDCOVER())
          .complete());

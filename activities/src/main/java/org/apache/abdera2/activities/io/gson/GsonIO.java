@@ -259,6 +259,14 @@ public class GsonIO extends IO {
         throw new RuntimeException(e);
       }
     }
+    public void writeObjects(ASObject... objects) {
+      for (ASObject object : objects)
+        writeObject(object);
+    }
+    public void writeObjects(Iterable<ASObject> objects) {
+      for (ASObject object : objects)
+        writeObject(object);
+    }
     public void complete() {
       try {
         if (_items) writer.endArray();

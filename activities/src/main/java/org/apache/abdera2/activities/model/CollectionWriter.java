@@ -6,6 +6,10 @@ public interface CollectionWriter {
   
   void writeObject(ASObject object);
   
+  void writeObjects(ASObject... objects);
+  
+  void writeObjects(Iterable<ASObject> objects);
+  
   void complete();
   
 }

@@ -19,6 +19,9 @@ package org.apache.abdera2.activities.model;
 
 import org.apache.abdera2.common.iri.IRI;
 
+/**
+ * Represents the Activity Streams Media Link construct.
+ */
 public class MediaLink extends ASBase {
 
   private static final long serialVersionUID = -2003166656259290419L;

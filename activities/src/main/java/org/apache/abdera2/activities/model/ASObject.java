@@ -27,7 +27,6 @@ import org.apache.abdera2.activities.model.objects.PlaceObject;
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.iri.IRI;
 
-
 @SuppressWarnings("unchecked")
 public class ASObject extends ASBase {
 
@@ -53,6 +52,8 @@ public class ASObject extends ASBase {
   public static final String TAGS = "tags";
   public static final String RATING = "rating";
   
+  public static final String EMBED = "embed";
+  
   public ASObject() {
     setObjectType(AnnoUtil.getName(this));
   }
@@ -69,14 +70,14 @@ public class ASObject extends ASBase {
     setProperty(ATTACHMENTS, attachments);
   }
   
-  public void addAttachment(ASObject attachment) {
-    Set<ASObject> attachments = getProperty(ATTACHMENTS);
-    if (attachments == null) {
-      attachments = new HashSet<ASObject>();
-      setProperty(ATTACHMENTS, attachments);
+  public void addAttachment(ASObject... attachments) {
+    Set<ASObject> list = getProperty(ATTACHMENTS);
+    if (list == null) {
+      list = new HashSet<ASObject>();
+      setProperty(ATTACHMENTS, list);
     }
-    attachments.add(attachment);
-    
+    for (ASObject attachment : attachments)
+      list.add(attachment); 
   }
   
   public <E extends ASObject>E getAuthor() {
@@ -129,14 +130,14 @@ public class ASObject extends ASBase {
     
   }
   
-  public void addDownstreamDuplicate(String downstreamDuplicate) {
+  public void addDownstreamDuplicate(String... duplicates) {
     Set<String> downstreamDuplicates = getProperty(DOWNSTREAMDUPLICATES);
     if (downstreamDuplicates == null) {
       downstreamDuplicates = new HashSet<String>();
       setProperty(DOWNSTREAMDUPLICATES, downstreamDuplicates);
     }
-    downstreamDuplicates.add(downstreamDuplicate);
-    
+    for (String downstreamDuplicate : duplicates)
+      downstreamDuplicates.add(downstreamDuplicate);  
   }
   
   public String getId() {
@@ -204,13 +205,14 @@ public class ASObject extends ASBase {
     
   }
   
-  public void addUpstreamDuplicate(String upstreamDuplicate) {
+  public void addUpstreamDuplicate(String... duplicates) {
     Set<String> upstreamDuplicates = getProperty(UPSTREAMDUPLICATES);
     if (upstreamDuplicates == null) {
       upstreamDuplicates = new HashSet<String>();
       setProperty(UPSTREAMDUPLICATES, upstreamDuplicates);
     }
-    upstreamDuplicates.add(upstreamDuplicate);
+    for (String upstreamDuplicate : duplicates)
+      upstreamDuplicates.add(upstreamDuplicate);
   }
   
   
@@ -230,13 +232,14 @@ public class ASObject extends ASBase {
     setProperty(INREPLYTO, inReplyTo);
   }
   
-  public void addInReplyTo(ASObject inReplyTo) {
+  public void addInReplyTo(ASObject... inReplyTos) {
     Set<ASObject> list = getProperty(INREPLYTO);
     if (list == null) {
       list = new HashSet<ASObject>();
       setProperty(INREPLYTO, list);
     }
-    list.add(inReplyTo);
+    for (ASObject inReplyTo : inReplyTos)
+      list.add(inReplyTo);
   }
   
   public PlaceObject getLocation() {
@@ -272,13 +275,30 @@ public class ASObject extends ASBase {
     setProperty(TAGS, tags);
   }
   
-  public void addTag(ASObject tag) {
+  public void addTag(ASObject... tags) {
     Set<ASObject> list = getProperty(TAGS);
     if (list == null) {
       list = new HashSet<ASObject>();
       setProperty(TAGS, list);
     }
-    list.add(tag); 
+    for (ASObject tag : tags)
+      list.add(tag); 
+  }
+  
+  /**
+   * @see org.apache.abdera2.activities.model.ASObject.getEmbeddedExperience()
+   * {"embed":{...}}
+   */
+  public <T extends ASObject>T getEmbed() {
+    return getProperty(EMBED);
+  }
+  
+  /**
+   * @see org.apache.abdera2.activities.model.ASObject.setEmbeddedExperience()
+   * {"embed":{...}}
+   */
+  public void setEmbed(ASObject embed) {
+    setProperty(EMBED,embed);
   }
   
   public double getRating() {
@@ -292,7 +312,10 @@ public class ASObject extends ASBase {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     String objectType = getObjectType();
-    if (objectType != null) {
+    String displayName = getDisplayName();
+    if (displayName != null)
+      sb.append(displayName);
+    else if (objectType != null) {
       char s = objectType.charAt(0);
       if ("aeiou".indexOf(s) > -1) 
         sb.append("an ");
@@ -304,6 +327,24 @@ public class ASObject extends ASBase {
     return sb.toString();
   }
 
+  /**
+   * "Embedded Experiences" were introduced to Activity Streams 
+   * by the OpenSocial 2.0 specification, while functionally not 
+   * specific to OpenSocial, the spec defines that the "Embedded 
+   * Experience" document has to be wrapped within an "openSocial"
+   * extension property. Other applications, such as Google+, however,
+   * use the "embed" property directly within an object without the
+   * "openSocial" wrapper. To use the "embed" property without 
+   * the "openSocial" wrapper, use the setEmbed/getEmbed properties
+   * on ASObject. To use OpenSocial style Embedded Experiences, 
+   * use the setEmbeddedExperience/getEmbeddedExperience/hasEmbeddedExperience
+   * methods. The OpenSocial style Embedded Experience should be used
+   * primarily to associate OpenSocial Gadgets with an activity 
+   * object while the alternative "embed" can be used to reference
+   * any kind of embedded content.
+   * 
+   * {"openSocial":{"embed":{...}}}
+   */
   public void setEmbeddedExperience(EmbeddedExperience embed) {
     ASBase os = getProperty("openSocial");
     if (os == null) {
@@ -313,6 +354,24 @@ public class ASObject extends ASBase {
     os.setProperty("embed", embed);
   }
   
+  /**
+   * "Embedded Experiences" were introduced to Activity Streams 
+   * by the OpenSocial 2.0 specification, while functionally not 
+   * specific to OpenSocial, the spec defines that the "Embedded 
+   * Experience" document has to be wrapped within an "openSocial"
+   * extension property. Other applications, such as Google+, however,
+   * use the "embed" property directly within an object without the
+   * "openSocial" wrapper. To use the "embed" property without 
+   * the "openSocial" wrapper, use the setEmbed/getEmbed properties
+   * on ASObject. To use OpenSocial style Embedded Experiences, 
+   * use the setEmbeddedExperience/getEmbeddedExperience/hasEmbeddedExperience
+   * methods. The OpenSocial style Embedded Experience should be used
+   * primarily to associate OpenSocial Gadgets with an activity 
+   * object while the alternative "embed" can be used to reference
+   * any kind of embedded content.
+   * 
+   * {"openSocial":{"embed":{...}}}
+   */
   public EmbeddedExperience getEmbeddedExperience() {
     if (!has("openSocial")) return null;
     ASBase os = getProperty("openSocial");
@@ -325,6 +384,9 @@ public class ASObject extends ASBase {
     return (EmbeddedExperience) e;
   }
   
+  /**
+   * Checks to see if the "openSocial":{"embed":{...}} property exists
+   */
   public boolean hasEmbeddedExperience() {
     if (!has("openSocial")) return false;
     ASBase os = getProperty("openSocial");

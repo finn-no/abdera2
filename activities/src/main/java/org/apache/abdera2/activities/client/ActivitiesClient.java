@@ -9,6 +9,11 @@ import org.apache.abdera2.protocol.client.ClientWrapper;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 
+/**
+ * Extension of the base Abdera Client that provides utility methods
+ * for working with Activity Stream objects. The ActivityClient acts 
+ * as a decorator for the base Abdera Client. 
+ */
 public class ActivitiesClient 
   extends ClientWrapper {
 

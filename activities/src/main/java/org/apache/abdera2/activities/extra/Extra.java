@@ -3,10 +3,58 @@ package org.apache.abdera2.activities.extra;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.IO;
+import org.apache.abdera2.activities.model.Verb;
 
+/**
+ * Miscellaneous extensions
+ */
+@SuppressWarnings("unchecked")
 public class Extra {
 
-  @SuppressWarnings("unchecked")
+  // As in "Sally purchased the app"
+  public static final Verb PURCHASE = new Verb("purchase") {};
+  
+  // As in: "Joe is hosting a meeting"
+  public static final Verb HOST = new Verb("host") {};
+  
+  // As in: "Mark read the book" ... this is related to "play", but saying that
+  // someone "played" a book just doesn't make much sense. A user can 
+  // "play" and audio book, but they must "read" the physical or ebook,
+  // also works for "Mark read the note", "Sally read the question", etc
+  public static final Verb READ = new Verb("read") {};
+  
+  // As in "Sally approved the line item"
+  public static final Verb APPROVE = new Verb("approve") {};
+  
+  // As in "Sally rejected the line item"
+  public static final Verb REJECT = new Verb("reject") {};
+  
+  // As in "Sally archived the document"
+  public static final Verb ARCHIVE = new Verb("archive") {};
+  
+  // As in "Mark installed the app"
+  public static final Verb INSTALL = new Verb("install") {};
+  
+  // As in "Mark closed the issue"
+  public static final Verb CLOSE = new Verb("close") {};
+  
+  // As in "Mark opened the issue" .. careful not to confuse this with
+  // creating an issue, for instance. For example, in source code 
+  // management, creating a new issue and "opening" it are two separate
+  // tasks. An item can be opened automatically when it is created,
+  // closed, and then opened again if it is determined to not have been
+  // resolved, etc.
+  public static final Verb OPEN = new Verb("open") {};
+  
+  // As in "Mark resolved the issue" .. careful not to confuse this with
+  // updating the issue or closing it. 
+  public static final Verb RESOLVE = new Verb("resolve") {};
+  
+  
+  /**
+   * Registers the "extra" object types with the IO instance
+   * for serialization/deserialization.
+   */
   public static void initExtras(IO io) {
 
     io.addObjectMapping(
@@ -15,7 +63,8 @@ public class Extra {
       OfferObject.class,
       TvEpisodeObject.class,
       TvSeasonObject.class,
-      TvSeriesObject.class);
+      TvSeriesObject.class,
+      VersionObject.class);
   }
   
   /**
@@ -73,6 +122,9 @@ public class Extra {
     return new ASObject("@public");
   }
   
+  /**
+   * Create an anonymous AS Object (no objectType property)
+   */
   public static ASObject anonymousObject(String id) {
     ASObject obj = new ASObject();
     obj.setObjectType(null);

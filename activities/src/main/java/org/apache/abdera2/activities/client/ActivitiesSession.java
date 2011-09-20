@@ -16,6 +16,10 @@ import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 
+/**
+ * Extension of the base Abdera Client Session that provides utility 
+ * methods for working with Activity Streams objects.
+ */
 public class ActivitiesSession 
   extends Session {
 

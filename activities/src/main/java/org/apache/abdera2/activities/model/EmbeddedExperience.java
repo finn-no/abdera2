@@ -4,6 +4,14 @@ import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
 
+/**
+ * Represents an Embedded Experience data structure. Embedded Experiences
+ * were introduced to Activity Streams through the OpenSocial 2.0 specification.
+ * While EE structures can be used outside the scope of OpenSocial, they are
+ * primarily intended to be used as a means of associating an OpenSocial
+ * Gadget specification with an Activity Stream object that can be rendered 
+ * in-line when the activity data is displayed within an OpenSocial container.
+ */
 public class EmbeddedExperience 
   extends ASBase {
 

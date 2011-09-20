@@ -34,6 +34,10 @@ import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 
+/**
+ * Root of the Activity Streams object hierarchy, provides the core property
+ * management and can be used to represent simple, untyped objects.
+ */
 public class ASBase 
   implements Iterable<String>, Cloneable, Serializable, Copyable {
 

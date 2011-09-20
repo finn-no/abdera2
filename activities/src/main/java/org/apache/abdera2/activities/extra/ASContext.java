@@ -8,7 +8,14 @@ import org.apache.abdera2.common.templates.AbstractContext;
 /**
  * URI Templates Context implementation based on an Activity Streams
  * object. Makes it easier to construct new URLs based on the properties
- * of an Activity Streams object
+ * of an Activity Streams object. For example:
+ * 
+ * Template template = new Template("{?nextPageToken}"};
+ * ASObject obj = new ASObject();
+ * obj.setProperty("nextPageToken");
+ * ASContext ctx = new ASContext(obj);
+ * String the_new_iri = template.expand(ctx);
+ * 
  */
 public final class ASContext 
   extends AbstractContext {

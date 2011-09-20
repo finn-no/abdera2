@@ -31,7 +31,20 @@ import org.apache.abdera2.common.anno.DefaultImplementation;
 
 /**
  * Primary interface for serializing/deserializing Activity objects. 
- * Instances of IO are threadsafe. 
+ * The write/parse operations on IO should be considered threadsafe, 
+ * however, all initiatization of the IO should be completed prior 
+ * to using the class to read or produce Activity Stream documents.
+ * This means that all calls to addPropertyMapping and addObjectMapping
+ * MUST be performed as part of the initialization code of the IO 
+ * instance. Note that when using property mappings, conflicts may
+ * occur when working with different objects that use different 
+ * value types for similarly named properties, e.g. if you have 
+ * mapped the property named "location" to a PlaceObject, but one
+ * of the properties in your objects uses a string value for location, 
+ * you will receive parse errors because the deserializer will
+ * be unable to deserialize the property properly. The solution 
+ * is to use two separate IO instances each configured with the 
+ * appropriate property and object type mappings.
  */
 @DefaultImplementation("org.apache.abdera2.activities.io.gson.GsonIO")
 public abstract class IO {
@@ -47,6 +60,10 @@ public abstract class IO {
     this.autoclose = true;
   }
   
+  /**
+   * True if streams and writers should be automatically closed when
+   * the IO instance is done with them. Applies to both reads and writes
+   */
   public boolean getAutoClose() {
     return autoclose;
   }
@@ -65,6 +82,9 @@ public abstract class IO {
    */
   public abstract void addObjectMapping(Class<? extends ASObject>... _class);
   
+  /**
+   * Set the default character set used when parsing InputStreams
+   */
   public void setDefaultCharset(String charset) {
     this.defcharset = charset!=null?charset:"UTF-8";
   }

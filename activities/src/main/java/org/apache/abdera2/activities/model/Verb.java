@@ -20,6 +20,10 @@ package org.apache.abdera2.activities.model;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Activity Verbs... contains the core set of verbs and allows the creation
+ * of new verbs on the fly.
+ */
 public abstract class Verb {
 
  private static final Map<String,Verb> VERBS = 
@@ -30,6 +34,8 @@ public abstract class Verb {
        VERBS.get(name) : 
        new Verb(name) {};
  }
+ 
+ // Core Verbs //
  
  public static final Verb ADD = new Verb("add") {};
  public static final Verb CANCEL = new Verb("cancel") {};
@@ -62,22 +68,11 @@ public abstract class Verb {
  public static final Verb UNSAVE = new Verb("unsave") {};
  public static final Verb UPDATE = new Verb("update") {};
  
- // As in "Sally purchased the app"
- public static final Verb PURCHASED = new Verb("purchase") {};
+
  
- // As in: "Joe is hosting a meeting"
- public static final Verb HOST = new Verb("host") {};
- 
- // As in: "Mark read the book" ... this is related to "play", but saying that
- // someone "played" a book just doesn't make much sense. A user can 
- // "play" and audio book, but they must "read" the physical or ebook,
- // also works for "Mark read the note", "Sally read the question", etc
- public static final Verb READ = new Verb("read") {};
- 
- 
- private final String name;
+  private final String name;
   
-  public Verb(String name) {
+  protected Verb(String name) {
     this.name = name;
     VERBS.put(name,this);
   }
