@@ -26,6 +26,10 @@ import org.apache.commons.codec.binary.Base64OutputStream;
  * useful in conjunction with the "attachments" property 
  * to attach arbitrary binary resources to another ASObject.
  * For instance, attaching a VCALENDAR file to an Event Object.
+ * 
+ * By default, the mime type will be set to application/octet-stream.
+ * Applications need to be careful about which content types they 
+ * will allow. 
  */
 @Name("binary")
 @Properties({
