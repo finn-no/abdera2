@@ -24,6 +24,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Date;
 
+import javax.activation.MimeType;
+
 import org.apache.abdera2.common.date.Duration;
 import org.apache.abdera2.common.date.Interval;
 import org.apache.abdera2.common.geo.IsoPosition;
@@ -91,6 +93,7 @@ public class GsonIO extends IO {
     gb.registerTypeAdapter(IsoPosition.class, new PositionAdapter());
     gb.registerTypeAdapter(EntityTag.class, new EntityTagAdapter());
     gb.registerTypeAdapter(Template.class, new TemplateAdapter());
+    gb.registerTypeAdapter(MimeType.class, new MimeTypeAdapter());
     for(TypeAdapter<?> adapter : adapters) {
       if (adapter instanceof GsonTypeAdapter) {
         gb.registerTypeAdapter(

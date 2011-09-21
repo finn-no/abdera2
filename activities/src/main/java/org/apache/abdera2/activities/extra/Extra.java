@@ -64,7 +64,8 @@ public class Extra {
       TvEpisodeObject.class,
       TvSeasonObject.class,
       TvSeriesObject.class,
-      VersionObject.class);
+      VersionObject.class,
+      BinaryObject.class);
   }
   
   /**

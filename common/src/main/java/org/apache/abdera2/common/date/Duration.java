@@ -8,6 +8,7 @@ package org.apache.abdera2.common.date;
  */
 public class Duration {
 
+  private final boolean rev;
   private final double y, m, w, d, h, i, s;
 
   public Duration(double s) {
@@ -35,6 +36,11 @@ public class Duration {
   }
   
   public Duration(double y, double m, double w, double d, double h, double i, double s) {
+    this(false,y,m,w,d,h,i,s);
+  }
+  
+  public Duration(boolean rev, double y, double m, double w, double d, double h, double i, double s) {
+    this.rev = rev;
     this.y = Math.max(0, y);
     this.m = Math.max(0, m);
     this.w = Math.max(0, w);
@@ -54,6 +60,10 @@ public class Duration {
       throw new IllegalArgumentException();
     if (is_frac(i)&&!is_smallest(s)) 
       throw new IllegalArgumentException();
+  }
+  
+  public boolean reversed() {
+    return rev;
   }
   
   public double years() {
@@ -97,6 +107,7 @@ public class Duration {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(m);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (rev ? 1231 : 1237);
     temp = Double.doubleToLongBits(s);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(w);
@@ -123,6 +134,8 @@ public class Duration {
       return false;
     if (Double.doubleToLongBits(m) != Double.doubleToLongBits(other.m))
       return false;
+    if (rev != other.rev)
+      return false;
     if (Double.doubleToLongBits(s) != Double.doubleToLongBits(other.s))
       return false;
     if (Double.doubleToLongBits(w) != Double.doubleToLongBits(other.w))
@@ -133,7 +146,10 @@ public class Duration {
   }
 
   public String toString() {
-    StringBuilder buf = new StringBuilder("P");
+    StringBuilder buf = new StringBuilder();
+    
+    if (rev) buf.append('-');
+    buf.append('P');
     
     if (y > 0) 
       buf.append(is_smallest(m,w,d,h,i,s)&&is_frac(y)?Double.toString(y):Integer.toString((int)y))
@@ -181,8 +197,13 @@ public class Duration {
   
   public static Duration parse(String val) {
     double y = 0, m = 0, w = 0, d = 0, h = 0, i = 0, s = 0;
+    boolean rev = false;
     if (val == null) return null;
     int p = 0, l = val.length();
+    if (val.charAt(p) == '-') {
+      rev = true;
+      p++;
+    }
     if (val.charAt(p) != 'P' && val.charAt(p) != 'p')
       throw new IllegalArgumentException();
     int r = ++p;
@@ -204,7 +225,7 @@ public class Duration {
       p = r+1;
       r = p;
     }
-    return new Duration(y,m,w,d,h,i,s);
+    return new Duration(rev,y,m,w,d,h,i,s);
   }
   
   private static boolean digit(char c) {

@@ -21,7 +21,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,24 +85,24 @@ public class BaseAdapter
   private void initPropMap() {
     map.put("verb",Verb.class);
     map.put("url",IRI.class);
-    map.put("fileurl", IRI.class);
+    map.put("fileUrl", IRI.class);
     map.put("gadget", IRI.class);
     map.put("updated", Date.class);
     map.put("published", Date.class);
     map.put("lang", Lang.class);
     map.put("icon", MediaLink.class);
     map.put("image", MediaLink.class);
-    map.put("totalitems", Integer.class);
+    map.put("totalItems", Integer.class);
     map.put("duration", Integer.class);
     map.put("height", Integer.class);
     map.put("location", PlaceObject.class);
     map.put("mood", Mood.class);
     map.put("address", Address.class);
     map.put("stream", MediaLink.class);
-    map.put("fullimage", MediaLink.class);
-    map.put("endtime", Date.class);
-    map.put("starttime", Date.class);
-    map.put("mimetype", MimeType.class);
+    map.put("fullImage", MediaLink.class);
+    map.put("endTime", Date.class);
+    map.put("startTime", Date.class);
+    map.put("mimeType", MimeType.class);
     map.put("rating", Double.class);
     map.put("position", IsoPosition.class);
     map.put("etag", EntityTag.class);
@@ -242,7 +241,7 @@ public class BaseAdapter
     }
     for (Entry<String,JsonElement> entry : obj.entrySet()) {
       String name = entry.getKey();
-      Class<?> _class = map.get(name.toLowerCase(Locale.US));
+      Class<?> _class = map.get(name);
       JsonElement val = entry.getValue();
       if (val.isJsonPrimitive()) {
         if (_class != null) {
