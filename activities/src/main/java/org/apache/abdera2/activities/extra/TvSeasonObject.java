@@ -8,6 +8,10 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 
+/**
+ * A simple "objectType":"tv-season" object that serves primarily as an 
+ * example of creating new ASObject types.
+ */
 @Name("tv-season")
 @Properties({
   @Property(name="startDate",to=Date.class),

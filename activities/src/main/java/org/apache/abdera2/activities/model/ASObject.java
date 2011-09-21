@@ -27,6 +27,9 @@ import org.apache.abdera2.activities.model.objects.PlaceObject;
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.iri.IRI;
 
+/**
+ * Base class for all Activity Streams Objects.
+ */
 @SuppressWarnings("unchecked")
 public class ASObject extends ASBase {
 

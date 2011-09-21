@@ -7,6 +7,10 @@ import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.Duration;
 
+/**
+ * A simple "objectType":"movie" object that serves primarily as an 
+ * example of creating new ASObject types.
+ */
 @Name("movie")
 @Properties({
   @Property(name="preview",to=MediaLink.class),

@@ -48,17 +48,39 @@ public class BinaryObject extends FileObject {
     setDisplayName(displayName);
   }
     
+  /**
+   * Set the Content and the MimeType from the DatHandler. 
+   * This method defers to the setContent(InputStream) method
+   * by passing it the InputStream retrieved from the DataHandler.
+   * That means it currently blocks while reading, consuming, and
+   * encoding the InputStream. TODO: The better approach would be
+   * to simple store the DataHandler in the exts table directly
+   * and use a custom TypeAdapter for the BinaryObject to read and
+   * consume the DataHandler during the actual Serialization.
+   */
   public void setContent(DataHandler data) throws IOException {
     setContent(data.getInputStream());
     setMimeType(data.getContentType());
   }
   
+  /**
+   * Set the Content as a Base64 Encoded string. Calling this 
+   * method will perform a blocking read that will consume the 
+   * InputStream and generate a Base64 Encoded String. 
+   * TODO: A better approach would be to store the InputStream
+   * or DataHandler directly within the exts table and use a 
+   * custom TypeAdapter for the BinaryObject to read and consume
+   * the InputStream during the actual Serialization process.
+   * That would, at the very least, defer the performance hit
+   * and save memory resources while the object is stored in 
+   * memory.
+   */
   public void setContent(InputStream data) throws IOException {
     ByteArrayOutputStream out = 
       new ByteArrayOutputStream();
     Base64OutputStream bout = 
       new Base64OutputStream(out,true,0,null);
-    byte[] d = new byte[100];
+    byte[] d = new byte[1024];
     int r = -1;
     while((r = data.read(d)) > -1) { 
       bout.write(d, 0, r);
@@ -69,6 +91,11 @@ public class BinaryObject extends FileObject {
     super.setContent(c);
   }
   
+  /**
+   * Returns an InputStream that will decode the Base64 encoded 
+   * content on the fly. The data is stored encoded in memory and
+   * only decoded as the InputStream is consumed.
+   */
   public InputStream getInputStream() throws IOException {
     String content = super.getContent();
     if (content == null) return null;

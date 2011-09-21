@@ -3,6 +3,12 @@ package org.apache.abdera2.activities.extra;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.objects.EventObject;
 
+/**
+ * Abstract extension of the basic event object type that adds
+ * additional useful fields. Subclasses of this object MUST
+ * define their own objectType names using the Name annotation
+ * (@see org.apache.abdera2.common.anno.Name). 
+ */
 public abstract class ExtendedEventObject extends EventObject {
 
   private static final long serialVersionUID = 8368535995814591315L;

@@ -23,6 +23,14 @@ import java.util.Set;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 
+/**
+ * An Activity Streams Collection... used as the root object of
+ * JSON Activity Streams documents and as the value for a variety 
+ * of properties (such as "replies"). Encapsulates an array of 
+ * items with additional metadata. As an alternative to specifying
+ * the array of items inline, the "url" property can be used to 
+ * reference an external Collection document. 
+ */
 @Name("collection")
 public class Collection<T extends ASObject> extends ASObject {
 
@@ -69,6 +77,15 @@ public class Collection<T extends ASObject> extends ASObject {
   
   public Iterable<T> getItems() {
     return getProperty(ITEMS);
+  }
+  
+  public Iterable<T> getItems(boolean create) {
+    Iterable<T> items = getItems();
+    if (items == null && create) {
+      items = new LinkedHashSet<T>();
+      setProperty(ITEMS,items);
+    }
+    return items;
   }
   
   public void setItems(Set<T> items) {

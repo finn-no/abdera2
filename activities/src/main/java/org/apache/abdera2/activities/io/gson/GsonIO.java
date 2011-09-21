@@ -35,6 +35,7 @@ import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
+import org.apache.abdera2.activities.model.AbstractCollectionWriter;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.CollectionWriter;
@@ -214,12 +215,11 @@ public class GsonIO extends IO {
   }
   
   private static class GsonCollectionWriter
-    implements CollectionWriter {
+    extends AbstractCollectionWriter {
     private final JsonWriter writer;
     private final Gson gson;
     private final boolean autoclose;
-    private boolean _items = false;
-    private boolean _header = false;
+    
     GsonCollectionWriter(Gson gson, Writer out, boolean autoclose) {
       this.gson = gson;
       this.writer = new JsonWriter(out);
@@ -230,46 +230,7 @@ public class GsonIO extends IO {
         throw new RuntimeException(e);
       }
     }
-    public void writeHeader(ASBase base) {
-      if (_items || _header)
-        throw new IllegalStateException();
-      try {
-        if (base != null) {
-          for (String name : base) {
-            Object val = base.getProperty(name);
-            writer.name(name);
-            if (val != null) {
-              gson.toJson(val,val.getClass(),writer);
-            } else writer.nullValue();
-          }
-        }
-        _header = true;
-        writer.flush();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    public void writeObject(ASObject object) {
-      try {
-        if (!_items) {
-          writer.name("items");
-          writer.beginArray();
-          _items = true;
-        }
-        gson.toJson(object,ASBase.class,writer);
-        writer.flush();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    public void writeObjects(ASObject... objects) {
-      for (ASObject object : objects)
-        writeObject(object);
-    }
-    public void writeObjects(Iterable<ASObject> objects) {
-      for (ASObject object : objects)
-        writeObject(object);
-    }
+
     public void complete() {
       try {
         if (_items) writer.endArray();
@@ -279,6 +240,38 @@ public class GsonIO extends IO {
           writer.close();
       } catch (IOException e) {
         throw new RuntimeException(e);
+      }
+    }
+    @Override
+    protected void write(String name, Object val) {
+      try {
+        writer.name(name);
+        if (val != null) {
+          gson.toJson(val,val.getClass(),writer);
+        } else writer.nullValue();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    @Override
+    protected void startItems() {
+      try {
+        writer.name("items");
+        writer.beginArray();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    @Override
+    protected void writeItem(ASObject object) {
+      gson.toJson(object,ASBase.class,writer);
+    }
+    
+    protected void flush() {
+      try {
+        writer.flush();
+      } catch (IOException t) {
+        throw new RuntimeException(t);
       }
     }
   }

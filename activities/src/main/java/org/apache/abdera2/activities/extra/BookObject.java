@@ -3,6 +3,10 @@ package org.apache.abdera2.activities.extra;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+/**
+ * A simple "objectType":"book" object that serves primarily as an 
+ * example of creating new ASObject types.
+ */
 @Name("book")
 public class BookObject extends CreativeWork {
 

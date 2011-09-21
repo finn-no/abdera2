@@ -7,7 +7,8 @@ import org.apache.abdera2.common.anno.Name;
 
 /**
  * Activity Stream object that represents a description of a Version 
- * of a referenced object.
+ * of a referenced object. "objectType":"version"... The basic use 
+ * case for this would be for Version control systems.
  */
 @Name("version")
 @Properties({

@@ -7,6 +7,10 @@ import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+/**
+ * A simple "objectType":"offer" object that serves primarily as an 
+ * example of creating new ASObject types.
+ */
 @Name("offer")
 @Properties({
   @Property(name="validFrom",to=Date.class),

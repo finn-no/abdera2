@@ -2,6 +2,9 @@ package org.apache.abdera2.activities.extra;
 
 import org.apache.abdera2.activities.model.ASObject;
 
+/**
+ * Abstract base class for several extension ASObject types
+ */
 public abstract class CreativeWork extends ASObject {
 
   private static final long serialVersionUID = -178336535850006357L;
