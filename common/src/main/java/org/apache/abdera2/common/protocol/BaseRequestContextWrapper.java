@@ -95,11 +95,11 @@ public class BaseRequestContextWrapper
     }
 
     public <T>T getProperty(Property property) {
-        return request.getProperty(property);
+        return (T)request.getProperty(property);
     }
 
     public <P extends Provider>P getProvider() {
-        return request.getProvider();
+        return (P)request.getProvider();
     }
 
     public Reader getReader() throws IOException {

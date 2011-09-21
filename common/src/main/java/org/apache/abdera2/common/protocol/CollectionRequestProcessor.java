@@ -35,7 +35,7 @@ public abstract class CollectionRequestProcessor
         if (collectionAdapter == null) {
             return (S)ProviderHelper.notfound(context);
         } else {
-            return this.processCollection(context, collectionAdapter);
+            return (S)this.processCollection(context, collectionAdapter);
         }
     }
 
@@ -44,7 +44,7 @@ public abstract class CollectionRequestProcessor
         CollectionAdapter adapter) {
         String method = context.getMethod();
         if (method.equalsIgnoreCase("GET")) {
-            return adapter.getItemList(context);
+            return (S)adapter.getItemList(context);
         } else if (method.equalsIgnoreCase("POST")) {
             return (S)(isAcceptableItemType(context) ? adapter.postItem(context)
                 : adapter instanceof MediaCollectionAdapter ? ((MediaCollectionAdapter)adapter).postMedia(context)

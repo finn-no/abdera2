@@ -33,7 +33,7 @@ public class MediaRequestProcessor
         if (collectionAdapter == null) {
             return (S)ProviderHelper.notfound(context);
         } else {
-            return this.processMedia(context, collectionAdapter);
+            return (S)this.processMedia(context, collectionAdapter);
         }
     }
 
@@ -44,19 +44,19 @@ public class MediaRequestProcessor
         if (adapter instanceof MediaCollectionAdapter) {
             MediaCollectionAdapter mcadapter = (MediaCollectionAdapter)adapter;
             if (method.equalsIgnoreCase("GET")) {
-                return mcadapter.getMedia(context);
+                return (S)mcadapter.getMedia(context);
             } else if (method.equalsIgnoreCase("POST")) {
-                return mcadapter.postMedia(context);
+                return (S)mcadapter.postMedia(context);
             } else if (method.equalsIgnoreCase("PUT")) {
-                return mcadapter.putMedia(context);
+                return (S)mcadapter.putMedia(context);
             } else if (method.equalsIgnoreCase("DELETE")) {
-                return mcadapter.deleteMedia(context);
+                return (S)mcadapter.deleteMedia(context);
             } else if (method.equalsIgnoreCase("HEAD")) {
-                return mcadapter.headMedia(context);
+                return (S)mcadapter.headMedia(context);
             } else if (method.equalsIgnoreCase("OPTIONS")) {
-                return mcadapter.optionsMedia(context);
+                return (S)mcadapter.optionsMedia(context);
             } else if (method.equalsIgnoreCase("PATCH") && mcadapter instanceof PatchMediaAdapter) {
-                return ((PatchMediaAdapter)mcadapter).patchMedia(context);
+                return (S)((PatchMediaAdapter)mcadapter).patchMedia(context);
             } else {
                 return null;
             }

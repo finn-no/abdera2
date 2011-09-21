@@ -78,11 +78,12 @@ public class MultiContext
     return names.iterator();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected <T> T resolveActual(String var) {
     for (Context context : contexts)
       if (context.contains(var))
-        return context.resolve(var);
+        return (T)context.resolve(var);
     return null;
   }
 

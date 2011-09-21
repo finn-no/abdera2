@@ -129,7 +129,7 @@ public abstract class AbstractCollectionAdapter
             log.warn("A ResponseException was thrown.", e);
         }
 
-        return e.getResponseContext();
+        return (S)e.getResponseContext();
     }
 
     /**

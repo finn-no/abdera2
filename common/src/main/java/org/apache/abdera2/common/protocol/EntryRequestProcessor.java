@@ -32,28 +32,29 @@ public class EntryRequestProcessor
         if (collectionAdapter == null) {
             return (S)ProviderHelper.notfound(context);
         } else {
-            return this.processEntry(context, collectionAdapter);
+            return (S)this.processEntry(context, collectionAdapter);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <S extends ResponseContext>S processEntry(
         RequestContext context, 
         CollectionAdapter adapter) {
         String method = context.getMethod();
         if (method.equalsIgnoreCase("GET")) {
-            return adapter.getItem(context);
+            return (S)adapter.getItem(context);
         } else if (method.equalsIgnoreCase("POST")) {
-            return adapter.postItem(context);
+            return (S)adapter.postItem(context);
         } else if (method.equalsIgnoreCase("PUT")) {
-            return adapter.putItem(context);
+            return (S)adapter.putItem(context);
         } else if (method.equalsIgnoreCase("DELETE")) {
-            return adapter.deleteItem(context);
+            return (S)adapter.deleteItem(context);
         } else if (method.equalsIgnoreCase("HEAD")) {
-            return adapter.headItem(context);
+            return (S)adapter.headItem(context);
         } else if (method.equalsIgnoreCase("OPTIONS")) {
-            return adapter.optionsItem(context);
+            return (S)adapter.optionsItem(context);
         } else if (method.equalsIgnoreCase("PATCH") && adapter instanceof PatchAdapter) {
-            return ((PatchAdapter)adapter).patchItem(context);
+            return (S)((PatchAdapter)adapter).patchItem(context);
         } else {
             return null;
         }

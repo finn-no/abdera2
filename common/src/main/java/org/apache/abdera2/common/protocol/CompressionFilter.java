@@ -43,7 +43,7 @@ public class CompressionFilter implements Filter {
             } catch (Exception e) {
             }
         }
-        return chain.next(request);
+        return (S)chain.next(request);
     }
 
     /**

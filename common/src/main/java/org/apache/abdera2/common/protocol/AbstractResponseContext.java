@@ -56,11 +56,11 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setCacheControl(CacheControl cc) {
-      return setCacheControl(cc.toString());
+      return (T)setCacheControl(cc.toString());
     }
     
     public <T extends ResponseContext>T setCacheControl(String cc) {
-      return this.setHeader("Cache-Control", cc);
+      return (T)this.setHeader("Cache-Control", cc);
     }
     
     public <T extends ResponseContext>T removeHeader(String name) {
@@ -69,7 +69,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setEncodedHeader(String name, String charset, String value) {
-        return setHeader(name, Codec.encode(value, charset));
+        return (T)setHeader(name, Codec.encode(value, charset));
     }
 
     public <T extends ResponseContext>T setEncodedHeader(String name, String charset, String... vals) {
@@ -77,15 +77,15 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
         for (int n = 0; n < vals.length; n++) {
             evals[n] = Codec.encode(vals[n], charset);
         }
-        return setHeader(name, evals);
+        return (T)setHeader(name, evals);
     }
 
     public <T extends ResponseContext>T setEscapedHeader(String name, Profile profile, String value) {
-        return setHeader(name, UrlEncoding.encode(value, profile));
+        return (T)setHeader(name, UrlEncoding.encode(value, profile));
     }
 
     public <T extends ResponseContext>T setHeader(String name, Object value) {
-        return setHeader(name, new Object[] {value});
+        return (T)setHeader(name, new Object[] {value});
     }
 
     public <T extends ResponseContext>T setHeader(String name, Object... vals) {
@@ -98,7 +98,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T addEncodedHeader(String name, String charset, String value) {
-        return addHeader(name, Codec.encode(value, charset));
+        return (T)addHeader(name, Codec.encode(value, charset));
     }
 
     public <T extends ResponseContext>T addEncodedHeaders(String name, String charset, String... vals) {
@@ -109,7 +109,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T addHeader(String name, Object value) {
-        return addHeaders(name, new Object[] {value});
+        return (T)addHeaders(name, new Object[] {value});
     }
 
     public <T extends ResponseContext>T addHeaders(String name, Object... vals) {
@@ -186,22 +186,22 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
         }
         if (slug.indexOf((char)10) > -1 || slug.indexOf((char)13) > -1)
             throw new IllegalArgumentException(Localizer.get("SLUG.BAD.CHARACTERS"));
-        return setEscapedHeader("Slug", Profile.PATHNODELIMS, slug);
+        return (T)setEscapedHeader("Slug", Profile.PATHNODELIMS, slug);
     }
 
     public <T extends ResponseContext>T setContentType(String type) {
-        return setContentType(type, null);
+        return (T)setContentType(type, null);
     }
 
     public <T extends ResponseContext>T setContentType(String type, String charset) {
         if (type == null) {
-            return removeHeader("Content-Type");
+            return (T)removeHeader("Content-Type");
         }
         try {
             MimeType mimeType = new MimeType(type);
             if (charset != null)
                 mimeType.setParameter("charset", charset);
-            return setHeader("Content-Type", mimeType.toString());
+            return (T)setHeader("Content-Type", mimeType.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -246,7 +246,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setAllow(String method) {
-        return setHeader("Allow", method);
+        return (T)setHeader("Allow", method);
     }
 
     public <T extends ResponseContext>T setAllow(String... methods) {
@@ -256,18 +256,18 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
                 buf.append(", ");
             buf.append(method);
         }
-        return setAllow(buf.toString());
+        return (T)setAllow(buf.toString());
     }
 
     public <T extends ResponseContext>T setWebLinks(WebLink link, WebLink... links) {
-      return setHeader("Link", WebLink.toString(link,links));
+      return (T)setHeader("Link", WebLink.toString(link,links));
     }
     
-    public <B extends ResponseContext>B setPrefer(Preference pref, Preference... prefs) {
-      return setHeader("Prefer", Preference.toString(pref,prefs));
+    public <T extends ResponseContext>T setPrefer(Preference pref, Preference... prefs) {
+      return (T)setHeader("Prefer", Preference.toString(pref,prefs));
     }
     
-    public <B extends ResponseContext>B setPreferApplied(Preference pref, Preference... prefs) {
-      return setHeader("Preference-Applied", Preference.toString(pref,prefs));
+    public <T extends ResponseContext>T setPreferApplied(Preference pref, Preference... prefs) {
+      return (T)setHeader("Preference-Applied", Preference.toString(pref,prefs));
     }
 }

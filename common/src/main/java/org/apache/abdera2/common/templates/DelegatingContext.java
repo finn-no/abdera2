@@ -50,7 +50,7 @@ public abstract class DelegatingContext extends AbstractContext {
     }
 
     public <T> T resolve(String var) {
-      return this.subcontext.resolve(var);
+      return (T)this.subcontext.resolve(var);
     }
 
     public void clear() {

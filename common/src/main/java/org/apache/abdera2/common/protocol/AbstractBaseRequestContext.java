@@ -107,7 +107,7 @@ public abstract class AbstractBaseRequestContext
     }
 
     public <T extends RequestContext>T setAttribute(String name, Object value) {
-        return setAttribute(Scope.REQUEST, name, value);
+        return (T)setAttribute(Scope.REQUEST, name, value);
     }
 
     public String urlFor(Object key, Object param) {
