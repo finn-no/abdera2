@@ -2,11 +2,12 @@ package org.apache.abdera2.test.common.xml;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.StringReader;
+
 import org.apache.abdera2.common.xml.XMLVersion;
 import org.apache.abdera2.common.xml.XmlRestrictedCharReader;
 import org.junit.Test;
 
-import com.sun.xml.internal.messaging.saaj.util.CharReader;
 
 public class XmlTest {
 
@@ -15,9 +16,9 @@ public class XmlTest {
     try {
       char[] data = {0x0,'<','a',0x0, '/', '>'};
       
-      CharReader cr = new CharReader(data,0,5);
+      StringReader sr = new StringReader(new String(data));
       XmlRestrictedCharReader r = 
-        new XmlRestrictedCharReader(cr,XMLVersion.XML10);
+        new XmlRestrictedCharReader(sr,XMLVersion.XML10);
       char[] buf = new char[6];
       int n = r.read(buf);
       assertEquals(4,n);
