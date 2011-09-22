@@ -63,6 +63,10 @@ public class RssLink extends ExtensibleElementWrapper implements Link {
             return Link.REL_ALTERNATE;
         }
     }
+    
+    public String getCanonicalRel() {
+      return getRel();
+    }
 
     public IRI getResolvedHref() {
         return getHref();

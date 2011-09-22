@@ -66,6 +66,10 @@ public class RssEnclosure extends ExtensibleElementWrapper implements Link {
         return "enclosure";
     }
 
+    public String getCanonicalRel() {
+      return getRel();
+    }
+    
     public IRI getResolvedHref() {
         return getHref();
     }

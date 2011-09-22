@@ -34,7 +34,12 @@ import org.apache.abdera2.writer.WriterOptions;
 public class JSONWriter extends AbstractWriter {
 
     public JSONWriter(Abdera abdera) {
-        super("application/json", "application/javascript", "application/ecmascript", "text/javascript", "text/ecmascript");
+        super(
+          "application/json", 
+          "application/javascript", 
+          "application/ecmascript", 
+          "text/javascript", 
+          "text/ecmascript");
     }
 
     @Override

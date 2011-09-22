@@ -128,6 +128,13 @@ public interface Link extends ExtensibleElement {
     String getRel();
 
     /**
+     * Get the canonical rel attribute value (e.g. if the rel is a known 
+     * type but uses the IANA url base, strip that and return just the simple 
+     * name, otherwise, return the full URI form)
+     */
+    String getCanonicalRel();
+    
+    /**
      * <p>
      * RFC4287: atom:link elements MAY have a "rel" attribute that indicates the link relation type. If the "rel"
      * attribute is not present, the link element MUST be interpreted as if the link relation type is "alternate"... The

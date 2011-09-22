@@ -83,6 +83,10 @@ public class RssGuid extends ExtensibleElementWrapper implements IRIElement, Lin
     public String getRel() {
         return Link.REL_ALTERNATE;
     }
+    
+    public String getCanonicalRel() {
+      return getRel();
+    }
 
     public IRI getResolvedHref() {
         return getValue();

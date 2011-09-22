@@ -91,6 +91,13 @@ public class FOMLink extends FOMExtensibleElement implements Link {
     public String getRel() {
         return getAttributeValue(REL);
     }
+    
+    public String getCanonicalRel() {
+      String rel = getRel();
+      if (rel != null && rel.startsWith(IANA_BASE))
+        rel = Link.Helper.getRelEquiv(rel);
+      return rel != null ? rel : Link.REL_ALTERNATE;
+    }
 
     public Link setRel(String rel) {
       complete();
