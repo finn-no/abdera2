@@ -123,6 +123,17 @@ public class FeedToActivityConverter {
     return activity;
   }
   
+  protected String objectType(ExtensibleElement ext) {
+    String objtype = null;
+    if (ext.has(OBJECTTYPE)) {
+      String val = ext.getSimpleExtension(OBJECTTYPE);
+      int n = val.lastIndexOf('/');
+      if (n > -1) val = val.substring(n+1);
+      objtype = val;
+    }
+    return objtype;
+  }
+  
   protected ASObject object(ExtensibleElement ext) {
     ASObject obj = new ASObject();
     if (ext.has(Constants.ID))
@@ -135,12 +146,7 @@ public class FeedToActivityConverter {
       Text text = ext.getExtension(Constants.SUMMARY);
       obj.setSummary(text.getValue());
     }
-    if (ext.has(OBJECTTYPE)) {
-      String val = ext.getSimpleExtension(OBJECTTYPE);
-      int n = val.lastIndexOf('/');
-      if (n > -1) val = val.substring(n+1);
-      obj.setObjectType(val);
-    }
+    obj.setObjectType(objectType(ext));
     LinkRelSelector sel = 
       new LinkRelSelector("alternate","preview");
     List<Link> links = ext.getExtensions(Constants.LINK, sel);
