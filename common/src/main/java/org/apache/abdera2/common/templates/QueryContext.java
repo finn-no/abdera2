@@ -126,6 +126,14 @@ public class QueryContext extends MapContext  {
     return new Template(buf.toString());
   }
   
+  public static Template templateFromIri(IRI iri) {
+    return templateFromQuery(iri.toString(), false, null);
+  }
+  
+  public static Template templateFromIri(IRI iri, Context additionalParams) {
+    return templateFromQuery(iri.toString(), false, additionalParams);
+  }
+  
   public static Template templateFromQuery(String query, boolean fragment, Context additionalParams) {
     Context context = new QueryContext(query);
     if (additionalParams != null)
