@@ -323,6 +323,47 @@ public final class Lang
     public static String fromLocale(Locale locale) {
         return new Lang(locale).toString();
     }
+    
+    public static Lang getDefaultLang() {
+      return new Lang(Locale.getDefault());
+    }
+    
+    private static Lang[] available_langs;
+    static {
+      try {
+         Locale[] available_locales = Locale.getAvailableLocales();
+         available_langs = new Lang[available_locales.length];
+         for (int n = 0; n < available_locales.length; n++) 
+           available_langs[n] = new Lang(available_locales[n]);
+      } catch (Throwable t) {}
+    }
+    
+    public static Lang[] getAvailableLangs() {
+      return available_langs;
+    }
+    
+    public static final Lang CANADA = new Lang(Locale.CANADA);
+    public static final Lang CANADA_FRENCH = new Lang(Locale.CANADA_FRENCH);
+    public static final Lang CHINA = new Lang(Locale.CHINA);
+    public static final Lang CHINESE = new Lang(Locale.CHINESE);
+    public static final Lang ENGLISH = new Lang(Locale.ENGLISH);
+    public static final Lang FRENCH = new Lang(Locale.FRENCH);
+    public static final Lang GERMAN = new Lang(Locale.GERMAN);
+    public static final Lang ITALIAN = new Lang(Locale.ITALIAN);
+    public static final Lang JAPANESE = new Lang(Locale.JAPANESE);
+    public static final Lang KOREAN = new Lang(Locale.KOREAN);
+    public static final Lang SIMPLIFIED_CHINESE = new Lang(Locale.SIMPLIFIED_CHINESE);
+    public static final Lang TRADITIONAL_CHINESE = new Lang(Locale.TRADITIONAL_CHINESE);
+    public static final Lang FRANCE = new Lang(Locale.FRANCE);
+    public static final Lang GERMANY = new Lang(Locale.GERMANY);
+    public static final Lang ITALY = new Lang(Locale.ITALY);
+    public static final Lang JAPAN = new Lang(Locale.JAPAN);
+    public static final Lang KOREA = new Lang(Locale.KOREA);
+    public static final Lang PRC = new Lang(Locale.PRC);
+    public static final Lang TAIWAN = new Lang(Locale.TAIWAN);
+    public static final Lang UK = new Lang(Locale.UK);
+    public static final Lang US = new Lang(Locale.US);
+    
 }
 
 
