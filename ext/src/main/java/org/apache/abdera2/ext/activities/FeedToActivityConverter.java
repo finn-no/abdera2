@@ -47,6 +47,10 @@ public class FeedToActivityConverter {
     convert(feed,writer,null);
   }
   
+  public Activity convert(Entry entry) {
+    return item(entry);
+  }
+  
   public void convert(
     Feed feed, 
     CollectionWriter writer, 

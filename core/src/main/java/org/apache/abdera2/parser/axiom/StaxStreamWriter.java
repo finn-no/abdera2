@@ -120,7 +120,8 @@ public class StaxStreamWriter extends AbstractStreamWriter {
 
     public StreamWriter startDocument(String xmlversion, String charset) {
         try {
-            writer.writeStartDocument(xmlversion, charset);
+            
+            writer.writeStartDocument(charset,xmlversion);
         } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
