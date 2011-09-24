@@ -3,6 +3,7 @@ package org.apache.abdera2.common.http;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,13 +65,18 @@ public class Preference implements Serializable {
   
   private static final long serialVersionUID = -6238673046322517740L;
   private final String token;
-  private String value;
+  private final String value;
   private final Map<String,String> params = 
     new HashMap<String,String>();
   
   public Preference(String token) {
+    this(token,null);
+  }
+  
+  public Preference(String token, String value) {
     CharUtils.verify(token, Profile.TOKEN);
     this.token = token.toLowerCase();
+    this.value = value;
   }
   
   public String getToken() {
@@ -81,10 +87,6 @@ public class Preference implements Serializable {
     return value;
   }
   
-  public void setValue(String value) {
-    this.value = value;
-  }
-
   private static final Set<String> reserved = 
     new HashSet<String>();
   static {
@@ -212,8 +214,7 @@ public class Preference implements Serializable {
           tokenval = Codec.decode(CharUtils.unquote(ps[1]));
       }
       
-      Preference preference = new Preference(token);
-      preference.setValue(tokenval);
+      Preference preference = new Preference(token,tokenval);
       prefs.add(preference);
       
       if (params != null) {
@@ -252,6 +253,10 @@ public class Preference implements Serializable {
     return buf.toString();
   }
   
+  /**
+   * Utility method that checks to see if the given token is included
+   * in the collection of preferences.
+   */
   public static boolean contains(
     Iterable<Preference> preferences, 
     String token) {
@@ -259,5 +264,17 @@ public class Preference implements Serializable {
       if (pref.matches(token))
         return true;
     return false;
+  }
+  
+  /**
+   * Utility method that checks to see if the given token is included
+   * in the collection of preference
+   */
+  public static boolean contains(
+    Iterable<Preference> preferences, 
+    Preference preference) {
+      return preferences instanceof Collection ?
+        ((Collection<Preference>)preferences).contains(preference) :
+        contains(preferences,preference.getToken());
   }
 }
