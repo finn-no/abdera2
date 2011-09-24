@@ -24,9 +24,6 @@ import org.apache.abdera2.common.http.EntityTag;
 
 public abstract class AbstractRequest extends AbstractMessage implements Request {
 
-    protected long max_stale = -1;
-    protected long min_fresh = -1;
-
     public String getAccept() {
         return getHeader("Accept");
     }

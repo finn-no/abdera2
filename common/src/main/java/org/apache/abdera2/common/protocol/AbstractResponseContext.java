@@ -165,7 +165,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setAge(long age) {
-        return (T)(age == -1 ? removeHeader("Age") : setHeader("Age", String.valueOf(age)));
+        return (T)(age <= -1 ? removeHeader("Age") : setHeader("Age", String.valueOf(age)));
     }
 
     public <T extends ResponseContext>T setContentLanguage(String language) {
@@ -173,7 +173,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setContentLength(long length) {
-        return (T)(length == -1 ? removeHeader("Content-Length") : setHeader("Content-Length", String.valueOf(length)));
+        return (T)(length <= -1 ? removeHeader("Content-Length") : setHeader("Content-Length", String.valueOf(length)));
     }
 
     public <T extends ResponseContext>T setContentLocation(String uri) {
