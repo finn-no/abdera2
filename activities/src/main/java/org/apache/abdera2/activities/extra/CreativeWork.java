@@ -5,6 +5,7 @@ import org.apache.abdera2.activities.model.ASObject;
 /**
  * Abstract base class for several extension ASObject types
  */
+@SuppressWarnings("unchecked")
 public abstract class CreativeWork extends ASObject {
 
   private static final long serialVersionUID = -178336535850006357L;
@@ -16,7 +17,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getAbout() {
-    return getProperty("about");
+    return (T)getProperty("about");
   }
   
   public void setAbout(ASObject about) {
@@ -24,7 +25,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getGenre() {
-    return getProperty("genre");
+    return (T)getProperty("genre");
   }
   
   public void setGenre(ASObject genre) {
@@ -32,7 +33,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getPublisher() {
-    return getProperty("publisher");
+    return (T)getProperty("publisher");
   }
   
   public void setPublisher(ASObject publisher) {
@@ -40,7 +41,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getProvider() {
-    return getProperty("provider");
+    return (T)getProperty("provider");
   }
   
   public void setProvider(ASObject provider) {
@@ -48,7 +49,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getContributor() {
-    return getProperty("contributor");
+    return (T)getProperty("contributor");
   }
   
   public void setContributor(ASObject contributor) {
@@ -56,7 +57,7 @@ public abstract class CreativeWork extends ASObject {
   }
   
   public <T extends ASObject>T getEditor() {
-    return getProperty("editor");
+    return (T)getProperty("editor");
   }
   
   public void setEditor(ASObject editor) {

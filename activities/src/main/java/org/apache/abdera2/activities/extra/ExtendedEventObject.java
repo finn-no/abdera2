@@ -9,6 +9,7 @@ import org.apache.abdera2.activities.model.objects.EventObject;
  * define their own objectType names using the Name annotation
  * (@see org.apache.abdera2.common.anno.Name). 
  */
+@SuppressWarnings("unchecked")
 public abstract class ExtendedEventObject extends EventObject {
 
   private static final long serialVersionUID = 8368535995814591315L;
@@ -22,7 +23,7 @@ public abstract class ExtendedEventObject extends EventObject {
   }
   
   public <T extends ASObject>T getOffers() {
-    return getProperty("offers");
+    return (T)getProperty("offers");
   }
   
   public void setOffers(ASObject offers) {
@@ -30,7 +31,7 @@ public abstract class ExtendedEventObject extends EventObject {
   }
   
   public <T extends ASObject>T getSubEvents() {
-    return getProperty("subEvents");
+    return (T)getProperty("subEvents");
   }
   
   public void setSubEvents(ASObject subEvents) {
@@ -38,7 +39,7 @@ public abstract class ExtendedEventObject extends EventObject {
   }
   
   public <T extends ASObject>T getSuperEvent() {
-    return getProperty("superEvent");
+    return (T)getProperty("superEvent");
   }
   
   public void setSuperEvent(ASObject superEvent) {
@@ -46,7 +47,7 @@ public abstract class ExtendedEventObject extends EventObject {
   }
   
   public <T extends ASObject>T getPerformers() {
-    return getProperty("performers");
+    return (T)getProperty("performers");
   }
   
   public void setPerformers(ASObject performers) {

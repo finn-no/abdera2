@@ -18,8 +18,9 @@ public class BookObject extends CreativeWork {
     setDisplayName(displayName);
   }
   
+  @SuppressWarnings("unchecked")
   public <T extends ASObject>T getFormat() {
-    return getProperty("format");
+    return (T)getProperty("format");
   }
   
   public void setFormat(ASObject format) {
@@ -50,8 +51,9 @@ public class BookObject extends CreativeWork {
     setProperty("pageCount", pageCount);
   }
 
+  @SuppressWarnings("unchecked")
   public <T extends ASObject>T getIllustrator() {
-    return getProperty("illustrator");
+    return (T)getProperty("illustrator");
   }
   
   public void setIllustrator(ASObject illustrator) {

@@ -18,6 +18,7 @@ import org.apache.abdera2.common.anno.Name;
   @Property(name="endDate",to=Date.class),
   @Property(name="preview",to=MediaLink.class)
 })
+@SuppressWarnings("unchecked")
 public class TvSeasonObject extends CreativeWork {
 
   private static final long serialVersionUID = -1551754630697817614L;
@@ -29,7 +30,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getActors() {
-    return getProperty("actors");
+    return (T)getProperty("actors");
   }
   
   public void setActor(ASObject actors) {
@@ -37,7 +38,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getDirector() {
-    return getProperty("director");
+    return (T)getProperty("director");
   }
   
   public void setDirector(ASObject object) {
@@ -45,7 +46,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getMusicBy() {
-    return getProperty("musicBy");
+    return (T)getProperty("musicBy");
   }
   
   public void setMusicBy(ASObject musicBy) {
@@ -53,7 +54,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getProducer() {
-    return getProperty("producer");
+    return (T)getProperty("producer");
   }
   
   public void setProducer(ASObject producer) {
@@ -61,7 +62,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getProductionCompany() {
-    return getProperty("productionCompany");
+    return (T)getProperty("productionCompany");
   }
   
   public void setProductionCompany(ASObject org) {
@@ -101,7 +102,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getSeries() {
-    return getProperty("series");
+    return (T)getProperty("series");
   }
   
   public void setSeries(ASObject series) {

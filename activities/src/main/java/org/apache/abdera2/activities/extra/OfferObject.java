@@ -16,6 +16,7 @@ import org.apache.abdera2.common.anno.Name;
   @Property(name="validFrom",to=Date.class),
   @Property(name="validUntil",to=Date.class)
 })
+@SuppressWarnings("unchecked")
 public class OfferObject extends ASObject {
 
   private static final long serialVersionUID = 8693274483912587801L;
@@ -27,7 +28,7 @@ public class OfferObject extends ASObject {
   }
   
   public <T extends ASObject>T getAvailability() {
-    return getProperty("availability");
+    return (T)getProperty("availability");
   }
   
   public void setAvailability(ASObject availability) {
@@ -35,7 +36,7 @@ public class OfferObject extends ASObject {
   }
   
   public <T extends ASObject>T getCondition() {
-    return getProperty("condition");
+    return (T)getProperty("condition");
   }
   
   public void setCondition(ASObject condition) {
@@ -43,7 +44,7 @@ public class OfferObject extends ASObject {
   }
   
   public <T extends ASObject>T getItem() {
-    return getProperty("item");
+    return (T)getProperty("item");
   }
   
   public void setItem(ASObject item) {
@@ -83,7 +84,7 @@ public class OfferObject extends ASObject {
   }
 
   public <T extends ASObject>T getRestriction() {
-    return getProperty("restriction");
+    return (T)getProperty("restriction");
   }
   
   public void setRestriction(ASObject restriction) {

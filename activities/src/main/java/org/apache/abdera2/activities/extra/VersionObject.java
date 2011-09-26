@@ -28,8 +28,9 @@ public class VersionObject
   }
   
   /** The object this object describes a version of **/
+  @SuppressWarnings("unchecked")
   public <T extends ASObject>T getOf() {
-    return getProperty("of");
+    return (T)getProperty("of");
   }
   
   /** The object this object describes a version of **/

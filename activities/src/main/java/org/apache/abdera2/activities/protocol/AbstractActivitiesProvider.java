@@ -35,6 +35,7 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractActivitiesProvider 
   extends BaseProvider
   implements ActivitiesProvider {
@@ -68,7 +69,6 @@ public abstract class AbstractActivitiesProvider
     return typeAdapters;
   }
   
-  @SuppressWarnings("unchecked")
   public <S extends ResponseContext> S createErrorResponse(
     int code,
     String message, 
@@ -85,7 +85,7 @@ public abstract class AbstractActivitiesProvider
 
   @Override
   public <S extends ResponseContext> S process(RequestContext request) {
-    return super.process(
+    return (S)super.process(
       request instanceof ActivitiesRequestContext?
         request:
         new ActivitiesRequestContext(request));

@@ -123,7 +123,7 @@ public abstract class IO {
   
   public <T extends ASBase>T read(InputStream in, String charset) {
     try {
-      return read(new InputStreamReader(in,charset));
+      return (T)read(new InputStreamReader(in,charset));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -142,9 +142,10 @@ public abstract class IO {
       throw new RuntimeException(t);
     }
   }
+  @SuppressWarnings("unchecked")
   public <T extends ASObject> T readObject(InputStream in, String charset) {
     try {
-      return readObject(new InputStreamReader(in,charset));
+      return (T)readObject(new InputStreamReader(in,charset));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }

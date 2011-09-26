@@ -26,8 +26,9 @@ public final class ASContext
     this.base = base;
   }
   
+  @SuppressWarnings("unchecked")
   public <T> T resolve(String var) {
-    return base.getProperty(var);
+    return (T)base.getProperty(var);
   }
 
   public void clear() {

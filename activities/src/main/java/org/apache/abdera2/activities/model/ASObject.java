@@ -293,7 +293,7 @@ public class ASObject extends ASBase {
    * {"embed":{...}}
    */
   public <T extends ASObject>T getEmbed() {
-    return getProperty(EMBED);
+    return (T)getProperty(EMBED);
   }
   
   /**

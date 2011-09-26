@@ -78,9 +78,10 @@ public abstract class AbstractActivitiesWorkspaceProvider
       return (S)rc;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public <S extends ResponseContext> S process(RequestContext request) {
-    return super.process(
+    return (S)super.process(
       request instanceof ActivitiesRequestContext?
         request:
         new ActivitiesRequestContext(request));
