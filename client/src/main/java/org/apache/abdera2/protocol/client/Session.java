@@ -53,6 +53,7 @@ import org.apache.http.util.EntityUtils;
  * consume each ClientResponse before executing an additional request on 
  * the same session.
  */
+@SuppressWarnings("unchecked")
 public class Session {
 
     protected final Client client;
@@ -68,21 +69,10 @@ public class Session {
       return client.getClient();
     }
     
-    @SuppressWarnings("unchecked")
     protected <T extends ClientResponse>T wrap(ClientResponse resp) {
       return (T)resp;
     }
-    
-    /**
-     * Sends an HTTP HEAD request to the specified URI.
-     * 
-     * @param uri The request URI
-     * @param options The request options
-     */
-    public <T extends ClientResponse>T head(String uri, RequestOptions options) {
-        return wrap(execute("HEAD", uri, (HttpEntity)null, options));
-    }
-    
+        
     /**
      * Sends an HTTP GET request to the specified URI.
      * 
@@ -90,7 +80,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T get(String uri, RequestOptions options) {
-        return wrap(execute("GET", uri, (HttpEntity)null, options));
+        return (T)wrap(execute("GET", uri, (HttpEntity)null, options));
     }
 
     /**
@@ -101,7 +91,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, HttpEntity entity, RequestOptions options) {
-        return wrap(execute("POST", uri, entity, options));
+        return (T)wrap(execute("POST", uri, entity, options));
     }
 
     /**
@@ -112,7 +102,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, InputStream in, RequestOptions options) {
-        return wrap(execute("POST", uri, new InputStreamEntity(in,-1), options));
+        return (T)wrap(execute("POST", uri, new InputStreamEntity(in,-1), options));
     }
 
     /**
@@ -123,7 +113,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T put(String uri, HttpEntity entity, RequestOptions options) {
-        return wrap(execute("PUT", uri, entity, options));
+        return (T)wrap(execute("PUT", uri, entity, options));
     }
 
     /**
@@ -134,7 +124,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T put(String uri, InputStream in, RequestOptions options) {
-        return wrap(execute("PUT", uri, new InputStreamEntity(in,-1), options));
+        return (T)wrap(execute("PUT", uri, new InputStreamEntity(in,-1), options));
     }
 
     /**
@@ -144,7 +134,7 @@ public class Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T delete(String uri, RequestOptions options) {
-        return wrap(execute("DELETE", uri, (HttpEntity)null, options));
+        return (T)wrap(execute("DELETE", uri, (HttpEntity)null, options));
     }
 
     /**
@@ -153,7 +143,16 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T head(String uri) {
-        return wrap(head(uri, getDefaultRequestOptions()));
+        return (T)wrap(head(uri, getDefaultRequestOptions()));
+    }
+    
+    /**
+     * Sends an HTTP HEAD request to the specified URI
+     * 
+     * @param uri The request URI
+     */
+    public <T extends ClientResponse>T head(String uri, RequestOptions options) {
+       return (T)wrap(execute("HEAD", uri, (HttpEntity)null, options));
     }
 
     /**
@@ -162,7 +161,7 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T get(String uri) {
-        return wrap(get(uri, getDefaultRequestOptions()));
+        return (T)wrap(get(uri, getDefaultRequestOptions()));
     }
 
     /**
@@ -172,7 +171,7 @@ public class Session {
      * @param entity A RequestEntity object providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, HttpEntity entity) {
-        return wrap(post(uri, entity, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, entity, getDefaultRequestOptions()));
     }
 
     /**
@@ -182,7 +181,7 @@ public class Session {
      * @param in An InputStream providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, InputStream in) {
-        return wrap(post(uri, in, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, in, getDefaultRequestOptions()));
     }
 
     /**
@@ -192,7 +191,7 @@ public class Session {
      * @param entity A RequestEntity object providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, HttpEntity entity) {
-        return wrap(put(uri, entity, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, entity, getDefaultRequestOptions()));
     }
 
     /**
@@ -202,7 +201,7 @@ public class Session {
      * @param in An InputStream providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, InputStream in) {
-        return wrap(put(uri, in, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, in, getDefaultRequestOptions()));
     }
 
     /**
@@ -211,7 +210,7 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T delete(String uri) {
-        return wrap(delete(uri, getDefaultRequestOptions()));
+        return (T)wrap(delete(uri, getDefaultRequestOptions()));
     }
     
     /**
@@ -234,7 +233,7 @@ public class Session {
           new InputStreamEntity(in, -1);
         re.setContentType(
           options.getContentType().toString());
-        return wrap(execute(
+        return (T)wrap(execute(
           method, uri, re, options));
     }
     
@@ -252,7 +251,7 @@ public class Session {
         String uri, 
         InputStream in, 
         RequestOptions options) {
-        return wrap(execute(method.name(),uri,in,options));
+        return (T)wrap(execute(method.name(),uri,in,options));
     }
 
     public <T extends ClientResponse>T execute(
@@ -260,7 +259,7 @@ public class Session {
         String uri, 
         HttpEntity entity, 
         RequestOptions options) {
-      return wrap(execute(method.name(),uri,entity,options));
+      return (T)wrap(execute(method.name(),uri,entity,options));
     }
     
     /**
@@ -290,7 +289,7 @@ public class Session {
             ClientResponse resp = 
               wrap(new ClientResponseImpl(
                 this, response, method, localContext));
-            return checkRequestException(resp, options);
+            return (T)checkRequestException(resp, options);
         } catch (RuntimeException r) {
             throw r;
         } catch (Throwable t) {
@@ -298,7 +297,6 @@ public class Session {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected <T extends ClientResponse>T checkRequestException(ClientResponse response, RequestOptions options) {
       if (response == null)
           return (T)response;

@@ -20,6 +20,7 @@ import org.apache.abdera2.protocol.client.Session;
  * Extension of the base Abdera Client Session that provides utility 
  * methods for working with Activity Streams objects.
  */
+@SuppressWarnings("unchecked")
 public class ActivitiesSession 
   extends Session {
 
@@ -39,28 +40,27 @@ public class ActivitiesSession
   }
 
   public <T extends Collection<?>>T getCollection(String uri) {
-    return getCollection(uri, this.getDefaultRequestOptions());
+    return (T)getCollection(uri, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base) {
-    return post(uri,base, this.getDefaultRequestOptions());
+    return (T)post(uri,base, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base, RequestOptions options) {
     ActivityEntity entity = new ActivityEntity(base);
-    return post(uri, entity, options);
+    return (T)post(uri, entity, options);
   }
 
   public <T extends ClientResponse>T put(String uri, ASBase base) {
-    return put(uri,base, this.getDefaultRequestOptions());
+    return (T)put(uri,base, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T put(String uri, ASBase base, RequestOptions options) {
     ActivityEntity entity = new ActivityEntity(base);
-    return put(uri, entity, options);
+    return (T)put(uri, entity, options);
   }
   
-  @SuppressWarnings("unchecked")
   public <T extends Collection<?>>T getCollection(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {
@@ -86,10 +86,9 @@ public class ActivitiesSession
   }
   
   public <T extends Activity>T getActivity(String uri) {
-    return getActivity(uri,this.getDefaultRequestOptions());
+    return (T)getActivity(uri,this.getDefaultRequestOptions());
   }
   
-  @SuppressWarnings("unchecked")
   public <T extends Activity>T getActivity(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {
@@ -115,10 +114,9 @@ public class ActivitiesSession
   }
   
   public <T extends ASObject>T getObject(String uri) {
-    return getObject(uri, this.getDefaultRequestOptions());
+    return (T)getObject(uri, this.getDefaultRequestOptions());
   }
-  
-  @SuppressWarnings("unchecked")
+
   public <T extends ASObject>T getObject(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {

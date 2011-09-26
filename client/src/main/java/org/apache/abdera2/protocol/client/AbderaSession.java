@@ -38,6 +38,7 @@ import org.apache.http.entity.mime.content.ContentBody;
  * consume each ClientResponse before executing an additional request on 
  * the same session.
  */
+@SuppressWarnings("unchecked")
 public class AbderaSession extends Session {
 
     protected AbderaSession(AbderaClient client) {
@@ -52,7 +53,6 @@ public class AbderaSession extends Session {
       return getAbderaClient().getAbdera();
     }
     
-    @SuppressWarnings("unchecked")
     protected <T extends ClientResponse>T wrap(ClientResponse resp) {
       return (T)(resp instanceof AbderaClientResponseImpl ?
         resp : new AbderaClientResponseImpl(resp));
@@ -66,7 +66,7 @@ public class AbderaSession extends Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, EntityProvider provider, RequestOptions options) {
-        return wrap(post(uri, new EntityProviderEntity(getAbdera(), provider), options));
+        return (T)wrap(post(uri, new EntityProviderEntity(getAbdera(), provider), options));
     }
 
     /**
@@ -82,7 +82,7 @@ public class AbderaSession extends Session {
             if (options.getSlug() == null && d.getSlug() != null)
                 options.setSlug(d.getSlug());
         }
-        return wrap(execute("POST", uri, new AbderaEntity(base), options));
+        return (T)wrap(execute("POST", uri, new AbderaEntity(base), options));
     }
 
     /**
@@ -95,7 +95,7 @@ public class AbderaSession extends Session {
      * @param media The media object that will be sent as the second element of the multipart/related object
      */
     public <T extends ClientResponse>T post(String uri, Entry entry, ContentBody media) {
-        return wrap(post(uri, entry, media, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, entry, media, getDefaultRequestOptions()));
     }
 
     /**
@@ -109,7 +109,7 @@ public class AbderaSession extends Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, Entry entry, ContentBody media, RequestOptions options) {
-        return wrap(post(uri, entry, media, null, options));
+        return (T)wrap(post(uri, entry, media, null, options));
     }
 
     /**
@@ -146,7 +146,7 @@ public class AbderaSession extends Session {
                     options.setIfUnmodifiedSince(lm);
             }
         }
-        return wrap(put(uri, new EntityProviderEntity(getAbdera(), provider), options));
+        return (T)wrap(put(uri, new EntityProviderEntity(getAbdera(), provider), options));
     }
 
     /**
@@ -171,7 +171,7 @@ public class AbderaSession extends Session {
                     options.setIfUnmodifiedSince(d.getLastModified());
             }
         }
-        return wrap(execute("PUT", uri, new AbderaEntity(base), options));
+        return (T)wrap(execute("PUT", uri, new AbderaEntity(base), options));
     }
 
     /**
@@ -181,7 +181,7 @@ public class AbderaSession extends Session {
      * @param provider An EntityProvider implementation providing the payload the request
      */
     public <T extends ClientResponse>T post(String uri, EntityProvider provider) {
-        return wrap(post(uri, provider, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, provider, getDefaultRequestOptions()));
     }
 
     /**
@@ -191,7 +191,7 @@ public class AbderaSession extends Session {
      * @param base A FOM Document or Element providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, Base base) {
-        return wrap(post(uri, base, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, base, getDefaultRequestOptions()));
     }
 
     /**
@@ -201,7 +201,7 @@ public class AbderaSession extends Session {
      * @param provider An EntityProvider implementation providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, EntityProvider provider) {
-        return wrap(put(uri, provider, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, provider, getDefaultRequestOptions()));
     }
 
     /**
@@ -211,7 +211,7 @@ public class AbderaSession extends Session {
      * @param base A FOM Document or Element providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, Base base) {
-        return wrap(put(uri, base, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, base, getDefaultRequestOptions()));
     }
 
     /**
@@ -228,7 +228,7 @@ public class AbderaSession extends Session {
         String uri, 
         Base base, 
         RequestOptions options) {
-        return wrap(execute(
+        return (T)wrap(execute(
             method, 
             uri, 
             new AbderaEntity(base), 
@@ -249,7 +249,7 @@ public class AbderaSession extends Session {
         String uri, 
         Base base, 
         RequestOptions options) {
-        return wrap(execute(
+        return (T)wrap(execute(
             method.name(), 
             uri, 
             new AbderaEntity(base), 
@@ -271,7 +271,7 @@ public class AbderaSession extends Session {
         RequestOptions options) {
         if (options == null)
             options = getDefaultRequestOptions();
-        return wrap(execute(
+        return (T)wrap(execute(
             method, 
             uri, 
             new EntityProviderEntity(getAbdera(), provider), 
@@ -291,10 +291,9 @@ public class AbderaSession extends Session {
         Method method, String uri, 
         EntityProvider provider, 
         RequestOptions options) {
-          return wrap(execute(method.name(),uri,provider,options));
+          return (T)wrap(execute(method.name(),uri,provider,options));
     }
     
-    @SuppressWarnings("unchecked")
     protected <T extends ClientResponse>T checkRequestException(ClientResponse response, RequestOptions options) {
         if (response == null)
             return (T)response;

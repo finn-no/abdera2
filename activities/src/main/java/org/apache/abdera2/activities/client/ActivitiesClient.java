@@ -14,6 +14,7 @@ import org.apache.abdera2.protocol.client.Session;
  * for working with Activity Stream objects. The ActivityClient acts 
  * as a decorator for the base Abdera Client. 
  */
+@SuppressWarnings("unchecked")
 public class ActivitiesClient 
   extends ClientWrapper {
 
@@ -25,7 +26,6 @@ public class ActivitiesClient
     super(client);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T extends Session> T newSession() {
     return (T)new ActivitiesSession(this);
@@ -33,31 +33,31 @@ public class ActivitiesClient
 
   public <T extends Collection<?>>T getCollection(String uri) {
     ActivitiesSession session = newSession();
-    return session.getCollection(uri);
+    return (T)session.getCollection(uri);
   }
   
   public <T extends Collection<?>>T getCollection(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return session.getCollection(uri,options);
+    return (T)session.getCollection(uri,options);
   }
   
   public <T extends Activity>T getActivity(String uri) {
     ActivitiesSession session = newSession();
-    return session.getActivity(uri);
+    return (T)session.getActivity(uri);
   }
   
   public <T extends Activity>T getActivity(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return session.getActivity(uri,options);
+    return (T)session.getActivity(uri,options);
   }
   
   public <T extends ASObject>T getObject(String uri) {
     ActivitiesSession session = newSession();
-    return session.getObject(uri);
+    return (T)session.getObject(uri);
   }
   
   public <T extends ASObject>T getObject(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return session.getObject(uri,options);
+    return (T)session.getObject(uri,options);
   }
 }
