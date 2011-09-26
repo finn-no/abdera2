@@ -276,7 +276,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 return (S)new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
