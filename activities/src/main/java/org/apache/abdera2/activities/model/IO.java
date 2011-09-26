@@ -121,6 +121,7 @@ public abstract class IO {
     }
   }
   
+  @SuppressWarnings("unchecked")
   public <T extends ASBase>T read(InputStream in, String charset) {
     try {
       return (T)read(new InputStreamReader(in,charset));
