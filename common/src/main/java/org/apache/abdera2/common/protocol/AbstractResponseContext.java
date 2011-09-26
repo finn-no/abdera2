@@ -182,7 +182,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
 
     public <T extends ResponseContext>T setSlug(String slug) {
         if (slug == null) {
-            return removeHeader("Slug");
+            return (T)removeHeader("Slug");
         }
         if (slug.indexOf((char)10) > -1 || slug.indexOf((char)13) > -1)
             throw new IllegalArgumentException(Localizer.get("SLUG.BAD.CHARACTERS"));
