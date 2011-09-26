@@ -123,7 +123,7 @@ public class AbderaSession extends Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, Entry entry, ContentBody media, String contentType, RequestOptions options) {
-        return wrap(execute("POST", uri, new MultipartRelatedEntity(entry, media, contentType), options));
+        return (T)wrap(execute("POST", uri, new MultipartRelatedEntity(entry, media, contentType), options));
     }
 
     /**
