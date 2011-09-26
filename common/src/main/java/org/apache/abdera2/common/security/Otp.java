@@ -43,32 +43,41 @@ public abstract class Otp extends KeyBase {
     super(key,8);
   }
 
-  protected abstract String getMaterial();
+  /**
+   * Return the moving factor for this one-time-password. The
+   * moving factor is the "thing that changes" each time the 
+   * password is generated, resulting in a new password each
+   * time generateNext is called. For most applications, this 
+   * should be a 
+   */
+  protected abstract byte[] getMovingFactor();
   
+  /**
+   * Generates the next One-time-password based on the key and
+   * a moving factor retrieved by calling getMovingFactor(). 
+   * The Otp subclass instance is responsible for maintaining 
+   * the state necessary for retrieving the appropriate moving
+   * factor
+   */
   public String generateNext(){
-    String mat = getMaterial();
     int len = Math.max(1, Math.min(9, size));
-    while (mat.length() < 16 )
-      mat = "0" + mat;
-    byte[] h = hmac(dec(mat));
+    byte[] h = hmac(getMovingFactor());
     int o = h[h.length - 1] & 0xf;
-    int binary =
-        ((h[o] & 0x7f) << 24) |
+    return pad(
+      Integer.toString(
+        (((h[o] & 0x7f) << 24) |
         ((h[o + 1] & 0xff) << 16) |
         ((h[o + 2] & 0xff) << 8) |
-        (h[o + 3] & 0xff);
-    int otp = binary % (int)Math.pow(10, len);
-    String r = Integer.toString(otp);
-    while (r.length() < len)
-        r = "0" + r;
-    return r;
-  }
+        (h[o + 3] & 0xff))
+          % (int)Math.pow(10, len)),
+      len,'0');
+  } 
   
   /**
    * Utility implementation of the Time-based One Time Password (TOTP) 
    * algorithm. 
    */
-  public static final class Totp extends Otp {
+  public static class Totp extends Otp {
 
     private final int step;
     
@@ -118,11 +127,10 @@ public abstract class Otp extends KeyBase {
     }
 
     @Override
-    protected String getMaterial() {
+    protected byte[] getMovingFactor() {
       long t = (System.currentTimeMillis() / 1000l) / step;
       String r = Long.toHexString(t);
-      while(r.length()<16) r = "0"+r;
-      return r;
+      return dec(pad(r,16,'0'));
     }
   }
 }

@@ -65,11 +65,13 @@ public abstract class KeyBase {
     }
   }
   
-  protected byte[] hmac(byte[] mat){
+  protected byte[] hmac(byte[]... mat){
     try {
       Mac hmac = Mac.getInstance(alg);
       hmac.init(key);
-      return hmac.doFinal(mat);
+      for (byte[] m : mat)
+        hmac.update(m);
+      return hmac.doFinal();
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -80,5 +82,11 @@ public abstract class KeyBase {
     byte[] buf = new byte[count];
     random.nextBytes(buf);
     return buf;
+  }
+  
+  protected String pad(String s, int len, char c) {
+    while(s.length()<len)
+      s = c + s;
+    return s;
   }
 }
