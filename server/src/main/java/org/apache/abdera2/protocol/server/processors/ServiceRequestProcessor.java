@@ -41,13 +41,14 @@ import org.apache.abdera2.writer.StreamWriter;
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for service
  * documents.
  */
+@SuppressWarnings("unchecked")
 public class ServiceRequestProcessor 
   implements RequestProcessor {
 
     public <S extends ResponseContext> S process(
         RequestContext request, WorkspaceManager workspaceManager,
         CollectionAdapter collectionAdapter) {
-      return this.processService(request, workspaceManager);
+      return (S)this.processService(request, workspaceManager);
     }
   
     private <S extends ResponseContext>S processService(
@@ -55,7 +56,7 @@ public class ServiceRequestProcessor
         WorkspaceManager workspaceManager) {
         String method = context.getMethod();
         if (method.equalsIgnoreCase("GET")) {
-            return this.getServiceDocument(context, workspaceManager);
+            return (S)this.getServiceDocument(context, workspaceManager);
         } else {
             return null;
         }

@@ -38,7 +38,7 @@ public class CategoriesRequestProcessor implements RequestProcessor {
         if (collectionAdapter == null || !(collectionAdapter instanceof AtompubCollectionAdapter)) {
             return (S)ProviderHelper.notfound(context);
         } else {
-            return this.processCategories(context, collectionAdapter);
+            return (S)this.processCategories(context, collectionAdapter);
         }
     }
 

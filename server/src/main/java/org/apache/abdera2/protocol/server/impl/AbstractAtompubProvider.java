@@ -286,6 +286,6 @@ public abstract class AbstractAtompubProvider
 
     @Override
     public <S extends ResponseContext> S process(RequestContext request) {
-      return super.process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
+      return (S)super.process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
     }
 }

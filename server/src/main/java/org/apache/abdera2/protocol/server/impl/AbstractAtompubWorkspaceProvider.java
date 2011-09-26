@@ -34,6 +34,7 @@ import org.apache.abdera2.protocol.server.model.AtompubWorkspaceManager;
 import org.apache.abdera2.protocol.server.processors.CategoriesRequestProcessor;
 import org.apache.abdera2.protocol.server.processors.ServiceRequestProcessor;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractAtompubWorkspaceProvider 
   extends AbstractWorkspaceProvider
   implements AtompubProvider, 
@@ -62,13 +63,12 @@ public abstract class AbstractAtompubWorkspaceProvider
     return abdera;
   }
 
-  @SuppressWarnings("unchecked")
   public <S extends ResponseContext>S createErrorResponse(int code, String message, Throwable t) {
     return (S)AbstractAtompubProvider.createErrorResponse(abdera,code,message,t);
   }
   
   @Override
   public <S extends ResponseContext> S process(RequestContext request) {
-    return super.process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
+    return (S)super.process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
   }
 }

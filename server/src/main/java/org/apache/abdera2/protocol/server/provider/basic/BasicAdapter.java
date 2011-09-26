@@ -117,7 +117,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
     }
 
     public <S extends ResponseContext>S postItem(RequestContext request) {
-        return createOrUpdateEntry(request, true);
+        return (S)createOrUpdateEntry(request, true);
     }
 
     public <S extends ResponseContext>S deleteItem(RequestContext request) {
@@ -131,7 +131,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
     }
 
     public <S extends ResponseContext>S putItem(RequestContext request) {
-        return createOrUpdateEntry(request, false);
+        return (S)createOrUpdateEntry(request, false);
     }
 
     public <S extends ResponseContext>S getItem(RequestContext request) {

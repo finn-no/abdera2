@@ -78,7 +78,7 @@ public abstract class AbstractAtompubCollectionAdapter
      * Location, Content-Location, Etag and status are set appropriately.
      */
     protected <S extends ResponseContext>S buildPostMediaEntryResponse(String link, Entry entry) {
-        return buildCreateEntryResponse(link, entry);
+        return (S)buildCreateEntryResponse(link, entry);
     }
 
     /**

@@ -80,7 +80,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
 
     @Override
     public <S extends ResponseContext>S postMedia(RequestContext request) {
-        return createMediaEntry(request);
+        return (S)createMediaEntry(request);
     }
 
     @Override
@@ -95,7 +95,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
         } catch (IOException e) {
             return (S)new EmptyResponseContext(500);
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
@@ -115,7 +115,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
     }
 
     public <S extends ResponseContext>S postItem(RequestContext request) {
-        return createNonMediaEntry(request);
+        return (S)createNonMediaEntry(request);
     }
 
     protected String getLink(T entryObj, IRI feedIri, RequestContext request) throws ResponseContextException {
@@ -176,7 +176,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
             try {
                 deleteEntry(id, request);
             } catch (ResponseContextException e) {
-                return createErrorResponse(e);
+                return (S)createErrorResponse(e);
             }
 
             return (S)new EmptyResponseContext(204);
@@ -200,7 +200,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
             try {
                 deleteMedia(resourceName, request);
             } catch (ResponseContextException e) {
-                return createErrorResponse(e);
+                return (S)createErrorResponse(e);
             }
 
             return (S)new EmptyResponseContext(204);
@@ -248,12 +248,12 @@ public abstract class AbstractEntityCollectionAdapter<T>
         try {
             Entry entry = getEntryFromCollectionProvider(request);
             if (entry != null) {
-                return buildGetEntryResponse(request, entry);
+                return (S)buildGetEntryResponse(request, entry);
             } else {
                 return (S)new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
@@ -271,7 +271,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
             T entryObj = getEntry(resourceName, request);
 
             if (entryObj != null) {
-                return buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
+                return (S)buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
             } else {
                 return (S)new EmptyResponseContext(404);
             }
@@ -286,12 +286,12 @@ public abstract class AbstractEntityCollectionAdapter<T>
             T entryObj = getEntry(resourceName, request);
 
             if (entryObj != null) {
-                return buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
+                return (S)buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
             } else {
                 return (S)new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
@@ -301,9 +301,9 @@ public abstract class AbstractEntityCollectionAdapter<T>
 
             addFeedDetails(feed, request);
 
-            return buildGetFeedResponse(feed);
+            return (S)buildGetFeedResponse(feed);
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
@@ -353,13 +353,13 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 return (S)new EmptyResponseContext(404);
             }
 
-            return buildGetMediaResponse(resource, entryObj);
+            return (S)buildGetMediaResponse(resource, entryObj);
         } catch (ParseException pe) {
             return (S)new EmptyResponseContext(415);
         } catch (ClassCastException cce) {
             return (S)new EmptyResponseContext(415);
         } catch (ResponseContextException e) {
-            return e.getResponseContext();
+            return (S)e.getResponseContext();
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
             return (S)new EmptyResponseContext(400);
@@ -450,7 +450,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 return (S)new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         } catch (ParseException pe) {
             return (S)new EmptyResponseContext(415);
         } catch (ClassCastException cce) {
@@ -575,11 +575,11 @@ public abstract class AbstractEntityCollectionAdapter<T>
             addMediaContent(feedUri, entry, entryObj, request);
 
             String location = getLink(entryObj, feedUri, request, true);
-            return buildPostMediaEntryResponse(location, entry);
+            return (S)buildPostMediaEntryResponse(location, entry);
         } catch (IOException e) {
             return (S)new EmptyResponseContext(500);
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
@@ -609,12 +609,12 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 entry.addLink(link, "edit");
 
                 String location = getLink(entryObj, feedUri, request, true);
-                return buildCreateEntryResponse(location, entry);
+                return (S)buildCreateEntryResponse(location, entry);
             } else {
                 return (S)new EmptyResponseContext(400);
             }
         } catch (ResponseContextException e) {
-            return createErrorResponse(e);
+            return (S)createErrorResponse(e);
         }
     }
 
