@@ -198,7 +198,7 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
 
     public <T extends Element> T setLanguage(String language) {
       complete();
-        return setAttributeValue(LANG, language);
+        return (T)setAttributeValue(LANG, language);
     }
 
     public IRI getBaseUri() {
@@ -230,7 +230,7 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
 
     public <T extends Element> T setBaseUri(IRI base) {
       complete();
-        return setAttributeValue(BASE, _getStringValue(base));
+        return (T)setAttributeValue(BASE, _getStringValue(base));
     }
 
     public <T extends Element> T setBaseUri(String base) {
@@ -369,7 +369,7 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
     }
 
     public <T extends Element> T setAttributeValue(String name, String value) {
-        return setAttributeValue(new QName(name), value);
+        return (T)setAttributeValue(new QName(name), value);
     }
 
     protected void _setElementValue(QName qname, String value) {

@@ -857,21 +857,21 @@ public class FOMFactory extends OMLinkedListImplFactory
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return newElement(qname);
+      return (T)newElement(qname);
     }
 
     public <T extends Element> T newElement(Class<?> _class, Base parent) {
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return newElement(qname,parent);
+      return (T)newElement(qname,parent);
     }
 
     public <T extends Element> T newExtensionElement(Class<?> _class) {
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return newExtensionElement(qname);
+      return (T)newExtensionElement(qname);
     }
 
     public <T extends Element> T newExtensionElement(Class<?> _class,
@@ -879,7 +879,7 @@ public class FOMFactory extends OMLinkedListImplFactory
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return newExtensionElement(qname,parent);
+      return (T)newExtensionElement(qname,parent);
     }
 
 }

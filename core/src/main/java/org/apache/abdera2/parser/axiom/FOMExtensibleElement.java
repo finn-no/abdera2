@@ -141,7 +141,7 @@ public class FOMExtensibleElement extends FOMElement implements ExtensibleElemen
     public <T extends Element> T getExtension(Class<T> _class) {
       QName qname = AnnoUtil.getQName(_class);
       if (qname != null) {
-        return getExtension(qname);
+        return (T)getExtension(qname);
       } else {
         T t = null;
         List<Element> extensions = getExtensions();
@@ -220,13 +220,13 @@ public class FOMExtensibleElement extends FOMElement implements ExtensibleElemen
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return addExtension(qname);
+      return (T)addExtension(qname);
     }
 
     public <T extends Element> T addExtension(Class<T> _class, QName before) {
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return addExtension(_class,before);
+      return (T)addExtension(_class,before);
     }
 }

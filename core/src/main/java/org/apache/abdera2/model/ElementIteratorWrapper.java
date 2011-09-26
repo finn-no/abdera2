@@ -57,7 +57,7 @@ public class ElementIteratorWrapper<T extends Element> implements Iterator<T> {
     public T next() {
       T item = current;
       current = get_current();
-      return factory.getElementWrapper(item);
+      return (T)factory.getElementWrapper(item);
     }
 
     public void remove() {
