@@ -146,7 +146,8 @@ public class QueryContext extends MapContext  {
   public static String baseFromQuery(String query) {
     IRI iri = new IRI(query);
     String s = iri.resolve(iri.getPath()).toString();
-    return s.equals(query) ? "" : s;
+    //return s.equals(query) ? "" : s;
+    return s;
   }
   
   public static String expandQuery(String query, Context context) {

@@ -115,8 +115,8 @@ public class Expression
           VarSpec spec = new VarSpec(vt.group(1),vt.group(2));
           varspecs.add(spec);
         } else {
-          throw new IllegalArgumentException(
-            "Invalid Expression: Invalid variable spec");
+          //throw new IllegalArgumentException(
+          //  "Invalid Expression: Invalid variable spec");
         }
       }
     } else {
