@@ -37,9 +37,7 @@ public class ErrorObject extends ASObject {
   public String getObjectType() {
     return TYPE;
   }
-  public void setObjectType(String objectType) {
-    throw new IllegalStateException();
-  }
+  public void setObjectType(String objectType) {}
   public int getCode() {
     return (Integer)getProperty("code");
   }
