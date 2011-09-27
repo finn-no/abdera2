@@ -94,7 +94,7 @@ public class TvSeasonObject extends CreativeWork {
   }
   
   public <T extends ASObject>T getEpisodes() {
-    return getProperty("episodes");
+    return (T)getProperty("episodes");
   }
   
   public void setEpisodes(ASObject episodes) {

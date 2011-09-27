@@ -15,7 +15,7 @@ public abstract class ExtendedEventObject extends EventObject {
   private static final long serialVersionUID = 8368535995814591315L;
 
   public <T extends ASObject>T getHost() {
-    return getProperty("host");
+    return (T)getProperty("host");
   }
   
   public void setHost(ASObject host) {
