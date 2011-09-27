@@ -41,6 +41,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 
@@ -154,6 +155,14 @@ public class KeyHelper {
         return prepareJceProvider(provider);
       } catch (Exception e) {
         return false;
+      }
+    }
+    
+    public static SecretKeySpec decodeSecretKeySpec(String hex) {
+      try {
+        return new SecretKeySpec(Hex.decodeHex(hex.toCharArray()),"RAW");
+      } catch (Throwable t) {
+        throw new RuntimeException(t);
       }
     }
 }
