@@ -1,4 +1,5 @@
 package org.apache.abdera2.common.security;
+import java.security.Key;
 import java.security.SecureRandom;
 
 import javax.crypto.Mac;
@@ -11,21 +12,21 @@ public abstract class KeyBase {
   public static final String DEFAULT_ALG="HmacSHA256";
   public static final int DEFAULT_SIZE=256;
   
-  protected final SecretKeySpec key;
+  protected final Key key;
   protected final String alg;
   protected final int size;
   
   public abstract String generateNext();
   
-  public KeyBase(SecretKeySpec key) {
+  public KeyBase(Key key) {
     this(key,DEFAULT_ALG,DEFAULT_SIZE);
   }
   
-  public KeyBase(SecretKeySpec key, int size) {
+  public KeyBase(Key key, int size) {
     this(key,DEFAULT_ALG,size);
   }
   
-  public KeyBase(SecretKeySpec key, String alg, int size) { 
+  public KeyBase(Key key, String alg, int size) { 
     this.key = key;
     this.alg = alg;
     this.size = size;

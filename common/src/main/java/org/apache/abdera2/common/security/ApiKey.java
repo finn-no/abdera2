@@ -1,5 +1,7 @@
 package org.apache.abdera2.common.security;
 
+import java.security.Key;
+
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
@@ -18,15 +20,15 @@ public class ApiKey extends KeyBase {
     super(key, alg, size);
   }
 
-  public ApiKey(SecretKeySpec key, int size) {
+  public ApiKey(Key key, int size) {
     super(key, size);
   }
 
-  public ApiKey(SecretKeySpec key, String alg, int size) {
+  public ApiKey(Key key, String alg, int size) {
     super(key, alg, size);
   }
 
-  public ApiKey(SecretKeySpec key) {
+  public ApiKey(Key key) {
     super(key);
   }
 
