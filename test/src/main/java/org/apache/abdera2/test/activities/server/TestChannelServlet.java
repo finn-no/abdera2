@@ -1,6 +1,5 @@
 package org.apache.abdera2.test.activities.server;
 
-import java.io.IOException;
 import java.io.Writer;
 
 import javax.servlet.AsyncContext;
@@ -28,15 +27,8 @@ public class TestChannelServlet
   protected AsyncListener<ASObject> createListener(final AsyncContext context) {
     return new AsyncListener<ASObject>(context) {
 
-      public void beforeItems() {
-        try {
-          HttpServletResponse response = 
-            (HttpServletResponse) context.getResponse();
-          Writer writer = response.getWriter();
-          writer.write("{\"items\":[");
-          response.flushBuffer();
-        } catch (IOException e) {}
-      }
+      public void beforeItems() {}
+      protected void finish() {}
       public void onItem(ASObject t) {
         try {
           HttpServletResponse response = 
@@ -44,16 +36,8 @@ public class TestChannelServlet
           Writer writer = response.getWriter();
           IO.get().write(t,writer);
           response.flushBuffer();
+          context.complete(); // close out the request, make the user come back for more
         } catch (Throwable e) {}
-      }
-      protected void finish() {
-        try {
-          HttpServletResponse response = 
-            (HttpServletResponse) context.getResponse();
-          Writer writer = response.getWriter();
-          writer.write("]}");
-          response.flushBuffer();
-        } catch (IOException e) {}
       }
     };
   }

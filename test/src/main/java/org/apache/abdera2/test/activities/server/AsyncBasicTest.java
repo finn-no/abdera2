@@ -87,11 +87,9 @@ public class AsyncBasicTest {
     @Test
     public void testPostEntry() throws IOException {
       
-      
         try {
           Thread.sleep(20 * 1000);
         } catch (Throwable t) {}
-      
       
         Activity activity = new Activity();
         activity.setId("http://localhost:9002/sample/foo");

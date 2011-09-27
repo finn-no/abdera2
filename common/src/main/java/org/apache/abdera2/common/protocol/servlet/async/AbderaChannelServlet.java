@@ -71,13 +71,11 @@ public abstract class AbderaChannelServlet extends HttpServlet {
                 context.addListener(
                   new javax.servlet.AsyncListener() {
                     public void onComplete(AsyncEvent event) throws IOException {
-                      System.out.println("on complete");
                       try {
                         receiver.stopListening(listener);
                       } catch (Throwable t) {}
                     }
                     public void onError(AsyncEvent event) throws IOException {
-                      System.out.println("on error");
                       event.getThrowable().printStackTrace();
                       try {
                         receiver.stopListening(listener);
@@ -87,7 +85,6 @@ public abstract class AbderaChannelServlet extends HttpServlet {
                         throws IOException {
                     }
                     public void onTimeout(AsyncEvent event) throws IOException {
-                      System.out.println("on timeout");
                       try {
                         receiver.stopListening(listener);
                       } catch (Throwable t) {}
@@ -137,14 +134,15 @@ public abstract class AbderaChannelServlet extends HttpServlet {
     
     public void afterItems() {
       if (!done) {
-      try {
-        finish();
-        getResponse().flushBuffer();
-      } catch (Throwable t) {
-        // whoops, must have lost the connection before the request completed.
-      }
-      context.complete();
-      done = true;
+        try {
+          finish();
+          getResponse().flushBuffer();
+          context.complete();
+        } catch (Throwable t) {
+          // whoops, must have lost the connection before the request completed.
+        } finally {
+          done = true;
+        }
       }
     }
     
