@@ -1,6 +1,5 @@
 package org.apache.abdera2.common.security;
-import javax.crypto.spec.SecretKeySpec;
-
+import java.security.Key;
 
 /**
  * Utility class for generating One-Time-Passwords using the HOTP algorithm
@@ -19,15 +18,15 @@ public abstract class Otp extends KeyBase {
     super(key, alg, size);
   }
 
-  protected Otp(SecretKeySpec key, int size) {
+  protected Otp(Key key, int size) {
     super(key, size);
   }
 
-  protected Otp(SecretKeySpec key, String alg, int size) {
+  protected Otp(Key key, String alg, int size) {
     super(key, alg, size);
   }
 
-  protected Otp(SecretKeySpec key) {
+  protected Otp(Key key) {
     super(key,8);
   }
 
@@ -96,17 +95,17 @@ public abstract class Otp extends KeyBase {
       this.step = step;
     }
 
-    public Totp(int step, SecretKeySpec key, int size) {
+    public Totp(int step, Key key, int size) {
       super(key, size);
       this.step = step;
     }
 
-    public Totp(int step, SecretKeySpec key, String alg, int size) {
+    public Totp(int step, Key key, String alg, int size) {
       super(key, alg, size);
       this.step = step;
     }
 
-    public Totp(int step, SecretKeySpec key) {
+    public Totp(int step, Key key) {
       super(key);
       this.step = step;
     }
