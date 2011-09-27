@@ -73,7 +73,7 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
             BaseRequestContextWrapper rcw = new BaseRequestContextWrapper(request);
             rcw.setAttribute("offset", 10);
             rcw.setAttribute("count", 10);
-            return chain.next(rcw);
+            return (S)chain.next(rcw);
         }
     }
 
