@@ -26,9 +26,15 @@ public final class ASContext
     this.base = base;
   }
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> T resolve(String var) {
-    return (T)base.getProperty(var);
+    Object obj = base.getProperty(var);
+    if (obj instanceof Iterable) {
+      return (T)new IterableWrapper((Iterable)obj);
+    }
+    return obj instanceof ASBase ? 
+      (T)new ASContext((ASBase)obj) :
+      (T)base.getProperty(var);
   }
 
   public void clear() {
@@ -41,5 +47,50 @@ public final class ASContext
 
   public Iterator<String> iterator() {
     return base.iterator();
+  }
+  
+  @SuppressWarnings("rawtypes")
+  public static class IterableWrapper 
+    implements Iterable {
+
+    private final Iterable i;
+    
+    IterableWrapper(Iterable i) {
+      this.i = i;
+    }
+    
+    public Iterator iterator() {
+      return new IteratorWrapper(i.iterator());
+    }
+    
+  }
+  
+  @SuppressWarnings("rawtypes")
+  public static class IteratorWrapper 
+    implements Iterator {
+
+    private final Iterator i;
+    
+    IteratorWrapper(Iterator i) {
+      this.i = i;
+    }
+    
+    public boolean hasNext() {
+      return i.hasNext();
+    }
+
+    public Object next() {
+      Object obj = i.next();
+      if (obj instanceof ASBase) 
+        return new ASContext((ASBase)obj);
+      if (obj instanceof Iterable)
+        return new IterableWrapper((Iterable)obj);
+      return obj;
+    }
+
+    public void remove() {
+      i.remove();
+    }
+    
   }
 }
