@@ -58,7 +58,7 @@ public class SignedRequestFilter implements Filter {
             } catch (Exception e) {
             }
         }
-        return chain.next(context);
+        return (S)chain.next(context);
     }
 
 }

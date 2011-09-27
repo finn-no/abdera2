@@ -58,7 +58,7 @@ public abstract class AbstractEncryptedResponseFilter implements Filter {
         if (doEncryption(request, arg)) {
             return (S)new EncryptingResponseContext(AbstractAtompubProvider.getAbdera(request), request, chain.next(request), arg);
         } else {
-            return chain.next(request);
+            return (S)chain.next(request);
         }
     }
 

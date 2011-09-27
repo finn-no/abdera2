@@ -37,6 +37,7 @@ import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractEncryptedRequestFilter implements Filter {
 
     // The methods that allow encrypted bodies
@@ -64,9 +65,9 @@ public abstract class AbstractEncryptedRequestFilter implements Filter {
         bootstrap(request);
         String method = request.getMethod();
         if (methods.contains(method.toUpperCase())) {
-            return chain.next(new DecryptingRequestContextWrapper(request));
+            return (S)chain.next(new DecryptingRequestContextWrapper(request));
         } else
-            return chain.next(request);
+            return (S)chain.next(request);
     }
 
     protected abstract void bootstrap(RequestContext request);
@@ -79,7 +80,6 @@ public abstract class AbstractEncryptedRequestFilter implements Filter {
         public DecryptingRequestContextWrapper(RequestContext request) {
             super(request);
         }
-        @SuppressWarnings("unchecked")
         public <T extends Element> Document<T> getDocument(Parser parser, ParserOptions options) throws ParseException,
             IOException {
             Document<Element> doc = super.getDocument();
