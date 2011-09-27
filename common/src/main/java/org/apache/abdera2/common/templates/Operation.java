@@ -257,10 +257,22 @@ public abstract class Operation implements Serializable {
                 throw new RuntimeException(e);
             }
         } else if (val instanceof CharSequence) {
-            val = normalize((CharSequence)val);
+            val = trim(normalize((CharSequence)val),len);
             return encode((CharSequence)val, context.isIri(), reserved);
         } else if (val instanceof Byte) {
             return UrlEncoding.encode(((Byte)val).byteValue());
+        } else if (val instanceof Context) {
+          StringBuilder buf = new StringBuilder();
+          Context ctx = (Context) val;
+          for (String name : ctx) {
+            String _val = toString(ctx.resolve(name), context, reserved, false, null, null, len);
+            if (buf.length() > 0)
+              buf.append(explode && explodeDelim != null ? explodeDelim : ",");
+            buf.append(name)
+               .append(explode ? '=' : ',')
+               .append(_val);
+          }
+          return buf.toString();
         } else if (val instanceof Iterable) {
             StringBuilder buf = new StringBuilder();
             Iterable<Object> i = (Iterable<Object>)val;
@@ -453,7 +465,8 @@ public abstract class Operation implements Serializable {
             boolean first = true;
             buf.append("?");
             for (VarSpec varspec : exp) {
-              String val = eval(varspec, context, false, "&", varspec.getName() + "=");
+              //String val = eval(varspec, context, false, "&", varspec.getName() + "=");
+              String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
                 if (!first) buf.append('&');
                 if ((val != null && !varspec.isExplode()) || varspec.isNoval()) {
@@ -478,8 +491,10 @@ public abstract class Operation implements Serializable {
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
             for (VarSpec varspec : exp) {
-              String val = eval(varspec, context, false, "&", varspec.getName() + "=");
+              //String val = eval(varspec, context, false, "&", varspec.getName() + "=");
+              String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
+                if (varspec.isExplode()) buf.append('&');
                 if ((val != null && !varspec.isExplode()) || varspec.isNoval())
                   buf.append('&').append(varspec.getName());
                 if (val != null && !varspec.isExplode() && (!varspec.isNoval() || val.length() > 0) )
