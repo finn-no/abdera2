@@ -24,9 +24,9 @@ import java.security.interfaces.RSAPublicKey;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.protocol.ResponseContext;
+import org.apache.abdera2.common.security.KeyHelper;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
-import org.apache.abdera2.security.util.KeyHelper;
 import org.apache.xml.security.encryption.XMLCipher;
 
 /**

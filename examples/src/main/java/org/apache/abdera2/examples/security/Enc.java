@@ -21,13 +21,13 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.security.KeyHelper;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
-import org.apache.abdera2.security.util.KeyHelper;
 
 public class Enc {
 

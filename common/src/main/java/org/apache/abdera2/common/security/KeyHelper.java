@@ -15,7 +15,7 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.security.util;
+package org.apache.abdera2.common.security;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
