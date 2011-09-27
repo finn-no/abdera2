@@ -69,6 +69,7 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
     }
 
     public class SimpleFilter implements Filter {
+        @SuppressWarnings("unchecked")
         public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
             BaseRequestContextWrapper rcw = new BaseRequestContextWrapper(request);
             rcw.setAttribute("offset", 10);
