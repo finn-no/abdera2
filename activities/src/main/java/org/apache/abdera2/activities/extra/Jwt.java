@@ -190,7 +190,7 @@ public class Jwt {
   }
   
   public static ASBase getClaimIfValid(IO io, Key key, String jwt) throws IOException {
-    if (!validate(key,jwt)) return null;
+    if (!validate(key,io,jwt)) return null;
     String[] parts = jwt.split("\\.",3);
     return dec(io, parts[1]);
   }
