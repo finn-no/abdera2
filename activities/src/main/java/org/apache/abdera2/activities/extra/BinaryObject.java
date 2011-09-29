@@ -98,6 +98,9 @@ public class BinaryObject extends FileObject {
    * The getInputStream method will automatically search for the 
    * "compression" property and attempt to automatically decompress
    * the stream when reading.
+   * 
+   * This will also automatically set the "length" property equal 
+   * to the total number of uncompressed, unencoded octets.
    */
   public void setContent(InputStream data, Hasher hash, CompressionCodec... comps) throws IOException {
     ByteArrayOutputStream out = 
@@ -111,14 +114,16 @@ public class BinaryObject extends FileObject {
     }
     
     byte[] d = new byte[1024];
-    int r = -1;
+    int r = -1, len = 0;
     while((r = data.read(d)) > -1) { 
+      len += r;
       if (hash != null)
         hash.update(d, 0, r);
       bout.write(d, 0, r);
       bout.flush();
     }
     bout.close();
+    setProperty("length",len);
     String c = new String(out.toByteArray(),"UTF-8");
     super.setContent(c);
     if (hash != null)
