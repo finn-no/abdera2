@@ -52,12 +52,12 @@ public class BinaryObject extends FileObject {
     setDisplayName(displayName);
   }
     
-  public void setContent(DataHandler data, CompressionCodec... comps) throws IOException {
-    setContent(data,(Hasher)null,comps);
+  public void setData(DataHandler data, CompressionCodec... comps) throws IOException {
+    setData(data,(Hasher)null,comps);
   }
   
-  public void setContent(byte[] data, Hasher hash, CompressionCodec... comps) throws IOException {
-    setContent(new ByteArrayInputStream(data),hash,comps);
+  public void setData(byte[] data, Hasher hash, CompressionCodec... comps) throws IOException {
+    setData(new ByteArrayInputStream(data),hash,comps);
   }
   
   /**
@@ -70,13 +70,13 @@ public class BinaryObject extends FileObject {
    * and use a custom TypeAdapter for the BinaryObject to read and
    * consume the DataHandler during the actual Serialization.
    */
-  public void setContent(DataHandler data,Hasher hash, CompressionCodec... comps) throws IOException {
-    setContent(data.getInputStream(),hash,comps);
+  public void setData(DataHandler data,Hasher hash, CompressionCodec... comps) throws IOException {
+    setData(data.getInputStream(),hash,comps);
     setMimeType(data.getContentType());
   }
   
-  public void setContent(InputStream data) throws IOException {
-    setContent(data,null);
+  public void setData(InputStream data) throws IOException {
+    setData(data,null);
   }
   
   /**
@@ -102,7 +102,7 @@ public class BinaryObject extends FileObject {
    * This will also automatically set the "length" property equal 
    * to the total number of uncompressed, unencoded octets.
    */
-  public void setContent(InputStream data, Hasher hash, CompressionCodec... comps) throws IOException {
+  public void setData(InputStream data, Hasher hash, CompressionCodec... comps) throws IOException {
     ByteArrayOutputStream out = 
       new ByteArrayOutputStream();
     OutputStream bout = 
@@ -125,7 +125,7 @@ public class BinaryObject extends FileObject {
     bout.close();
     setProperty("length",len);
     String c = new String(out.toByteArray(),"UTF-8");
-    super.setContent(c);
+    super.setProperty("data",c);
     if (hash != null)
       setProperty(
         hash.name(),
@@ -138,7 +138,7 @@ public class BinaryObject extends FileObject {
    * only decoded as the InputStream is consumed.
    */
   public InputStream getInputStream() throws IOException {
-    String content = super.getContent();
+    String content = super.getProperty("data");
     if (content == null) return null;
     ByteArrayInputStream in = 
       new ByteArrayInputStream(
@@ -152,16 +152,16 @@ public class BinaryObject extends FileObject {
     return bin;
   }
   
-  public void setContent(byte[] data, CompressionCodec... comps) throws IOException {
-    setContent(new ByteArrayInputStream(data),null,comps);
+  public void setData(byte[] data, CompressionCodec... comps) throws IOException {
+    setData(new ByteArrayInputStream(data),null,comps);
   }
   
-  public void setContent(byte[] data, int s, int e, CompressionCodec... comps) throws IOException {
-    setContent(new ByteArrayInputStream(data,s,e),null,comps);
+  public void setData(byte[] data, int s, int e, CompressionCodec... comps) throws IOException {
+    setData(new ByteArrayInputStream(data,s,e),null,comps);
   }
   
-  public void setContent(byte[] data, int s, int e, Hasher hash, CompressionCodec... comps) throws IOException {
-    setContent(new ByteArrayInputStream(data,s,e),hash,comps);
+  public void setData(byte[] data, int s, int e, Hasher hash, CompressionCodec... comps) throws IOException {
+    setData(new ByteArrayInputStream(data,s,e),hash,comps);
   }
   
 }

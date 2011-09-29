@@ -29,7 +29,8 @@ public class BinaryDataObjectExample {
     DataHandler dataHandler = new DataHandler(url); 
     
     BinaryObject dataObject = new BinaryObject();
-    dataObject.setContent(
+    // set the content.. md5 hash will be calculated and deflate compression used
+    dataObject.setData(
       dataHandler, 
       new HashHelper.Md5(), 
       CompressionCodec.DEFLATE);
@@ -47,6 +48,7 @@ public class BinaryDataObjectExample {
     String md5 = dataObject.getProperty("md5");
     HashHelper.Md5 check = new HashHelper.Md5();
     
+    // decompression will be applied automatically
     InputStream in = dataObject.getInputStream(); 
     byte[] buf = new byte[100];
     int r = -1;

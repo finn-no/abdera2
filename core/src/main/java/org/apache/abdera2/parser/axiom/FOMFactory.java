@@ -668,7 +668,7 @@ public class FOMFactory extends OMLinkedListImplFactory
         if (conmap.containsKey(qname)) {
           if (is_text(qname)) {
             Text.Type type = (Text.Type)objecttype;
-            element = create(qname,qname.getLocalPart(),namespace,type,parent,factory);
+            element = create(qname,type,qname.getLocalPart(),namespace,parent,factory);
           } else if (is_content(qname)) {
             Content.Type type = (Content.Type)objecttype;
             element = create(qname,qname.getLocalPart(),namespace,type,parent,factory);
