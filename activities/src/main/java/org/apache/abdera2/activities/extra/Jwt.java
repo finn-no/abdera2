@@ -5,13 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
-import java.util.Arrays;
-
-import javax.crypto.Mac;
 
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.IO;
+import org.apache.abdera2.common.security.HashHelper;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -37,33 +34,20 @@ public class Jwt {
     }
     
     public String sig(Key key, byte[] mat) {
-      try {
-        switch(this) {
-        case HS256:
-        case HS384:
-        case HS512: {
-          Mac mac = Mac.getInstance(internal);
-          mac.init(key);
-          byte[] sig = mac.doFinal(mat);
-          return Base64.encodeBase64URLSafeString(sig);
-        }
-        case RS256:
-        case RS384:
-        case RS512:
-        case ES256:
-        case ES384:
-        case ES512: {
-          Signature sig = Signature.getInstance(internal);
-          sig.initSign((PrivateKey)key);
-          sig.update(mat);
-          byte[] dat = sig.sign();
-          return Base64.encodeBase64URLSafeString(dat);
-        }
-        default:
-          throw new UnsupportedOperationException();
-        }
-      } catch (Throwable t) {
-        throw new RuntimeException(t);
+      switch(this) {
+      case HS256:
+      case HS384:
+      case HS512:
+        return HashHelper.hmac(key, internal, mat);
+      case RS256:
+      case RS384:
+      case RS512:
+      case ES256:
+      case ES384:
+      case ES512:
+        return HashHelper.sig((PrivateKey)key,internal,mat);
+      default:
+        throw new UnsupportedOperationException();
       }
     }
 
@@ -72,22 +56,15 @@ public class Jwt {
         switch(this) {
         case HS256:
         case HS384:
-        case HS512: {
-          Mac mac = Mac.getInstance(internal);
-          mac.init(key);
-          byte[] sig = mac.doFinal(mat);
-          return Arrays.equals(sig, dat);
-        }
+        case HS512:
+          return HashHelper.hmacval(key, internal, mat, dat);
         case RS256:
         case RS384:
         case RS512:
         case ES256:
         case ES384:
         case ES512: {
-          Signature sig = Signature.getInstance(internal);
-          sig.initVerify((PublicKey)key);
-          sig.update(mat);
-          return sig.verify(dat);
+          return HashHelper.sigval((PublicKey)key, internal, mat, dat);
         }
         default:
           throw new UnsupportedOperationException();

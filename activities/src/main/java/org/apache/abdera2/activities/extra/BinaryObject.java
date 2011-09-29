@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.activation.DataHandler;
 import javax.activation.MimeType;
@@ -12,6 +13,9 @@ import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.objects.FileObject;
 import org.apache.abdera2.common.anno.Name;
+import org.apache.abdera2.common.io.Compression;
+import org.apache.abdera2.common.io.Compression.CompressionCodec;
+import org.apache.abdera2.common.security.HashHelper.Hasher;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
@@ -48,6 +52,14 @@ public class BinaryObject extends FileObject {
     setDisplayName(displayName);
   }
     
+  public void setContent(DataHandler data, CompressionCodec... comps) throws IOException {
+    setContent(data,(Hasher)null,comps);
+  }
+  
+  public void setContent(byte[] data, Hasher hash, CompressionCodec... comps) throws IOException {
+    setContent(new ByteArrayInputStream(data),hash,comps);
+  }
+  
   /**
    * Set the Content and the MimeType from the DatHandler. 
    * This method defers to the setContent(InputStream) method
@@ -58,37 +70,61 @@ public class BinaryObject extends FileObject {
    * and use a custom TypeAdapter for the BinaryObject to read and
    * consume the DataHandler during the actual Serialization.
    */
-  public void setContent(DataHandler data) throws IOException {
-    setContent(data.getInputStream());
+  public void setContent(DataHandler data,Hasher hash, CompressionCodec... comps) throws IOException {
+    setContent(data.getInputStream(),hash,comps);
     setMimeType(data.getContentType());
+  }
+  
+  public void setContent(InputStream data) throws IOException {
+    setContent(data,null);
   }
   
   /**
    * Set the Content as a Base64 Encoded string. Calling this 
    * method will perform a blocking read that will consume the 
    * InputStream and generate a Base64 Encoded String. 
-   * TODO: A better approach would be to store the InputStream
-   * or DataHandler directly within the exts table and use a 
-   * custom TypeAdapter for the BinaryObject to read and consume
-   * the InputStream during the actual Serialization process.
-   * That would, at the very least, defer the performance hit
-   * and save memory resources while the object is stored in 
-   * memory.
+   * 
+   * If a Hasher class is provided, a hash digest for the 
+   * input data prior to encoding will be generated and 
+   * stored in a property value whose name is the value
+   * returned by Hasher.name(); e.g., HashHelper.Md5 will 
+   * add "md5":"{hex digest}" to the JSON object. 
+   * 
+   * The content may be optionally compressed prior to base64 
+   * encoding by passing in one or more CompressionCodecs. If 
+   * compression is used, a "compression" property will be added
+   * to the object whose value is a comma separated list of 
+   * the applied compression codecs in the order of application. 
+   * The getInputStream method will automatically search for the 
+   * "compression" property and attempt to automatically decompress
+   * the stream when reading.
    */
-  public void setContent(InputStream data) throws IOException {
+  public void setContent(InputStream data, Hasher hash, CompressionCodec... comps) throws IOException {
     ByteArrayOutputStream out = 
       new ByteArrayOutputStream();
-    Base64OutputStream bout = 
+    OutputStream bout = 
       new Base64OutputStream(out,true,0,null);
+    if (comps.length > 0) {
+      bout = Compression.wrap(bout,comps);
+      String comp = Compression.describe(null, comps);
+      setProperty("compression",comp.substring(1,comp.length()-1));
+    }
+    
     byte[] d = new byte[1024];
     int r = -1;
     while((r = data.read(d)) > -1) { 
+      if (hash != null)
+        hash.update(d, 0, r);
       bout.write(d, 0, r);
       bout.flush();
     }
     bout.close();
     String c = new String(out.toByteArray(),"UTF-8");
     super.setContent(c);
+    if (hash != null)
+      setProperty(
+        hash.name(),
+        hash.get());
   }
   
   /**
@@ -102,16 +138,25 @@ public class BinaryObject extends FileObject {
     ByteArrayInputStream in = 
       new ByteArrayInputStream(
         content.getBytes("UTF-8"));
-    Base64InputStream bin = 
+    InputStream bin = 
       new Base64InputStream(in);
+    if (has("compression")) {
+      String comp = getProperty("compression");
+      bin = Compression.wrap(bin, comp);
+    }
     return bin;
   }
   
-  public void setContent(byte[] data) throws IOException {
-    setContent(new ByteArrayInputStream(data));
+  public void setContent(byte[] data, CompressionCodec... comps) throws IOException {
+    setContent(new ByteArrayInputStream(data),null,comps);
   }
   
-  public void setContent(byte[] data, int s, int e) throws IOException {
-    setContent(new ByteArrayInputStream(data,s,e));
+  public void setContent(byte[] data, int s, int e, CompressionCodec... comps) throws IOException {
+    setContent(new ByteArrayInputStream(data,s,e),null,comps);
   }
+  
+  public void setContent(byte[] data, int s, int e, Hasher hash, CompressionCodec... comps) throws IOException {
+    setContent(new ByteArrayInputStream(data,s,e),hash,comps);
+  }
+  
 }

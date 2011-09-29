@@ -162,15 +162,21 @@ public class Compression {
     public static String describe(
         CompressionCodec codec, 
         CompressionCodec... codecs) {
-        if (codec == null)
+        if (codec == null && codecs.length == 0)
           throw new IllegalArgumentException(
             "At least one codec must be specified");
+        int i = 0;
+        if (codec == null) {
+          codec = codecs[0];
+          i = 1;
+        }
         StringBuilder buf = new StringBuilder("\"");
         buf.append(codec.name().toLowerCase());
-        for (int n = codecs.length - 1; n >= 0; n--)
+        for (int n = codecs.length - 1; n >= i; n--)
           buf.append(',')
              .append(codecs[n].name().toLowerCase());
         buf.append('"');
         return buf.toString();
     }
+    
 }
