@@ -93,6 +93,12 @@ public class Collection<T extends ASObject> extends ASObject {
     setTotalItems(items.size());
   }
   
+  public void setItems(Iterable<T> items) {
+    Set<T> set = new LinkedHashSet<T>();
+    for (T item : items) set.add(item);
+    setItems(set);
+  }
+  
   public void addItem(T... items) {
     Set<T> list = getProperty(ITEMS);
     if (list == null) {
