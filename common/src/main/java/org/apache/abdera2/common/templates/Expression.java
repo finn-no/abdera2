@@ -28,6 +28,9 @@ import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.Expression;
 import org.apache.abdera2.common.templates.Operation;
 
+import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.misc.MorePreconditions.*;
+
 public class Expression 
   implements Iterable<Expression.VarSpec>, Serializable {
   
@@ -101,12 +104,10 @@ public class Expression
 
   private void parse() {
     Matcher mt = EXPRESSION.matcher(EXP);
-    if (mt.find()) {
+    if (checkArgument(mt.find(),"Invalid Expression")) {
       this.op = Operation.get(mt.group(1)); // grab the operation
       String varlist = mt.group(2);
-      if (varlist == null)
-          throw new IllegalArgumentException(
-              "Invalid Expression: No variables");
+      checkNotNull(varlist, "No variables");
       String[] vars = 
         varlist.split("\\s*,\\s*");
       for (String var : vars) {
@@ -114,13 +115,8 @@ public class Expression
         if (vt.find()) {
           VarSpec spec = new VarSpec(vt.group(1),vt.group(2));
           varspecs.add(spec);
-        } else {
-          //throw new IllegalArgumentException(
-          //  "Invalid Expression: Invalid variable spec");
         }
       }
-    } else {
-      throw new IllegalArgumentException("Invalid Expression");
     }
   }
   

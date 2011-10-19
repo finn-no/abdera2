@@ -13,8 +13,10 @@ import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-public class HashHelper {
+public final class HashHelper {
 
+  private HashHelper() {}
+  
   public static String sig(PrivateKey key, String alg, byte[] mat) {
     try {
       Signature sig = Signature.getInstance(alg);

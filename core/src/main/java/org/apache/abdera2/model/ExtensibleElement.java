@@ -26,6 +26,7 @@ import org.apache.abdera2.common.selector.Selector;
 /**
  * An abstract element that can be extended with namespaced child elements
  */
+@SuppressWarnings("rawtypes")
 public interface ExtensibleElement extends Element {
 
     /**

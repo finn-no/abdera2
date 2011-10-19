@@ -24,30 +24,37 @@ import javax.xml.namespace.QName;
  */
 public class WhiteListParseFilter extends AbstractSetParseFilter {
 
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static class Builder extends AbstractSetParseFilter.Builder<WhiteListParseFilter> {
+    private boolean listAttributesExplicitly;
+    public Builder listAttributesExplicitly() {
+      this.listAttributesExplicitly = true;
+      return this;
+    }
+    public WhiteListParseFilter get() {
+      return new WhiteListParseFilter(this);
+    } 
+  }
+  
     private static final long serialVersionUID = -2126524829459798481L;
     private final boolean listAttributesExplicitly;
 
-    public WhiteListParseFilter() {
-        this(false);
-    }
-
-    /**
-     * If listAttributesExplicity == true, attributes MUST be whitelisted independently of the elements on which they
-     * appear, otherwise, all attributes will automatically be considered acceptable if the containing element is
-     * considered acceptable.
-     */
-    public WhiteListParseFilter(boolean listAttributesExplicitly) {
-        this.listAttributesExplicitly = listAttributesExplicitly;
+    protected WhiteListParseFilter(Builder builder) {
+        super(builder);
+        this.listAttributesExplicitly = builder.listAttributesExplicitly;
     }
 
     public boolean acceptable(QName qname) {
-        return contains(qname);
+        return checkThrow(contains(qname),qname,null);
     }
 
     public boolean acceptable(QName qname, QName attribute) {
-        return (listAttributesExplicitly) ? 
+        return checkThrow((listAttributesExplicitly) ? 
             contains(qname, attribute) && acceptable(qname) : 
-            acceptable(qname);
+            acceptable(qname),qname,attribute);
     }
 
 }

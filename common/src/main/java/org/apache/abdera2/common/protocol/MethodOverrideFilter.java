@@ -17,16 +17,17 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.abdera2.common.misc.Chain;
 
 /**
  * Abdera Filter implementation that supports the use of the X-HTTP-Method-Override header used by GData.
  */
-@SuppressWarnings({ "unchecked"})
 public class MethodOverrideFilter implements Filter {
 
-    private String[] methods;
+    private Set<String> methods = new HashSet<String>();
 
     public MethodOverrideFilter() {
         this("DELETE", "PUT", "PATCH");
@@ -36,17 +37,17 @@ public class MethodOverrideFilter implements Filter {
         setMethods(methods);
     }
 
-    public String[] getMethods() {
+    public Iterable<String> getMethods() {
         return methods;
     }
 
     public void setMethods(String... methods) {
-        this.methods = methods;
-        Arrays.sort(methods);
+        for (String method : methods)
+          this.methods.add(method);
     }
 
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
-        return (S)chain.next(new MethodOverrideRequestContext(request));
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
+        return chain.next(new MethodOverrideRequestContext(request));
     }
 
     private class MethodOverrideRequestContext extends BaseRequestContextWrapper {
@@ -61,7 +62,7 @@ public class MethodOverrideFilter implements Filter {
                 xheader = getHeader("X-Method-Override");
             if (xheader != null)
                 xheader = xheader.toUpperCase().trim();
-            if (method.equals("POST") && xheader != null && Arrays.binarySearch(methods, xheader) > -1) {
+            if (method.equals("POST") && xheader != null && methods.contains(method)) {
                 method = xheader;
             }
             this.method = method;

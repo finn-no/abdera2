@@ -5,7 +5,7 @@ import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
-import org.apache.abdera2.common.date.Duration;
+import org.joda.time.Duration;
 
 /**
  * A simple "objectType":"movie" object that serves primarily as an 

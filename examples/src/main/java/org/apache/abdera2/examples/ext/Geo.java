@@ -18,7 +18,6 @@
 package org.apache.abdera2.examples.ext;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.common.geo.Coordinate;
 import org.apache.abdera2.ext.geo.GeoHelper;
 import org.apache.abdera2.common.geo.Point;
 import org.apache.abdera2.common.geo.Position;
@@ -35,7 +34,7 @@ public class Geo {
         Entry entry = abdera.newEntry();
         entry.setTitle("Middle of the Ocean");
 
-        Point point = new Point(new Coordinate(37.0625, -95.677068));
+        Point point = Point.at(37.0625, -95.677068);
         
         // Output position as ISO 6709 standard format
         System.out.println(point.getCoordinate().asIsoPosition());

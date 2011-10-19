@@ -18,54 +18,59 @@
 package org.apache.abdera2.common.geo;
 
 import java.io.Serializable;
+import static com.google.common.base.Preconditions.*;
 
-public class Coordinate implements Serializable, Cloneable, Comparable<Coordinate> {
+public class Coordinate 
+  implements Serializable, 
+             Cloneable, 
+             Comparable<Coordinate> {
 
+    public static Coordinate at(double latitude, double longitude) {      
+      return new Coordinate(latitude,longitude);
+    }
+    
+    public static Coordinate at(String position) {
+      return new Coordinate(position);
+    }
+    
+    public static Coordinate at(IsoPosition position) {
+      return new Coordinate(position);
+    }
+  
     private static final long serialVersionUID = -916272885213668761L;
 
-    private double latitude = 0.0f;
-    private double longitude = 0.0f;
-
-    public Coordinate() {
-    }
+    private final double latitude;
+    private final double longitude;
     
     public Coordinate(IsoPosition pos) {
       this(pos.getLatitude(),pos.getLongitude());
     }
 
     public Coordinate(double latitude, double longitude) {
-        setLatitude(latitude);
-        setLongitude(longitude);
+      checkArgument(!(Double.compare(latitude, 90.0d) > 0), "Latitude > 90.0 degrees");
+      checkArgument(!(Double.compare(latitude, -90.0d) < 0), "Latitude < -90.0 degrees");
+      checkArgument(!(Double.compare(longitude, 180.0d) >= 0), "Longitude >= 180.0 degrees");
+      checkArgument(!(Double.compare(longitude, -180.0d) <= 0), "Longitude <= -180.0 degrees");
+      this.latitude = latitude;
+      this.longitude = longitude;
     }
 
     public Coordinate(String value) {
-        Coordinate c = parse(value);
-        setLatitude(c.latitude);
-        setLongitude(c.longitude);
+      Coordinate c = parse(value);
+      this.latitude = c.latitude;
+      this.longitude = c.longitude;
+      checkArgument(!(Double.compare(latitude, 90.0d) > 0), "Latitude > 90.0 degrees");
+      checkArgument(!(Double.compare(latitude, -90.0d) < 0), "Latitude < -90.0 degrees");
+      checkArgument(!(Double.compare(longitude, 180.0d) >= 0), "Longitude >= 180.0 degrees");
+      checkArgument(!(Double.compare(longitude, -180.0d) <= 0), "Longitude <= -180.0 degrees");
     }
 
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
-        if (Double.compare(longitude, 90.0d) > 0)
-            throw new IllegalArgumentException("Latitude > 90.0 degrees");
-        if (Double.compare(longitude, -90.0d) < 0)
-            throw new IllegalArgumentException("Latitude < 90.0 degrees");
-        this.latitude = latitude;
-    }
-
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        if (Double.compare(longitude, 180.0d) > 0)
-            throw new IllegalArgumentException("Longitude > 180.0 degrees");
-        if (Double.compare(longitude, -180.0d) < 0)
-            throw new IllegalArgumentException("Longitude < 180.0 degrees");
-        this.longitude = longitude;
     }
 
     public String toString() {

@@ -24,6 +24,9 @@ import java.util.Map;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.MapContext;
 
+import com.google.common.collect.Multimap;
+import static com.google.common.base.Preconditions.*;
+
 /**
  * Context implementation based on a HashMap
  */
@@ -51,6 +54,7 @@ public class MapContext extends HashMap<String, Object> implements Context {
     }
     
     public MapContext(Context context) {
+      checkNotNull(context);
       for (String name : context)
         put(name, context.resolve(name));
     }
@@ -95,5 +99,12 @@ public class MapContext extends HashMap<String, Object> implements Context {
 
     public boolean contains(String var) {
       return containsKey(var);
+    }
+    
+    public static MapContext fromMultimap(
+      Multimap<String,Object> multimap) {
+        MapContext mc = new MapContext();
+        mc.putAll(multimap.asMap());
+        return mc;
     }
 }

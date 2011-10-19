@@ -30,7 +30,8 @@ public abstract class CachingContext extends AbstractContext {
 
     private static final long serialVersionUID = 8912954163958644811L;
     
-    private Map<String, Object> cache = new HashMap<String, Object>();
+    private Map<String, Object> cache = 
+      new HashMap<String, Object>();
 
     public <T> T resolve(String var) {
         T t = (T)cache.get(var);

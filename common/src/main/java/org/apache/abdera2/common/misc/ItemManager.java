@@ -17,11 +17,13 @@
  */
 package org.apache.abdera2.common.misc;
 
+import com.google.common.base.Function;
+
 /**
  * ItemManager is an internal utility class that provides a simple get/release interface. It is used primarily to
  * control access to pooled resources.
  */
-public interface ItemManager<T,R> {
+public interface ItemManager<T,R> extends Function<R,T>{
 
     /**
      * Get an item based on the specified request

@@ -19,10 +19,12 @@ public class TemplateManagerExample {
     defaults.put("a", "foo");
     defaults.put("b", "bar");
     
-    TemplateManager<Keys> tm = new TemplateManager<Keys>(defaults);
-    
-    tm.add(Keys.A, "http://example.org{?a}");
-    tm.add(Keys.B, "https://example.org{?b}");
+    TemplateManager<Keys> tm = 
+      TemplateManager.<Keys>make()
+        .withDefaults(defaults)
+        .add(Keys.A, "http://example.org{?a}")
+        .add(Keys.B, "https://example.org{?b}")
+        .get();
     
     System.out.println("Template for Keys.A using Default Context: " + tm.expand(Keys.A));
     System.out.println("Template for Keys.B using Default Context: " + tm.expand(Keys.B));

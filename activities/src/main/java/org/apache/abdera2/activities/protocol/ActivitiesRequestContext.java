@@ -30,6 +30,7 @@ import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.common.protocol.BaseRequestContextWrapper;
 import org.apache.abdera2.common.protocol.RequestContext;
+import org.joda.time.DateTime;
 
 public class ActivitiesRequestContext extends BaseRequestContextWrapper {
 
@@ -72,7 +73,7 @@ public class ActivitiesRequestContext extends BaseRequestContextWrapper {
         base.setEntityTag(etag);
     Date lm = getDateHeader("Last-Modified");
     if (lm != null)
-        base.setLastModified(lm);
+        base.setLastModified(new DateTime(lm));
     MimeType mt = getContentType();
     if (mt != null)
         base.setContentType(mt.toString());

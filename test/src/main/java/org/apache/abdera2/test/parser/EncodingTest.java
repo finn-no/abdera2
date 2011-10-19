@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.util.Date;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.io.Compression;
@@ -36,6 +35,7 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.writer.WriterOptions;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 public class EncodingTest {
@@ -46,7 +46,7 @@ public class EncodingTest {
         Entry entry = abdera.newEntry();
         entry.setId("http://example.com/entry/1");
         entry.setTitle("Whatever");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         Content content = entry.getFactory().newContent(Content.Type.XML);
         String s = "<x>" + new Character((char)224) + "</x>";
         content.setValue(s);

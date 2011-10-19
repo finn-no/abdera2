@@ -55,7 +55,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation","rawtypes"})
 public class FOMEntry extends FOMExtensibleElement implements Entry {
 
     private static final long serialVersionUID = 1L;
@@ -112,9 +112,11 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
       if (is_empty(list)) {
         Source source = getSource();
         if (source == null) {
-          Element parent = getParentElement();
-          if (parent != null && parent instanceof Source)
-            source = (Source) parent;
+          if (this.getParent() instanceof Element) {
+            Element parent = getParentElement();
+            if (parent != null && parent instanceof Source)
+              source = (Source) parent;
+          }
         }
         if (source != null)
           list = source.getAuthors();
@@ -527,12 +529,12 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
         return this;
     }
 
-    public Date getPublished() {
+    public org.joda.time.DateTime getPublished() {
         DateTime dte = getPublishedElement();
-        return (dte != null) ? dte.getDate() : null;
+        return (dte != null) ? dte.getValue() : null;
     }
 
-    private DateTime setPublished(org.apache.abdera2.common.date.DateTime value) {
+    public DateTime setPublished(org.joda.time.DateTime value) {
         complete();
         if (value == null) {
             _removeChildren(PUBLISHED, false);
@@ -550,12 +552,12 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
         }
     }
 
-    public DateTime setPublished(Date value) {
-        return setPublished((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+    public DateTime setPublished(java.util.Date date) {
+        return setPublished(new org.joda.time.DateTime(date));
     }
 
     public DateTime setPublished(String value) {
-        return setPublished((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setPublished((value != null) ? new org.joda.time.DateTime(value) : null);
     }
 
     public Text getRightsElement() {
@@ -728,12 +730,12 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
         return this;
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         DateTime dte = getUpdatedElement();
-        return (dte != null) ? dte.getDate() : null;
+        return (dte != null) ? dte.getValue() : null;
     }
 
-    private DateTime setUpdated(org.apache.abdera2.common.date.DateTime value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         complete();
         if (value == null) {
             _removeChildren(UPDATED, false);
@@ -752,11 +754,11 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
     }
 
     public DateTime setUpdated(Date value) {
-        return setUpdated((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setUpdated(new org.joda.time.DateTime(value));
     }
 
     public DateTime setUpdated(String value) {
-        return setUpdated((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setUpdated((value != null) ? new org.joda.time.DateTime(value) : null);
     }
 
     public DateTime getEditedElement() {
@@ -776,12 +778,12 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
             _removeChildren(EDITED, false);
     }
 
-    public Date getEdited() {
+    public org.joda.time.DateTime getEdited() {
         DateTime dte = getEditedElement();
-        return (dte != null) ? dte.getDate() : null;
+        return (dte != null) ? dte.getValue() : null;
     }
 
-    private DateTime setEdited(org.apache.abdera2.common.date.DateTime value) {
+    public DateTime setEdited(org.joda.time.DateTime value) {
         complete();
         declareNamespace(APP_NS, "app");
         if (value == null) {
@@ -802,11 +804,11 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
     }
 
     public DateTime setEdited(Date value) {
-        return setEdited((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setEdited(new org.joda.time.DateTime(value));
     }
 
     public DateTime setEdited(String value) {
-        return setUpdated((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setUpdated((value != null) ? new org.joda.time.DateTime(value) : null);
     }
 
     public Control getControl(boolean create) {
@@ -994,5 +996,17 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
 
     public List<Link> getLinks(Selector selector) {
       return _getChildrenAsSet(LINK,selector);
+    }
+
+    public DateTime setPublishedNow() {
+      return setPublished(org.joda.time.DateTime.now());
+    }
+
+    public DateTime setUpdatedNow() {
+      return setUpdated(org.joda.time.DateTime.now());
+    }
+
+    public DateTime setEditedNow() {
+      return setEdited(org.joda.time.DateTime.now());
     }
 }

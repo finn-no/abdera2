@@ -19,7 +19,6 @@ package org.apache.abdera2.ext.rss;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 
 import javax.activation.DataHandler;
@@ -48,6 +47,7 @@ import org.apache.abdera2.model.Text;
 import org.apache.abdera2.model.Content.Type;
 import org.apache.abdera2.parser.axiom.FOMElement;
 
+@SuppressWarnings("rawtypes")
 public class RssItem extends ExtensibleElementWrapper implements Entry, IRIElement {
 
     public RssItem(Element internal) {
@@ -245,7 +245,7 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         return null;
     }
 
-    public Date getEdited() {
+    public org.joda.time.DateTime getEdited() {
         return null;
     }
 
@@ -305,9 +305,9 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         return FOMElement.getLinks(getInternal(), rel);
     }
 
-    public Date getPublished() {
+    public org.joda.time.DateTime getPublished() {
         DateTime dt = getPublishedElement();
-        return (dt != null) ? dt.getDate() : null;
+        return (dt != null) ? dt.getValue() : null;
     }
 
     public DateTime getPublishedElement() {
@@ -393,7 +393,7 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         return (text != null) ? text.getTextType() : null;
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         return getPublished();
     }
 
@@ -469,7 +469,7 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    public DateTime setEdited(Date value) {
+    public DateTime setEdited(org.joda.time.DateTime value) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
@@ -493,7 +493,7 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    public DateTime setPublished(Date value) {
+    public DateTime setPublished(org.joda.time.DateTime value) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
@@ -581,7 +581,7 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    public DateTime setUpdated(Date value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
@@ -691,5 +691,17 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
           list = source.getAuthors(selector);
       }
       return list;
+    }
+
+    public DateTime setPublishedNow() {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public DateTime setUpdatedNow() {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public DateTime setEditedNow() {
+      throw new UnsupportedOperationException("Modifications are not allowed");
     }
 }

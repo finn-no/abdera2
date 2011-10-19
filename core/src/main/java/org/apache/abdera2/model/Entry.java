@@ -22,7 +22,6 @@ import static org.apache.abdera2.common.Constants.LN_ENTRY;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 
 import javax.activation.DataHandler;
@@ -111,6 +110,7 @@ import org.apache.abdera2.common.selector.Selector;
  * </pre>
  */
 @QName(value=LN_ENTRY,ns=ATOM_NS)
+@SuppressWarnings("rawtypes")
 public interface Entry extends ExtensibleElement {
 
     Person getAuthorInherited();
@@ -528,7 +528,7 @@ public interface Entry extends ExtensibleElement {
      * 
      * @return a java.util.Date for the atom:published value
      */
-    Date getPublished();
+    org.joda.time.DateTime getPublished();
 
     /**
      * Set the value of the atom:published element
@@ -536,8 +536,10 @@ public interface Entry extends ExtensibleElement {
      * @param value The java.util.Date
      * @return The newly created atom:published element
      */
-    DateTime setPublished(Date value);
+    DateTime setPublished(org.joda.time.DateTime value);
 
+    DateTime setPublishedNow();
+    
     /**
      * Set the value of the atom:published element using the serialized string value
      * 
@@ -828,7 +830,7 @@ public interface Entry extends ExtensibleElement {
      * 
      * @return A java.util.Date value
      */
-    Date getUpdated();
+    org.joda.time.DateTime getUpdated();
 
     /**
      * Set the atom:updated value
@@ -836,8 +838,10 @@ public interface Entry extends ExtensibleElement {
      * @param value The new value
      * @return The newly created atom:updated element
      */
-    DateTime setUpdated(Date value);
+    DateTime setUpdated(org.joda.time.DateTime value);
 
+    DateTime setUpdatedNow();
+    
     /**
      * Set the atom:updated value
      * 
@@ -865,7 +869,7 @@ public interface Entry extends ExtensibleElement {
      * 
      * @return app:edited
      */
-    Date getEdited();
+    org.joda.time.DateTime getEdited();
 
     /**
      * Set the value of app:edited
@@ -873,8 +877,10 @@ public interface Entry extends ExtensibleElement {
      * @param value The java.util.Date value
      * @return The newly created app:edited element
      */
-    DateTime setEdited(Date value);
+    DateTime setEdited(org.joda.time.DateTime value);
 
+    DateTime setEditedNow();
+    
     /**
      * Set the value of app:edited
      * 

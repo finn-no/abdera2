@@ -62,6 +62,7 @@ import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.test.JettyUtil;
 import org.apache.abdera2.writer.WriterOptions;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -125,7 +126,7 @@ public class AppTest {
             Feed feed = getFactory().newFeed();
             feed.setId(base + "/collections/entries");
             feed.setTitle("Entries");
-            feed.setUpdated(new Date());
+            feed.setUpdated(DateTime.now());
             feed.addLink(base + "/collections/entries");
             feed.addLink(base + "/collections/entries", "self");
             feed.addAuthor("James");
@@ -240,7 +241,7 @@ public class AppTest {
                                     AppTest.INSTANCE.getBase() + "/collections/entries/"
                                         + feed.getRoot().getEntries().size();
                                 entry.setId(newID);
-                                entry.setUpdated(new Date());
+                                entry.setUpdated(DateTime.now());
                                 entry.addLink(entry.getId().toString(), "edit");
                                 entry.addLink(entry.getId().toString(), "self");
                                 feed.getRoot().insertEntry(entry);
@@ -261,7 +262,7 @@ public class AppTest {
                             String slug = request.getHeader("Slug");
                             entry.setId(newID);
                             entry.setTitle(slug);
-                            entry.setUpdated(new Date());
+                            entry.setUpdated(DateTime.now());
                             entry.setSummary(slug);
                             entry.addLink(entry.getId().toString(), "edit");
                             entry.addLink(AppTest.INSTANCE.getBase() + "/collections/media/" + n, "edit-media")
@@ -306,7 +307,7 @@ public class AppTest {
                             if (doc.getRoot() instanceof Entry) {
                                 Entry newentry = (Entry)doc.getRoot().clone();
                                 if (newentry.getId().equals(entry.getId())) {
-                                    newentry.setUpdated(new Date());
+                                    newentry.setUpdated(DateTime.now());
                                     entry.discard();
                                     feed.getRoot().insertEntry(newentry);
                                     response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -327,7 +328,7 @@ public class AppTest {
                         String media = read(request.getInputStream());
                         this.media.put(uri, media);
                         Entry entry = feed.getRoot().getEntries().get(target);
-                        entry.setUpdated(new Date());
+                        entry.setUpdated(DateTime.now());
                         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                         return;
                     }

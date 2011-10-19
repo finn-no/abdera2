@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.activation.MimeType;
 
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Collection;
 
@@ -31,7 +32,8 @@ import org.apache.abdera2.model.Collection;
  * accept elements
  */
 public class CollectionAcceptSelector 
-  implements Selector {
+extends AbstractSelector<Collection>
+  implements Selector<Collection> {
 
   private static final long serialVersionUID = 1821941024155067263L;
   private final Set<MimeType> types = 

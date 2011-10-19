@@ -18,12 +18,21 @@
 package org.apache.abdera2.examples.simple;
 
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
+import org.apache.abdera2.model.selector.Selectors;
 import org.apache.abdera2.parser.Parser;
+import org.apache.abdera2.parser.Parsers;
+import org.apache.abdera2.writer.Writers;
+import org.apache.abdera2.writer.Writers.WriterFunction;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 
 public class Parse {
 
@@ -52,7 +61,27 @@ public class Parse {
         System.out.println(entry.getUpdated());
         System.out.println(entry.getSummary());
         System.out.println(entry.getSummaryType());
+        
+        // Selectors can be used to filter out unwanted entries
+        List<Entry> entries = 
+          feed.getEntries(
+            Selectors.updated(
+              DateTimes.afterNow()));
+        System.out.println(entries);
+        
 
+        // We can also use the Guava (com.google.common.*) Function interface
+        in = Parse.class.getResourceAsStream("/simple.xml");
+        Function<InputStream,Document<Feed>> pf = 
+          Parsers.forInputStream();
+        doc = pf.apply(in);
+        
+        // Which means we can chain things together in interesting ways...
+        in = Parse.class.getResourceAsStream("/simple.xml");
+        pf = Parsers.forInputStream();
+        WriterFunction wf = Writers.forOutputStream("activity", System.out);
+        Function<InputStream,Void> f = Functions.compose(wf, pf);
+        f.apply(in);
     }
 
 }

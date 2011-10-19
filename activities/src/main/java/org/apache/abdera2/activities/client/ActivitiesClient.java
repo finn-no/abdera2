@@ -33,31 +33,31 @@ public class ActivitiesClient
 
   public <T extends Collection<?>>T getCollection(String uri) {
     ActivitiesSession session = newSession();
-    return (T)session.getCollection(uri);
+    return session.<T>getCollection(uri);
   }
   
   public <T extends Collection<?>>T getCollection(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return (T)session.getCollection(uri,options);
+    return session.<T>getCollection(uri,options);
   }
   
   public <T extends Activity>T getActivity(String uri) {
     ActivitiesSession session = newSession();
-    return (T)session.getActivity(uri);
+    return session.<T>getActivity(uri);
   }
   
   public <T extends Activity>T getActivity(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return (T)session.getActivity(uri,options);
+    return session.<T>getActivity(uri,options);
   }
   
   public <T extends ASObject>T getObject(String uri) {
     ActivitiesSession session = newSession();
-    return (T)session.getObject(uri);
+    return session.<T>getObject(uri);
   }
   
   public <T extends ASObject>T getObject(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return (T)session.getObject(uri,options);
+    return session.<T>getObject(uri,options);
   }
 }

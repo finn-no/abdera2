@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Constructs a mutable Template Context based on an existing IRI/URI 
@@ -79,6 +80,7 @@ public class QueryContext extends MapContext  {
   }
   
   private static Map<String,Object> parse(IRI iri) {
+    checkNotNull(iri);
     Map<String,Object> map = new HashMap<String,Object>();
     if (iri != null) {
       String query = iri.getQuery();
@@ -109,6 +111,7 @@ public class QueryContext extends MapContext  {
   }
   
   public static Template templateFromContext(Context context, boolean fragment) {
+    checkNotNull(context);
     StringBuilder buf = new StringBuilder();
     buf.append('{').append(fragment?'&':'?');
     boolean first = true;
@@ -127,14 +130,17 @@ public class QueryContext extends MapContext  {
   }
   
   public static Template templateFromIri(IRI iri) {
+    checkNotNull(iri);
     return templateFromQuery(iri.toString(), false, null);
   }
   
   public static Template templateFromIri(IRI iri, Context additionalParams) {
+    checkNotNull(iri);
     return templateFromQuery(iri.toString(), false, additionalParams);
   }
   
   public static Template templateFromQuery(String query, boolean fragment, Context additionalParams) {
+    checkNotNull(query);
     Context context = new QueryContext(query);
     if (additionalParams != null)
       context = new DefaultingContext(context,additionalParams);
@@ -144,21 +150,29 @@ public class QueryContext extends MapContext  {
   }
   
   public static String baseFromQuery(String query) {
+    checkNotNull(query);
     IRI iri = new IRI(query);
     String s = iri.resolve(iri.getPath()).toString();
-    //return s.equals(query) ? "" : s;
     return s;
   }
   
   public static String expandQuery(String query, Context context) {
+    checkNotNull(query);
+    checkNotNull(context);
     return expandQuery(query,context,(Template)null);
   }
   
   public static String expandQuery(String query, Context context, String extender) {
+    checkNotNull(query);
+    checkNotNull(context);
+    checkNotNull(extender);
     return expandQuery(query,context,new Template(extender));
   }
   
   public static String expandQuery(String query, Context context, Template extender) {
+    checkNotNull(query);
+    checkNotNull(context);
+    checkNotNull(extender);
     QueryContext qc = new QueryContext(query);
     DefaultingContext dc = new DefaultingContext(context,qc);
     Template temp = QueryContext.templateFromQuery(query, false, qc);

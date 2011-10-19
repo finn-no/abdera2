@@ -476,7 +476,7 @@ public class RequestOptions extends AbstractRequest implements Request {
      * Sets the value of the HTTP Cache-Control header
      */
     public RequestOptions setCacheControl(String cc) {
-        this.cacheControl = new CacheControl(cc);
+        this.cacheControl = CacheControl.parse(cc);
         return this;
     }
     

@@ -22,7 +22,7 @@ import java.util.Date;
 
 import javax.xml.namespace.QName;
 
-import org.apache.abdera2.common.date.DateTime;
+import org.joda.time.DateTime;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;

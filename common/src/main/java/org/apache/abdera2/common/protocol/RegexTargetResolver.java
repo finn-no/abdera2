@@ -25,8 +25,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.AbstractResolver;
 import org.apache.abdera2.common.misc.Resolver;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+import static org.apache.abdera2.common.misc.MorePredicates.*;
 /**
  * <p>
  * Provides a utility class helpful for determining which type of resource the client is requesting. Each resource type
@@ -52,19 +57,19 @@ import org.apache.abdera2.common.misc.Resolver;
  * </pre>
  */
 public class RegexTargetResolver<R extends RequestContext>
+  extends AbstractResolver<Target,R>
   implements Resolver<Target,R> {
 
     protected final Map<Pattern, TargetType> patterns;
-    protected final Map<Pattern, String[]> fields;
+    protected final Multimap<Pattern,String> fields = 
+      LinkedHashMultimap.create();
 
     public RegexTargetResolver() {
         this.patterns = new HashMap<Pattern, TargetType>();
-        this.fields = new HashMap<Pattern, String[]>();
     }
 
     public RegexTargetResolver(Map<String, TargetType> patterns) {
         this.patterns = new HashMap<Pattern, TargetType>();
-        this.fields = new HashMap<Pattern, String[]>();
         for (String p : patterns.keySet()) {
             TargetType type = patterns.get(p);
             setPattern(p, type);
@@ -78,7 +83,7 @@ public class RegexTargetResolver<R extends RequestContext>
     public RegexTargetResolver<R> setPattern(String pattern, TargetType type, String... fields) {
         Pattern p = Pattern.compile(pattern);
         this.patterns.put(p, type);
-        this.fields.put(p, fields);
+        this.fields.putAll(p,Arrays.asList(fields));
         return this;
     }
 
@@ -88,14 +93,14 @@ public class RegexTargetResolver<R extends RequestContext>
             Matcher matcher = pattern.matcher(uri);
             if (matcher.matches()) {
                 TargetType type = this.patterns.get(pattern);
-                String[] fields = this.fields.get(pattern);
+                Iterable<String> fields = this.fields.get(pattern);
                 return getTarget(type, request, matcher, fields);
             }
         }
         return null;
     }
 
-    protected Target getTarget(TargetType type, RequestContext request, Matcher matcher, String[] fields) {
+    protected Target getTarget(TargetType type, RequestContext request, Matcher matcher, Iterable<String> fields) {
         return new RegexTarget(type, request, matcher, fields);
     }
 
@@ -104,8 +109,8 @@ public class RegexTargetResolver<R extends RequestContext>
         buf.append("Regex Target Resolver:\n");
         for (Pattern pattern : patterns.keySet()) {
             TargetType type = this.patterns.get(pattern);
-            String[] fields = this.fields.get(pattern);
-            buf.append(pattern.toString() + ", Type: " + type + ", Fields: " + Arrays.toString(fields));
+            Iterable<String> fields = this.fields.get(pattern);
+            buf.append(pattern.toString() + ", Type: " + type + ", Fields: " + fields);
         }
         return buf.toString();
     }
@@ -146,9 +151,13 @@ public class RegexTargetResolver<R extends RequestContext>
 
         private static final long serialVersionUID = 165211244926064449L;
         protected Matcher matcher;
-        protected String[] fields;
+        protected Iterable<String> fields;
 
-        public RegexTarget(TargetType type, RequestContext context, Matcher matcher, String[] fields) {
+        public RegexTarget(
+          TargetType type, 
+          RequestContext context, 
+          Matcher matcher, 
+          Iterable<String> fields) {
             super(type, context);
             this.matcher = matcher;
             this.fields = fields;
@@ -157,11 +166,9 @@ public class RegexTargetResolver<R extends RequestContext>
         public String getParameter(String name) {
             if (fields == null)
                 return super.getParameter(name);
-            int idx = 0;
-            for (int n = 0; n < fields.length; n++)
-                if (fields[n].equalsIgnoreCase(name))
-                    idx = n + 1;
-            return idx > 0 && idx <= matcher.groupCount() ? matcher.group(idx) : super.getParameter(name);
+            int idx = Iterables.indexOf(fields, equalsIgnoreCase(name));
+            return idx > -1 && idx <= matcher.groupCount()-1 ? 
+              matcher.group(idx+1) : super.getParameter(name);
         }
 
         public Iterable<String> getParameterNames() {
@@ -170,7 +177,7 @@ public class RegexTargetResolver<R extends RequestContext>
             for (String name : names)
               list.add(name);
             if (fields != null)
-                list.addAll(Arrays.asList(fields));
+                Iterables.addAll(list, fields);
             return list;
         }
 

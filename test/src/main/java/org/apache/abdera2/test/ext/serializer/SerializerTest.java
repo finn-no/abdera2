@@ -18,6 +18,7 @@
 package org.apache.abdera2.test.ext.serializer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.ext.serializer.ConventionSerializationContext;
 import org.apache.abdera2.ext.serializer.annotation.Author;
 import org.apache.abdera2.ext.serializer.annotation.ID;
@@ -60,8 +62,8 @@ public class SerializerTest {
         Entry entry = doc.getRoot();
         assertEquals("tag:example.org,2008:foo", entry.getId().toString());
         assertEquals("This is the title", entry.getTitle());
-        assertEquals(date_now, entry.getUpdated());
-        assertEquals(cal_now.getTime(), entry.getPublished());
+        assertTrue(DateTimes.equivalent(entry.getUpdated(),date_now));
+        assertTrue(DateTimes.equivalent(entry.getPublished(),cal_now));
         assertEquals("James", entry.getAuthor().getName());
         assertEquals("this is the summary", entry.getSummary());
         assertEquals("http://example.org/foo", entry.getAlternateLink().getResolvedHref().toString());
@@ -113,8 +115,8 @@ public class SerializerTest {
         Entry entry = doc.getRoot();
         assertEquals("tag:example.org,2008:foo", entry.getId().toString());
         assertEquals("This is the title", entry.getTitle());
-        assertEquals(date_now, entry.getUpdated());
-        assertEquals(date_now, entry.getPublished());
+        assertTrue(DateTimes.equivalent(entry.getUpdated(),date_now));
+        assertTrue(DateTimes.equivalent(entry.getPublished(),date_now));
         assertEquals("James", entry.getAuthor().getName());
         assertEquals("this is the summary", entry.getSummary());
         assertEquals("http://example.org/foo", entry.getAlternateLink().getResolvedHref().toString());

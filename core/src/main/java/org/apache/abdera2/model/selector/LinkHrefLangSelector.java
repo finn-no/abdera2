@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.lang.Range;
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Link;
 
@@ -30,7 +31,9 @@ import org.apache.abdera2.model.Link;
  * a matching hreflang attribute.
  * @see org.apache.abdera2.common.selector.Selector
  */
-public class LinkHrefLangSelector implements Selector {
+public class LinkHrefLangSelector 
+extends AbstractSelector<Link>
+implements Selector<Link> {
 
   private static final long serialVersionUID = 7008363856043465676L;
   private final Set<Lang> langs = new HashSet<Lang>();

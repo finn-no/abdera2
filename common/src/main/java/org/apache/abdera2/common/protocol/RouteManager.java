@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.AbstractResolver;
 import org.apache.abdera2.common.misc.Resolver;
 import org.apache.abdera2.common.templates.CachingContext;
 import org.apache.abdera2.common.templates.Context;
@@ -46,6 +47,7 @@ import org.apache.abdera2.common.templates.Route;
  * The RouteManager can be used by Provider implementations as the target resolver and target builder
  */
 public class RouteManager<T,X extends RequestContext> 
+  extends AbstractResolver<Target,X>
   implements Resolver<Target,X>, 
              TargetBuilder<T> {
 

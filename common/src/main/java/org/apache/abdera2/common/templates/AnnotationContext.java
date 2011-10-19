@@ -1,6 +1,7 @@
 package org.apache.abdera2.common.templates;
 
 import org.apache.abdera2.common.anno.Param;
+import static com.google.common.base.Preconditions.*;
 
 public class AnnotationContext extends MapContext {
 
@@ -16,15 +17,14 @@ public class AnnotationContext extends MapContext {
   }
   
   public AnnotationContext(Object object) {
+    checkNotNull(object);
     org.apache.abdera2.common.anno.Context context = getContext(object);
-    if (object == null)
-      throw new IllegalArgumentException();
-    else process(context);
+    checkNotNull(context);
+    process(context);
   }
   
   public static org.apache.abdera2.common.anno.Context getContext(Object object) {
-    if (object == null) 
-      throw new IllegalArgumentException();
+    checkNotNull(object);
     Class<?> _class = 
       object instanceof Class<?> ? 
           (Class<?>)object : object.getClass();

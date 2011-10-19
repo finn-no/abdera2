@@ -27,17 +27,27 @@ import java.io.InputStream;
 public class CharsetSniffingInputStream extends FilterInputStream {
 
     public static enum Encoding {
-        UTF32be("UTF-32", true, new byte[] {0x00, 0x00, 0xFFFFFFFE, 0xFFFFFFFF}), UTF32le("UTF-32", true,
-            new byte[] {0xFFFFFFFF, 0xFFFFFFFE, 0x00, 0x00}), INVALID(null, true, new byte[] {0xFFFFFFFE, 0xFFFFFFFF,
-                                                                                              0x00, 0x00},
-            new byte[] {0x00, 0x00, 0xFFFFFFFF, 0xFFFFFFFE}), UTF16be("UTF-16", true, new byte[] {0xFFFFFFFE,
-                                                                                                  0xFFFFFFFF}), UTF16le(
-            "UTF-16", true, new byte[] {0xFFFFFFFF, 0xFFFFFFFE}), UTF8("UTF-8", true, new byte[] {0xFFFFFFEF,
-                                                                                                  0xFFFFFFBB,
-                                                                                                  0xFFFFFFBF}), UTF32be2(
-            "UTF-32be", false, new byte[] {0x00, 0x00, 0x00, 0x3C}), UTF32le2("UTF-32le", false,
-            new byte[] {0x3C, 0x00, 0x00, 0x00}), UTF16be2("UTF-16be", false, new byte[] {0x00, 0x3C, 0x00, 0x3F}), UTF16le2(
-            "UTF-16le", false, new byte[] {0x3C, 0x00, 0x3F, 0x00});
+        UTF32be("UTF-32", true, 
+            new byte[] {0x00, 0x00, 0xFFFFFFFE, 0xFFFFFFFF}), 
+        UTF32le("UTF-32", true,
+            new byte[] {0xFFFFFFFF, 0xFFFFFFFE, 0x00, 0x00}), 
+        INVALID(null, true, 
+            new byte[] {0xFFFFFFFE, 0xFFFFFFFF, 0x00, 0x00},
+            new byte[] {0x00, 0x00, 0xFFFFFFFF, 0xFFFFFFFE}), 
+        UTF16be("UTF-16", true, 
+            new byte[] {0xFFFFFFFE,0xFFFFFFFF}), 
+        UTF16le("UTF-16", true, 
+            new byte[] {0xFFFFFFFF, 0xFFFFFFFE}), 
+        UTF8("UTF-8", true, 
+            new byte[] {0xFFFFFFEF,0xFFFFFFBB,0xFFFFFFBF}), 
+        UTF32be2("UTF-32be", false, 
+            new byte[] {0x00, 0x00, 0x00, 0x3C}), 
+        UTF32le2("UTF-32le", false, 
+            new byte[] {0x3C, 0x00, 0x00, 0x00}), 
+        UTF16be2("UTF-16be", false, 
+            new byte[] {0x00, 0x3C, 0x00, 0x3F}), 
+        UTF16le2("UTF-16le", false, 
+            new byte[] {0x3C, 0x00, 0x3F, 0x00});
 
         private final String enc;
         private final byte[][] checks;

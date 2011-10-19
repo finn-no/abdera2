@@ -17,14 +17,18 @@
  */
 package org.apache.abdera2.activities.model;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.lang.Iterable;
 
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.selector.Selector;
+import org.joda.time.DateTime;
 
 /**
  * An Activity. Represents some action that has been taken. At it's core,
@@ -167,13 +171,16 @@ public class Activity extends ASObject {
     setProperty(OBJECT, object);
   }
   
-  public Date getPublished() {
+  public DateTime getPublished() {
     return getProperty(PUBLISHED);
   }
   
-  public void setPublished(Date published) {
+  public void setPublished(DateTime published) {
     setProperty(PUBLISHED, published);
-    
+  }
+  
+  public void setPublishedNow() {
+    setPublished(DateTime.now());
   }
   
   public <E extends ASObject>E getProvider() {
@@ -217,13 +224,16 @@ public class Activity extends ASObject {
     
   }
   
-  public Date getUpdated() {
+  public DateTime getUpdated() {
     return getProperty(UPDATED);
   }
   
-  public void setUpdated(Date updated) {
+  public void setUpdated(DateTime updated) {
     setProperty(UPDATED, updated);
-    
+  }
+  
+  public void setUpdatedNow() {
+    setUpdated(DateTime.now());
   }
   
   public IRI getUrl() {
@@ -281,7 +291,15 @@ public class Activity extends ASObject {
   }
   
   public Iterable<ASObject> getAudience(Audience audience) {
-    return getProperty(audience.label());
+    return checkEmpty((Iterable<ASObject>)getProperty(audience.label()));
+  }
+  
+  public Iterable<ASObject> getAudience(Audience audience, Selector<ASObject> selector) {
+    List<ASObject> list = new ArrayList<ASObject>();
+    for (ASObject obj : getAudience(audience))
+      if (selector.apply(obj))
+        list.add(obj);
+    return list;
   }
   
   public void setAudience(Audience audience, Set<ASObject> set) {

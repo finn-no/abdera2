@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.xml.namespace.QName;
 
@@ -51,6 +50,7 @@ import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
 import org.apache.abdera2.writer.Writer;
 import org.apache.abdera2.writer.WriterFactory;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Test;
 
@@ -129,7 +129,7 @@ public class CustomerAdapterTest {
 
         Entry entry = factory.newEntry();
         entry.setTitle("This is ignored right now");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.addAuthor("Acme Industries");
         entry.setId(factory.newUuidUri());
         entry.setSummary("Customer document");

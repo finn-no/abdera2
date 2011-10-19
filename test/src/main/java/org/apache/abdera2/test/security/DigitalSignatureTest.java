@@ -38,6 +38,7 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.Signature;
 import org.apache.abdera2.security.SignatureOptions;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 public class DigitalSignatureTest {
@@ -72,7 +73,7 @@ public class DigitalSignatureTest {
 
         Entry entry = factory.newEntry();
         entry.setId("http://example.org/foo/entry");
-        entry.setUpdated(new java.util.Date());
+        entry.setUpdated(DateTime.now());
         entry.setTitle("This is an entry");
         entry.setContentAsXhtml("This <b>is</b> <i>markup</i>");
         entry.addAuthor("James");

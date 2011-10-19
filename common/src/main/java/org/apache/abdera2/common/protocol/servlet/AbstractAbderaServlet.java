@@ -32,9 +32,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.abdera2.common.http.CacheControl;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.ServiceManager;
 import org.apache.commons.logging.Log;
@@ -80,8 +80,11 @@ public abstract class AbstractAbderaServlet
       HttpServletResponse response,
       ServletContext context) {
       RequestContext reqcontext = new ServletRequestContext(provider, request, context);
-      FilterChain chain = 
-        new FilterChain(provider, reqcontext);
+      Chain<RequestContext,ResponseContext> chain = 
+        Chain.<RequestContext,ResponseContext>make()
+        .to(provider)
+        .via(provider.getFilters(reqcontext))
+        .get();
       try {
           output(request, response, chain.next(reqcontext));
       } catch (Throwable t) {

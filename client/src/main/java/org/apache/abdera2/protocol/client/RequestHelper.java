@@ -47,8 +47,10 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
-public class RequestHelper {
+public final class RequestHelper {
 
+    private RequestHelper() {}
+  
     public static HttpUriRequest createRequest(
       String method, 
       String uri, 

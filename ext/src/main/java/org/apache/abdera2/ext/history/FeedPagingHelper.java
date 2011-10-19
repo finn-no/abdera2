@@ -28,10 +28,19 @@ import static org.apache.abdera2.model.Link.REL_LAST;
 import static org.apache.abdera2.model.Link.REL_NEXT_ARCHIVE;
 import static org.apache.abdera2.model.Link.REL_PREV_ARCHIVE;
 
+import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.model.Document;
+import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElement;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Source;
+import org.apache.abdera2.protocol.client.AbderaClient;
+import org.apache.abdera2.protocol.client.AbderaClientResponse;
+import org.apache.abdera2.protocol.client.AbderaSession;
+import org.apache.abdera2.protocol.client.RequestOptions;
+
+import com.google.common.base.Function;
 
 /**
  * Initial support for Mark Nottingham's Feed Paging and Archiving draft
@@ -254,5 +263,95 @@ public final class FeedPagingHelper {
      */
     public static IRI getCurrent(Source feed) {
         return _getLink(feed,REL_CURRENT);
+    }
+    
+    public static <E extends Element>Document<E> fetchNext(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchNext(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchPrevious(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchPrevious(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchCurrent(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchCurrent(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchLast(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchLast(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchNextArchive(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchNextArchive(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchPreviousArchive(Source source) {
+      AbderaClient client = new AbderaClient();
+      AbderaSession session = client.newSession();
+      return fetchPreviousArchive(source, session);
+    }
+    
+    public static <E extends Element>Document<E> fetchNext(Source source, AbderaSession session) {
+      return fetch(getNext(source),session);
+    }
+    
+    public static <E extends Element>Document<E> fetchPrevious(Source source, AbderaSession session) {
+      return fetch(getPrevious(source),session);
+    }
+    
+    public static <E extends Element>Document<E> fetchCurrent(Source source, AbderaSession session) {
+      return fetch(getCurrent(source),session);
+    }
+    
+    public static <E extends Element>Document<E> fetchLast(Source source, AbderaSession session) {
+      return fetch(getLast(source),session);
+    }
+    
+    public static <E extends Element>Document<E> fetchNextArchive(Source source, AbderaSession session) {
+      return fetch(getNextArchive(source),session);
+    }
+    
+    public static <E extends Element>Document<E> fetchPreviousArchive(Source source, AbderaSession session) {
+      return fetch(getPreviousArchive(source),session);
+    }
+    
+    private static <E extends Element>Document<E> fetch(IRI iri, AbderaSession session) {
+      if (iri == null) return null;
+      PageFetch<E> fetch = new PageFetch<E>(iri.toString(), session);
+      return fetch.apply(session.getDefaultRequestOptions());
+    }
+    
+    public static class PageFetch<E extends Element>
+      implements Function<RequestOptions,Document<E>> {
+        private final String uri;
+        private final AbderaSession session;
+        public PageFetch(String uri, AbderaSession session) {
+          this.uri = uri;
+          this.session = session;
+        }
+        public Document<E> apply(RequestOptions options) {
+          AbderaClientResponse resp = session.get(uri,options);
+          switch(resp.getType()) {
+          case SUCCESSFUL:
+            return resp.getDocument();
+          default:
+            org.apache.abdera2.protocol.error.Error.create(
+              Abdera.getInstance(), 
+              resp.getStatus(), 
+              resp.getStatusText())
+                .throwException();
+            return null;
+          }
+        }
     }
 }

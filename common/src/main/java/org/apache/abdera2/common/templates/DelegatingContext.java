@@ -18,7 +18,7 @@
 package org.apache.abdera2.common.templates;
 
 import java.util.Iterator;
-
+import static com.google.common.base.Preconditions.*;
 @SuppressWarnings("unchecked")
 public abstract class DelegatingContext extends AbstractContext {
 
@@ -26,6 +26,7 @@ public abstract class DelegatingContext extends AbstractContext {
     protected final Context subcontext;
 
     protected DelegatingContext(Context subcontext) {
+        checkNotNull(subcontext);
         this.subcontext = subcontext;
     }
 

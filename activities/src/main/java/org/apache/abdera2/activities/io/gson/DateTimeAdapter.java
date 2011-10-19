@@ -15,33 +15,18 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.parser.filter;
+package org.apache.abdera2.activities.io.gson;
 
-import javax.xml.namespace.QName;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
-/**
- * A ParseFilter that is based on an internal collection of QName's.
- */
-public interface SetParseFilter extends ParseFilter {
-
-    /**
-     * Add an element QName to the parse filter
-     */
-    SetParseFilter add(QName qname);
-
-    /**
-     * Returns true if the given qname has been added to the filter
-     */
-    boolean contains(QName qname);
-
-    /**
-     * Adds an attribute to the parse filter
-     */
-    SetParseFilter add(QName parent, QName attribute);
-
-    /**
-     * Returns true if the given attribute has been added to the filter
-     */
-    boolean contains(QName qname, QName attribute);
-
+@AdaptedType(DateTime.class)
+public class DateTimeAdapter
+  extends SimpleAdapter<DateTime> {
+  protected String serialize(DateTime t) {
+    return ISODateTimeFormat.dateTime().print(t);
+  }
+  protected DateTime deserialize(String v) {
+    return DateTime.parse(v);
+  }
 }

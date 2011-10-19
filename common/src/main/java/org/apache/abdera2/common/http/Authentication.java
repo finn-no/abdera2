@@ -16,7 +16,7 @@
  * directory of this distribution.
  */
 package org.apache.abdera2.common.http;
-
+import static com.google.common.base.Preconditions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,13 +30,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.text.CharUtils.Profile;
 import org.apache.abdera2.common.text.Codec;
 import static org.apache.abdera2.common.text.CharUtils.unquote;
 import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
-import static org.apache.abdera2.common.text.CharUtils.isToken;
 import static org.apache.abdera2.common.text.CharUtils.quoted;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+
+import com.google.common.base.Supplier;
 
 /**
  * Implementation of the HTTP Challenge/Credentials Construct. This is helpful when 
@@ -64,28 +66,33 @@ public class Authentication implements Iterable<String>, Serializable {
   private final static Set<String> ALWAYS = 
     new HashSet<String>();
   static {
-      ALWAYS.add("domain");
-      ALWAYS.add("nonce");
-      ALWAYS.add("opaque");
-      ALWAYS.add("qop");
-      ALWAYS.add("realm");
+      alwaysQuote(
+        "domain",
+        "nonce",
+        "opaque",
+        "qop",
+        "realm");
   }
   
-  public static void alwaysQuote(String name) {
-    if (name == null)
-      throw new IllegalArgumentException();
-    ALWAYS.add(name);
+  public static synchronized void alwaysQuote(String... names) {
+    checkNotNull(names);
+    checkArgument(names.length > 0);
+    for (String name : names)
+      ALWAYS.add(name);
   }
   
   public static Iterable<Authentication> parse(String challenge) {
+    checkNotNull(challenge);
     List<Authentication> challenges = new ArrayList<Authentication>();
     Matcher matcher = pattern.matcher(challenge);
     while (matcher.find()) {
       String scheme = matcher.group(1);
       String params = matcher.group(2);
       String b64token = matcher.group(3); 
-      Authentication chal = 
-        new Authentication(scheme,b64token);
+      Authentication.Builder auth = 
+        make()
+          .scheme(scheme)
+          .b64token(b64token);
       if (params != null) {
         Matcher mparams = param.matcher(params);
         while(mparams.find()) {
@@ -94,12 +101,59 @@ public class Authentication implements Iterable<String>, Serializable {
           String name = ps[0];
           if (name.charAt(name.length()-1)=='*')
             name = name.substring(0,name.length()-1);
-          chal.add(name, Codec.decode(unquote(ps[1])));
+          auth.param(name, Codec.decode(unquote(ps[1])));
         }
       }
-      challenges.add(chal);
+      challenges.add(auth.get());
     }
     return challenges;
+  }
+
+  public static class Builder 
+    implements Supplier<Authentication> {
+    private String scheme;
+    private String b64token;
+    private Map<String,String> params = 
+      new HashMap<String,String>();
+    private Set<String> quoted = 
+      new HashSet<String>();
+    
+    public Authentication get() {
+      checkNotNull(scheme);
+      return new Authentication(this);
+    }
+   
+    public Builder param(String name, String val) {
+      params.put(name, val);
+      return this;
+    }
+    
+    public Builder quotedParam(String name, String val) {
+      param(name,val);
+      quoted.add(name);
+      return this;
+    }
+    
+    public Builder isQuoted(String name) {
+      quoted.add(name);
+      return this;
+    }
+    
+    public Builder scheme(String scheme) {
+      checkNotNull(scheme);
+      this.scheme = scheme.toLowerCase();
+      return this;
+    }
+    
+    public Builder b64token(String token) {
+      this.b64token = token;
+      return this;
+    }
+   
+  }
+  
+  public static Builder make() {
+    return new Builder();
   }
   
   private final String scheme;
@@ -114,14 +168,16 @@ public class Authentication implements Iterable<String>, Serializable {
   }
   
   public Authentication(String scheme, String b64token) {
-    if (scheme == null)
-      throw new IllegalArgumentException();
+    checkNotNull(scheme);
     this.scheme = scheme.toLowerCase(Locale.US);
     this.b64token = b64token;
   }
   
-  private void add(String name, String value) {
-    params.put(name,value);
+  private Authentication(Builder builder) {
+    this.scheme = builder.scheme;
+    this.b64token = builder.b64token;
+    this.params.putAll(builder.params);
+    this.quoted.addAll(builder.quoted);
   }
   
   public String getScheme() {
@@ -138,22 +194,6 @@ public class Authentication implements Iterable<String>, Serializable {
   
   private static boolean is_always_quoted(String name) {
     return name != null ? ALWAYS.contains(name) : false;
-  }
-  
-  public void setParam(String name, String val) {
-    if (val == null)
-      params.remove(name);
-    else
-      params.put(name, val);
-  }
-  
-  public void setQuotedParam(String name, String val) {
-    setParam(name,val);
-    quoted.add(name);
-  }
-  
-  public void setQuotedParam(String name) {
-    quoted.add(name);
   }
   
   public boolean hasParam(String name) {
@@ -183,7 +223,7 @@ public class Authentication implements Iterable<String>, Serializable {
         String val = getParam(param);
         buf.append(param);
         boolean always = is_always_quoted(param) || isquoted(param);
-        if (!isToken(val) && !always) {
+        if (Profile.TOKEN.check(val) && !always) {
           buf.append('*')
              .append('=')
              .append(Codec.encode(val,Codec.STAR));

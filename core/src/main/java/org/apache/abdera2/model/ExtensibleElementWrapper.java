@@ -28,7 +28,7 @@ import org.apache.abdera2.factory.Factory;
  * ElementWrapper implementation that implements the ExtensibleElement interface. This should be used to create static
  * extension elements that support extensions
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public abstract class ExtensibleElementWrapper extends ElementWrapper implements ExtensibleElement {
 
     protected ExtensibleElementWrapper(Element internal) {

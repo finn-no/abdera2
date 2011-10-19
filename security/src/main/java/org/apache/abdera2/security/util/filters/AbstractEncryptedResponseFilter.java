@@ -25,10 +25,10 @@ import java.security.Provider;
 import java.security.Security;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
@@ -52,13 +52,12 @@ public abstract class AbstractEncryptedResponseFilter implements Filter {
             Security.addProvider(provider);
     }
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
         Object arg = initArg(request);
         if (doEncryption(request, arg)) {
-            return (S)new EncryptingResponseContext(AbstractAtompubProvider.getAbdera(request), request, chain.next(request), arg);
+            return new EncryptingResponseContext(AbstractAtompubProvider.getAbdera(request), request, chain.next(request), arg);
         } else {
-            return (S)chain.next(request);
+            return chain.next(request);
         }
     }
 

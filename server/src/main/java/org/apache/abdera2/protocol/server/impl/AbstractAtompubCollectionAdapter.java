@@ -18,7 +18,6 @@
 package org.apache.abdera2.protocol.server.impl;
 
 import java.io.IOException;
-import java.util.Date;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
@@ -37,6 +36,7 @@ import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
+import org.joda.time.DateTime;
 
 /**
  * Base CollectionAdapter implementation that provides a number of helper utility methods for adapter implementations.
@@ -117,7 +117,7 @@ public abstract class AbstractAtompubCollectionAdapter
         feed.addLink("");
         feed.addLink("", "self");
         feed.addAuthor(getAuthor(request));
-        feed.setUpdated(new Date());
+        feed.setUpdated(DateTime.now());
         return feed;
     }
 

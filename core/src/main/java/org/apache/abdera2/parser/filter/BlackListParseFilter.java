@@ -24,15 +24,30 @@ import javax.xml.namespace.QName;
  * based filtering is problematic, at best, due largely to the fact that it's easier to define safe subsets of elements
  * than it is to define unsafe subsets.
  */
-public class BlackListParseFilter extends AbstractSetParseFilter {
+public class BlackListParseFilter 
+  extends AbstractSetParseFilter {
 
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static class Builder extends AbstractSetParseFilter.Builder<BlackListParseFilter> {
+    public BlackListParseFilter get() {
+      return new BlackListParseFilter(this);
+    } 
+  }
+  
     private static final long serialVersionUID = -8428373486568649179L;
 
+    protected BlackListParseFilter(Builder builder) {
+      super(builder);
+    }
+    
     public boolean acceptable(QName qname) {
-        return !contains(qname);
+        return checkThrow(!contains(qname),qname,null);
     }
 
     public boolean acceptable(QName qname, QName attribute) {
-        return !contains(qname, attribute);
+        return checkThrow(!contains(qname, attribute),qname,attribute);
     }
 }

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Base;
@@ -46,6 +45,7 @@ import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.writer.Writer;
 import org.apache.abdera2.writer.WriterFactory;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -107,7 +107,7 @@ public class BasicTest {
         entry.setTitle("test entry");
         entry.setContent("Test Content");
         entry.addLink("http://example.org");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.addAuthor("James");
         AbderaSession session = (AbderaSession) client.newSession();
         AbderaClientResponse resp = (AbderaClientResponse) session.post("http://localhost:9002/sample", entry);

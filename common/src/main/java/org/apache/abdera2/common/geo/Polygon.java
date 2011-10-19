@@ -21,57 +21,74 @@ public class Polygon extends Multiple {
 
     private static final long serialVersionUID = 5387230171535985909L;
 
-    public Polygon() {
-        super();
+    public static Polygon with(Iterable<Coordinate> coordinates) {
+      Builder builder = make();
+      for (Coordinate c : coordinates)
+        builder.add(c);
+      return builder.get();    
     }
-
-    public Polygon(Multiple multiple) {
-        super(multiple);
-        verify();
+    
+    public static Polygon with(Coordinate... coordinates) {
+      Builder builder = make();
+      for (Coordinate c : coordinates)
+        builder.add(c);
+      return builder.get();
     }
-
-    public Polygon(Point point) {
-        super(point);
-        verify();
+    
+    public static Polygon with(String... positions) {
+      Builder builder = make();
+      for (String p : positions)
+        builder.add(p);
+      return builder.get();
     }
-
-    public Polygon(Coordinate... coordinates) {
-        super(coordinates);
-        verify();
+    
+    public static Polygon with(IsoPosition... positions) {
+      Builder builder = make();
+      for (IsoPosition p : positions)
+        builder.add(p);
+      return builder.get();
     }
-
-    public Polygon(Coordinates coordinates) {
-        super(coordinates);
-        verify();
+    
+    
+    public static Builder make(Iterable<Coordinate> coordinates) {
+      Builder builder = make();
+      for (Coordinate c : coordinates)
+        builder.add(c);
+      return builder;    
     }
-
-    public Polygon(String value) {
-        super(value);
-        verify();
+    
+    public static Builder make(Coordinate... coordinates) {
+      Builder builder = make();
+      for (Coordinate c : coordinates)
+        builder.add(c);
+      return builder;
     }
-
-    public Polygon(Multiple... multiples) {
-        super(multiples);
-        verify();
+    
+    public static Builder make(String... positions) {
+      Builder builder = make();
+      for (String p : positions)
+        builder.add(p);
+      return builder;
     }
-
-    public Polygon(Point... points) {
-        super(points);
-        verify();
+    
+    public static Builder make(IsoPosition... positions) {
+      Builder builder = make();
+      for (IsoPosition p : positions)
+        builder.add(p);
+      return builder;
     }
-
-    public Polygon(double... values) {
-        super(values);
-        verify();
+    
+    public static Builder make() {
+      return new Builder();
     }
-
-    @Override
-    public void setCoordinates(Coordinates coordinates) {
-        super.setCoordinates(coordinates);
-        verify();
+    
+    public static class Builder extends Multiple.Builder<Polygon> {
+      public Polygon get() {
+        return new Polygon(this);
+      }
     }
-
-    public void verify() {
-        super.verify179Rule();
+ 
+    public Polygon(Builder builder) {
+      super(builder);
     }
 }

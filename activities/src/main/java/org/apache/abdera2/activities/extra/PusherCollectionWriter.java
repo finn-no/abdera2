@@ -11,6 +11,7 @@ import org.apache.abdera2.common.pusher.Pusher;
  * and pusher.pushAll methods. The writeHeader and complete methods are 
  * ignored.
  */
+@SuppressWarnings("unchecked")
 public class PusherCollectionWriter 
   implements CollectionWriter {
 
@@ -23,21 +24,25 @@ public class PusherCollectionWriter
   /**
    * Ignored in this implementation
    */
-  public void writeHeader(ASBase base) {
+  public <X extends CollectionWriter>X writeHeader(ASBase base) {
     // We ignore this in the pusher...
+    return (X)this;
   }
 
-  public void writeObject(ASObject object) {
+  public <X extends CollectionWriter>X writeObject(ASObject object) {
     pusher.push(object);
+    return (X)this;
   }
 
-  public void writeObjects(ASObject... objects) {
+  public <X extends CollectionWriter>X writeObjects(ASObject... objects) {
     for (ASObject object : objects)
       pusher.push(object);
+    return (X)this;
   }
-
-  public void writeObjects(Iterable<ASObject> objects) {
+  
+  public <X extends CollectionWriter>X writeObjects(Iterable<ASObject> objects) {
     pusher.pushAll(objects);
+    return (X)this;
   }
 
   /**

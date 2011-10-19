@@ -85,7 +85,7 @@ public class JSONServlet extends HttpServlet {
             if (doc.getLanguage() != null)
                 response.setHeader("Content-Language", doc.getLanguage());
             if (doc.getLastModified() != null)
-                response.setDateHeader("Last-Modified", doc.getLastModified().getTime());
+                response.setDateHeader("Last-Modified", doc.getLastModified().getMillis());
             OutputStream out = response.getOutputStream();
             doc.writeTo("json", out);
         } catch (Exception e) {

@@ -25,11 +25,16 @@ import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.text.CharUtils;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+
 /**
  * Provides parsing and properly handling of the HTTP Cache-Control header.
  */
-public class CacheControlUtil {
+public final class CacheControlUtil {
 
+    private CacheControlUtil() {}
+  
     private static long value(String val) {
         return (val != null) ? Long.parseLong(val) : -1;
     }
@@ -40,6 +45,8 @@ public class CacheControlUtil {
         buf.append(value);
     }
 
+    private static final Joiner joiner = Joiner.on(',').skipNulls();
+    
     /**
      * Construct the Cache-Control header from info in the request object
      */
@@ -47,13 +54,10 @@ public class CacheControlUtil {
         StringBuilder buf = new StringBuilder();
         if (cacheControl.isPrivate()) {
             append(buf, "private");
-            String[] headers = cacheControl.getPrivateHeaders();
-            if (headers != null && headers.length > 0) {
+            Iterable<String> headers = cacheControl.getPrivateHeaders();
+            if (!Iterables.isEmpty(headers)) {
               buf.append("=\"");
-              for (int n = 0; n < headers.length; n++) {
-                if (n > 0) buf.append(",");
-                buf.append(headers[n]);
-              }
+              joiner.appendTo(buf, headers);
               buf.append("\"");
             }
         }
@@ -61,13 +65,10 @@ public class CacheControlUtil {
             append(buf, "public");
         if (cacheControl.isNoCache()) {
             append(buf, "no-cache");
-            String[] headers = cacheControl.getNoCacheHeaders();
-            if (headers != null && headers.length > 0) {
+            Iterable<String> headers = cacheControl.getNoCacheHeaders();
+            if (!Iterables.isEmpty(headers)) {
               buf.append("=\"");
-              for (int n = 0; n < headers.length; n++) {
-                if (n > 0) buf.append(",");
-                buf.append(headers[n]);
-              }
+              joiner.appendTo(buf,headers);
               buf.append("\"");
             }   
         }
@@ -112,13 +113,14 @@ public class CacheControlUtil {
     /**
      * Parse the Cache-Control header
      */
-    public static void parseCacheControl(String cc, CacheControl cacheControl) {
-        if (cc == null) return;
-        cacheControl.setDefaults();
+    public static CacheControl.Builder parseCacheControl(String cc, CacheControl.Builder builder) {
+        if (cc == null) return builder;
+        builder.defaults();
         CacheControlParser parser = new CacheControlParser(cc);
         for (Directive directive : parser)
-          directive.set(cacheControl, parser);
-        cacheControl.setExtensions(parser.getExtensions());
+          directive.set(builder, parser);
+        builder.extensions(parser.getExtensions());
+        return builder;
     }
 
     /**
@@ -149,48 +151,48 @@ public class CacheControlUtil {
             return UNKNOWN;
         }
         
-        public void set(CacheControl cacheControl, CacheControlParser parser) {
+        public void set(CacheControl.Builder builder, CacheControlParser parser) {
           switch (this) {
           case NOCACHE:
-              cacheControl.setNoCache(true);
-              cacheControl.setNoCacheHeaders(parser.getValues(this));
+              builder.noCache(true);
+              builder.noCacheHeaders(parser.getValues(this));
               break;
           case NOSTORE:
-              cacheControl.setNoStore(true);
+              builder.noStore(true);
               break;
           case NOTRANSFORM:
-              cacheControl.setNoTransform(true);
+              builder.noTransform(true);
               break;
           case ONLYIFCACHED:
-              cacheControl.setOnlyIfCached(true);
+              builder.onlyIfCached(true);
               break;
           case MAXAGE:
-              cacheControl.setMaxAge(value(parser.getValue(this)));
+              builder.maxAge(value(parser.getValue(this)));
               break;
           case MAXSTALE:
-              cacheControl.setMaxStale(value(parser.getValue(this)));
+              builder.maxStale(value(parser.getValue(this)));
               break;
           case MINFRESH:
-              cacheControl.setMinFresh(value(parser.getValue(this)));
+              builder.minFresh(value(parser.getValue(this)));
               break;
           case STALEIFERROR:
-              cacheControl.setStaleIfError(value(parser.getValue(this)));
+              builder.staleIfError(value(parser.getValue(this)));
               break;
           case MUSTREVALIDATE:
-              cacheControl.setMustRevalidate(true);
+              builder.mustRevalidate(true);
               break;
           case PROXYREVALIDATE:
-              cacheControl.setProxyRevalidate(true);
+              builder.proxyRevalidate(true);
               break;
           case PUBLIC:
-              cacheControl.setPublic(true);
+              builder.isPublic(true);
               break;
           case PRIVATE:
-              cacheControl.setPrivate(true);
-              cacheControl.setPrivateHeaders(parser.getValues(this));
+              builder.isPrivate(true);
+              builder.privateHeaders(parser.getValues(this));
             break;
           case STALEWHILEREVALIDATE:
-            cacheControl.setStaleWhileRevalidate(value(parser.getValue(this)));
+            builder.staleWhileRevalidate(value(parser.getValue(this)));
             break;
           }
         }

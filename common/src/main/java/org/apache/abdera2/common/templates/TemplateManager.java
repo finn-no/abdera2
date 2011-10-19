@@ -16,121 +16,147 @@
  * directory of this distribution.
  */
 package org.apache.abdera2.common.templates;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
 
-
+import com.google.common.base.Supplier;
+import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.misc.MorePreconditions.*;
+@SuppressWarnings("unchecked")
 public class TemplateManager<T>
   implements Iterable<T> { 
 
+  public static <M>Builder<M> make() {
+    return new Builder<M>();
+  }
+  
+  public static class Builder<T> {
+    
+    protected final Map<T,Template> templates = 
+      new HashMap<T,Template>();
+    protected boolean isiri;
+    protected IRI base;
+    protected final MultiContext contextDefaults = 
+      new MultiContext();
+       
+    public Builder() {}
+    
+    public <M extends Builder<T>>M add(T key, Template template) {
+      checkNotNull(key);
+      checkNotNull(template);
+      this.templates.put(key,template);
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M add(T key, String template) {
+      checkNotNull(key);
+      checkNotNull(template);
+      return (M)add(key, new Template(template));
+    }
+    
+    public <M extends Builder<T>>M add(T key, Object template) {
+      checkNotNull(template);
+      checkNotNull(key);
+      checkArgumentTypes(template,Map.class,Collection.class);
+      if (template instanceof Supplier)
+        return add(key,((Supplier<?>)template).get());
+      Template temp = 
+        template instanceof Template ?
+          (Template)template :
+        new Template(template);
+      return (M)add(key, temp);
+    }
+    
+    public <M extends Builder<T>>M add(Map<T,Object> templates) {
+      checkNotNull(templates);
+      for (Map.Entry<T,Object> entry : templates.entrySet())
+        add(entry.getKey(),entry.getValue());
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M asIri() {
+      this.isiri = true;
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withDefaults(Context context) {
+      checkNotNull(context);
+      this.contextDefaults.add(context);
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withDefaults(MapContext context) {
+      checkNotNull(context);
+      this.contextDefaults.add(context);
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withDefaults(Map<String,Object> map) {
+      checkNotNull(map);
+      this.contextDefaults.add(new MapContext(map));
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withDefaults(Object context) {
+      checkNotNull(context);
+      this.contextDefaults.add(new ObjectContext(context));
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withBase(IRI iri) {
+      checkNotNull(iri);
+      this.base = iri;
+      return (M)this;
+    }
+    
+    public <M extends Builder<T>>M withBase(String iri) {
+      checkNotNull(iri);
+      return (M)withBase(new IRI(iri));
+    }
+    
+    public TemplateManager<T> get() {
+      return new TemplateManager<T>(
+        templates,isiri,base,contextDefaults);
+    }
+  }
+  
   private final Map<T,Template> templates = 
     new HashMap<T,Template>();
   private final boolean isiri;
   private final IRI base;
   private final Context contextDefaults;
 
-  public TemplateManager(String base) {
-    this(new IRI(base));
+  protected TemplateManager(
+    Map<T,Template> templates, 
+    boolean isiri, 
+    IRI base, 
+    Context contextDefaults) {
+      this.templates.putAll(templates);
+      this.isiri = isiri;
+      this.base = base;
+      this.contextDefaults = contextDefaults;
   }
-  
-  public TemplateManager(IRI base) {
-    this.isiri = true;
-    this.base = base;
-    this.contextDefaults = null;
-  }
-  
-  public TemplateManager() {
-    this.isiri = true;
-    this.base = null;
-    this.contextDefaults = null;
-  }
-  
-  public TemplateManager(String base, boolean iri) {
-    this(new IRI(base),iri);
-  }
-  
-  public TemplateManager(IRI base, boolean iri) {
-    this.isiri = iri;
-    this.base = base;
-    this.contextDefaults = null;
-  }
-  
-  public TemplateManager(boolean iri) {
-    this.isiri = iri;
-    this.base = null;
-    this.contextDefaults = null;
-  }
-
-  public TemplateManager(String base, Context defaults) {
-    this(new IRI(base),defaults);
-  }
-  
-  public TemplateManager(IRI base, Context defaults) {
-    if (defaults == null)
-      throw new IllegalArgumentException();
-    this.isiri = defaults.isIri();
-    this.contextDefaults = defaults;
-    this.base = base;
-  }
-  
-  public TemplateManager(Context defaults) {
-    this((IRI)null,defaults);
-  }
-  
-  public TemplateManager(String base, Object defaults) {
-    this(new IRI(base),defaults);
-  }
-  
-  public TemplateManager(IRI base, Object defaults) {
-    this(base,defaults,true);
-  }
- 
-  public TemplateManager(Object defaults) {
-    this((IRI)null,defaults,true);
-  }
-  
-  public TemplateManager(Object defaults, boolean isiri) {
-    this(_innerContext(defaults,isiri));
-  }
-  
-  public TemplateManager(String base, Object defaults, boolean isiri) {
-    this(new IRI(base),defaults,isiri);
-  }
-  
-  public TemplateManager(IRI base, Object defaults, boolean isiri) {
-    this(base,_innerContext(defaults,isiri));
-  }
-  
+    
   public Context getDefaultContext() {
     return this.contextDefaults;
   }
   
-  public void add(T key, Template template) {
-    this.templates.put(key,template);
-  }
-  
-  public void add(T key, String template) {
-    add(key, new Template(template));
-  }
-  
-  public void add(T key, Object template) {
-    add(key, new Template(template));
-  }
-  
-  public void add(Map<T,Object> templates) {
-    TemplateManager<T> tm = fromMap(templates);
-    this.templates.putAll(tm.templates);
-  }
-  
   public String expandAndResolve(T key, Object object, String base) {
+    checkNotNull(key);
+    checkNotNull(object);
+    checkNotNull(base);
     IRI iri = expandAndResolve(key,object,new IRI(base));
     return iri != null ? iri.toString() : null;
   }
   
   public IRI expandAndResolve(T key, Object object, IRI base) {
+    checkNotNull(key);
+    checkNotNull(object);
+    checkNotNull(base);
     String ex = expand(key,object);
     return ex != null ? 
         base == null ? 
@@ -162,6 +188,8 @@ public class TemplateManager<T>
   }
   
   public String expand(T key, Object object) {
+    checkNotNull(key);
+    checkNotNull(object);
     if (!templates.containsKey(key))
       return null;
     Template template = templates.get(key);
@@ -169,19 +197,20 @@ public class TemplateManager<T>
   }
   
   public String expand(T key) {
-    if (contextDefaults == null)
-      throw new IllegalArgumentException();
+    checkNotNull(key);
+    checkNotNull(contextDefaults);
     return expand(key,contextDefaults);
   }
   
   public String expand(T key, Context context) {
+    checkNotNull(key);
+    checkNotNull(context);
     if (!templates.containsKey(key))
       return null;
     Template template = templates.get(key);
     return template.expand(_wrap(context,contextDefaults));
   }
   
-  @SuppressWarnings("unchecked")
   private static Context _innerContext(Object object, boolean isiri) {
     return object instanceof Context ? (Context)object : object instanceof Map
         ? new MapContext((Map<String,Object>)object, isiri) : new ObjectContext(object, isiri);
@@ -232,11 +261,38 @@ public class TemplateManager<T>
     return true;
   }
  
-  public static <T>TemplateManager<T> fromMap(Map<T,Object> map) {
-    TemplateManager<T> tm = new TemplateManager<T>();
-    for (Map.Entry<T, Object> entry : map.entrySet()) {
-      tm.add(entry.getKey(),entry.getValue());
+  public Supplier<String> supplierFor(T key, Object context) {
+    checkNotNull(key);
+    checkNotNull(context);
+    return new TMSupplier<T>(this,key,context);
+  }
+  
+  public Supplier<String> supplierFor(T key) {
+    checkNotNull(key);
+    return new TMSupplier<T>(this,key,null);
+  }
+  
+  private static class TMSupplier<T>
+    implements Supplier<String> {
+    private final T key;
+    private final TemplateManager<T> tm;
+    private final Object context;
+    TMSupplier(TemplateManager<T> tm, T key, Object context) {
+      this.key = key;
+      this.tm = tm;
+      this.context = context;
     }
-    return tm;
+    public String get() {
+      return context != null ?
+        tm.expand(key,context) : 
+        tm.expand(key);
+    }
+  }
+  
+  public static <T>TemplateManager<T> fromMap(Map<T,Object> map) {
+    checkNotNull(map);
+    Builder<T> b = make();
+    b.add(map);
+    return b.get();
   }
 }

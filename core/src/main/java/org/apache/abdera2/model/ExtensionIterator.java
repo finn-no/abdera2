@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 /**
  * Most of the original code for this class came from the OMChildrenQNameIterator from Axiom
  */
+@SuppressWarnings("rawtypes")
 public class ExtensionIterator implements Iterator<Element> {
 
     /**

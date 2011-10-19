@@ -19,9 +19,11 @@ package org.apache.abdera2.model;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.namespace.QName;
 
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.factory.Factory;
 
 /**
@@ -37,18 +39,18 @@ public abstract class DateTimeWrapper extends ElementWrapper implements DateTime
         super(factory, qname);
     }
 
-    public org.apache.abdera2.common.date.DateTime getValue() {
-        org.apache.abdera2.common.date.DateTime value = null;
+    public org.joda.time.DateTime getValue() {
+        org.joda.time.DateTime value = null;
         String v = getText();
         if (v != null) {
-            value = org.apache.abdera2.common.date.DateTime.valueOf(v);
+            value = org.joda.time.DateTime.parse(v);
         }
         return value;
     }
 
-    public DateTime setValue(org.apache.abdera2.common.date.DateTime dateTime) {
+    public DateTime setValue(org.joda.time.DateTime dateTime) {
         if (dateTime != null)
-            setText(dateTime.getValue());
+            setText(DateTimes.format(dateTime));
         else
             setText("");
         return this;
@@ -56,7 +58,7 @@ public abstract class DateTimeWrapper extends ElementWrapper implements DateTime
 
     public DateTime setDate(Date date) {
         if (date != null)
-            setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            setText(DateTimes.format(date));
         else
             setText("");
         return this;
@@ -64,43 +66,43 @@ public abstract class DateTimeWrapper extends ElementWrapper implements DateTime
 
     public DateTime setCalendar(Calendar date) {
         if (date != null)
-            setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            setText(DateTimes.format(date));
         else
             setText("");
         return this;
     }
 
     public DateTime setTime(long date) {
-        setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+        setText(DateTimes.format(date));
         return this;
     }
 
     public DateTime setString(String date) {
         if (date != null)
-            setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            setText(DateTimes.format(date));
         else
             setText("");
         return this;
     }
 
     public Date getDate() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getDate() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.toDate() : null;
     }
 
     public Calendar getCalendar() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getCalendar() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.toCalendar(Locale.getDefault()) : null;
     }
 
     public long getTime() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getTime() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.getMillis() : null;
     }
 
     public String getString() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getValue() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? DateTimes.format(ad) : null;
     }
 
 }

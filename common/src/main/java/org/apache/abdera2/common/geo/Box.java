@@ -17,71 +17,90 @@
  */
 package org.apache.abdera2.common.geo;
 
+import java.util.Iterator;
+
+import static com.google.common.base.Preconditions.*;
 public class Box extends Multiple {
 
     private static final String TWO_COORDINATES = "A box must have two coordinates";
     private static final long serialVersionUID = 3994252648307511152L;
 
-    public Box() {
-        super();
+    public static Box at(Iterable<Coordinate> coordinates) {
+      Iterator<Coordinate> i = coordinates.iterator();
+      return make().add(i.next()).add(i.next()).get();
     }
-
-    public Box(Multiple multiple) {
-        super(multiple);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Box at(Coordinate lowerCorner, Coordinate upperCorner) {
+      return make().add(lowerCorner).add(upperCorner).get();
     }
-
-    public Box(Point lowerCorner, Point upperCorner) {
-        super(lowerCorner, upperCorner);
+    
+    public static Box at(String lowerCorner, String upperCorner) {
+      return make().add(lowerCorner).add(upperCorner).get();
     }
-
-    public Box(Coordinate lowerCorner, Coordinate upperCorner) {
-        super(lowerCorner,upperCorner);
+    
+    public static Box at(IsoPosition lowerCorner, IsoPosition upperCorner) {
+      return make().add(lowerCorner).add(upperCorner).get();
     }
-
-    public Box(Coordinates coordinates) {
-        super(coordinates);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Box at(double lowerCornerLat, double lowerCornerLong, double upperCornerLat, double upperCornerLong) {
+      return make().add(lowerCornerLat,lowerCornerLong).add(upperCornerLat,upperCornerLong).get();
     }
-
-    public Box(String value) {
-        super(value);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    
+    public static Builder make(Iterable<Coordinate> coordinates) {
+      Iterator<Coordinate> i = coordinates.iterator();
+      return make().add(i.next()).add(i.next());
     }
-
-    public Box(Multiple... multiples) {
-        super(multiples);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Builder make(Coordinate lowerCorner, Coordinate upperCorner) {
+      return make().add(lowerCorner).add(upperCorner);
     }
-
-    public Box(Point... points) {
-        super(points);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Builder make(String lowerCorner, String upperCorner) {
+      return make().add(lowerCorner).add(upperCorner);
     }
-
-    public Box(double... values) {
-        super(values);
-        if (this.coordinates.size() != 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Builder make(IsoPosition lowerCorner, IsoPosition upperCorner) {
+      return make().add(lowerCorner).add(upperCorner);
     }
-
-    @Override
-    public void setCoordinates(Coordinates coordinates) {
-        super.setCoordinates(coordinates);
-        if (this.coordinates.size() > 2)
-            throw new IllegalArgumentException(TWO_COORDINATES);
+    
+    public static Builder make(double lowerCornerLat, double lowerCornerLong, double upperCornerLat, double upperCornerLong) {
+      return make().add(lowerCornerLat,lowerCornerLong).add(upperCornerLat,upperCornerLong);
+    }
+    
+    
+    public static Builder make() {
+      return new Builder();
+    }
+    
+    public static class Builder 
+      extends Multiple.Builder<Box> {
+      
+      public Builder() {
+        noDuplicates()
+        .maximumCoordinates(2);
+      }
+      
+      public Box get() {
+        return new Box(this);
+      }
+    }
+ 
+    private final transient Coordinate lower, upper;
+    
+    public Box(Builder builder) {
+      super(builder);
+      checkArgument(size() == 2, TWO_COORDINATES);
+      Iterator<Coordinate> i = iterator();
+      this.lower = i.next();
+      this.upper = i.next();
     }
 
     public Coordinate getUpperCorner() {
-        return coordinates.size() > 1 ? coordinates.get(1) : null;
+        return upper;
     }
 
     public Coordinate getLowerCorner() {
-        return coordinates.size() > 0 ? coordinates.get(0) : null;
+        return lower;
     }
 }

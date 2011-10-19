@@ -31,12 +31,12 @@ public abstract class AbstractBaseRequestContext
   implements RequestContext {
 
     protected final Provider provider;
-    protected Subject subject;
-    protected Principal principal;
-    protected Target target;
     protected final String method;
     protected final IRI requestUri;
     protected final IRI baseUri;
+    protected Subject subject;
+    protected Principal principal;
+    protected Target target;
     
     protected AbstractBaseRequestContext(
         Provider provider, 

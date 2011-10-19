@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.misc.MorePreconditions.*;
 import org.apache.abdera2.common.templates.CachingContext;
 import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.anno.Name;
@@ -35,24 +37,26 @@ public final class ObjectContext extends CachingContext {
 
     private static final long serialVersionUID = -1387599933658718221L;
     private final Object target;
-    private final Map<String, AccessibleObject> accessors = new HashMap<String, AccessibleObject>();
+    private final Map<String, AccessibleObject> accessors = 
+      new HashMap<String, AccessibleObject>();
 
     public ObjectContext(Object object) {
         this(object, false);
     }
 
     public ObjectContext(Object object, boolean isiri) {
-        if (object == null)
-            throw new IllegalArgumentException();
+        checkNotNull(object);
         this.target = object;
         setIri(isiri);
         initMethods();
     }
-
+    
     private void initMethods() {
         Class<?> _class = target.getClass();
-        if (_class.isAnnotation() || _class.isArray() || _class.isEnum() || _class.isPrimitive())
-            throw new IllegalArgumentException();
+        checkArguments(!_class.isAnnotation(),
+                       !_class.isArray(),
+                       !_class.isEnum(),
+                       !_class.isPrimitive());
         if (!_class.isInterface()) {
             Field[] fields = _class.getFields();
             for (Field field : fields) {

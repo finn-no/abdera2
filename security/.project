@@ -1,0 +1,17 @@
+<projectDescription>
+  <name>abdera2-security</name>
+  <comment>Atom Publishing Protocol Security Implementation. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects>
+    <project>abdera2-common</project>
+    <project>abdera2-core</project>
+    <project>abdera2-server</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

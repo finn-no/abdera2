@@ -16,7 +16,7 @@
  * directory of this distribution.
  */
 package org.apache.abdera2.common.iri;
-
+import static com.google.common.base.Preconditions.*;
 /**
  * Base implementation for IRI scheme providers
  */
@@ -27,8 +27,7 @@ public abstract class AbstractScheme implements Scheme {
     protected final int port;
 
     protected AbstractScheme(String name, int port) {
-        if (name == null)
-          throw new IllegalArgumentException();
+        checkNotNull(name);
         this.name = name.toLowerCase();
         this.port = port;
     }

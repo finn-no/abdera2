@@ -27,14 +27,14 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.abdera2.common.text.CharUtils;
 
+import static com.google.common.base.Preconditions.*;
 public class Compression {
 
     public enum CompressionCodec {
         GZIP, XGZIP, DEFLATE;
 
         public static CompressionCodec value(String encoding) {
-            if (encoding == null)
-                throw new IllegalArgumentException();
+          checkNotNull(encoding);
             return valueOf(encoding.toUpperCase().replaceAll("-", ""));
         }
 
@@ -77,12 +77,8 @@ public class Compression {
         OutputStream out, 
         CompressionCodec... codecs)
         throws IOException {
-      if (out == null)
-        throw new IllegalArgumentException(
-            "OutputStream must not be null");
-      if (codecs.length == 0)
-        throw new IllegalArgumentException(
-            "At least one codec must be specified");
+      checkNotNull(out);
+      checkArgument(codecs.length > 0, "At least one codec must be specified");
       for (int n = codecs.length - 1; n >= 0; n--)
         out = codecs[n].wrap(out);
       return out;      
@@ -93,12 +89,8 @@ public class Compression {
         CompressionCodec codec,
         CompressionCodec... codecs)
         throws IOException {
-        if (out == null)
-          throw new IllegalArgumentException(
-              "OutputStream must not be null");
-        if (codec == null)
-          throw new IllegalArgumentException(
-              "At least one codec must be specified");
+        checkNotNull(out);
+        checkArgument(codec != null, "At least one codec must be specified");
         for (int n = codecs.length - 1; n >= 0; n--)
           out = codecs[n].wrap(out);
         out = codec.wrap(out);
@@ -109,12 +101,8 @@ public class Compression {
       InputStream in, 
       CompressionCodec... codecs)
     throws IOException {
-      if (in == null)
-        throw new IllegalArgumentException(
-            "InputStream must not be null");
-      if (codecs.length == 0)
-        throw new IllegalArgumentException(
-            "At least one codec must be specified");
+      checkNotNull(in);
+      checkArgument(codecs.length > 0, "At least one codec must be specified");
       for (int n = codecs.length - 1; n >= 0; n--)
         in = codecs[n].wrap(in);
       return in;
@@ -124,13 +112,9 @@ public class Compression {
         InputStream in, 
         CompressionCodec codec,
         CompressionCodec... codecs) 
-          throws IOException {
-        if (in == null)
-          throw new IllegalArgumentException(
-              "InputStream must not be null");
-        if (codec == null)
-          throw new IllegalArgumentException(
-              "At least one codec must be specified");
+          throws IOException {  
+        checkNotNull(in);
+        checkArgument(codec != null, "At least one codec must be specified");
         for (int n = codecs.length - 1; n >= 0; n--)
           in = codecs[n].wrap(in);
         in = codec.wrap(in);
@@ -141,19 +125,13 @@ public class Compression {
         InputStream in, 
         String ce) 
           throws IOException {
-        if (in == null)
-          throw new IllegalArgumentException(
-              "InputStream must not be null");
+        checkNotNull(in);
         String[] encodings = CharUtils.splitAndTrim(ce);
-        if (encodings.length == 0) 
-          throw new IllegalArgumentException(
-            "At least one codec must be specified");
+        checkArgument(encodings.length > 0, "At least one codec must be specified");
         for (int n = encodings.length - 1; n >= 0; n--) {
             CompressionCodec encoding = 
               getCodec(encodings[n]);
-            if (encoding == null) 
-              throw new IllegalArgumentException(
-                "Invalid Compression Codec");
+            checkNotNull(encoding,"Invalid Compression Codec");
             in = encoding.wrap(in);
         }
         return in;
@@ -162,9 +140,7 @@ public class Compression {
     public static String describe(
         CompressionCodec codec, 
         CompressionCodec... codecs) {
-        if (codec == null && codecs.length == 0)
-          throw new IllegalArgumentException(
-            "At least one codec must be specified");
+        checkArgument(codec != null || codecs.length > 0, "At least one codec must be specified");
         int i = 0;
         if (codec == null) {
           codec = codecs[0];

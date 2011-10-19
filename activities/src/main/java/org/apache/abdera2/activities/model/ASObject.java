@@ -17,15 +17,20 @@
  */
 package org.apache.abdera2.activities.model;
 
-import java.util.Date;
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.objects.Mood;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.selector.Selector;
 
 /**
  * Base class for all Activity Streams Objects.
@@ -66,7 +71,7 @@ public class ASObject extends ASBase {
   }
   
   public Iterable<ASObject> getAttachments() {
-    return getProperty(ATTACHMENTS);
+    return checkEmpty((Iterable<ASObject>)getProperty(ATTACHMENTS));
   }
   
   public void setAttachments(Set<ASObject> attachments) {
@@ -125,7 +130,7 @@ public class ASObject extends ASBase {
   }
   
   public Iterable<String> getDownstreamDuplicates() {
-    return getProperty(DOWNSTREAMDUPLICATES);
+    return checkEmpty((Iterable<String>)getProperty(DOWNSTREAMDUPLICATES));
   }
   
   public void setDownstreamDuplicates(Set<String> downstreamDuplicates) {
@@ -172,13 +177,16 @@ public class ASObject extends ASBase {
     
   }
   
-  public Date getPublished() {
+  public DateTime getPublished() {
     return getProperty(PUBLISHED);
   }
   
-  public void setPublished(Date published) {
+  public void setPublished(DateTime published) {
     setProperty(PUBLISHED, published);
-    
+  }
+  
+  public void setPublishedNow() {
+    setPublished(DateTime.now());
   }
   
   public String getSummary() {
@@ -190,17 +198,20 @@ public class ASObject extends ASBase {
     
   }
   
-  public Date getUpdated() {
+  public DateTime getUpdated() {
     return getProperty(UPDATED);
   }
   
-  public void setUpdated(Date updated) {
+  public void setUpdated(DateTime updated) {
     setProperty(UPDATED, updated);
-    
+  }
+  
+  public void setUpdatedNow() {
+    setUpdated(DateTime.now());
   }
   
   public Iterable<String> getUpstreamDuplicates() {
-    return getProperty(UPSTREAMDUPLICATES);
+    return checkEmpty((Iterable<String>)getProperty(UPSTREAMDUPLICATES));
   }
   
   public void setUpstreamDuplicates(Set<String> upstreamDuplicates) {
@@ -228,7 +239,15 @@ public class ASObject extends ASBase {
   }
   
   public Iterable<ASObject> getInReplyTo() {
-    return getProperty(INREPLYTO);
+    return checkEmpty((Iterable<ASObject>)getProperty(INREPLYTO));
+  }
+  
+  public Iterable<ASObject> getInReplyTo(Selector<ASObject> selector) {
+    List<ASObject> list= new ArrayList<ASObject>();
+    for (ASObject obj : getInReplyTo())
+      if (selector.apply(obj))
+        list.add(obj);
+    return list;
   }
   
   public void setInReplyTo(Set<ASObject> inReplyTo) {
@@ -394,5 +413,14 @@ public class ASObject extends ASBase {
     if (!has("openSocial")) return false;
     ASBase os = getProperty("openSocial");
     return os.has("embed");
+  }
+  
+  /**
+   * Performs an equivalence check. Two ASObjects are equivalent if they
+   * share the same objectType and id property values. All other properties
+   * can be different (e.g. they are different versions of the same object)
+   */
+  public boolean is(ASObject obj) {
+    return Extra.sameIdentity(this).apply(obj);
   }
 }

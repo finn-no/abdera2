@@ -104,6 +104,7 @@ import org.apache.abdera2.common.selector.Selector;
  * </pre>
  */
 @QName(value=LN_FEED,ns=ATOM_NS)
+@SuppressWarnings("rawtypes")
 public interface Feed extends Source {
 
     /**

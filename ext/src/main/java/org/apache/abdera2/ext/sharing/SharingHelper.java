@@ -377,7 +377,7 @@ public class SharingHelper {
     private static Date getMax(Feed feed) {
         Date d = null;
         for (Entry entry : feed.getEntries()) {
-            Date updated = entry.getUpdated();
+            Date updated = entry.getUpdated().toDate();
             if (d == null)
                 d = updated;
             if (updated.after(d))
@@ -389,7 +389,7 @@ public class SharingHelper {
     private static Date getMin(Feed feed) {
         Date d = null;
         for (Entry entry : feed.getEntries()) {
-            Date updated = entry.getUpdated();
+            Date updated = entry.getUpdated().toDate();
             if (d == null)
                 d = updated;
             if (updated.before(d))

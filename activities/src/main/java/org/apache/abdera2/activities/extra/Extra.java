@@ -1,9 +1,24 @@
 package org.apache.abdera2.activities.extra;
 
 
+
+import java.util.Comparator;
+
 import org.apache.abdera2.activities.model.ASObject;
+import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
+import org.apache.abdera2.common.date.DateTimes;
+import org.apache.abdera2.common.selector.AbstractSelector;
+import org.apache.abdera2.common.selector.PropertySelector;
+import org.apache.abdera2.common.selector.Selector;
+import org.joda.time.DateTime;
+
+import com.google.common.base.Equivalence;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Miscellaneous extensions
@@ -11,6 +26,43 @@ import org.apache.abdera2.activities.model.Verb;
 @SuppressWarnings("unchecked")
 public class Extra {
 
+  public static Selector<Activity> usesVerb(Verb verb) {
+    return PropertySelector.<Activity>create(
+      Activity.class, 
+      "getVerb", 
+      Predicates.equalTo(verb));
+  }
+  
+  public static <A extends ASObject>Selector<A> published(Class<A> _class, Predicate<?> predicate) {
+    return PropertySelector.<A>create(
+      _class,
+      "getPublished",
+      predicate);
+  }
+  
+  public static Selector<Activity> activityPublished(Predicate<DateTime> predicate) {
+    return published(Activity.class,predicate);
+  }
+  
+  public static Selector<ASObject> objectPublished(Predicate<DateTime> predicate) {
+    return published(ASObject.class,predicate);
+  }
+  
+  public static <A extends ASObject>Selector<A> updated(Class<A> _class, Predicate<DateTime> predicate) {
+    return PropertySelector.<A>create(
+      _class,
+      "getUpdated",
+      predicate);
+  }
+  
+  public static Selector<Activity> activityUpdated(Predicate<DateTime> predicate) {
+    return updated(Activity.class,predicate);
+  }
+  
+  public static Selector<ASObject> objectUpdated(Predicate<DateTime> predicate) {
+    return updated(ASObject.class,predicate);
+  }
+  
   // As in "Sally purchased the app"
   public static final Verb PURCHASE = new Verb("purchase") {};
   
@@ -185,4 +237,75 @@ public class Extra {
     return anonymousObject("used");
   }
   
+  public static Selector<ASObject> sameIdentity(final ASObject obj) {
+    return new AbstractSelector<ASObject>() {
+      public boolean select(Object item) {
+        checkArgument(item instanceof ASObject);
+        ASObject other = (ASObject) item;
+        return IDENTITY_EQUIVALENCE.equivalent(obj, other);
+      }     
+    };
+  }
+  
+  public static final Equivalence<ASObject> IDENTITY_EQUIVALENCE = identity();
+  
+  /**
+   * Two ASObject's are considered equivalent in identity if 
+   * they share the same objectType and id property
+   * values. 
+   */
+  private static Equivalence<ASObject> identity() {
+    return new Equivalence<ASObject>() {
+      protected boolean doEquivalent(ASObject a, ASObject b) {
+        if (a != null && b == null) return false;
+        if (a == null && b != null) return false;
+        String aot = a.getObjectType();
+        String bot = b.getObjectType();
+        if (aot != null && bot == null) return false;
+        if (aot == null && bot != null) return false; 
+        if (aot != null)
+          if (!aot.equalsIgnoreCase(bot)) return false;
+        String aid = a.getId();
+        String bid = b.getId();
+        if (aid != null && bid == null) return false;
+        if (aid == null && bid != null) return false;
+        if (aid != null)
+          if (!aid.equals(bid)) return false;
+        return true;
+      }
+      protected int doHash(ASObject t) {
+        String id = t.getId();
+        String objectType = t.getObjectType();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result
+            + ((objectType == null) ? 0 : objectType.hashCode());
+        return result;
+      }
+    };
+  }
+  
+  public static final Comparator<ASObject> UPDATED_COMPARATOR = 
+    new UpdatedComparator();
+  public static final Comparator<ASObject> PUBLISHED_COMPARATOR = 
+    new PublishedComparator();
+  
+  private static class UpdatedComparator 
+    extends DateTimes.DateTimeComparator<ASObject> {
+      public int compare(ASObject a1, ASObject a2) {
+        DateTime d1 = a1.getUpdated();
+        DateTime d2 = a2.getUpdated();
+        return innerCompare(d1,d2);
+      }
+  }
+  
+  private static class PublishedComparator 
+    extends DateTimes.DateTimeComparator<ASObject> {
+      public int compare(ASObject a1, ASObject a2) {
+        DateTime d1 = a1.getPublished();
+        DateTime d2 = a2.getPublished();
+        return innerCompare(d1,d2);
+      }
+  }
 }

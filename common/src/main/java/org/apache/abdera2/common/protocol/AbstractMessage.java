@@ -40,7 +40,7 @@ public abstract class AbstractMessage implements Message {
 
     public CacheControl getCacheControl() {
         String cc = getHeader("Cache-Control");
-        return cc != null ? new CacheControl(cc) : null;
+        return cc != null ? CacheControl.parse(cc) : null;
     }
 
     public String getContentLanguage() {

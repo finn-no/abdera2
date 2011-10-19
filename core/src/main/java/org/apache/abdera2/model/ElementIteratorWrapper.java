@@ -22,6 +22,7 @@ import java.util.Iterator;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.factory.Factory;
 
+@SuppressWarnings("rawtypes")
 public class ElementIteratorWrapper<T extends Element> implements Iterator<T> {
 
     private final Iterator<?> iterator;
@@ -57,7 +58,7 @@ public class ElementIteratorWrapper<T extends Element> implements Iterator<T> {
     public T next() {
       T item = current;
       current = get_current();
-      return (T)factory.getElementWrapper(item);
+      return factory.<T>getElementWrapper(item);
     }
 
     public void remove() {

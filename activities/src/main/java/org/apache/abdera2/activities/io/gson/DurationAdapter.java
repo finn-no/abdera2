@@ -17,7 +17,7 @@
  */
 package org.apache.abdera2.activities.io.gson;
 
-import org.apache.abdera2.common.date.Duration;
+import org.joda.time.Duration;
 
 @AdaptedType(Duration.class)
 public class DurationAdapter

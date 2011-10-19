@@ -17,18 +17,19 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.abdera2.common.text.UrlEncoding;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 
 /**
- * Base CollectionAdapter implementation that provides a number of helper utility methods for adapter implementations.
+ * Base CollectionAdapter implementation that provides a number of helper 
+ * utility methods for adapter implementations.
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractCollectionAdapter 
@@ -37,10 +38,12 @@ public abstract class AbstractCollectionAdapter
              Transactional,
              CollectionInfo {
 
-    private final static Log log = LogFactory.getLog(AbstractCollectionAdapter.class);
+    private final static Log log = 
+      LogFactory.getLog(AbstractCollectionAdapter.class);
 
     private String href;
-    private Map<String, Object> hrefParams = new HashMap<String, Object>();
+    private Map<String, Object> hrefParams = 
+      new HashMap<String, Object>();
 
     public AbstractCollectionAdapter() {
         super();
@@ -108,10 +111,10 @@ public abstract class AbstractCollectionAdapter
      * Creates the ResponseContext for a HEAD entry request. By default, an EmptyResponseContext is returned. The Etag
      * header will be set.
      */
-    protected <S extends ResponseContext>S buildHeadEntryResponse(RequestContext request, String id, Date updated)
+    protected <S extends ResponseContext>S buildHeadEntryResponse(RequestContext request, String id, DateTime updated)
         throws ResponseContextException {
         EmptyResponseContext rc = new EmptyResponseContext(200);
-        rc.setEntityTag(EntityTag.generate(id, DateTime.format(updated)));
+        rc.setEntityTag(EntityTag.generate(id, DateTimes.format(updated)));
         return (S)rc;
     }
 

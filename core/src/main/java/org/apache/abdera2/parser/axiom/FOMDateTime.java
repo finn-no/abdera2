@@ -19,9 +19,10 @@ package org.apache.abdera2.parser.axiom;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.namespace.QName;
-
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.DateTime;
 import org.apache.abdera2.model.Element;
 import org.apache.axiom.om.OMContainer;
@@ -33,7 +34,7 @@ import org.apache.axiom.om.OMXMLParserWrapper;
 public class FOMDateTime extends FOMElement implements DateTime {
 
     private static final long serialVersionUID = -6611503566172011733L;
-    private org.apache.abdera2.common.date.DateTime value;
+    private org.joda.time.DateTime value;
 
     public FOMDateTime(QName qname) {
         super(qname);
@@ -59,7 +60,7 @@ public class FOMDateTime extends FOMElement implements DateTime {
         setTime(time);
     }
 
-    public FOMDateTime(QName qname, org.apache.abdera2.common.date.DateTime dateTime) {
+    public FOMDateTime(QName qname, org.joda.time.DateTime dateTime) {
         this(qname);
         setValue(dateTime);
     }
@@ -77,21 +78,21 @@ public class FOMDateTime extends FOMElement implements DateTime {
         super(qname, parent, factory, builder);
     }
 
-    public org.apache.abdera2.common.date.DateTime getValue() {
+    public org.joda.time.DateTime getValue() {
         if (value == null) {
             String v = getText();
             if (v != null) {
-                value = org.apache.abdera2.common.date.DateTime.valueOf(v);
+                value = org.joda.time.DateTime.parse(v);
             }
         }
         return value;
     }
 
-    public DateTime setValue(org.apache.abdera2.common.date.DateTime dateTime) {
+    public DateTime setValue(org.joda.time.DateTime dateTime) {
         complete();
         value = null;
         if (dateTime != null)
-            ((Element)this).setText(dateTime.getValue());
+            ((Element)this).setText(DateTimes.format(dateTime));
         else
             _removeAllChildren();
         return this;
@@ -101,7 +102,7 @@ public class FOMDateTime extends FOMElement implements DateTime {
         complete();
         value = null;
         if (date != null)
-            ((Element)this).setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            ((Element)this).setText(DateTimes.format(date));
         else
             _removeAllChildren();
         return this;
@@ -111,7 +112,7 @@ public class FOMDateTime extends FOMElement implements DateTime {
         complete();
         value = null;
         if (date != null)
-            ((Element)this).setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            ((Element)this).setText(DateTimes.format(date));
         else
             _removeAllChildren();
         return this;
@@ -120,7 +121,7 @@ public class FOMDateTime extends FOMElement implements DateTime {
     public DateTime setTime(long date) {
         complete();
         value = null;
-        ((Element)this).setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+        ((Element)this).setText(DateTimes.format(date));
         return this;
     }
 
@@ -128,30 +129,30 @@ public class FOMDateTime extends FOMElement implements DateTime {
         complete();
         value = null;
         if (date != null)
-            ((Element)this).setText(org.apache.abdera2.common.date.DateTime.valueOf(date).getValue());
+            ((Element)this).setText(DateTimes.format(date));
         else
             _removeAllChildren();
         return this;
     }
 
     public Date getDate() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getDate() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.toDate() : null;
     }
 
     public Calendar getCalendar() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getCalendar() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.toCalendar(Locale.getDefault()) : null;
     }
 
     public long getTime() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getTime() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? ad.getMillis() : null;
     }
 
     public String getString() {
-        org.apache.abdera2.common.date.DateTime ad = getValue();
-        return (ad != null) ? ad.getValue() : null;
+        org.joda.time.DateTime ad = getValue();
+        return (ad != null) ? DateTimes.format(ad) : null;
     }
 
 }

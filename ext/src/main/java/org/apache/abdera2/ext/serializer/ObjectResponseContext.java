@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.ext.serializer.annotation.EntityTag;
 import org.apache.abdera2.ext.serializer.annotation.LastModified;
 import org.apache.abdera2.ext.serializer.annotation.MediaType;
@@ -105,9 +105,9 @@ public class ObjectResponseContext extends StreamWriterResponseContext {
         } else if (value instanceof Long) {
             date = new Date(((Long)value).longValue());
         } else if (value instanceof String) {
-            date = DateTime.parse((String)value);
+            date = DateTimes.parse((String)value);
         } else {
-            date = DateTime.parse(value.toString());
+            date = DateTimes.parse(value.toString());
         }
         return date;
     }

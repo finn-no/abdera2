@@ -9,7 +9,7 @@ public class MiscellaneousExamples {
 
   public static void main(String... args) throws Exception {
     
-    // Working with URI Templates.. the Misc.ASContext 
+    // Working with URI Templates.. the ASContext class
     // provides a URI Template Context implementation
     // that wraps an Activity Streams object, making it 
     // easier to construct IRI/URI's using properties

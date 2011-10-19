@@ -18,7 +18,6 @@
 package org.apache.abdera2.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.activation.MimeType;
 
@@ -88,14 +87,14 @@ public interface Document<T extends Element> extends Base, Serializable {
      * 
      * @return The last-modified date
      */
-    Date getLastModified();
+    org.joda.time.DateTime getLastModified();
 
     /**
      * Sets the last modified date for this document
      * 
      * @param lastModified the last-modified date
      */
-    Document<T> setLastModified(Date lastModified);
+    Document<T> setLastModified(org.joda.time.DateTime lastModified);
 
     /**
      * Gets the charset used for this document

@@ -17,6 +17,9 @@
  */
 package org.apache.abdera2.parser.filter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import javax.xml.namespace.QName;
 
 
@@ -63,20 +66,81 @@ public class CompoundParseFilter
             return 0;
         }
     };
+    
+    public static ParseFilter acceptableToAll(ParseFilter... filters) {
+      return makeAcceptableToAll().filters(filters).get();
+    }
+    
+    public static ParseFilter acceptableToAny(ParseFilter... filters) {
+      return makeAcceptableToAny().filters(filters).get();
+    }
+    
+    public static ParseFilter unacceptableToAll(ParseFilter... filters) {
+      return makeUnacceptableToAll().filters(filters).get();
+    }
+    
+    public static ParseFilter unacceptableToAny(ParseFilter... filters) {
+      return makeUnacceptableToAny().filters(filters).get();
+    }
+    
+    public static Builder makeAcceptableToAll() {
+      return make().condition(Condition.ACCEPTABLE_TO_ALL);
+    }
+    
+    public static Builder makeAcceptableToAny() {
+      return make().condition(Condition.ACCEPTABLE_TO_ANY);
+    }
+    
+    public static Builder makeUnacceptableToAll() {
+      return make().condition(Condition.UNACCEPTABLE_TO_ALL);
+    }
+    
+    public static Builder makeUnacceptableToAny() {
+      return make().condition(Condition.UNACCEPTABLE_TO_ANY);
+    }
+    
+    public static Builder make() {
+      return new Builder();
+    }
+    
+    public static class Builder extends AbstractParseFilter.Builder<CompoundParseFilter> {
+
+      private Condition condition;
+      private final Set<ParseFilter> filters = 
+        new LinkedHashSet<ParseFilter>();
+      
+      public CompoundParseFilter get() {
+        return new CompoundParseFilter(this);
+      }
+      
+      public Builder condition(Condition condition) {
+        this.condition = condition;
+        return this;
+      }
+      
+      public Builder filter(ParseFilter filter) {
+        this.filters.add(filter);
+        return this;
+      }
+      
+      public Builder filters(ParseFilter... filters) {
+        for (ParseFilter filter : filters)
+          filter(filter);
+        return this;
+      }
+    }
 
     protected final Condition condition;
-    protected final ParseFilter[] filters;
+    protected final Set<ParseFilter> filters = 
+      new LinkedHashSet<ParseFilter>();
 
-    public CompoundParseFilter(Condition condition, ParseFilter... filters) {
-        this.filters = filters;
-        this.condition = condition;
+    protected CompoundParseFilter(Builder builder) {
+      super(builder);
+      this.condition = builder.condition;
+      this.filters.addAll(builder.filters);
     }
 
-    public CompoundParseFilter(ParseFilter... filters) {
-        this(Condition.ACCEPTABLE_TO_ANY, filters);
-    }
-
-    private ParseFilter[] getFilters() {
+    private Iterable<ParseFilter> getFilters() {
         return filters;
     }
 
@@ -86,7 +150,7 @@ public class CompoundParseFilter
                 case 1:
                     return true;
                 case -1:
-                    return false;
+                    return checkThrow(false,qname,null);
             }
         }
         return true;
@@ -98,7 +162,7 @@ public class CompoundParseFilter
                 case 1:
                     return true;
                 case -1:
-                    return false;
+                    return checkThrow(false,qname,attribute);
             }
         }
         return true;

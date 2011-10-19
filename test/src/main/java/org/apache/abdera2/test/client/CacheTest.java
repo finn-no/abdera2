@@ -391,10 +391,10 @@ public class CacheTest {
         options = getRequestOptions(session, 3);
         switch (type) {
             case NOCACHE:
-                options.setCacheControl(CacheControl.NOCACHE().setNoCache(false));
+                options.setCacheControl(CacheControl.NONNOCACHE());
                 break;
             case NOSTORE:
-              options.setCacheControl(CacheControl.NOSTORE().setNoStore(false));
+              options.setCacheControl(CacheControl.NONNOSTORE());
                 break;
             case MAXAGE0:
               options.setCacheControl(CacheControl.MAXAGE(60));

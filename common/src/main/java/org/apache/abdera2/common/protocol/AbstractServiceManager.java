@@ -41,9 +41,6 @@ public abstract class AbstractServiceManager<P extends Provider>
 
     protected AbstractServiceManager() {}
 
-    /* (non-Javadoc)
-     * @see org.apache.abdera2.protocol.server.IServiceManager#newProcessorQueue(java.util.Map)
-     */
     public ProcessorQueue newProcessorQueue(Map<String, String> properties) {
       String instance = properties.get(PROCESSORQUEUE);
       if (instance == null)
@@ -53,9 +50,6 @@ public abstract class AbstractServiceManager<P extends Provider>
       return queue;
     }
     
-    /* (non-Javadoc)
-     * @see org.apache.abdera2.protocol.server.IServiceManager#newTaskExecutor(java.util.Map)
-     */
     public TaskExecutor newTaskExecutor(Map<String, String> properties) {
       String instance = properties.get(TASKEXECUTOR);
       if (instance == null)
@@ -66,9 +60,6 @@ public abstract class AbstractServiceManager<P extends Provider>
       return exec;
     }
     
-    /* (non-Javadoc)
-     * @see org.apache.abdera2.protocol.server.IServiceManager#newChannelManager(java.util.Map)
-     */
     public ChannelManager newChannelManager(Map<String, String> properties) {
       String instance = properties.get(CHANNELMANAGER);
       if (instance == null)

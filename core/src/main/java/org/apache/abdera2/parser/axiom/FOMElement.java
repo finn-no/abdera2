@@ -75,7 +75,7 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public class FOMElement extends OMElementImpl implements Element, OMElement, Constants {
 
     private static final long serialVersionUID = 8024257594220911953L;

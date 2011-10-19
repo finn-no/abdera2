@@ -13,6 +13,7 @@ import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserFactory;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.parser.filter.BlackListParseFilter;
+import org.apache.abdera2.parser.filter.ParseFilter;
 import org.junit.Test;
 
 public class ParserTest {
@@ -36,8 +37,11 @@ public class ParserTest {
     assertEquals("b", d.getQName().getLocalPart());
     
     // Test Parse Filtering
-    BlackListParseFilter filter = new BlackListParseFilter();
-    filter.add(new QName("b"));
+    ParseFilter filter = 
+      BlackListParseFilter
+        .make()
+        .add(new QName("b"))
+        .get();
     options.setParseFilter(filter);
     
     doc = parser.parse(new StringReader(s),options);

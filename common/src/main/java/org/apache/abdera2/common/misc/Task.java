@@ -1,3 +1,4 @@
+package org.apache.abdera2.common.misc;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  The ASF licenses this file to You
@@ -15,30 +16,13 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.common.protocol;
 
-import java.util.Iterator;
-
-
-public final class FilterChain {
-
-    private final Iterator<Filter> filters;
-    private final Provider provider;
-
-    public FilterChain(Provider provider, RequestContext request) {
-        this.provider = provider;
-        this.filters = provider.getFilters(request).iterator();
-    }
+public interface Task<T,R> {
 
     /**
-     * Invoke the next filter in the chain. If there are no more filters in the chain, pass the request context on to
-     * the Provider for processing.
+     * Process the input. When done, the task must call flow.next(input) to 
+     * pass the request on to the next Task
      */
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S next(RequestContext request) {
-        return (S)(filters.hasNext() ? 
-            filters.next().filter(request, this) : 
-            provider.process(request));
-    }
+  R apply(T input, Chain<T,R> flow);
 
 }

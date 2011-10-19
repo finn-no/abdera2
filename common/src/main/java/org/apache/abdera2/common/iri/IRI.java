@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.InvalidCharacterException;
 import org.apache.abdera2.common.text.NormalizationForm;
 import org.apache.abdera2.common.text.UrlEncoding;
@@ -546,8 +545,8 @@ public final class IRI implements Serializable, Cloneable {
                     port = -1;
             }
             try {
-                CharUtils.verify(userinfo, Profile.IUSERINFO);
-                CharUtils.verify(host, Profile.IHOST);
+              Profile.IUSERINFO.verify(userinfo);
+              Profile.IHOST.verify(host);
             } catch (InvalidCharacterException e) {
                 throw new IRISyntaxException(e);
             }
@@ -566,10 +565,10 @@ public final class IRI implements Serializable, Cloneable {
                 fragment = irim.group(5);
                 parseAuthority();
                 try {
-                    CharUtils.verify(scheme, Profile.SCHEME);
-                    CharUtils.verify(path, Profile.IPATH);
-                    CharUtils.verify(query, Profile.IQUERY);
-                    CharUtils.verify(fragment, Profile.IFRAGMENT);
+                    Profile.SCHEME.verify(scheme);
+                    Profile.IPATH.verify(path);
+                    Profile.IQUERY.verify(query);
+                    Profile.IFRAGMENT.verify(fragment);
                 } catch (InvalidCharacterException e) {
                     throw new IRISyntaxException(e);
                 }

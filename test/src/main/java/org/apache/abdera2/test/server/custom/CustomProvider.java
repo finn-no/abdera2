@@ -17,11 +17,11 @@
  */
 package org.apache.abdera2.test.server.custom;
 
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.BaseRequestContextWrapper;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.common.protocol.RegexTargetResolver;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.TemplateManagerTargetBuilder;
@@ -34,9 +34,7 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
     private final SimpleAdapter adapter;
 
     public CustomProvider() {
-
         this.adapter = new SimpleAdapter();
-
         RegexTargetResolver<RequestContext> resolver = 
           new RegexTargetResolver<RequestContext>()
             .setPattern("/atom(\\?[^#]*)?", TargetType.TYPE_SERVICE)
@@ -44,23 +42,21 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
             .setPattern("/atom/([^/#?;]+)(\\?[^#]*)?", TargetType.TYPE_COLLECTION, "collection")
             .setPattern("/atom/([^/#?]+)/([^/#?]+)(\\?[^#]*)?", TargetType.TYPE_ENTRY, "collection", "entry");
         setTargetResolver(resolver);
-
-        TemplateManagerTargetBuilder<TargetType> tmb = 
-          new TemplateManagerTargetBuilder<TargetType>();
-        
-        tmb.add(TargetType.TYPE_SERVICE, "{target_base}/atom");
-        tmb.add(TargetType.TYPE_COLLECTION,
-                         "{target_base}/atom/{collection}{?q,c,s,p,l,i,o}");
-        tmb.add(TargetType.TYPE_CATEGORIES, "{target_base}/atom/{collection};categories");
-        tmb.add(TargetType.TYPE_ENTRY, "{target_base}/atom/{collection}/{entry}");
-
+        TemplateManagerTargetBuilder<TargetType> tmb =
+          (TemplateManagerTargetBuilder<TargetType>) 
+            TemplateManagerTargetBuilder
+              .<TargetType>make()
+              .add(TargetType.TYPE_SERVICE, "{target_base}/atom")
+              .add(TargetType.TYPE_COLLECTION,
+                           "{target_base}/atom/{collection}{?q,c,s,p,l,i,o}")
+              .add(TargetType.TYPE_CATEGORIES, "{target_base}/atom/{collection};categories")
+              .add(TargetType.TYPE_ENTRY, "{target_base}/atom/{collection}/{entry}")
+              .get();
         setTargetBuilder(tmb);
-        
         SimpleWorkspaceInfo workspace = new SimpleWorkspaceInfo();
         workspace.setTitle("A Simple Workspace");
         workspace.addCollection(adapter);
         addWorkspace(workspace);
-
         addFilter(new SimpleFilter());
     }
 
@@ -69,12 +65,11 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
     }
 
     public class SimpleFilter implements Filter {
-        @SuppressWarnings("unchecked")
-        public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
+        public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
             BaseRequestContextWrapper rcw = new BaseRequestContextWrapper(request);
             rcw.setAttribute("offset", 10);
             rcw.setAttribute("count", 10);
-            return (S)chain.next(rcw);
+            return chain.next(rcw);
         }
     }
 

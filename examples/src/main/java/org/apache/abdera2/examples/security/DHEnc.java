@@ -27,6 +27,7 @@ import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 import org.apache.abdera2.security.util.DHContext;
+import org.joda.time.DateTime;
 
 public class DHEnc {
 
@@ -43,7 +44,7 @@ public class DHEnc {
 
         Entry entry = factory.newEntry();
         entry.setId("http://example.org/foo/entry");
-        entry.setUpdated(new java.util.Date());
+        entry.setUpdated(DateTime.now());
         entry.setTitle("This is an entry");
         entry.setContentAsXhtml("This <b>is</b> <i>markup</i>");
         entry.addAuthor("James");

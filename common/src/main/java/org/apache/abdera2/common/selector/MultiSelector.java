@@ -22,21 +22,25 @@ package org.apache.abdera2.common.selector;
  * invoked in order. By default, the selector will accept the item unless one 
  * of the selectors rejects it. 
  */
-public class MultiSelector 
-  implements Selector {
+public final class MultiSelector<X> 
+  extends AbstractSelector<X>
+  implements Selector<X> {
 
   private static final long serialVersionUID = 5257601171344714824L;
-  private final Selector[] selectors;
+  private final Selector<X>[] selectors;
   
-  public MultiSelector(Selector... selectors) {
+  public MultiSelector(Selector<X>... selectors) {
     this.selectors = selectors;
   }
   
   public boolean select(Object item) {
-    for (Selector selector : selectors)
+    for (Selector<X> selector : selectors)
         if (!selector.select(item))
             return false;
     return true;
   }
 
+  public static <X>Selector<X> with(Selector<X>... selectors) {
+    return new MultiSelector<X>(selectors);
+  }
 }

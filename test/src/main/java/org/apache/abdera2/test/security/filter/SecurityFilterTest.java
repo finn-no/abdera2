@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.http.ResponseType;
@@ -39,6 +38,7 @@ import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.Signature;
 import org.apache.abdera2.security.SignatureOptions;
 import org.apache.abdera2.test.security.DigitalSignatureTest;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class SecurityFilterTest {
         entry.setTitle("test entry");
         entry.setContent("Test Content");
         entry.addLink("http://example.org");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.addAuthor("James");
         AbderaSession session = (AbderaSession) client.newSession();
         AbderaClientResponse resp = (AbderaClientResponse) session.post("http://localhost:9002/feed", entry);

@@ -19,7 +19,6 @@ package org.apache.abdera2.ext.rss;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +49,7 @@ import org.apache.abdera2.parser.axiom.FOMElement;
 import org.apache.abdera2.xpath.XPath;
 import org.apache.abdera2.xpath.XPathException;
 
+@SuppressWarnings("rawtypes")
 public class RssChannel extends ExtensibleElementWrapper {
 
     public RssChannel(Element internal) {
@@ -400,9 +400,9 @@ public class RssChannel extends ExtensibleElementWrapper {
         return (text != null) ? text.getTextType() : null;
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         DateTime dt = getUpdatedElement();
-        return (dt != null) ? dt.getDate() : null;
+        return (dt != null) ? dt.getValue() : null;
     }
 
     public DateTime getUpdatedElement() {
@@ -423,9 +423,9 @@ public class RssChannel extends ExtensibleElementWrapper {
         return (dt != null) ? dt.getString() : null;
     }
 
-    public Date getPublished() {
+    public org.joda.time.DateTime getPublished() {
         DateTime dt = getPublishedElement();
-        return (dt != null) ? dt.getDate() : null;
+        return (dt != null) ? dt.getValue() : null;
     }
 
     public DateTime getPublishedElement() {
@@ -554,7 +554,7 @@ public class RssChannel extends ExtensibleElementWrapper {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    public DateTime setUpdated(Date value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 

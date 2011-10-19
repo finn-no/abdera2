@@ -20,6 +20,7 @@ package org.apache.abdera2.model.selector;
 import java.util.Map;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.xpath.XPath;
@@ -28,7 +29,10 @@ import org.apache.abdera2.xpath.XPath;
  * Selects a collection based on a boolean XPath expression
  * @see org.apache.abdera2.common.selector.Selector
  */
-public class XPathSelector implements Selector {
+@SuppressWarnings("rawtypes")
+public class XPathSelector 
+extends AbstractSelector
+implements Selector {
 
     private static final long serialVersionUID = 7751803876821166591L;
 

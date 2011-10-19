@@ -21,12 +21,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.ref.Reference;
 import java.nio.CharBuffer;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.Expression;
 import org.apache.abdera2.common.templates.Operation;
@@ -34,7 +39,12 @@ import org.apache.abdera2.common.templates.Expression.VarSpec;
 import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.UrlEncoding;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Multimap;
 import com.ibm.icu.text.Normalizer2;
+import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.misc.MorePreconditions.*;
 
 @SuppressWarnings("unchecked")
 public abstract class Operation implements Serializable {
@@ -66,19 +76,14 @@ public abstract class Operation implements Serializable {
      * any template expansion occurs.
      */
     public static void register(String key, Operation operation) {
-        if ("+#./;?&".contains(key))
-          throw new IllegalArgumentException(
-            "Cannot override reserved operators");
-        operations.put(key, operation);
+      checkArgument("+#./;?&".contains(key), "Cannot override reserved operators");
+      operations.put(key, operation);
     }
 
     public static Operation get(String name) {
-        if (name == null)
-            name = "";
-        Operation op = operations.get(name);
-        if (op != null)
-            return op;
-        throw new UnsupportedOperationException(name);
+      Operation op = operations.get(name!=null?name:"");
+      if (op != null) return op;
+      throw new UnsupportedOperationException(name);
     }
 
     protected static String eval(
@@ -87,6 +92,8 @@ public abstract class Operation implements Serializable {
         boolean reserved, 
         String explodeDelim, 
         String explodePfx) {
+        checkNotNull(varspec);
+        checkNotNull(context);
         String name = varspec.getName();
         Object rep = context.resolve(name);
         String val = toString(
@@ -321,6 +328,33 @@ public abstract class Operation implements Serializable {
                  .append(_val);
             }
             return buf.toString();
+        } else if (val instanceof Supplier) {
+          return toString(((Supplier<?>)val).get(), context, reserved, explode, explodeDelim, explodePfx, len);
+        } else if (val instanceof Optional) {
+          Optional<?> o = (Optional<?>) val;
+          return toString(o.orNull(), context, reserved, explode, explodeDelim, explodePfx, len);
+        } else if (val instanceof Multimap) {
+          Multimap<?,?> mm = (Multimap<?,?>)val;
+          return toString(mm.asMap(), context, reserved, explode, explodeDelim, explodePfx, len);
+        } else if (val instanceof Callable) {
+          Callable<Object> callable = (Callable<Object>) val;
+          try {
+            return toString(callable.call(), context, reserved, explode, explodeDelim, explodePfx, len);
+          } catch (Exception e) {
+            throw ExceptionHelper.propogate(e);
+          }
+        } else if (val instanceof Reference) {
+          Reference<Object> ref = (Reference<Object>) val;
+          return toString(ref.get(), context, reserved, explode, explodeDelim, explodePfx, len);
+        } else if (val instanceof Future) {
+          try {
+            Future<Object> future = (Future<Object>) val;
+            return toString(future.get(), context, reserved, explode, explodeDelim, explodePfx, len);
+          } catch (InterruptedException e) {
+            throw ExceptionHelper.propogate(e);
+          } catch (ExecutionException e) {
+            throw ExceptionHelper.propogate(e);
+          }
         } else {
             if (val != null)
               val = normalize(val.toString());

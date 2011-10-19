@@ -33,6 +33,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+@SuppressWarnings("rawtypes")
 public class FOMCategories extends FOMExtensibleElement implements Categories {
 
     private static final long serialVersionUID = 5480273546375102411L;

@@ -18,59 +18,83 @@
 package org.apache.abdera2.common.geo;
 
 public class Line extends Multiple {
+  
+  private static final long serialVersionUID = 2852975001208906285L;
 
-    private static final long serialVersionUID = 2852975001208906285L;
-
-    public Line() {
+  public static Line with(Iterable<Coordinate> coordinates) {
+    Builder builder = make();
+    for (Coordinate c : coordinates)
+      builder.add(c);
+    return builder.get();    
+  }
+  
+  public static Line with(Coordinate... coordinates) {
+    Builder builder = make();
+    for (Coordinate c : coordinates)
+      builder.add(c);
+    return builder.get();
+  }
+  
+  public static Line with(String... positions) {
+    Builder builder = make();
+    for (String p : positions)
+      builder.add(p);
+    return builder.get();
+  }
+  
+  public static Line with(IsoPosition... positions) {
+    Builder builder = make();
+    for (IsoPosition p : positions)
+      builder.add(p);
+    return builder.get();
+  }
+  
+  
+  public static Builder make(Iterable<Coordinate> coordinates) {
+    Builder builder = make();
+    for (Coordinate c : coordinates)
+      builder.add(c);
+    return builder;    
+  }
+  
+  public static Builder make(Coordinate... coordinates) {
+    Builder builder = make();
+    for (Coordinate c : coordinates)
+      builder.add(c);
+    return builder;
+  }
+  
+  public static Builder make(String... positions) {
+    Builder builder = make();
+    for (String p : positions)
+      builder.add(p);
+    return builder;
+  }
+  
+  public static Builder make(IsoPosition... positions) {
+    Builder builder = make();
+    for (IsoPosition p : positions)
+      builder.add(p);
+    return builder;
+  }
+  
+    public static Builder make() {
+      return new Builder();
+    }
+  
+    public static class Builder extends Multiple.Builder<Line> {
+      
+      public Builder() {
+        noDuplicates();
+      }
+      
+      public Line get() {
+        return new Line(this);
+      }
+    }
+ 
+    public Line(Builder builder) {
+      super(builder);
     }
 
-    public Line(Multiple multiple) {
-        super(multiple);
-        verify();
-    }
-
-    public Line(Point point) {
-        super(point);
-        verify();
-    }
-
-    public Line(Coordinate... coordinates) {
-        super(coordinates);
-        verify();
-    }
-
-    public Line(Coordinates coordinates) {
-        super(coordinates);
-        verify();
-    }
-
-    public Line(String value) {
-        super(value);
-        verify();
-    }
-
-    public Line(Multiple... multiples) {
-        super(multiples);
-        verify();
-    }
-
-    public Line(Point... points) {
-        super(points);
-        verify();
-    }
-
-    public Line(double... values) {
-        super(values);
-        verify();
-    }
-
-    @Override
-    public void setCoordinates(Coordinates coordinates) {
-        super.setCoordinates(coordinates);
-        verify();
-    }
-
-    public void verify() {
-        super.verify179Rule();
-    }
 }

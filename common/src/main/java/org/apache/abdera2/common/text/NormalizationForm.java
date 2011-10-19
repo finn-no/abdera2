@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.text;
 
+import com.google.common.base.Equivalence;
+import com.google.common.base.Equivalences;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.Normalizer2.Mode;
 
@@ -28,15 +30,54 @@ public enum NormalizationForm {
     
     private final Normalizer2.Mode mode;
     private final String name;
+    private final NormalizedEquivalence ne;
     
     NormalizationForm(
         Normalizer2.Mode mode, 
         String name) {
       this.mode = mode;
       this.name = name;
+      this.ne = new NormalizedEquivalence(this);
     }
     
     public String normalize(CharSequence s) {
       return Normalizer2.getInstance(null, name, mode).normalize(s);
+    }
+    
+    /**
+     * Returns true if the normalized form of both input sequences
+     * are equivalent to one another
+     */
+    public boolean equivalent(CharSequence s1, CharSequence s2) {
+      return ne.equivalent(s1, s2);
+    }
+    
+    public NormalizedEquivalence equivalence() {
+      return ne;
+    }
+    
+    public static class NormalizedEquivalence
+      extends Equivalence<CharSequence> {
+      private final NormalizationForm form;
+      public NormalizedEquivalence(NormalizationForm form) {
+        this.form = form;
+      }
+      protected boolean doEquivalent(
+        CharSequence a, 
+        CharSequence b) {
+          if (a == null && b != null) return false;
+          if (a != null && b == null) return false;
+          String s1 = form.normalize(a);
+          String s2 = form.normalize(b);
+          return Equivalences.equals().equivalent(s1, s2);
+      }
+
+      protected int doHash(CharSequence t) {
+        if (t == null)
+          throw new IllegalArgumentException();
+        String s1 = form.normalize(t);
+        return s1.hashCode();
+      }
+      
     }
 }

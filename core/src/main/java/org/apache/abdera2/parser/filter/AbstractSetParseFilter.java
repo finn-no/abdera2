@@ -38,30 +38,24 @@ import javax.xml.namespace.QName;
  */
 public abstract class AbstractSetParseFilter 
   extends AbstractParseFilter 
-  implements Cloneable, SetParseFilter {
+  implements Cloneable {
 
-    private static final long serialVersionUID = -758691949740569208L;
-
-    private transient Set<QName> 
-      qnames = new HashSet<QName>();
-    private transient Map<QName, Set<QName>> 
-      attributes = new HashMap<QName, Set<QName>>();
-
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    public AbstractSetParseFilter add(QName qname) {
-        if (!contains(qname))
+  @SuppressWarnings("unchecked")
+    public static abstract class Builder<E extends AbstractSetParseFilter> 
+      extends AbstractParseFilter.Builder<E> {
+      
+      private transient Set<QName> 
+        qnames = new HashSet<QName>();
+      private transient Map<QName, Set<QName>> 
+        attributes = new HashMap<QName, Set<QName>>();     
+      
+      public <X extends Builder<E>>X add(QName qname) {
+        if (!qnames.contains(qname))
           qnames.add(qname);
-        return this;
-    }
-
-    public boolean contains(QName qname) {
-      return qnames.contains(qname);
-    }
-
-    public AbstractSetParseFilter add(QName parent, QName attribute) {
+        return (X)this;
+      }
+      
+      public <X extends Builder<E>>X add(QName parent, QName attribute) {
         if (attributes.containsKey(parent)) {
             Set<QName> attrs = attributes.get(parent);
             if (!attrs.contains(attribute))
@@ -71,7 +65,30 @@ public abstract class AbstractSetParseFilter
             attrs.add(attribute);
             attributes.put(parent, attrs);
         }
-        return this;
+        return (X)this;
+      }
+      
+    }
+  
+    private static final long serialVersionUID = -758691949740569208L;
+
+    private transient final Set<QName> 
+      qnames = new HashSet<QName>();
+    private transient final Map<QName, Set<QName>> 
+      attributes = new HashMap<QName, Set<QName>>();
+
+    protected AbstractSetParseFilter(Builder<?> builder) {
+      super(builder);
+      this.qnames.addAll(builder.qnames);
+      this.attributes.putAll(builder.attributes);
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    public boolean contains(QName qname) {
+      return qnames.contains(qname);
     }
 
     public boolean contains(QName qname, QName attribute) {
@@ -87,6 +104,7 @@ public abstract class AbstractSetParseFilter
 
     public abstract boolean acceptable(QName qname, QName attribute);
 
+    
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
 
@@ -116,14 +134,14 @@ public abstract class AbstractSetParseFilter
 
         // qnames field
         final int qnamesSize = in.readInt();
-        qnames = new HashSet<QName>(qnamesSize);
+        //qnames = new HashSet<QName>(qnamesSize);
         for (int i = 0; i < qnamesSize; i++) {
             qnames.add((QName)in.readObject());
         }
 
         // attributes field
         final int attributesSize = in.readInt();
-        attributes = new HashMap<QName, Set<QName>>();
+        //attributes = new HashMap<QName, Set<QName>>();
         for (int i = 0; i < attributesSize; i++) {
             final QName k = (QName)in.readObject();
             final int vSize = in.readInt();

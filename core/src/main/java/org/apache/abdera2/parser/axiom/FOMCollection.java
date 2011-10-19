@@ -40,7 +40,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation","rawtypes"})
 public class FOMCollection extends FOMExtensibleElement implements Collection {
 
     private static final String[] ENTRY = {"application/atom+xml;type=\"entry\""};

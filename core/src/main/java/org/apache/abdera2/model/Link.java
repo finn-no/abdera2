@@ -233,13 +233,15 @@ public interface Link extends ExtensibleElement {
       private Helper() {}
       
       public static final WebLink toWebLink(Link link) {
-        WebLink weblink = new WebLink(link.getResolvedHref());
-        weblink.addRel(link.getRel());
-        weblink.setAnchor(link.getResolvedBaseUri());
-        weblink.setMediaType(link.getMimeType());
-        weblink.setHrefLang(link.getHrefLang());
-        weblink.setTitle(link.getTitle());
-        return weblink;
+        return WebLink
+          .make()
+          .iri(link.getResolvedHref())
+          .rel(link.getRel())
+          .anchor(link.getResolvedBaseUri())
+          .mediaType(link.getMimeType())
+          .lang(link.getHrefLang())
+          .title(link.getTitle())
+          .get();
       }
       
       public static final Iterable<Link> fromWebLink(Abdera abdera, WebLink weblink) {

@@ -72,7 +72,7 @@ public class FilteredCharReader extends FilterReader {
         super(in);
         this.profile = profile;
         this.replacement = replacement;
-        if (replacement != 0 && ((!Character.isValidCodePoint(replacement)) || profile.filter(replacement)))
+        if (replacement != 0 && ((!Character.isValidCodePoint(replacement)) || profile.apply(replacement)))
             throw new IllegalArgumentException();
     }
 
@@ -80,11 +80,11 @@ public class FilteredCharReader extends FilterReader {
     public int read() throws IOException {
         int c = -1;
         if (replacement == 0) {
-            while (((c = super.read()) != -1 && profile.filter(c))) {
+            while (((c = super.read()) != -1 && profile.apply(c))) {
             }
         } else {
             c = super.read();
-            if (c != -1 && profile.filter(c))
+            if (c != -1 && profile.apply(c))
                 c = replacement;
         }
         return c;

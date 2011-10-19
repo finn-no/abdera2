@@ -24,8 +24,10 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 
-public class AnnoUtil {
+public final class AnnoUtil {
 
+  private AnnoUtil() {}
+  
   /**
    * Retrieves the value of the Name attribute from the specified 
    * item. If the item is an instance object, the name is pulled from it's

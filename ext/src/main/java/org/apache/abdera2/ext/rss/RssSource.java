@@ -18,7 +18,6 @@
 package org.apache.abdera2.ext.rss;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -41,7 +40,7 @@ import org.apache.abdera2.model.Source;
 import org.apache.abdera2.model.Text;
 import org.apache.abdera2.model.Text.Type;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public class RssSource extends ExtensibleElementWrapper implements Source {
 
     private Link self = null;
@@ -239,7 +238,7 @@ public class RssSource extends ExtensibleElementWrapper implements Source {
         return Type.HTML;
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         return null;
     }
 
@@ -363,7 +362,7 @@ public class RssSource extends ExtensibleElementWrapper implements Source {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    public DateTime setUpdated(Date value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
@@ -401,6 +400,10 @@ public class RssSource extends ExtensibleElementWrapper implements Source {
 
     public List<Link> getLinks(Selector selector) {
       return Collections.EMPTY_LIST;
+    }
+
+    public DateTime setUpdatedNow() {
+      throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
 }

@@ -168,7 +168,7 @@ public class AbderaSession extends Session {
                 if (d.getEntityTag() != null)
                     options.setIfMatch(d.getEntityTag());
                 else if (d.getLastModified() != null)
-                    options.setIfUnmodifiedSince(d.getLastModified());
+                    options.setIfUnmodifiedSince(d.getLastModified().toDate());
             }
         }
         return (T)wrap(execute("PUT", uri, new AbderaEntity(base), options));

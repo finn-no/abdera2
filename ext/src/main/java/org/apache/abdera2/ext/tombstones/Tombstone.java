@@ -20,10 +20,11 @@ package org.apache.abdera2.ext.tombstones;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.anno.QName;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElementWrapper;
 import org.apache.abdera2.model.Person;
@@ -59,11 +60,11 @@ public class Tombstone extends ExtensibleElementWrapper {
 
     public Date getWhen() {
         String v = getAttributeValue("when");
-        return v != null ? DateTime.parse(v) : null;
+        return v != null ? DateTimes.parse(v) : null;
     }
 
     public Tombstone setWhen(Date date) {
-        return setWhen(DateTime.format(date));
+        return setWhen(DateTimes.format(date));
     }
 
     public Tombstone setWhen(String date) {
@@ -76,15 +77,15 @@ public class Tombstone extends ExtensibleElementWrapper {
     }
 
     public Tombstone setWhen(long date) {
-        return setWhen(DateTime.valueOf(date));
+        return setWhen(new DateTime(date));
     }
 
     public Tombstone setWhen(Calendar date) {
-        return setWhen(DateTime.valueOf(date));
+        return setWhen(new DateTime(date));
     }
 
     public Tombstone setWhen(DateTime date) {
-        return setWhen(date.toString());
+        return setWhen(DateTimes.format(date));
     }
 
     public Person getBy() {

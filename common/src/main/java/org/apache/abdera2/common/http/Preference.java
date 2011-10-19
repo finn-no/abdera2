@@ -17,6 +17,8 @@ import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
 import org.apache.abdera2.common.text.Codec;
 import org.apache.abdera2.common.text.CharUtils.Profile;
 
+import com.google.common.base.Supplier;
+
 /**
  * Implementation of the Prefer HTTP Header, e.g.
  * 
@@ -55,6 +57,45 @@ public class Preference implements Serializable {
   public static final Preference PREF_RETURN_CONTENT =
     new Preference(RETURN_CONTENT);
   
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static class Builder implements Supplier<Preference> {
+
+    private String token;
+    private String value;
+    private final Map<String,String> params = 
+      new HashMap<String,String>();
+    
+    public Preference get() {
+      return new Preference(this);
+    }
+    
+    public Builder token(String token) {
+      this.token = token;
+      return this;
+    }
+    
+    public Builder value(String value) {
+      this.value = value;
+      return this;
+    }
+    
+    public Builder param(String key, String val) {
+      if (key == null || reserved(key)) 
+        throw new IllegalArgumentException();
+      this.params.put(key,val);
+      return this;
+    }
+    
+    public Builder params(Map<String,String> params) {
+      this.params.putAll(params);
+      return this;
+    }
+    
+  }
+  
   /**
    * The "return-status" token indicates that the client prefers that the
    * server include an entity describing the status of the request in the
@@ -69,12 +110,18 @@ public class Preference implements Serializable {
   private final Map<String,String> params = 
     new HashMap<String,String>();
   
+  private Preference(Builder builder) {
+    this.token = builder.token;
+    this.value = builder.value;
+    this.params.putAll(builder.params);
+  }
+  
   public Preference(String token) {
     this(token,null);
   }
   
   public Preference(String token, String value) {
-    CharUtils.verify(token, Profile.TOKEN);
+    Profile.TOKEN.verify(token);
     this.token = token.toLowerCase();
     this.value = value;
   }
@@ -94,16 +141,6 @@ public class Preference implements Serializable {
   }
   private static boolean reserved(String name) {
     return reserved.contains(name);
-  }
-  
-  public void addParam(String name, String value) {
-    if (name == null || reserved(name)) 
-      throw new IllegalArgumentException();
-    if (value == null && params.containsKey(name))
-      params.remove(name);
-    else {
-      params.put(name, value);
-    }
   }
   
   public boolean matches(String token) {
@@ -214,17 +251,17 @@ public class Preference implements Serializable {
           tokenval = Codec.decode(CharUtils.unquote(ps[1]));
       }
       
-      Preference preference = new Preference(token,tokenval);
-      prefs.add(preference);
-      
+      Preference.Builder maker = 
+        Preference.make().token(token).value(tokenval);   
       if (params != null) {
         Matcher mparams = param.matcher(params);
         while(mparams.find()) {
           String p = mparams.group(1);
           String[] ps = p.split("\\s*=\\s*", 2);
-          preference.addParam(ps[0], Codec.decode(CharUtils.unquote(ps[1])));
+          maker.param(ps[0], Codec.decode(CharUtils.unquote(ps[1])));
         }
       }
+      prefs.add(maker.get());
     }
     return prefs;
   }

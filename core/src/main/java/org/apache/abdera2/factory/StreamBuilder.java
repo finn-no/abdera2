@@ -22,12 +22,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.channels.WritableByteChannel;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 
+import org.joda.time.DateTime;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
@@ -415,7 +415,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeAcceptsNothing();
     }
 
-    public StreamBuilder writeAttribute(QName qname, Date value) {
+    public StreamBuilder writeAttribute(QName qname, DateTime value) {
         return (StreamBuilder)super.writeAttribute(qname, value);
     }
 
@@ -435,7 +435,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeAttribute(qname, value);
     }
 
-    public StreamBuilder writeAttribute(String name, Date value) {
+    public StreamBuilder writeAttribute(String name, DateTime value) {
         return (StreamBuilder)super.writeAttribute(name, value);
     }
 
@@ -451,7 +451,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeAttribute(name, value);
     }
 
-    public StreamBuilder writeAttribute(String name, String namespace, Date value) {
+    public StreamBuilder writeAttribute(String name, String namespace, DateTime value) {
         return (StreamBuilder)super.writeAttribute(name, namespace, value);
     }
 
@@ -467,7 +467,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeAttribute(name, namespace, value);
     }
 
-    public StreamBuilder writeAttribute(String name, String namespace, String prefix, Date value) {
+    public StreamBuilder writeAttribute(String name, String namespace, String prefix, DateTime value) {
         return (StreamBuilder)super.writeAttribute(name, namespace, prefix, value);
     }
 
@@ -543,7 +543,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeContributor(name);
     }
 
-    public StreamBuilder writeDate(QName qname, Date date) {
+    public StreamBuilder writeDate(QName qname, DateTime date) {
         return (StreamBuilder)super.writeDate(qname, date);
     }
 
@@ -551,15 +551,15 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeDate(qname, date);
     }
 
-    public StreamBuilder writeDate(String name, Date date) {
+    public StreamBuilder writeDate(String name, DateTime date) {
         return (StreamBuilder)super.writeDate(name, date);
     }
 
-    public StreamBuilder writeDate(String name, String namespace, Date date) {
+    public StreamBuilder writeDate(String name, String namespace, DateTime date) {
         return (StreamBuilder)super.writeDate(name, namespace, date);
     }
 
-    public StreamBuilder writeDate(String name, String namespace, String prefix, Date date) {
+    public StreamBuilder writeDate(String name, String namespace, String prefix, DateTime date) {
         return (StreamBuilder)super.writeDate(name, namespace, prefix, date);
     }
 
@@ -579,7 +579,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeDraft(draft);
     }
 
-    public StreamBuilder writeEdited(Date date) {
+    public StreamBuilder writeEdited(DateTime date) {
         return (StreamBuilder)super.writeEdited(date);
     }
 
@@ -591,7 +591,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeElementText(value);
     }
 
-    public StreamBuilder writeElementText(Date value) {
+    public StreamBuilder writeElementText(DateTime value) {
         return (StreamBuilder)super.writeElementText(value);
     }
 
@@ -736,7 +736,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writePersonUri(uri);
     }
 
-    public StreamBuilder writePublished(Date date) {
+    public StreamBuilder writePublished(DateTime date) {
         return (StreamBuilder)super.writePublished(date);
     }
 
@@ -796,7 +796,7 @@ public class StreamBuilder extends AbstractStreamWriter {
         return (StreamBuilder)super.writeTitle(type, value);
     }
 
-    public StreamBuilder writeUpdated(Date date) {
+    public StreamBuilder writeUpdated(DateTime date) {
         return (StreamBuilder)super.writeUpdated(date);
     }
 

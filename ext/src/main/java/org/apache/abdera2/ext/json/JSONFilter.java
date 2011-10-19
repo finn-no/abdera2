@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
@@ -41,11 +41,10 @@ import org.apache.abdera2.writer.Writer;
  */
 public class JSONFilter implements Filter {
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
-        AtompubResponseContext resp = chain.next(request);
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
+        AtompubResponseContext resp = (AtompubResponseContext) chain.next(request);
         String format = request.getParameter("format");
-        return (S)((resp.getContentType() != null && jsonPreferred(request, resp.getContentType().toString())) || (format != null && format
+        return ((resp.getContentType() != null && jsonPreferred(request, resp.getContentType().toString())) || (format != null && format
             .equalsIgnoreCase("json")) ? new JsonResponseContext(resp, Abdera.getInstance()) : resp);
     }
 

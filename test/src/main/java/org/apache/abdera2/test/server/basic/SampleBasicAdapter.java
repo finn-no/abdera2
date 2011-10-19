@@ -19,7 +19,6 @@ package org.apache.abdera2.test.server.basic;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -33,6 +32,7 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.protocol.server.provider.basic.BasicAdapter;
 import org.apache.abdera2.protocol.server.provider.managed.FeedConfiguration;
+import org.joda.time.DateTime;
 
 public class SampleBasicAdapter extends BasicAdapter {
 
@@ -76,7 +76,7 @@ public class SampleBasicAdapter extends BasicAdapter {
         }
         // add an "updated" element if one was not provided
         if (entry.getUpdated() == null) {
-            entry.setUpdated(new Date());
+            entry.setUpdated(DateTime.now());
         }
         addEditLinkToEntry(entry);
         storeEntry(entryId, entry);
@@ -91,7 +91,7 @@ public class SampleBasicAdapter extends BasicAdapter {
         entries.remove(entryId);
         // add an "updated" element if one was not provided
         if (entry.getUpdated() == null) {
-            entry.setUpdated(new Date());
+            entry.setUpdated(DateTime.now());
         }
         addEditLinkToEntry(entry);
         storeEntry((String)entryId, entry);

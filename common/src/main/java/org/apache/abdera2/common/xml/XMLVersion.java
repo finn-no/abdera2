@@ -41,7 +41,12 @@ public enum XMLVersion {
     }
     
     public static XMLVersion get(String version) {
-      return version == null ? XMLVersion.XML10 : version.equals("1.0") ? XMLVersion.XML10 : version.equals("1.1")
-          ? XMLVersion.XML11 : XMLVersion.XML10;
+      return version == null ? 
+        XMLVersion.XML10 : 
+        version.equals("1.0") ? 
+          XMLVersion.XML10 : 
+          version.equals("1.1") ? 
+            XMLVersion.XML11 : 
+            XMLVersion.XML10;
   }
 }

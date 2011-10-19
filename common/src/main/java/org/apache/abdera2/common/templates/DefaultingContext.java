@@ -16,7 +16,7 @@
  * directory of this distribution.
  */
 package org.apache.abdera2.common.templates;
-
+import static com.google.common.base.Preconditions.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,8 +30,7 @@ public class DefaultingContext
   
   public DefaultingContext(Context main, Context defaults) {
     super(main);
-    if (defaults == null)
-      throw new IllegalArgumentException();
+    checkNotNull(defaults);
     this.defaults = defaults;
   }
 
@@ -61,4 +60,30 @@ public class DefaultingContext
     buf.append("Default Context: " + defaults);
     return buf.toString();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((defaults == null) ? 0 : defaults.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    DefaultingContext other = (DefaultingContext) obj;
+    if (defaults == null) {
+      if (other.defaults != null)
+        return false;
+    } else if (!defaults.equals(other.defaults))
+      return false;
+    return true;
+  }
+  
 }

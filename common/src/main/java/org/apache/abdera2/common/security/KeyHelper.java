@@ -45,8 +45,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 
-public class KeyHelper {
+public final class KeyHelper {
 
+  private KeyHelper() {}
+  
     public static void saveKeystore(KeyStore ks, String file, String password) throws KeyStoreException,
         NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
         ks.store(new FileOutputStream(file), password.toCharArray());

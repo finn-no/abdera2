@@ -1,7 +1,5 @@
 package org.apache.abdera2.ext.activities;
 
-import java.util.Date;
-
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.activities.model.ASObject;
@@ -10,6 +8,7 @@ import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.common.xml.XMLVersion;
 import org.apache.abdera2.model.Text;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 public class ActivityToFeedConverter {
 
@@ -117,7 +116,7 @@ public class ActivityToFeedConverter {
     StreamWriter writer) {
     id(stream,writer);
     title(stream,writer);
-    Date updated = stream.getUpdated();
+    DateTime updated = stream.getUpdated();
     if (updated != null) 
       writer.writeUpdated(updated);    
   }
@@ -138,10 +137,10 @@ public class ActivityToFeedConverter {
       summary(activity,writer);
       if (activity.getUpdated() != null)
         writer.writeUpdated(activity.getUpdated());
-      else writer.writeUpdated(new Date());
+      else writer.writeUpdated(DateTime.now());
       if (activity.getPublished() != null)
         writer.writePublished(activity.getPublished());
-      else writer.writePublished(new Date());
+      else writer.writePublished(DateTime.now());
       if (activity.getUrl() != null)
         writer.writeLink(activity.getUrl().toString());
       actor(activity,writer);

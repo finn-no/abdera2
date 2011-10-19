@@ -19,56 +19,85 @@ package org.apache.abdera2.common.geo;
 
 import java.io.Serializable;
 
-public abstract class Position implements Serializable, Cloneable, Comparable<Position> {
+import com.google.common.base.Supplier;
 
-  private static final long serialVersionUID = 2024463162259330581L;
+public abstract class Position 
+  implements Serializable, 
+             Cloneable, 
+             Comparable<Position> {
+  
+    @SuppressWarnings("unchecked")
+    public static abstract class Builder<P extends Position> implements Supplier<P> {
+
+      protected String featureTypeTag;
+      protected String relationshipTag;
+      protected Double elevation;
+      protected Double floor;
+      protected Double radius;
+      
+      public <X extends Builder<P>>X featureType(String tag) {
+        this.featureTypeTag = tag;
+        return (X)this;
+      }
+      
+      public <X extends Builder<P>>X relationship(String tag) {
+        this.relationshipTag = tag;
+        return (X)this;
+      }
+      
+      public <X extends Builder<P>>X elevation(double elevation) {
+        this.elevation = elevation;
+        return (X)this;
+      }
+      
+      public <X extends Builder<P>>X floor(double floor) {
+        this.floor = floor;
+        return (X)this;
+      }
+      
+      public <X extends Builder<P>>X radius(double radius) {
+        this.radius = radius;
+        return (X)this;
+      }
+      
+    }
+  
+    private static final long serialVersionUID = 2024463162259330581L;
     public static final String DEFAULT_FEATURE_TYPE_TAG = "location";
     public static final String DEFAULT_RELATIONSHIP_TAG = "is-located-at";
 
-    protected String featureTypeTag;
-    protected String relationshipTag;
-    protected Double elevation;
-    protected Double floor;
-    protected Double radius;
+    protected final String featureTypeTag;
+    protected final String relationshipTag;
+    protected final Double elevation;
+    protected final Double floor;
+    protected final Double radius;
 
+    protected Position(Builder<?> builder) {
+      this.featureTypeTag = builder.featureTypeTag;
+      this.relationshipTag = builder.relationshipTag;
+      this.elevation = builder.elevation;
+      this.floor = builder.floor;
+      this.radius = builder.radius;
+    }
+    
     public Double getElevation() {
         return elevation;
-    }
-
-    public void setElevation(Double elevation) {
-        this.elevation = elevation;
     }
 
     public String getFeatureTypeTag() {
         return featureTypeTag;
     }
 
-    public void setFeatureTypeTag(String featureTypeTag) {
-        this.featureTypeTag = featureTypeTag;
-    }
-
     public Double getFloor() {
         return floor;
-    }
-
-    public void setFloor(Double floor) {
-        this.floor = floor;
     }
 
     public Double getRadius() {
         return radius;
     }
 
-    public void setRadius(Double radius) {
-        this.radius = radius;
-    }
-
     public String getRelationshipTag() {
         return relationshipTag;
-    }
-
-    public void setRelationshipTag(String relationshipTag) {
-        this.relationshipTag = relationshipTag;
     }
 
     @Override

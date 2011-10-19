@@ -15,14 +15,15 @@ import javax.activation.MimeType;
 
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
-import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.Codec;
-import org.apache.abdera2.common.text.CharUtils.Profile;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
 
 import static org.apache.abdera2.common.text.CharUtils.scanFor;
 import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
-
+import static com.google.common.base.Preconditions.*;
 /**
  * Implements the HTTP Link Header
  * (http://tools.ietf.org/html/rfc5988)
@@ -40,6 +41,133 @@ public class WebLink implements Serializable {
   public static final String MEDIA_AURAL = "aural";
   public static final String MEDIA_ALL = "all";
   
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static Builder make(WebLink from) {
+    return new Builder(from);
+  }
+  
+  public static class Builder implements Supplier<WebLink> {
+
+    private IRI iri;
+    private final Set<String> rel = 
+      new LinkedHashSet<String>();
+    private IRI anchor;
+    private final Set<String> rev =
+      new LinkedHashSet<String>();
+    private Lang lang;
+    private final Set<String> media = 
+      new LinkedHashSet<String>();
+    private String title;
+    private MimeType mediaType;
+    private final Map<String,String> params = 
+      new HashMap<String,String>();
+
+    public Builder () {}
+    
+    public Builder(WebLink from) {
+      from(from);
+    }
+    
+    public WebLink get() {
+      return new WebLink(this);
+    }
+    
+    public Builder iri(IRI iri) {
+      this.iri = iri;
+      return this;
+    }
+    
+    public Builder from(WebLink link) {
+      this.iri = link.iri;
+      this.rel.clear();
+      this.rel.addAll(link.rel);
+      this.anchor = link.anchor;
+      this.rev.clear();
+      this.rev.addAll(link.rev);
+      this.lang = link.lang;
+      this.media.clear();
+      this.media.addAll(link.media);
+      this.title = link.title;
+      this.mediaType = link.mediaType;
+      this.params.clear();
+      this.params.putAll(link.params);
+      return this;
+    }
+    
+    public Builder iri(String iri) {
+      return iri(new IRI(iri));
+    }
+    
+    public Builder rel(String rel) {
+      this.rel.add(rel);
+      return this;
+    }
+    
+    public Builder anchor(IRI iri) {
+      this.anchor = iri;
+      return this;
+    }
+    
+    public Builder anchor(String iri) {
+      this.anchor = new IRI(iri);
+      return this;
+    }
+    
+    public Builder rev(String rev) {
+      this.rev.add(rev);
+      return this;
+    }
+    
+    public Builder lang(String lang) {
+      this.lang = new Lang(lang);
+      return this;
+    }
+    
+    public Builder lang(Lang lang) {
+      this.lang = lang;
+      return this;
+    }
+    
+    public Builder lang(Locale locale) {
+      this.lang = new Lang(locale);
+      return this;
+    }
+    
+    public Builder media(String media) {
+      this.media.add(media);
+      return this;
+    }
+    
+    public Builder param(String name, String value) {
+      checkNotNull(null);
+      checkArgument(!reserved(name));
+      this.params.put(name,value);
+      return this;
+    }
+    
+    public Builder title(String title) {
+      this.title = title;
+      return this;
+    }
+    
+    public Builder mediaType(String type) {
+      try {
+        this.mediaType = new MimeType(type);
+      } catch (javax.activation.MimeTypeParseException e) {
+        throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
+      }
+      return this;
+    }
+    
+    public Builder mediaType(MimeType type) {
+      this.mediaType = type;
+      return this;
+    }
+  }
+  
   private final IRI iri;
   private final Set<String> rel = 
     new LinkedHashSet<String>();
@@ -54,6 +182,18 @@ public class WebLink implements Serializable {
   private final Map<String,String> params = 
     new HashMap<String,String>();
   
+  private WebLink(Builder builder) {
+    this.iri = builder.iri;
+    this.rel.addAll(builder.rel);
+    this.anchor = builder.anchor;
+    this.rev.addAll(builder.rev);
+    this.lang = builder.lang;
+    this.media.addAll(builder.media);
+    this.title = builder.title;
+    this.mediaType = builder.mediaType;
+    this.params.putAll(builder.params);
+  }
+  
   public WebLink(String iri) {
     this(new IRI(iri));
   }
@@ -63,8 +203,7 @@ public class WebLink implements Serializable {
   }
   
   public WebLink(IRI iri, String rel) {
-    if (iri == null) 
-      throw new IllegalArgumentException();
+    checkNotNull(iri);
     this.iri = iri.normalize();
     if (rel != null) this.rel.add(rel); // verify
     this.anchor = null;
@@ -74,8 +213,7 @@ public class WebLink implements Serializable {
   }
   
   public WebLink(IRI iri) {
-    if (iri == null) 
-      throw new IllegalArgumentException();
+    checkNotNull(iri);
     this.iri = iri;
     this.anchor = null;
     this.lang = null;
@@ -84,11 +222,13 @@ public class WebLink implements Serializable {
   }
   
   public IRI getResolvedIri(IRI base) {
+    checkNotNull(base);
     IRI context = getContextIri(base);
     return context != null ? context.resolve(iri) : iri;
   }
   
   public IRI getContextIri(IRI base) {
+    checkNotNull(base);
     if (anchor == null) return base;
     return base != null ? base.resolve(anchor) : anchor;
   }
@@ -97,89 +237,32 @@ public class WebLink implements Serializable {
     return iri;
   }
   
-  public void addRel(String rel) {
-    this.rel.add(new IRI(rel).toASCIIString());
-  }
-  
-  public void addRel(IRI rel) {
-    addRel(rel.toASCIIString());
-  }
-  
   public Iterable<String> getRel() {
-    return this.rel;
+    return Iterables.unmodifiableIterable(this.rel);
   }
   
   public IRI getAnchor() {
     return anchor;
   }
   
-  public void setAnchor(IRI iri) {
-    this.anchor = iri;
-  }
-  
-  public void setAnchor(String iri) {
-    setAnchor(new IRI(iri));
-  }
-  
-  public void addRev(String rev) {
-    this.rev.add(new IRI(rev).toASCIIString());
-  }
-  
-  public void addRev(IRI rev) {
-    addRev(rev.toASCIIString());
-  }
-  
   public Iterable<String> getRev() {
-    return this.rev;
+    return Iterables.unmodifiableIterable(this.rev);
   }
   
   public Lang getHrefLang() {
     return lang;
   }
   
-  public void setHrefLang(Lang lang) {
-    this.lang = lang;
-  }
-  
-  public void setHrefLang(String lang) {
-    setHrefLang(Lang.parse(lang));
-  }
-  
-  public void setHrefLang(Locale locale) {
-    setHrefLang(Lang.fromLocale(locale));
-  }
-  
-  public void addMedia(String media) {
-    CharUtils.verify(media, Profile.TOKEN);
-    this.media.add(media.toLowerCase());
-  }
-  
   public Iterable<String> getMedia() {
-    return this.media;
+    return Iterables.unmodifiableIterable(this.media);
   }
   
   public String getTitle() {
     return title;
   }
   
-  public void setTitle(String title) {
-    this.title = title;
-  }
-  
   public MimeType getMediaType() {
     return mediaType;
-  }
-  
-  public void setMediaType(MimeType mediaType) {
-    this.mediaType = mediaType;
-  }
-  
-  public void setMediaType(String mediaType) {
-    try {
-      setMediaType(new MimeType(mediaType));
-    } catch (javax.activation.MimeTypeParseException t) {
-      throw new MimeTypeParseException(t);
-    }
   }
   
   @Override
@@ -273,19 +356,9 @@ public class WebLink implements Serializable {
     return reserved.contains(name);
   }
   
-  public void addParam(String name, String value) {
-    if (name == null || reserved(name)) 
-      throw new IllegalArgumentException();
-    if (value == null && params.containsKey(name))
-      params.remove(name);
-    else {
-      params.put(name, value);
-    }
-  }
-  
   public String getParam(String name) {
-    if (name == null || reserved(name))
-      throw new IllegalArgumentException();
+    checkNotNull(name);
+    checkArgument(!reserved(name));
     return params.get(name);
   }
   
@@ -392,7 +465,6 @@ public class WebLink implements Serializable {
 
   public static Iterable<WebLink> parse(String text) {
     List<WebLink> links = new ArrayList<WebLink>();
-    WebLink weblink = null;
     if (text == null) return Collections.emptyList();
     
     int z = scanFor('<', text, 0, true);
@@ -404,7 +476,7 @@ public class WebLink implements Serializable {
         throw new IllegalArgumentException();
       
       String uri = text.substring(s+1,e).trim();
-      weblink = new WebLink(uri);
+      WebLink.Builder maker = WebLink.make().iri(uri);
       
       s = scanFor(';', text,e+1,false);
       while(s != -1 && text.charAt(s) != ',') {
@@ -416,28 +488,28 @@ public class WebLink implements Serializable {
         if (name.equalsIgnoreCase("rel")) {
           String[] vals = CharUtils.unquote(val).split("\\s+");
           for (String v : vals)
-            weblink.addRel(v);
+            maker.rel(v);
         } else if (name.equalsIgnoreCase("anchor")) {
-          weblink.setAnchor(CharUtils.unwrap(val, '<', '>'));
+          maker.anchor(CharUtils.unwrap(val, '<', '>'));
         } else if (name.equalsIgnoreCase("rev")) {
           String[] vals = CharUtils.unquote(val).split("\\s+");
           for (String v : vals)
-            weblink.addRev(v);
+            maker.rev(v);
         } else if (name.equalsIgnoreCase("hreflang")) {
-          weblink.setHrefLang(CharUtils.unquote(val));
+          maker.lang(CharUtils.unquote(val));
         } else if (name.equalsIgnoreCase("media")) {
           String[] vals = CharUtils.unquote(val).split("\\s+");
           for (String v : vals)
-            weblink.addMedia(v);
+            maker.media(v);
         } else if (name.equalsIgnoreCase("title")) {
-          weblink.setTitle(CharUtils.unquote(val));
+          maker.title(CharUtils.unquote(val));
         } else if (name.equalsIgnoreCase("type")) {
-          weblink.setMediaType(CharUtils.unquote(val));
+          maker.mediaType(CharUtils.unquote(val));
         } else {
-          weblink.addParam(name,CharUtils.unquote(val));
+          maker.param(name,CharUtils.unquote(val));
         }
       }
-      links.add(weblink);
+      links.add(maker.get());
       if (s == -1) break;
       z = scanFor('<', text, s+1, false);
     }

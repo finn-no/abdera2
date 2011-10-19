@@ -40,8 +40,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
-import org.apache.abdera2.parser.filter.SetParseFilter;
 import org.apache.abdera2.common.Constants;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.model.Category;
@@ -67,6 +67,7 @@ import org.apache.abdera2.parser.ParserFactory;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.extra.AbderaSource;
 import org.apache.abdera2.parser.filter.BlackListParseFilter;
+import org.apache.abdera2.parser.filter.ParseFilter;
 import org.apache.abdera2.parser.filter.WhiteListParseFilter;
 import org.apache.abdera2.writer.Writer;
 import org.apache.abdera2.writer.WriterFactory;
@@ -171,11 +172,14 @@ public class FOMTest {
     @Test
     public void testWhiteListParseFilter() throws Exception {
 
-        SetParseFilter filter = new WhiteListParseFilter();
-        filter.add(Constants.FEED);
-        filter.add(Constants.ENTRY);
-        filter.add(Constants.TITLE);
-        filter.add(Constants.ID);
+        ParseFilter filter = 
+          WhiteListParseFilter
+            .make()
+            .add(Constants.FEED)
+            .add(Constants.ENTRY)
+            .add(Constants.TITLE)
+            .add(Constants.ID)
+            .get();
         ParserOptions options = getParser().getDefaultParserOptions();
         options.setParseFilter(filter);
 
@@ -206,8 +210,11 @@ public class FOMTest {
     @Test
     public void testBlackListParseFilter() throws Exception {
 
-        SetParseFilter filter = new BlackListParseFilter();
-        filter.add(Constants.UPDATED);
+        ParseFilter filter = 
+          BlackListParseFilter
+            .make()
+            .add(Constants.UPDATED)
+            .get();
         ParserOptions options = getParser().getDefaultParserOptions();
         options.setParseFilter(filter);
 
@@ -336,24 +343,24 @@ public class FOMTest {
         assertTrue(control.isDraft());
         Date now = new Date();
         DateTime dateTime = factory.newDateTime(Constants.UPDATED, null);
-        dateTime.setValue(org.apache.abdera2.common.date.DateTime.valueOf(now));
+        dateTime.setValue(new org.joda.time.DateTime(now));
         assertEquals(now, dateTime.getDate());
         Calendar cal = Calendar.getInstance();
         dateTime = factory.newDateTime(Constants.UPDATED, null);
         dateTime.setCalendar(cal);
-        assertEquals(cal, dateTime.getCalendar());
+        assertTrue(DateTimes.equivalent(dateTime.getValue(), cal));
         dateTime = factory.newDateTime(Constants.UPDATED, null);
         dateTime.setDate(now);
-        assertEquals(now, dateTime.getDate());
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         dateTime = factory.newDateTime(Constants.UPDATED, null);
         assertNotNull(dateTime);
         dateTime = factory.newDateTime(Constants.UPDATED, null);
         dateTime.setTime(now.getTime());
-        assertEquals(now.getTime(), dateTime.getTime());
+        assertTrue(DateTimes.equivalent(now.getTime(), dateTime.getTime()));
         dateTime = factory.newDateTime(Constants.UPDATED, null);
-        dateTime.setString(org.apache.abdera2.common.date.DateTime.format(now));
-        assertEquals(org.apache.abdera2.common.date.DateTime.format(now), dateTime.getString());
-        assertEquals(now, dateTime.getDate());
+        dateTime.setString(DateTimes.format(now));
+        assertTrue(DateTimes.equivalent(DateTimes.format(now), dateTime.getString()));
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         Generator generator = factory.newDefaultGenerator();
         assertNotNull(generator);
         Div div = factory.newDiv();
@@ -500,24 +507,24 @@ public class FOMTest {
         assertEquals("c", person.getUri().toString());
         now = new Date();
         dateTime = factory.newPublished();
-        dateTime.setValue(org.apache.abdera2.common.date.DateTime.valueOf(now));
-        assertEquals(now, dateTime.getDate());
+        dateTime.setValue(new org.joda.time.DateTime(now));
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         cal = Calendar.getInstance();
         dateTime = factory.newPublished();
         dateTime.setCalendar(cal);
-        assertEquals(cal, dateTime.getCalendar());
+        assertTrue(DateTimes.equivalent(cal, dateTime.getCalendar()));
         dateTime = factory.newPublished();
         dateTime.setDate(now);
-        assertEquals(now, dateTime.getDate());
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         dateTime = factory.newPublished();
         assertNotNull(dateTime);
         dateTime = factory.newPublished();
         dateTime.setTime(now.getTime());
-        assertEquals(now.getTime(), dateTime.getTime());
+        assertTrue(DateTimes.equivalent(now.getTime(), dateTime.getTime()));
         dateTime = factory.newPublished();
-        dateTime.setString(org.apache.abdera2.common.date.DateTime.format(now));
-        assertEquals(org.apache.abdera2.common.date.DateTime.format(now), dateTime.getString());
-        assertEquals(now, dateTime.getDate());
+        dateTime.setString(DateTimes.format(now));
+        assertTrue(DateTimes.equivalent(DateTimes.format(now), dateTime.getString()));
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         Service service = factory.newService();
         assertNotNull(service);
         Source source = factory.newSource();
@@ -560,24 +567,24 @@ public class FOMTest {
         assertEquals(Content.Type.TEXT, content.getContentType());
         now = new Date();
         dateTime = factory.newUpdated();
-        dateTime.setValue(org.apache.abdera2.common.date.DateTime.valueOf(now));
-        assertEquals(now, dateTime.getDate());
+        dateTime.setValue(new org.joda.time.DateTime(now));
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         cal = Calendar.getInstance();
         dateTime = factory.newUpdated();
         dateTime.setCalendar(cal);
-        assertEquals(cal, dateTime.getCalendar());
+        assertTrue(DateTimes.equivalent(cal, dateTime.getCalendar()));
         dateTime = factory.newUpdated();
         dateTime.setDate(now);
-        assertEquals(now, dateTime.getDate());
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         dateTime = factory.newUpdated();
         assertNotNull(dateTime);
         dateTime = factory.newUpdated();
         dateTime.setTime(now.getTime());
-        assertEquals(now.getTime(), dateTime.getTime());
+        assertTrue(DateTimes.equivalent(now.getTime(), dateTime.getTime()));
         dateTime = factory.newUpdated();
-        dateTime.setString(org.apache.abdera2.common.date.DateTime.format(now));
-        assertEquals(org.apache.abdera2.common.date.DateTime.format(now), dateTime.getString());
-        assertEquals(now, dateTime.getDate());
+        dateTime.setString(DateTimes.format(now));
+        assertTrue(DateTimes.equivalent(DateTimes.format(now), dateTime.getString()));
+        assertTrue(DateTimes.equivalent(now, dateTime.getDate()));
         iri = factory.newUri();
         assertNotNull(iri);
         iri = factory.newUri();

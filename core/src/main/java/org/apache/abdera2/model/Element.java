@@ -266,6 +266,7 @@ public interface Element extends Base, Iterable<Element> {
      */
     <T extends Element> List<T> getElements();
 
+    @SuppressWarnings("rawtypes")
     <T extends Element> List<T> getElements(Selector selector);
     
     /**

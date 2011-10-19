@@ -17,10 +17,10 @@
  */
 package org.apache.abdera2.security.util.filters;
 
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 import org.apache.abdera2.security.util.Constants;
@@ -44,9 +44,8 @@ public class DHEncryptedRequestFilter extends AbstractEncryptedRequestFilter {
     public void bootstrap(RequestContext request) {
     }
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
-        ResponseContext response = super.filter(request, chain);
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
+        ResponseContext response = super.apply(request, chain);
         String method = request.getMethod();
         // include a Accept-Encryption header in the response to GET, HEAD and OPTIONS requests
         // the header will specify all the information the client needs to construct
@@ -59,7 +58,7 @@ public class DHEncryptedRequestFilter extends AbstractEncryptedRequestFilter {
             }
             response.setHeader(Constants.ACCEPT_ENCRYPTION, context.getRequestString());
         }
-        return (S)response;
+        return response;
     }
 
     protected Object initArg(RequestContext request) {

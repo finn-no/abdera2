@@ -29,4 +29,7 @@ public class MimeTypeParseException extends RuntimeException {
         super(cause);
     }
 
+    public static MimeTypeParseException wrap(javax.activation.MimeTypeParseException cause) {
+      return new MimeTypeParseException(cause);
+    }
 }

@@ -17,13 +17,14 @@
  */
 package org.apache.abdera2.examples.appserver.employee;
 
-import java.util.Date;
+
+import org.joda.time.DateTime;
 
 // START SNIPPET: employee
 public class Employee {
     private int id;
     private String name;
-    private Date updated;
+    private DateTime updated;
 
     public int getId() {
         return id;
@@ -41,11 +42,11 @@ public class Employee {
         this.name = name;
     }
 
-    public Date getUpdated() {
+    public DateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(Date updated) {
+    public void setUpdated(DateTime updated) {
         this.updated = updated;
     }
 }

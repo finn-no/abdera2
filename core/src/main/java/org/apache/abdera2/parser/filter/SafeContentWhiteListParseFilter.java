@@ -25,6 +25,18 @@ public class SafeContentWhiteListParseFilter
     extends AbstractParseFilter 
     implements ParseFilter {
 
+    public static Builder make() {
+      return new Builder();
+    }
+  
+    public static class Builder extends AbstractParseFilter.Builder<SafeContentWhiteListParseFilter> {
+
+      public SafeContentWhiteListParseFilter get() {
+        return new SafeContentWhiteListParseFilter(this);
+      }
+      
+    }
+  
     private static final long serialVersionUID = -4802312485715572721L;
 
     private static enum xhtml_elements {
@@ -58,6 +70,10 @@ public class SafeContentWhiteListParseFilter
             return v.toLowerCase();
         }
     };
+    
+    protected SafeContentWhiteListParseFilter(Builder builder) {
+      super(builder);
+    }
 
     public boolean acceptable(QName qname) {
         if (qname.getNamespaceURI().equals(Constants.XHTML_NS)) {
@@ -66,7 +82,7 @@ public class SafeContentWhiteListParseFilter
                 return true;
             } catch (Exception e) {
             }
-            return false;
+            return checkThrow(false,qname,null);
         } else {
             return true;
         }
@@ -79,7 +95,7 @@ public class SafeContentWhiteListParseFilter
                 return true;
             } catch (Exception e) {
             }
-            return false;
+            return checkThrow(false,qname,attribute);
         } else {
             return true;
         }

@@ -29,9 +29,11 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.activation.DataHandler;
 
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.iri.IRISyntaxException;
 import org.apache.abdera2.model.Category;
@@ -103,11 +105,11 @@ public class FeedValidatorTest extends BaseParserTestCase {
         assertEquals(0, links.size());
         assertNotNull(feed.getUpdatedElement());
         DateTime dte = feed.getUpdatedElement();
-        org.apache.abdera2.common.date.DateTime dt = dte.getValue();
+        org.joda.time.DateTime dt = dte.getValue();
         assertNotNull(dt);
-        Calendar c = dt.getCalendar();
-        org.apache.abdera2.common.date.DateTime cdt = new org.apache.abdera2.common.date.DateTime(c);
-        assertEquals(dt.getTime(), cdt.getTime());
+        Calendar c = dt.toCalendar(Locale.getDefault());
+        org.joda.time.DateTime cdt = new org.joda.time.DateTime(c);
+        assertEquals(dt.getMillis(), cdt.getMillis());
         Person person = feed.getAuthor();
         assertNotNull(person);
         assertEquals("John Doe", person.getName());
@@ -145,9 +147,9 @@ public class FeedValidatorTest extends BaseParserTestCase {
             dte = entry.getUpdatedElement();
             dt = dte.getValue();
             assertNotNull(dt);
-            c = dt.getCalendar();
-            cdt = new org.apache.abdera2.common.date.DateTime(c);
-            assertEquals(cdt.getTime(), dt.getTime());
+            c = dt.toCalendar(Locale.getDefault());
+            cdt = new org.joda.time.DateTime(c);
+            assertEquals(cdt.getMillis(), dt.getMillis());
             Text summary = entry.getSummaryElement();
             assertNotNull(summary);
             assertEquals(Text.Type.TEXT, summary.getTextType());
@@ -174,7 +176,7 @@ public class FeedValidatorTest extends BaseParserTestCase {
         assertNotNull(feed.getSubtitleElement().getValue());
         assertNotNull(feed.getUpdatedElement());
         assertNotNull(feed.getUpdatedElement().getValue());
-        assertNotNull(feed.getUpdatedElement().getValue().getDate());
+        assertNotNull(feed.getUpdatedElement().getValue().toDate());
         assertNotNull(feed.getIdElement());
         assertTrue(feed.getIdElement() instanceof IRIElement);
         assertEquals(new IRI("tag:example.org,2003:3"), feed.getIdElement().getValue());
@@ -314,7 +316,7 @@ public class FeedValidatorTest extends BaseParserTestCase {
         assertNotNull(entry.getIdElement().getValue());
         assertNotNull(entry.getUpdatedElement());
         assertNotNull(entry.getUpdatedElement().getValue());
-        assertNotNull(entry.getUpdatedElement().getValue().getDate());
+        assertNotNull(entry.getUpdatedElement().getValue().toDate());
         assertNotNull(entry.getSummaryElement());
         assertEquals(Text.Type.TEXT, entry.getSummaryElement().getTextType());
         assertNotNull(entry.getAuthor());
@@ -370,8 +372,8 @@ public class FeedValidatorTest extends BaseParserTestCase {
             DateTime updated = entry.getUpdatedElement();
             assertNotNull(updated);
             assertNotNull(updated.getValue());
-            assertNotNull(updated.getValue().getDate());
-            assertEquals(103, updated.getValue().getDate().getYear());
+            assertNotNull(updated.getValue().toDate());
+            assertEquals(103, updated.getValue().toDate().getYear());
         }
     }
 
@@ -1195,10 +1197,11 @@ public class FeedValidatorTest extends BaseParserTestCase {
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-12-13T18:30:02Z");
+        org.joda.time.DateTime dt = 
+          new org.joda.time.DateTime("2003-12-13T18:30:02.000Z");
         for (Entry entry : doc.getRoot().getEntries()) {
-            Date date = entry.getUpdated();
-            assertEquals(d, date);
+            org.joda.time.DateTime date = entry.getUpdated();
+            assertTrue(DateTimes.equivalent(dt,date));
         }
     }
 
@@ -1219,72 +1222,65 @@ public class FeedValidatorTest extends BaseParserTestCase {
         }
     }
 
-    @Test
+    @Test (expected=org.joda.time.IllegalFieldValueException.class)
     public void testSection33PublishedBadDay() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_day.xml
         IRI uri = baseURI.resolve("3.3/published_bad_day.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-07-32T15:51:30-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
-    @Test
+    @Test (expected=org.joda.time.IllegalFieldValueException.class)
     public void testSection33PublishedBadDay2() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_day2.xml
         IRI uri = baseURI.resolve("3.3/published_bad_day2.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        // this is an invalid date, but we don't care because we're not doing
-        // validation. Better run those feeds through the feed validator :-)
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-06-31T15:51:30-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        // joda-time will catch that this is a bad date and report it
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
-    @Test
+    @Test (expected=org.joda.time.IllegalFieldValueException.class)
     public void testSection33PublishedBadHours() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_hours.xml
         IRI uri = baseURI.resolve("3.3/published_bad_hours.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-07-01T25:51:30-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
-    @Test
+    @Test(expected=org.joda.time.IllegalFieldValueException.class)
     public void testSecton33PublishedBadMinutes() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_minutes.xml
         IRI uri = baseURI.resolve("3.3/published_bad_minutes.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-07-01T01:61:30-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
-    @Test
+    @Test(expected=org.joda.time.IllegalFieldValueException.class)
     public void testSection33PublishedBadMonth() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_month.xml
         IRI uri = baseURI.resolve("3.3/published_bad_month.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-13-01T15:51:30-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
-    @Test
+    @Test(expected=org.joda.time.IllegalFieldValueException.class)
     public void testSection33PublishedBadSeconds() throws Exception {
         // http://feedvalidator.org/testcases/atom/3.3/published_bad_seconds.xml
         IRI uri = baseURI.resolve("3.3/published_bad_seconds.xml");
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-07-01T01:55:61-05:00");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
+        doc.getRoot().getEntries().get(0).getPublished();
     }
 
     @Test
@@ -1690,8 +1686,9 @@ public class FeedValidatorTest extends BaseParserTestCase {
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2103-12-13T18:30:02Z");
-        assertEquals(d, doc.getRoot().getEntries().get(0).getUpdated());
+        org.joda.time.DateTime dt = 
+          org.joda.time.DateTime.parse("2103-12-13T18:30:02.000Z");
+        assertEquals(dt, doc.getRoot().getEntries().get(0).getUpdated());
     }
 
     @Test
@@ -1701,7 +1698,8 @@ public class FeedValidatorTest extends BaseParserTestCase {
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("0103-12-13T18:30:02Z");
+        org.joda.time.DateTime d = 
+          org.joda.time.DateTime.parse("0103-12-13T18:30:02.000Z");
         assertEquals(d, doc.getRoot().getEntries().get(0).getUpdated());
     }
 
@@ -2018,7 +2016,8 @@ public class FeedValidatorTest extends BaseParserTestCase {
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-12-13T18:30:02Z");
+        org.joda.time.DateTime d = 
+          org.joda.time.DateTime.parse("2003-12-13T18:30:02.000Z");
         assertEquals(d, doc.getRoot().getUpdated());
     }
 
@@ -2352,7 +2351,7 @@ public class FeedValidatorTest extends BaseParserTestCase {
         Document<Feed> doc = get(uri);
         if (doc == null)
             return;
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-12-11T11:13:56Z");
+        org.joda.time.DateTime d = org.joda.time.DateTime.parse("2003-12-11T11:13:56.000Z");
         assertEquals(d, doc.getRoot().getEntries().get(0).getPublished());
     }
 
@@ -2409,7 +2408,8 @@ public class FeedValidatorTest extends BaseParserTestCase {
         if (doc == null)
             return;
         Entry entry = doc.getRoot().getEntries().get(0);
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-12-13T18:30:02Z");
+        org.joda.time.DateTime d = 
+          org.joda.time.DateTime.parse("2003-12-13T18:30:02.000Z");
         assertEquals(d, entry.getUpdated());
     }
 
@@ -3784,7 +3784,8 @@ public class FeedValidatorTest extends BaseParserTestCase {
         if (doc == null)
             return;
         Entry entry = doc.getRoot().getEntries().get(0);
-        Date d = org.apache.abdera2.common.date.DateTime.parse("2003-12-13T17:46:27Z");
+        org.joda.time.DateTime d = 
+          org.joda.time.DateTime.parse("2003-12-13T17:46:27.000Z");
         assertEquals(d, entry.getSource().getUpdated());
     }
 

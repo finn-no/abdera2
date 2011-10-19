@@ -28,6 +28,7 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
+import org.joda.time.DateTime;
 
 class AbderaClientResponseImpl 
   extends ClientResponseWrapper implements AbderaClientResponse {
@@ -77,7 +78,7 @@ class AbderaClientResponseImpl
           doc.setEntityTag(etag);
       Date lm = getLastModified();
       if (lm != null)
-          doc.setLastModified(lm);
+          doc.setLastModified(new DateTime(lm));
       MimeType mt = getContentType();
       if (mt != null)
           doc.setContentType(mt.toString());

@@ -18,10 +18,10 @@
 package org.apache.abdera2.security.util.filters;
 
 import org.apache.abdera2.common.Localizer;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
@@ -38,8 +38,7 @@ public class SignedRequestFilter implements Filter {
     public static final String VALID = "org.apache.abdera.security.util.servlet.SignedRequestFilter.valid";
     public static final String CERTS = "org.apache.abdera.security.util.servlet.SignedRequestFilter.certs";
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
         AtompubRequestContext context = 
           request instanceof AtompubRequestContext ? 
             (AtompubRequestContext)request : 
@@ -52,13 +51,13 @@ public class SignedRequestFilter implements Filter {
                 Document<Element> doc = context.getDocument();
                 boolean valid = sig.verify(doc.getRoot(), null);
                 if (!valid)
-                    return (S)ProviderHelper.badrequest(request, Localizer.get("VALID.SIGNATURE.REQUIRED"));
+                    return ProviderHelper.badrequest(request, Localizer.get("VALID.SIGNATURE.REQUIRED"));
                 request.setAttribute(VALID, valid);
                 request.setAttribute(CERTS, sig.getValidSignatureCertificates(doc.getRoot(), null));
             } catch (Exception e) {
             }
         }
-        return (S)chain.next(context);
+        return chain.next(context);
     }
 
 }

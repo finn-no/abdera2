@@ -31,6 +31,7 @@ import org.apache.abdera2.model.Element;
 
 public class RssDateTime extends DateTimeWrapper implements DateTime {
 
+  // Yes.. it really is that bad
     private static String[] masks =
         {"EEE, dd MMM yyyy HH:mm:ss z", "dd MMM yyyy HH:mm z", "dd MMM yyyy", "-yy-MM-dd", "-yy-MM", "-yymm",
          "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.SSSz", "yyyy-MM-dd't'HH:mm:ss.SSSz", // invalid
@@ -55,7 +56,7 @@ public class RssDateTime extends DateTimeWrapper implements DateTime {
     }
 
     @Override
-    public org.apache.abdera2.common.date.DateTime getValue() {
+    public org.joda.time.DateTime getValue() {
         return parse(getText());
     }
 
@@ -80,17 +81,17 @@ public class RssDateTime extends DateTimeWrapper implements DateTime {
     }
 
     @Override
-    public DateTime setValue(org.apache.abdera2.common.date.DateTime dateTime) {
+    public DateTime setValue(org.joda.time.DateTime dateTime) {
         throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
-    private org.apache.abdera2.common.date.DateTime parse(String value) {
+    private org.joda.time.DateTime parse(String value) {
         for (String mask : masks) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(mask);
                 sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
                 Date d = sdf.parse(value);
-                return new org.apache.abdera2.common.date.DateTime(d);
+                return new org.joda.time.DateTime(d);
             } catch (Exception e) {
             }
         }

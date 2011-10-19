@@ -27,6 +27,19 @@ import java.util.regex.Pattern;
 public final class IsoPosition 
   implements Serializable {
 
+  public static IsoPosition at(Coordinate coordinate) {
+    return new IsoPosition(coordinate.getLatitude(),coordinate.getLongitude());
+  }
+  
+  public static IsoPosition at(Point point) {
+    return new IsoPosition(
+      point.getCoordinate().getLatitude(),
+      point.getCoordinate().getLongitude(),
+      point.getElevation()
+    );
+  }
+ 
+ 
   private static final long serialVersionUID = -2330958817323976941L;
   private final Double alt, d_lat, d_lon;
   

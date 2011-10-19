@@ -19,7 +19,6 @@ package org.apache.abdera2.activities.io.gson;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,6 +56,7 @@ import org.apache.abdera2.activities.model.objects.ReviewObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
 import org.apache.abdera2.activities.model.objects.VideoObject;
 import org.apache.abdera2.activities.protocol.ErrorObject;
+import org.joda.time.DateTime;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -87,8 +87,8 @@ public class BaseAdapter
     map.put("url",IRI.class);
     map.put("fileUrl", IRI.class);
     map.put("gadget", IRI.class);
-    map.put("updated", Date.class);
-    map.put("published", Date.class);
+    map.put("updated", DateTime.class);
+    map.put("published", DateTime.class);
     map.put("lang", Lang.class);
     map.put("icon", MediaLink.class);
     map.put("image", MediaLink.class);
@@ -100,8 +100,8 @@ public class BaseAdapter
     map.put("address", Address.class);
     map.put("stream", MediaLink.class);
     map.put("fullImage", MediaLink.class);
-    map.put("endTime", Date.class);
-    map.put("startTime", Date.class);
+    map.put("endTime", DateTime.class);
+    map.put("startTime", DateTime.class);
     map.put("mimeType", MimeType.class);
     map.put("rating", Double.class);
     map.put("position", IsoPosition.class);

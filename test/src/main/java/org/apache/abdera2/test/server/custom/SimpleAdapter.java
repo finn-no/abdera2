@@ -18,7 +18,6 @@
 package org.apache.abdera2.test.server.custom;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +40,7 @@ import org.apache.abdera2.protocol.server.context.StreamWriterResponseContext;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 @SuppressWarnings("unchecked")
 public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
@@ -124,7 +124,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
                 setEntryDetails(request, entry, abdera.getFactory().newUuidUri());
                 Feed feed = getFeedDocument(request).getRoot();
                 feed.insertEntry(entry);
-                feed.setUpdated(new Date());
+                feed.setUpdated(DateTime.now());
                 FOMResponseContext<?> rc =
                     (FOMResponseContext<?>)AbstractAtompubProvider.returnBase(entry_doc, 201, entry.getEdited());
                 return rc.setLocation(ProviderHelper.resolveBase(request).resolve(entry.getEditLinkResolvedHref())
@@ -143,7 +143,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
     }
 
     private void setEntryDetails(RequestContext request, Entry entry, String id) {
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.setEdited(entry.getUpdated());
         entry.getIdElement().setValue(id);
         entry.addLink(getEntryLink(request, entry.getId().toASCIIString()), "edit");
@@ -173,7 +173,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
                     orig_entry.discard();
                     Feed feed = getFeedDocument(request).getRoot();
                     feed.insertEntry(entry);
-                    feed.setUpdated(new Date());
+                    feed.setUpdated(DateTime.now());
                     return ProviderHelper.nocontent();
                 } else {
                     return ProviderHelper.badrequest(request);

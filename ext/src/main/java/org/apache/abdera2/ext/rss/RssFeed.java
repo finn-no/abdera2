@@ -18,7 +18,6 @@
 package org.apache.abdera2.ext.rss;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -43,7 +42,7 @@ import org.apache.abdera2.model.Source;
 import org.apache.abdera2.model.Text;
 import org.apache.abdera2.model.Text.Type;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public class RssFeed extends ExtensibleElementWrapper implements Feed {
 
     public RssFeed(Element internal) {
@@ -294,7 +293,7 @@ public class RssFeed extends ExtensibleElementWrapper implements Feed {
         return getChannel().getTitleType();
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         return getChannel().getUpdated();
     }
 
@@ -306,7 +305,7 @@ public class RssFeed extends ExtensibleElementWrapper implements Feed {
         return getChannel().getUpdatedString();
     }
 
-    public Date getPublished() {
+    public org.joda.time.DateTime getPublished() {
         return getChannel().getPublished();
     }
 
@@ -441,7 +440,7 @@ public class RssFeed extends ExtensibleElementWrapper implements Feed {
         return (T)this;
     }
 
-    public DateTime setUpdated(Date value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         return getChannel().setUpdated(value);
     }
 
@@ -579,6 +578,10 @@ public class RssFeed extends ExtensibleElementWrapper implements Feed {
 
     public List<Entry> getEntries(Selector selector) {
       return getChannel().getEntries(selector);
+    }
+
+    public DateTime setUpdatedNow() {
+      throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
 }

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,6 +51,7 @@ import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.impl.MTOMXMLStreamWriter;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.StAXUtils;
+import org.joda.time.DateTime;
 
 @SuppressWarnings("unchecked")
 public class FOMDocument<T extends Element> extends OMDocumentImpl implements Document<T> {
@@ -59,7 +59,7 @@ public class FOMDocument<T extends Element> extends OMDocumentImpl implements Do
     private static final long serialVersionUID = -3255339511063344662L;
     protected IRI base = null;
     protected MimeType contentType = null;
-    protected Date lastModified = null;
+    protected DateTime lastModified = null;
     protected EntityTag etag = null;
     protected String language = null;
     protected String slug = null;
@@ -180,11 +180,11 @@ public class FOMDocument<T extends Element> extends OMDocumentImpl implements Do
         return this;
     }
 
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return this.lastModified;
     }
 
-    public Document<T> setLastModified(Date lastModified) {
+    public Document<T> setLastModified(DateTime lastModified) {
         this.lastModified = lastModified;
         return this;
     }

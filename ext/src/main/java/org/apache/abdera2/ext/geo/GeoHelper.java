@@ -104,6 +104,16 @@ public class GeoHelper {
         }
     }
 
+    public static String toString(Multiple multiple) {
+      StringBuffer buf = new StringBuffer();
+      for (Coordinate coord : multiple) {
+          if (buf.length() > 0)
+              buf.append(" ");
+          buf.append(coord);
+      }
+      return buf.toString();
+    }
+    
     private static void addGmlPosition(ExtensibleElement element, Position position) {
         ExtensibleElement pos = element.addExtension(QNAME_WHERE);
         if (position instanceof Point) {
@@ -113,13 +123,13 @@ public class GeoHelper {
         } else if (position instanceof Line) {
             Multiple m = (Multiple)position;
             ExtensibleElement p = pos.addExtension(QNAME_GML_LINESTRING);
-            p.addSimpleExtension(QNAME_GML_POSLIST, m.getCoordinates().toString());
+            p.addSimpleExtension(QNAME_GML_POSLIST, toString(m));
         } else if (position instanceof Polygon) {
             Multiple m = (Multiple)position;
             ExtensibleElement p = pos.addExtension(QNAME_GML_POLYGON);
             p = p.addExtension(QNAME_GML_EXTERIOR);
             p = p.addExtension(QNAME_GML_LINEARRING);
-            p.addSimpleExtension(QNAME_GML_POSLIST, m.getCoordinates().toString());
+            p.addSimpleExtension(QNAME_GML_POSLIST, toString(m));
         } else if (position instanceof Box) {
             Box m = (Box)position;
             ExtensibleElement p = pos.addExtension(QNAME_GML_ENVELOPE);
@@ -142,7 +152,7 @@ public class GeoHelper {
                 position instanceof Line ? QNAME_SIMPLE_LINE : position instanceof Box ? QNAME_SIMPLE_BOX
                     : position instanceof Polygon ? QNAME_SIMPLE_POLYGON : null;
             if (qname != null) {
-                pos = element.addSimpleExtension(qname, line.getCoordinates().toString());
+                pos = element.addSimpleExtension(qname, toString(line));
             }
         }
         setPositionAttributes(pos, position);
@@ -202,17 +212,17 @@ public class GeoHelper {
         if (qname.equals(QNAME_GML_POINT)) {
             element = traverse((ExtensibleElement)element, QNAME_GML_POS);
             if (element != null && text != null) {
-                pos = new Point(text.trim());
+              pos = GeoHelper.<Point.Builder>getPositionAttributes(element,Point.make(text.trim())).get();
             }
         } else if (qname.equals(QNAME_GML_LINESTRING)) {
             element = traverse((ExtensibleElement)element, QNAME_GML_POSLIST);
             if (element != null && text != null) {
-                pos = new Line(text.trim());
+              pos = GeoHelper.<Line.Builder>getPositionAttributes(element,Line.make(Multiple.parse(text.trim()))).get();
             }
         } else if (qname.equals(QNAME_GML_POLYGON)) {
             element = traverse((ExtensibleElement)element, QNAME_GML_EXTERIOR, QNAME_GML_LINEARRING, QNAME_GML_POSLIST);
             if (element != null && text != null) {
-                pos = new Polygon(text.trim());
+                pos = GeoHelper.<Polygon.Builder>getPositionAttributes(element,Polygon.make(Multiple.parse(text.trim()))).get();
             }
         } else if (qname.equals(QNAME_GML_ENVELOPE)) {
             String lc = ((ExtensibleElement)element).getSimpleExtension(QNAME_GML_LOWERCORNER);
@@ -220,16 +230,16 @@ public class GeoHelper {
             if (lc != null && uc != null) {
                 Coordinate c1 = new Coordinate(lc);
                 Coordinate c2 = new Coordinate(uc);
-                pos = new Box(c1, c2);
+                pos = GeoHelper.<Box.Builder>getPositionAttributes(element,Box.make(c1,c2)).get();
             }
         } else if (qname.equals(QNAME_SIMPLE_POINT) && text != null) {
-            pos = new Point(text.trim());
+            pos = GeoHelper.<Point.Builder>getPositionAttributes(element,Point.make(text.trim())).get();
         } else if (qname.equals(QNAME_SIMPLE_LINE) && text != null) {
-            pos = new Line(text.trim());
+            pos = GeoHelper.<Line.Builder>getPositionAttributes(element,Line.make(Multiple.parse(text.trim()))).get();
         } else if (qname.equals(QNAME_SIMPLE_BOX) && text != null) {
-            pos = new Box(text.trim());
+            pos = GeoHelper.<Box.Builder>getPositionAttributes(element,Box.make(Multiple.parse(text.trim()))).get();
         } else if (qname.equals(QNAME_SIMPLE_POLYGON) && text != null) {
-            pos = new Polygon(text.trim());
+            pos = GeoHelper.<Polygon.Builder>getPositionAttributes(element,Polygon.make(Multiple.parse(text.trim()))).get();
         } else if (qname.equals(QNAME_W3C_POINT) || qname.equals(Constants.ENTRY)) {
             Set<Position> list = new LinkedHashSet<Position>();
             getW3CPosition((ExtensibleElement)element, list);
@@ -249,10 +259,7 @@ public class GeoHelper {
         Iterable<Element> elements = element.getExtensions(SIMPLE_GEO_NS);
         for (Element el : elements) {
             Position pos = getAsPosition(el);
-            if (pos != null) {
-                getPositionAttributes(el, pos);
-                list.add(pos);
-            }
+            list.add(pos);
         }
     }
 
@@ -263,14 +270,32 @@ public class GeoHelper {
             List<ExtensibleElement> children = where.getElements();
             for (ExtensibleElement el : children) {
                 pos = getAsPosition(el);
-                if (pos != null) {
-                    getPositionAttributes(el, pos);
-                    list.add(pos);
-                }
+                list.add(pos);
             }
         }
     }
 
+    private static <X extends Position.Builder<?>>X getPositionAttributes(Element pos, X builder) {
+      if (builder != null) {
+          String featuretypetag = pos.getAttributeValue("featuretypetag");
+          String relationshiptag = pos.getAttributeValue("relationshiptag");
+          String elevation = pos.getAttributeValue("elev");
+          String floor = pos.getAttributeValue("floor");
+          String radius = pos.getAttributeValue("radius");
+          if (featuretypetag != null)
+              builder.featureType(featuretypetag);
+          if (featuretypetag != null)
+            builder.relationship(relationshiptag);
+          if (elevation != null)
+            builder.elevation(Double.valueOf(elevation));
+          if (floor != null)
+            builder.floor(Double.valueOf(floor));
+          if (radius != null)
+            builder.radius(Double.valueOf(radius));
+      }
+      return builder;
+  }
+    
     private static ExtensibleElement traverse(ExtensibleElement element, QName... qnames) {
         for (QName qname : qnames) {
             element = element.getExtension(qname);
@@ -278,26 +303,6 @@ public class GeoHelper {
                 break;
         }
         return element;
-    }
-
-    private static void getPositionAttributes(Element pos, Position position) {
-        if (position != null) {
-            String featuretypetag = pos.getAttributeValue("featuretypetag");
-            String relationshiptag = pos.getAttributeValue("relationshiptag");
-            String elevation = pos.getAttributeValue("elev");
-            String floor = pos.getAttributeValue("floor");
-            String radius = pos.getAttributeValue("radius");
-            if (featuretypetag != null)
-                position.setFeatureTypeTag(featuretypetag);
-            if (featuretypetag != null)
-                position.setRelationshipTag(relationshiptag);
-            if (elevation != null)
-                position.setElevation(Double.valueOf(elevation));
-            if (floor != null)
-                position.setFloor(Double.valueOf(floor));
-            if (radius != null)
-                position.setRadius(Double.valueOf(radius));
-        }
     }
 
     private static void getW3CPosition(ExtensibleElement element, Set<Position> list) {
@@ -310,9 +315,7 @@ public class GeoHelper {
     private static void getSimpleW3CPosition(ExtensibleElement el, Set<Position> list) {
         String slat = el.getSimpleExtension(QNAME_W3C_LAT);
         String slong = el.getSimpleExtension(QNAME_W3C_LONG);
-        if (slat != null && slong != null) {
-            Point point = new Point(slat.trim() + " " + slong.trim());
-            list.add(point);
-        }
+        if (slat != null && slong != null)
+            list.add(Point.at(slat.trim() + " " + slong.trim()));
     }
 }

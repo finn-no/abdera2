@@ -72,7 +72,7 @@ public class Session {
     protected <T extends ClientResponse>T wrap(ClientResponse resp) {
       return (T)resp;
     }
-        
+    
     /**
      * Sends an HTTP GET request to the specified URI.
      * 

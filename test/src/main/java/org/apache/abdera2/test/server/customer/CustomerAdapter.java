@@ -18,7 +18,7 @@
 package org.apache.abdera2.test.server.customer;
 
 import java.util.Arrays;
-import java.util.Date;
+//import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +37,7 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Person;
 import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.impl.AbstractEntityCollectionAdapter;
+import org.joda.time.DateTime;
 
 public class CustomerAdapter extends AbstractEntityCollectionAdapter<Customer> {
     private static final String ID_PREFIX = "urn:acme:customer:";
@@ -60,7 +61,7 @@ public class CustomerAdapter extends AbstractEntityCollectionAdapter<Customer> {
     public Customer postEntry(String title,
                               IRI id,
                               String summary,
-                              Date updated,
+                              org.joda.time.DateTime updated,
                               List<Person> authors,
                               Content content,
                               RequestContext request) throws ResponseContextException {
@@ -148,14 +149,14 @@ public class CustomerAdapter extends AbstractEntityCollectionAdapter<Customer> {
         return entry.getName();
     }
 
-    public Date getUpdated(Customer entry) {
-        return new Date();
+    public org.joda.time.DateTime getUpdated(Customer entry) {
+        return org.joda.time.DateTime.now();
     }
 
     @Override
     public void putEntry(Customer entry,
                          String title,
-                         Date updated,
+                         DateTime updated,
                          List<Person> authors,
                          String summary,
                          Content content,

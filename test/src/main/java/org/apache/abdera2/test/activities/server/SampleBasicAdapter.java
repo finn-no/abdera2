@@ -17,8 +17,6 @@ package org.apache.abdera2.test.activities.server;
  * directory of this distribution.
  */
 
-
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -91,7 +89,7 @@ public class SampleBasicAdapter extends BasicAdapter {
         String entryId = getObjectIdFromUri(object.getId().toString());
         if (c != -1) entryId += c;
         if (object.getUpdated() == null) {
-            object.setUpdated(new Date());
+            object.setUpdatedNow();
         }
         addEditLinkToObject(object);
         storeObject(entryId, object);
@@ -105,7 +103,7 @@ public class SampleBasicAdapter extends BasicAdapter {
             throw new Exception(ERROR_INVALID_ENTRY);
         
         if (object.getUpdated() == null) {
-            object.setUpdated(new Date());
+            object.setUpdatedNow();
         }
         addEditLinkToObject(object);
         storeObject((String)entryId, object);

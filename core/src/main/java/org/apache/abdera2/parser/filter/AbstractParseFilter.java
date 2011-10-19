@@ -17,41 +17,106 @@
  */
 package org.apache.abdera2.parser.filter;
 
+import javax.xml.namespace.QName;
 
-public abstract class AbstractParseFilter implements ParseFilter {
+import org.apache.abdera2.common.misc.ExceptionHelper;
+import com.google.common.base.Supplier;
 
+@SuppressWarnings("unchecked")
+public abstract class AbstractParseFilter 
+  implements ParseFilter {
+
+  public static abstract class Builder<E extends ParseFilter> implements Supplier<E> {
+    
+    protected byte flags = 0;
+    private Class<? extends UnacceptableException> _throw;
+
+    public <X extends Builder<E>>X throwOnUnacceptable() {
+      return (X)throwOnUnacceptable(UnacceptableException.class);
+    }
+    
+    public <X extends Builder<E>>X throwOnUnacceptable(Class<? extends UnacceptableException> error) {
+      this._throw = error;
+      return (X)this;
+    }
+    
+    private void toggle(boolean s, byte flag) {
+      if (s)
+          flags |= flag;
+      else
+          flags &= ~flag;
+    }
+    
+    protected Builder() {
+      withDefaults();
+    }
+    
+    public <X extends Builder<E>>X withDefaults() {
+      return (X)ignoreComments()
+            .ignoreWhitespace()
+            .ignoreProcessingInstructions();
+    }
+    
+    public <X extends Builder<E>>X withoutDefaults() {
+      toggle(false, COMMENTS);
+      toggle(false, WHITESPACE);
+      toggle(false, PI);
+      return (X)this;
+    }
+    
+    public <X extends Builder<E>>X ignoreComments() {
+      toggle(true, COMMENTS);
+      return (X)this;
+    }
+
+    public <X extends Builder<E>>X ignoreWhitespace() {
+      toggle(true, (byte)WHITESPACE);
+      return (X)this;
+    }
+
+    public <X extends Builder<E>>X ignoreProcessingInstructions() {
+      toggle(true, (byte)PI);
+      return (X)this;
+    }
+    
+  }
+  
     private static final long serialVersionUID = -1866308276050148524L;
 
     private static final byte COMMENTS = 1;
     private static final byte WHITESPACE = 2;
     private static final byte PI = 4;
 
-    protected byte flags = 0;
+    protected final byte flags;
+    protected final Class<? extends UnacceptableException> _throw;
 
-    private void toggle(boolean s, byte flag) {
-        if (s)
-            flags |= flag;
-        else
-            flags &= ~flag;
+    protected AbstractParseFilter(Builder<?> builder) {
+      this.flags = builder.flags;
+      this._throw = builder._throw;
     }
-
+    
+    protected boolean checkThrow(
+      boolean answer, 
+      QName element, 
+      QName attribute) {
+      if (!answer && _throw != null) {
+        try {
+          throw _throw
+            .getConstructor(
+              QName.class,
+              QName.class)
+            .newInstance(
+              element,
+              attribute);
+        } catch (Throwable e) {
+          throw ExceptionHelper.propogate(e);
+        }
+      }
+      return answer;
+    }
+    
     private boolean check(byte flag) {
         return (flags & flag) == flag;
-    }
-
-    public ParseFilter setIgnoreComments(boolean ignore) {
-        toggle(ignore, COMMENTS);
-        return this;
-    }
-
-    public ParseFilter setIgnoreWhitespace(boolean ignore) {
-        toggle(ignore, (byte)WHITESPACE);
-        return this;
-    }
-
-    public ParseFilter setIgnoreProcessingInstructions(boolean ignore) {
-        toggle(ignore, (byte)PI);
-        return this;
     }
 
     public boolean getIgnoreComments() {

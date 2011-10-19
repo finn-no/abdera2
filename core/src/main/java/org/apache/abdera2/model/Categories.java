@@ -31,6 +31,7 @@ import static org.apache.abdera2.common.Constants.*;
  * collection.
  */
 @QName(value=LN_CATEGORIES,ns=APP_NS)
+@SuppressWarnings("rawtypes")
 public interface Categories extends ExtensibleElement {
 
     /**

@@ -21,7 +21,7 @@ import java.util.Date;
 
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.anno.QName;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ElementWrapper;
 
@@ -51,12 +51,12 @@ public class History extends ElementWrapper {
 
     public Date getWhen() {
         String when = getAttributeValue("when");
-        return when != null ? DateTime.parse(when) : null;
+        return when != null ? DateTimes.parse(when) : null;
     }
 
     public void setWhen(Date when) {
         if (when != null) {
-            setAttributeValue("when", DateTime.format(when));
+            setAttributeValue("when", DateTimes.format(when));
         } else {
             removeAttribute("when");
         }

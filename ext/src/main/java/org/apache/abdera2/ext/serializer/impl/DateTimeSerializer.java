@@ -27,8 +27,8 @@ import org.apache.abdera2.ext.serializer.Conventions;
 import org.apache.abdera2.ext.serializer.ObjectContext;
 import org.apache.abdera2.ext.serializer.SerializationContext;
 import org.apache.abdera2.ext.serializer.annotation.Value;
-import org.apache.abdera2.common.date.DateTime;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 public class DateTimeSerializer extends ElementSerializer {
 
@@ -67,19 +67,19 @@ public class DateTimeSerializer extends ElementSerializer {
 
     private void writeValue(Object value, SerializationContext context) {
         StreamWriter sw = context.getStreamWriter();
-        Date date = null;
+        DateTime date = null;
         if (value == null)
             return;
         if (value instanceof Date) {
-            date = (Date)value;
+            date = new DateTime(value);
         } else if (value instanceof Calendar) {
-            date = ((Calendar)value).getTime();
+            date = new DateTime(value);
         } else if (value instanceof Long) {
-            date = new Date(((Long)value).longValue());
-        } else if (value instanceof String) {
-            date = DateTime.parse((String)value);
+            date = new DateTime((Long)value);
+        } else if (value instanceof DateTime) {
+            date = (DateTime)value;
         } else {
-            date = DateTime.parse(value.toString());
+            date = new DateTime(value.toString());
         }
         sw.writeElementText(date);
     }

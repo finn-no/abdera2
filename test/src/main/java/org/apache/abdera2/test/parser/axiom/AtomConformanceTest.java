@@ -182,7 +182,7 @@ public class AtomConformanceTest extends BaseParserTestCase {
                         .getValue());
                     assertEquals(Text.Type.TEXT, entry.getTitleType());
                     assertEquals(Text.Type.TEXT, entry.getSummaryType());
-                    assertNotNull(entry.getUpdatedElement().getValue());
+                    assertNotNull(entry.getUpdated());
                     assertEquals(1, entry.getLinks(Link.REL_ALTERNATE).size());
                     break;
                 case 2:
@@ -190,7 +190,7 @@ public class AtomConformanceTest extends BaseParserTestCase {
                         .getValue());
                     assertEquals(Text.Type.TEXT, entry.getTitleType());
                     assertEquals(Text.Type.TEXT, entry.getSummaryType());
-                    assertNotNull(entry.getUpdatedElement().getValue());
+                    assertNotNull(entry.getUpdated());
                     assertEquals(1, entry.getLinks(Link.REL_ALTERNATE).size());
                     break;
                 case 3:

@@ -22,11 +22,12 @@ import java.util.Date;
 
 import javax.activation.MimeType;
 
+import org.joda.time.DateTime;
 import org.apache.abdera2.factory.Factory;
-import org.apache.abdera2.common.date.DateTime;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Source;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 
 public final class ThreadHelper {
@@ -44,7 +45,7 @@ public final class ThreadHelper {
         String val = link.getAttributeValue(ThreadConstants.THRUPDATED);
         if (val == null) // thr:when was updated to thr:updated, some old impls may still be using thr:when
             val = link.getAttributeValue(ThreadConstants.THRWHEN);
-        return (val != null) ? DateTime.valueOf(val) : null;
+        return (val != null) ? DateTime.parse(val) : null;
     }
 
     public static void setCount(Link link, int count) {
@@ -52,19 +53,19 @@ public final class ThreadHelper {
     }
 
     public static void setUpdated(Link link, Date when) {
-        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTime.valueOf(when).getValue());
+        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTimes.format(when));
     }
 
     public static void setUpdated(Link link, Calendar when) {
-        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTime.valueOf(when).getValue());
+        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTimes.format(when));
     }
 
     public static void setUpdated(Link link, long when) {
-        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTime.valueOf(when).getValue());
+        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTimes.format(when));
     }
 
     public static void setUpdated(Link link, String when) {
-        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTime.valueOf(when).getValue());
+        link.setAttributeValue(ThreadConstants.THRUPDATED, DateTimes.format(when));
     }
 
     public static Total addTotal(Entry entry, int total) {

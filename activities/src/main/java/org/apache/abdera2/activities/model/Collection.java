@@ -17,11 +17,14 @@
  */
 package org.apache.abdera2.activities.model;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.selector.Selector;
 
 /**
  * An Activity Streams Collection... used as the root object of
@@ -32,7 +35,8 @@ import org.apache.abdera2.common.iri.IRI;
  * reference an external Collection document. 
  */
 @Name("collection")
-public class Collection<T extends ASObject> extends ASObject {
+public class Collection<T extends ASObject> 
+  extends ASObject {
 
   private static final long serialVersionUID = 1530068180553259077L;
   public static final String TOTAL_ITEMS = "totalItems";
@@ -57,8 +61,9 @@ public class Collection<T extends ASObject> extends ASObject {
     setProperty(URL, url);
   }
 
+  @SuppressWarnings("unchecked")
   public Iterable<String> getObjectTypes() {
-    return getProperty(OBJECT_TYPES);
+    return checkEmpty((Iterable<String>)getProperty(OBJECT_TYPES));
   }
   
   public void setObjectTypes(Set<String> types) {
@@ -75,8 +80,17 @@ public class Collection<T extends ASObject> extends ASObject {
       list.add(objectType);
   }
   
+  public Iterable<T> getItems(Selector<T> selector) {
+    List<T> list = new ArrayList<T>();
+    for (T item : getItems()) 
+      if (selector.apply(item))
+        list.add(item);
+    return list;
+  }
+  
+  @SuppressWarnings("unchecked")
   public Iterable<T> getItems() {
-    return getProperty(ITEMS);
+    return checkEmpty((Iterable<T>)getProperty(ITEMS));
   }
   
   public Iterable<T> getItems(boolean create) {

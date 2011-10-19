@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.util.Date;
 import java.util.Formatter;
 import java.util.HashSet;
 import java.util.Locale;
@@ -31,13 +30,15 @@ import java.util.Set;
 import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 
+import org.joda.time.DateTime;
+
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.xml.XMLVersion;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Text;
 import org.apache.abdera2.model.Text.Type;
@@ -245,7 +246,7 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return startContent(type).writeElementText(value).endContent();
     }
 
-    public StreamWriter writeEdited(Date date) {
+    public StreamWriter writeEdited(DateTime date) {
         writeDate(Constants.EDITED, date);
         return this;
     }
@@ -282,7 +283,7 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return startPerson(qname).writePersonName(name).writePersonEmail(email).writePersonUri(uri).endPerson();
     }
 
-    public StreamWriter writePublished(Date date) {
+    public StreamWriter writePublished(DateTime date) {
         return writeDate(Constants.PUBLISHED, date);
     }
 
@@ -290,7 +291,7 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return startText(qname, type).writeElementText(value).endElement();
     }
 
-    public StreamWriter writeUpdated(Date date) {
+    public StreamWriter writeUpdated(DateTime date) {
         return writeDate(Constants.UPDATED, date);
     }
 
@@ -306,8 +307,8 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return writeDate(Constants.EDITED, date);
     }
 
-    public StreamWriter writeDate(QName qname, Date date) {
-        return writeDate(qname, DateTime.format(date));
+    public StreamWriter writeDate(QName qname, DateTime date) {
+        return writeDate(qname, DateTimes.format(date));
     }
 
     public StreamWriter writeId(IRI iri) {
@@ -542,20 +543,20 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return this;
     }
 
-    public StreamWriter writeAttribute(QName qname, Date value) {
+    public StreamWriter writeAttribute(QName qname, DateTime value) {
         return writeAttribute(qname.getLocalPart(), qname.getNamespaceURI(), qname.getPrefix(), value);
     }
 
-    public StreamWriter writeAttribute(String name, Date value) {
+    public StreamWriter writeAttribute(String name, DateTime value) {
         return writeAttribute(name, null, null, value);
     }
 
-    public StreamWriter writeAttribute(String name, String namespace, Date value) {
+    public StreamWriter writeAttribute(String name, String namespace, DateTime value) {
         return writeAttribute(name, namespace, null, value);
     }
 
-    public StreamWriter writeAttribute(String name, String namespace, String prefix, Date value) {
-        return writeAttribute(name, namespace, prefix, DateTime.format(value));
+    public StreamWriter writeAttribute(String name, String namespace, String prefix, DateTime value) {
+        return writeAttribute(name, namespace, prefix, DateTimes.format(value));
     }
 
     public StreamWriter writeAttribute(QName qname, int value) {
@@ -606,8 +607,8 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return writeAttribute(name, namespace, prefix, Double.toString(value));
     }
 
-    public StreamWriter writeElementText(Date value) {
-        return writeElementText(DateTime.format(value));
+    public StreamWriter writeElementText(DateTime value) {
+        return writeElementText(DateTimes.format(value));
     }
 
     public StreamWriter writeElementText(int value) {
@@ -666,15 +667,15 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return startElement(name).writeElementText(iri).endElement();
     }
 
-    public StreamWriter writeDate(String name, Date date) {
+    public StreamWriter writeDate(String name, DateTime date) {
         return startElement(name).writeElementText(date).endElement();
     }
 
-    public StreamWriter writeDate(String name, String namespace, Date date) {
+    public StreamWriter writeDate(String name, String namespace, DateTime date) {
         return startElement(name, namespace).writeElementText(date).endElement();
     }
 
-    public StreamWriter writeDate(String name, String namespace, String prefix, Date date) {
+    public StreamWriter writeDate(String name, String namespace, String prefix, DateTime date) {
         return startElement(name, namespace, prefix).writeElementText(date).endElement();
     }
 
@@ -774,4 +775,54 @@ public abstract class AbstractStreamWriter implements StreamWriter {
       }
       return false;
   }
+
+  public StreamWriter writeUpdatedNow() {
+    return writeUpdated(DateTime.now());
+  }
+
+  public StreamWriter writePublishedNow() {
+    return writePublished(DateTime.now());
+  }
+
+  public StreamWriter writeEditedNow() {
+    return writeEdited(DateTime.now());
+  }
+
+  public StreamWriter writeDateNow(QName qname) {
+    return writeDate(qname,DateTime.now());
+  }
+
+  public StreamWriter writeDateNow(String name, String namespace, String prefix) {
+    return writeDate(name,namespace,prefix,DateTime.now());
+  }
+
+  public StreamWriter writeDateNow(String name, String namespace) {
+    return writeDate(name,namespace,DateTime.now());
+  }
+
+  public StreamWriter writeDateNow(String name) {
+    return writeDate(name,DateTime.now());
+  }
+
+  public StreamWriter writeElementTextNow() {
+    return writeElementText(DateTime.now());
+  }
+
+  public StreamWriter writeAttributeNow(QName qname) {
+    return writeAttribute(qname,DateTime.now());
+  }
+
+  public StreamWriter writeAttributeNow(String name) {
+    return writeAttribute(name,DateTime.now());
+  }
+
+  public StreamWriter writeAttributeNow(String name, String namespace) {
+    return writeAttribute(name,namespace,DateTime.now());
+  }
+
+  public StreamWriter writeAttributeNow(String name, String namespace,
+      String prefix) {
+    return writeAttribute(name,namespace,prefix,DateTime.now());
+  }
+  
 }

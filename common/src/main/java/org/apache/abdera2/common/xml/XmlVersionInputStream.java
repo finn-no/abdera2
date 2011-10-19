@@ -28,7 +28,8 @@ import org.apache.abdera2.common.io.PeekAheadInputStream;
 
 
 /**
- * Will attempt to autodetect the character encoding from the stream This will preserve the BOM if it exists
+ * Will attempt to autodetect the character encoding from the stream
+ * @Deprecated @see org.apache.abdera2.common.xml.XmlVersionReader
  */
 public class XmlVersionInputStream extends FilterInputStream {
 
@@ -59,7 +60,8 @@ public class XmlVersionInputStream extends FilterInputStream {
             byte[] p = new byte[peek_ahead];
             pin.peek(p);
             XMLStreamReader xmlreader =
-                XMLInputFactory.newInstance().createXMLStreamReader(new java.io.ByteArrayInputStream(p));
+                XMLInputFactory.newInstance().createXMLStreamReader(
+                   new java.io.ByteArrayInputStream(p));
             String v = xmlreader.getVersion();
             if (v != null)
                 version = v;

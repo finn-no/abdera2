@@ -31,8 +31,10 @@ import org.apache.abdera2.common.Constants;
 /**
  * Utilities for working with MIME Media Types
  */
-public class MimeTypeHelper {
+public final class MimeTypeHelper {
 
+    private MimeTypeHelper() {}
+  
     private static final MimeType WILDCARD = createWildcard();
 
     public static String getCharset(String mediatype) {

@@ -295,7 +295,7 @@ public final class UrlEncoding {
 
     private static boolean check(int codepoint, Profile... profiles) {
         for (Profile profile : profiles) {
-            if (profile.filter(codepoint))
+            if (profile.apply(codepoint))
                 return true;
         }
         return false;

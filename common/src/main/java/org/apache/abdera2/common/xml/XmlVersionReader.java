@@ -53,7 +53,8 @@ public class XmlVersionReader extends PushbackReader {
             char[] p = new char[peek_ahead];
             int r = read(p);
             XMLStreamReader xmlreader =
-                XMLInputFactory.newInstance().createXMLStreamReader(new java.io.CharArrayReader(p));
+                XMLInputFactory.newInstance().createXMLStreamReader(
+                  new java.io.CharArrayReader(p));
             String v = xmlreader.getVersion();
             if (v != null)
                 version = v;

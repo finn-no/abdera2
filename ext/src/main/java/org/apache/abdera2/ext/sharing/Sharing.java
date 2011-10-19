@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.anno.QName;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElementWrapper;
 
@@ -39,12 +39,12 @@ public class Sharing extends ExtensibleElementWrapper {
 
     public Date getSince() {
         String since = getAttributeValue("since");
-        return since != null ? DateTime.parse(since) : null;
+        return since != null ? DateTimes.parse(since) : null;
     }
 
     public void setSince(Date since) {
         if (since != null) {
-            setAttributeValue("since", DateTime.format(since));
+            setAttributeValue("since", DateTimes.format(since));
         } else {
             removeAttribute("since");
         }
@@ -52,12 +52,12 @@ public class Sharing extends ExtensibleElementWrapper {
 
     public Date getUntil() {
         String until = getAttributeValue("until");
-        return until != null ? DateTime.parse(until) : null;
+        return until != null ? DateTimes.parse(until) : null;
     }
 
     public void setUntil(Date until) {
         if (until != null) {
-            setAttributeValue("until", DateTime.format(until));
+            setAttributeValue("until", DateTimes.format(until));
         } else {
             removeAttribute("until");
         }
@@ -65,12 +65,12 @@ public class Sharing extends ExtensibleElementWrapper {
 
     public Date getExpires() {
         String expires = getAttributeValue("expires");
-        return expires != null ? DateTime.parse(expires) : null;
+        return expires != null ? DateTimes.parse(expires) : null;
     }
 
     public void setExpires(Date expires) {
         if (expires != null) {
-            setAttributeValue("expires", DateTime.format(expires));
+            setAttributeValue("expires", DateTimes.format(expires));
         } else {
             removeAttribute("expires");
         }

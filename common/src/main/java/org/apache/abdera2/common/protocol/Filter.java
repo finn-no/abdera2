@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import org.apache.abdera2.common.misc.Task;
+
 
 /**
  * Filters are invoked by AbderaServlet immediately before passing the request off to the Provider for processing The
@@ -25,12 +27,12 @@ package org.apache.abdera2.common.protocol;
  * 
  * @author jasnell
  */
-public interface Filter {
+public interface Filter extends Task<RequestContext,ResponseContext> {
 
-    /**
-     * Process the filter request. The filter must call chain.next(request) to pass the request on to the next filter or
-     * the provider.
-     */
-  <S extends ResponseContext>S filter(RequestContext request, FilterChain chain);
+//    /**
+//     * Process the filter request. The filter must call chain.next(request) to pass the request on to the next filter or
+//     * the provider.
+//     */
+//  <S extends ResponseContext>S filter(RequestContext request, FilterChain chain);
 
 }

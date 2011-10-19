@@ -20,14 +20,15 @@ package org.apache.abdera2.common.misc;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-
 /**
  * Implements a simple pool manager. By default, an upper limit to the pool is set at 25 entries. New items can always
  * be created, but if more than 25 entries are released back to the pool, extras are discarded. Items added to the
  * stack should never maintain any kind of state as it is entirely possible that different threads will be grabbing
  * items from the pool
  */
-public abstract class PoolManager<T,R> implements ItemManager<T,R> {
+public abstract class PoolManager<T,R> 
+  extends AbstractItemManager<T,R>
+  implements ItemManager<T,R> {
 
     private static final int DEFAULT_SIZE = 25;
     private final Queue<T> pool;

@@ -15,6 +15,7 @@ import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
+import org.joda.time.DateTime;
 
 /**
  * Extension of the base Abdera Client Session that provides utility 
@@ -147,7 +148,7 @@ public class ActivitiesSession
         base.setEntityTag(etag);
     Date lm = resp.getLastModified();
     if (lm != null)
-        base.setLastModified(lm);
+        base.setLastModified(new DateTime(lm));
     MimeType mt = resp.getContentType();
     if (mt != null)
         base.setContentType(mt.toString());

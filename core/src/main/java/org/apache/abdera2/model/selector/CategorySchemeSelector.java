@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Category;
 
@@ -30,7 +31,8 @@ import org.apache.abdera2.model.Category;
  * @see org.apache.abdera2.common.selector.Selector
  */
 public class CategorySchemeSelector 
-  implements Selector {
+  extends AbstractSelector<Category>
+  implements Selector<Category> {
 
   private static final long serialVersionUID = 7008363856043465676L;
   private final Set<IRI> schemes = new HashSet<IRI>();

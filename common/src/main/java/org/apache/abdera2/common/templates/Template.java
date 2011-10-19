@@ -33,6 +33,9 @@ import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.common.templates.Expression.VarSpec;
 
+import com.google.common.base.Supplier;
+import static com.google.common.base.Preconditions.*;
+
 @SuppressWarnings("unchecked")
 public final class Template implements Iterable<Expression>, Serializable {
 
@@ -50,10 +53,9 @@ public final class Template implements Iterable<Expression>, Serializable {
      * @param pattern A URI Template
      */
     public Template(String pattern) {
-        if (pattern == null)
-          throw new IllegalArgumentException("Template pattern must not be null");
-        this.pattern = pattern;
-        initExpressions();
+      checkNotNull(pattern, "Template pattern must not be null");
+      this.pattern = pattern;
+      initExpressions();
     }
     
     public Template(Object object) {
@@ -73,10 +75,9 @@ public final class Template implements Iterable<Expression>, Serializable {
         uriTemplate != null ?
            uriTemplate.value() :
            object instanceof TemplateProvider ? 
-             ((TemplateProvider)object).getTemplate() : 
+             ((TemplateProvider)object).get() : 
              null;
-      if (pattern == null)
-        throw new IllegalArgumentException();
+      checkNotNull(pattern);
       return pattern;
     }
 
@@ -177,8 +178,8 @@ public final class Template implements Iterable<Expression>, Serializable {
     }
 
     public static String expand(String pattern, Context context) {
-        if (context == null || pattern == null)
-            throw new IllegalArgumentException();
+        checkNotNull(context);
+        checkNotNull(pattern);
         return new Template(pattern).expand(context);
     }
 
@@ -187,8 +188,8 @@ public final class Template implements Iterable<Expression>, Serializable {
     }
 
     public static String expand(String pattern, Object object, boolean isiri) {
-        if (object == null || pattern == null)
-            throw new IllegalArgumentException();
+        checkNotNull(pattern);
+        checkNotNull(object);
         return new Template(pattern).expand(object, isiri);
     }
 
@@ -198,6 +199,7 @@ public final class Template implements Iterable<Expression>, Serializable {
     
     @SuppressWarnings("rawtypes")
     private static Context asContext(Object obj, boolean isiri) {
+      checkNotNull(obj);
       return 
         obj instanceof Context ? 
           (Context)obj : 
@@ -210,8 +212,7 @@ public final class Template implements Iterable<Expression>, Serializable {
      * Use an Object annotated with the URITemplate annotation to expand a template
      */
     public static String expandAnnotated(Object object, Object additional) {
-        if (object == null)
-            throw new IllegalArgumentException();
+        checkNotNull(object);
         Object contextObject = null;
         Class<?> _class = null;
         if (object instanceof Class<?>) {
@@ -225,20 +226,16 @@ public final class Template implements Iterable<Expression>, Serializable {
           }
         }
         URITemplate uritemplate = (URITemplate)_class.getAnnotation(URITemplate.class);
-        if (uritemplate != null) {
-            if (additional != null) {
-              Context add = asContext(additional, uritemplate.isiri());
-              Context main = asContext(contextObject, uritemplate.isiri());
-              contextObject = new DefaultingContext(add,main);
-            }
-            return expand(
-              uritemplate.value(), 
-              contextObject, 
-              uritemplate.isiri());
-        } else {
-            throw new IllegalArgumentException("No URI Template provided");
+        checkNotNull(uritemplate, "No URI Template Provided");
+        if (additional != null) {
+          Context add = asContext(additional, uritemplate.isiri());
+          Context main = asContext(contextObject, uritemplate.isiri());
+          contextObject = new DefaultingContext(add,main);
         }
-
+        return expand(
+          uritemplate.value(), 
+          contextObject, 
+          uritemplate.isiri());
     }
     
     public static Context getAnnotatedContext(Object object) {
@@ -260,5 +257,21 @@ public final class Template implements Iterable<Expression>, Serializable {
       if (template != null)
         buf.append(template);
       return new Template(buf.toString());
+    }
+    
+    public Supplier<String> supplierFor(Object context) {
+      return new TSupplier(this,context);
+    }
+    
+    private static class TSupplier implements Supplier<String> {
+      private final Template template;
+      private final Object context;
+      TSupplier(Template template, Object context) {
+        this.template = template;
+        this.context = context;
+      }
+      public String get() {
+        return template.expand(context);
+      }
     }
 }

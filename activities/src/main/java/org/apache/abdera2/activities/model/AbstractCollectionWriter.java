@@ -4,6 +4,7 @@ package org.apache.abdera2.activities.model;
  * Base implementation of the CollectionWriter interface.. handles
  * basic flow and state management
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractCollectionWriter 
   implements CollectionWriter {
 
@@ -20,7 +21,7 @@ public abstract class AbstractCollectionWriter
   
   public abstract void complete();
   
-  public void writeHeader(ASBase base) {
+  public <X extends CollectionWriter>X writeHeader(ASBase base) {
     if (_items || _header)
     throw new IllegalStateException();
     if (base != null) {
@@ -33,25 +34,29 @@ public abstract class AbstractCollectionWriter
     }
     _header = true;
     flush();
+    return (X)this;
   }
   
-  public void writeObject(ASObject object) {
+  public <X extends CollectionWriter>X writeObject(ASObject object) {
     if (!_items) {
       startItems();
       _items = true;
     }
     writeItem(object);
     flush();
+    return (X)this;
   }
   
-  public void writeObjects(ASObject... objects) {
+  public <X extends CollectionWriter>X writeObjects(ASObject... objects) {
     for (ASObject object : objects)
       writeObject(object);
+    return (X)this;
   }
   
-  public void writeObjects(Iterable<ASObject> objects) {
+  public <X extends CollectionWriter>X writeObjects(Iterable<ASObject> objects) {
     for (ASObject object : objects)
       writeObject(object);
+    return (X)this;
   }
  
 }

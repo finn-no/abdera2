@@ -27,10 +27,10 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
@@ -118,9 +118,8 @@ public class SignedResponseFilter implements Filter {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
-        return (S)new SigningResponseContextWrapper(AbstractAtompubProvider.getAbdera(request), chain.next(request));
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
+        return new SigningResponseContextWrapper(AbstractAtompubProvider.getAbdera(request), chain.next(request));
     }
 
     private Document<Element> signDocument(Abdera abdera, Document<Element> doc) throws SecurityException {

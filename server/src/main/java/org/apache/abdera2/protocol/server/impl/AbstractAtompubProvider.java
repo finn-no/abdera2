@@ -18,7 +18,6 @@
 package org.apache.abdera2.protocol.server.impl;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
@@ -26,7 +25,7 @@ import javax.xml.namespace.QName;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.Localizer;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.QualityHelper;
 import org.apache.abdera2.common.http.QualityHelper.QToken;
@@ -66,6 +65,7 @@ import org.apache.abdera2.writer.Writer;
 import org.apache.abdera2.writer.WriterFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 
 /**
  * Base Provider implementation that provides the core implementation details for all Providers. This class provides the
@@ -231,11 +231,11 @@ public abstract class AbstractAtompubProvider
         if (base instanceof Entry) {
             Entry entry = (Entry)base;
             id = entry.getId().toString();
-            modified = DateTime.format(entry.getEdited() != null ? entry.getEdited() : entry.getUpdated());
+            modified = DateTimes.format(entry.getEdited() != null ? entry.getEdited() : entry.getUpdated());
         } else if (base instanceof Feed) {
             Feed feed = (Feed)base;
             id = feed.getId().toString();
-            modified = DateTime.format(feed.getUpdated());
+            modified = DateTimes.format(feed.getUpdated());
         } else if (base instanceof Document) {
             return calculateEntityTag(((Document<?>)base).getRoot());
         }
@@ -268,24 +268,24 @@ public abstract class AbstractAtompubProvider
     /**
      * Return a document
      */
-    public static AtompubResponseContext returnBase(Base base, int status, Date lastModified) {
+    public static AtompubResponseContext returnBase(Base base, int status, DateTime lastModified) {
         log.debug(Localizer.get("RETURNING.DOCUMENT"));
         FOMResponseContext<Base> response = new FOMResponseContext<Base>(base);
         response.setStatus(status);
         if (lastModified != null)
-            response.setLastModified(lastModified);
+            response.setLastModified(lastModified.toDate());
         // response.setContentType(MimeTypeHelper.getMimeType(base));
         Document<?> doc = base instanceof Document ? (Document<?>)base : ((Element)base).getDocument();
         if (doc.getEntityTag() != null) {
             response.setEntityTag(doc.getEntityTag());
         } else if (doc.getLastModified() != null) {
-            response.setLastModified(doc.getLastModified());
+            response.setLastModified(doc.getLastModified().toDate());
         }
         return response;
     }
 
     @Override
     public <S extends ResponseContext> S process(RequestContext request) {
-      return (S)super.process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
+      return super.<S>process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
     }
 }

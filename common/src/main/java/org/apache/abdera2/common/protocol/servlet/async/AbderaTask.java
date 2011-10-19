@@ -27,9 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.abdera2.common.http.CacheControl;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,8 +95,11 @@ public class AbderaTask {
     Provider provider,
     HttpServletRequest request,
     HttpServletResponse response) {
-    FilterChain chain = 
-      new FilterChain(provider, requestContext);
+    Chain<RequestContext,ResponseContext> chain =
+      Chain.<RequestContext,ResponseContext>make()
+      .to(provider)
+      .via(provider.getFilters(requestContext))
+      .get();
     try {
         log.debug(String.format("Using RequestContext: %s",requestContext.getClass().getName()));
         output(request, response, chain.next(requestContext), provider);

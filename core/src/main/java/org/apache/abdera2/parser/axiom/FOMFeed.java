@@ -19,7 +19,6 @@ package org.apache.abdera2.parser.axiom;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,6 +38,7 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+@SuppressWarnings("rawtypes")
 public class FOMFeed extends FOMSource implements Feed {
 
     private static final long serialVersionUID = 4552921210185524535L;
@@ -168,8 +168,8 @@ public class FOMFeed extends FOMSource implements Feed {
         }
 
         public int compare(Entry o1, Entry o2) {
-            Date d1 = o1.getEdited();
-            Date d2 = o2.getEdited();
+            org.joda.time.DateTime d1 = o1.getEdited();
+            org.joda.time.DateTime d2 = o2.getEdited();
             if (d1 == null)
                 d1 = o1.getUpdated();
             if (d2 == null)
@@ -193,8 +193,8 @@ public class FOMFeed extends FOMSource implements Feed {
         }
 
         public int compare(Entry o1, Entry o2) {
-            Date d1 = o1.getUpdated();
-            Date d2 = o2.getUpdated();
+          org.joda.time.DateTime d1 = o1.getUpdated();
+          org.joda.time.DateTime d2 = o2.getUpdated();
             if (d1 == null && d2 == null)
                 return 0;
             if (d1 == null && d2 != null)

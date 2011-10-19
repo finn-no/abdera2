@@ -19,11 +19,178 @@ package org.apache.abdera2.common.http;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
+
 public final class CacheControl implements Serializable {
 
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static Builder make(CacheControl template) {
+    return new Builder(template);
+  }
+  
+  public static class Builder implements Supplier<CacheControl> {
+
+    protected int flags = 0;
+    protected String[] nocache_headers = {},
+                       private_headers = {};
+    protected long max_age = -1,
+                   max_stale = -1,
+                   min_fresh = -1,
+                   smax_age = -1,
+                   staleiferror = -1,
+                   stalewhilerevalidate = -1;
+    protected final HashMap<String,Object> exts =
+      new HashMap<String,Object>();
+    
+    public Builder() {
+      defaults();
+    }
+    
+    public Builder(CacheControl cc) {
+      from(cc);
+    }
+    
+    public Builder from(CacheControl cc) {
+      this.flags = cc.flags;
+      this.nocache_headers = cc.nocache_headers;
+      this.private_headers = cc.private_headers;
+      this.max_age = cc.max_age;
+      this.max_stale = cc.max_stale;
+      this.min_fresh = cc.min_fresh;
+      this.smax_age = cc.smax_age;
+      this.staleiferror = cc.staleiferror;
+      this.stalewhilerevalidate = cc.stalewhilerevalidate;
+      this.exts.putAll(cc.exts);
+      return this;
+    }
+    
+    public Builder defaults() {
+      return 
+         noCache(false)
+        .noStore(false)
+        .noTransform(false)
+        .onlyIfCached(false)
+        .maxAge(-1)
+        .maxStale(-1)
+        .minFresh(-1)
+        .staleIfError(-1)
+        .staleWhileRevalidate(-1)
+        .mustRevalidate(false)
+        .isPrivate(false)
+        .isPublic(false)
+        .maxAge(-1);
+    }
+    
+    public CacheControl get() {
+      return new CacheControl(this);
+    }
+    
+    public Builder extensions(Map<String,Object> exts) {
+      this.exts.putAll(exts);
+      return this;
+    }
+    
+    public Builder extension(String name, Object value) {
+      exts.put(name,value);
+      return this;
+    }
+    
+    public Builder staleIfError(long delta) {
+      this.staleiferror = Math.max(-1,delta);
+      return this;
+    }
+    
+    public Builder staleWhileRevalidate(long delta) {
+      this.stalewhilerevalidate = Math.max(-1,delta);
+      return this;
+    }
+    
+    public Builder maxAge(long max_age) {
+      this.max_age = Math.max(-1,max_age);
+      return this;
+    }
+
+    public Builder mustRevalidate(boolean val) {
+      toggle(val,REVALIDATE);
+      return this;
+    }
+
+    public Builder proxyRevalidate(boolean val) {
+      toggle(val,PROXYREVALIDATE);
+      return this;
+    }
+
+    public Builder noCache(boolean val) {
+      toggle(val,NOCACHE);
+      return this;
+    }
+
+    public Builder noStore(boolean val) {
+      toggle(val,NOSTORE);
+      return this;
+    }
+
+    public Builder noTransform(boolean val) {
+      toggle(val,NOTRANSFORM);
+      return this;
+    }
+    
+    public Builder isPublic(boolean val) {
+      toggle(val,PUBLIC);
+      return this;
+    }
+
+    public Builder isPrivate(boolean val) {
+      toggle(val,PRIVATE);
+      return this;
+    }
+
+    public Builder privateHeaders(String... headers) {
+      this.private_headers = headers;
+      return this;
+    }
+
+    public Builder noCacheHeaders(String... headers) {
+      this.nocache_headers = headers;
+      return this;
+    }
+
+    public Builder maxStale(long max_stale) {
+      this.max_stale = max_stale;
+      return this;
+    }
+
+    public Builder minFresh(long min_fresh) {
+      this.min_fresh = min_fresh;
+      return this;
+    }
+    
+    public Builder onlyIfCached(boolean val) {
+      toggle(val,ONLYIFCACHED);
+      return this;
+    }
+    
+    private void toggle(boolean val, int flag) {
+      if (val)
+          flags |= flag;
+      else
+          flags &= ~flag;
+    }
+  
+  }
+  
+  public static CacheControl parse(String cc) {
+    return CacheControlUtil.parseCacheControl(cc, make()).get();
+  }
+  
   private static final long serialVersionUID = 3554586802963893228L;
   public final static int NOCACHE = 1,
                           NOSTORE = 2,
@@ -33,67 +200,41 @@ public final class CacheControl implements Serializable {
                           REVALIDATE = 32,
                           PROXYREVALIDATE = 64,
                           ONLYIFCACHED = 128;
-  protected int flags = 0;
-  protected String[] nocache_headers = null,
-                     private_headers = null;
-  protected long max_age = -1,
-                 max_stale = -1,
-                 min_fresh = -1,
-                 smax_age = -1,
-                 staleiferror = -1,
-                 stalewhilerevalidate = -1;
+  protected final int flags;
+  protected final String[] nocache_headers,
+                     private_headers;
+  protected final long max_age,
+                 max_stale,
+                 min_fresh,
+                 smax_age,
+                 staleiferror,
+                 stalewhilerevalidate;
   protected HashMap<String,Object> exts =
     new HashMap<String,Object>();
   
-  public CacheControl() {}
-  
-  public CacheControl(String cc) {
-    CacheControlUtil.parseCacheControl(cc, this);
-  }
-  
-  public CacheControl setExtensions(Map<String,Object> exts) {
-    this.exts.putAll(exts);
-    return this;
-  }
-  
-  public CacheControl setExtension(String name, Object value) {
-    exts.put(name,value);
-    return this;
+  private CacheControl(Builder builder) {
+    this.flags = builder.flags;
+    this.nocache_headers = builder.nocache_headers;
+    this.private_headers = builder.private_headers;
+    this.max_age = builder.max_age;
+    this.max_stale = builder.max_stale;
+    this.min_fresh = builder.min_fresh;
+    this.smax_age = builder.smax_age;
+    this.staleiferror = builder.staleiferror;
+    this.stalewhilerevalidate = builder.stalewhilerevalidate;
+    this.exts.putAll(builder.exts);
   }
   
   public Object getExtension(String name) {
     return exts.get(name);
   }
   
-  public String[] listExtensions() {
-    return exts.keySet().toArray(new String[exts.size()]);
+  public Iterable<String> listExtensions() {
+    return Iterables.unmodifiableIterable(exts.keySet());
   }
   
   protected boolean check(int flag) {
     return (flags & flag) == flag;
-  }
-
-  protected void toggle(boolean val, int flag) {
-      if (val)
-          flags |= flag;
-      else
-          flags &= ~flag;
-  }
-  
-  public void setDefaults() {
-    setNoCache(false);
-    setNoStore(false);
-    setNoTransform(false);
-    setOnlyIfCached(false);
-    setMaxAge(-1);
-    setMaxStale(-1);
-    setMinFresh(-1);
-    setStaleIfError(-1);
-    setStaleWhileRevalidate(-1);
-    setMustRevalidate(false);
-    setPrivate(false);
-    setPublic(false);
-    setMaxAge(-1);
   }
   
   public boolean isNoCache() {
@@ -112,12 +253,12 @@ public final class CacheControl implements Serializable {
       return max_age;
   }
   
-  public String[] getNoCacheHeaders() {
-    return isNoCache() ? nocache_headers : null;
+  public Iterable<String> getNoCacheHeaders() {
+    return isNoCache() ? Arrays.asList(nocache_headers) : Collections.<String>emptySet();
   }
 
-  public String[] getPrivateHeaders() {
-    return isPrivate() ? private_headers : null;
+  public Iterable<String> getPrivateHeaders() {
+    return isPrivate() ? Arrays.asList(private_headers) : Collections.<String>emptySet();
   }
 
   public long getSMaxAge() {
@@ -147,67 +288,7 @@ public final class CacheControl implements Serializable {
   public long getStaleWhileRevalidate() {
     return stalewhilerevalidate;
   }
-  
-  public CacheControl setStaleIfError(long delta) {
-    this.staleiferror = Math.max(-1,delta);
-    return this;
-  }
-  
-  public CacheControl setStaleWhileRevalidate(long delta) {
-    this.stalewhilerevalidate = Math.max(-1,delta);
-    return this;
-  }
-  
-  public CacheControl setMaxAge(long max_age) {
-    this.max_age = Math.max(-1,max_age);
-    return this;
-  }
-
-  public CacheControl setMustRevalidate(boolean val) {
-    toggle(val,REVALIDATE);
-    return this;
-  }
-
-  public CacheControl setProxyRevalidate(boolean val) {
-    toggle(val,PROXYREVALIDATE);
-    return this;
-  }
-
-  public CacheControl setNoCache(boolean val) {
-    toggle(val,NOCACHE);
-    return this;
-  }
-
-  public CacheControl setNoStore(boolean val) {
-    toggle(val,NOSTORE);
-    return this;
-  }
-
-  public CacheControl setNoTransform(boolean val) {
-    toggle(val,NOTRANSFORM);
-    return this;
-  }
-  
-  public CacheControl setPublic(boolean val) {
-    toggle(val,PUBLIC);
-    return this;
-  }
-
-  public CacheControl setPrivate(boolean val) {
-    toggle(val,PRIVATE);
-    return this;
-  }
-
-  public CacheControl setPrivateHeaders(String... headers) {
-    this.private_headers = headers;
-    return this;
-  }
-
-  public CacheControl setNoCacheHeaders(String... headers) {
-    this.nocache_headers = headers;
-    return this;
-  }
-  
+    
   public boolean isOnlyIfCached() {
     return check(ONLYIFCACHED);
   }
@@ -218,21 +299,6 @@ public final class CacheControl implements Serializable {
 
   public long getMinFresh() {
     return min_fresh;
-  }
-  
-  public CacheControl setMaxStale(long max_stale) {
-    this.max_stale = max_stale;
-    return this;
-  }
-
-  public CacheControl setMinFresh(long min_fresh) {
-    this.min_fresh = min_fresh;
-    return this;
-  }
-  
-  public CacheControl setOnlyIfCached(boolean val) {
-    toggle(val,ONLYIFCACHED);
-    return this;
   }
   
   public String toString() {
@@ -287,33 +353,31 @@ public final class CacheControl implements Serializable {
   }
   
   public static CacheControl NOCACHE() {
-    CacheControl cc = new CacheControl();
-    cc.setNoCache(true);
-    return cc;
+    return make().noCache(true).get();
+  }
+  
+  public static CacheControl NONNOCACHE() {
+    return make().noCache(false).get();
   }
   
   public static CacheControl NOSTORE() {
-    CacheControl cc = new CacheControl();
-    cc.setNoStore(true);
-    return cc;
+    return make().noStore(true).get();
+  }
+  
+  public static CacheControl NONNOSTORE() {
+    return make().noStore(false).get();
   }
   
   public static CacheControl MAXAGE(long age) {
-    CacheControl cc = new CacheControl();
-    cc.setMaxAge(age);
-    return cc;
+    return make().maxAge(age).get();
   }
   
   public static CacheControl PUBLIC() {
-    CacheControl cc = new CacheControl();
-    cc.setPublic(true);
-    return cc;
+    return make().isPublic(true).get();
   }
   
   public static CacheControl PRIVATE() {
-    CacheControl cc = new CacheControl();
-    cc.setPrivate(true);
-    return cc;
+    return make().isPrivate(true).get();
   }
   
 }

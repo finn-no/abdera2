@@ -17,11 +17,13 @@
  */
 package org.apache.abdera2.common.misc;
 
+import com.google.common.base.Function;
+
 /**
  * The Resolver interface is a utility class used to resolve objects based on a request. It is used internally by Abdera
  * as the basis for Target and Subject resolvers.
  */
-public interface Resolver<T,R> {
+public interface Resolver<T,R> extends Function<R,T> {
 
     T resolve(R key);
 

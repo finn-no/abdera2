@@ -20,7 +20,7 @@ package org.apache.abdera2.common.pusher;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import static com.google.common.base.Preconditions.*;
 
 /**
  * ChannelManager implementation based on an internal HashMap of Pusher/Receiver pairs
@@ -53,9 +53,7 @@ public abstract class MapChannelManager
   }
   
   private synchronized Channel get(String channel, boolean skip) {
-    if (!skip && shuttingDown)
-      throw new IllegalStateException(
-        "Channel Manager is shutting down");
+    checkState(!(!skip && shuttingDown),"Channel Manager is shutting down");
     Channel c = map.get(channel);
     if (c == null) {
       c = createChannel();

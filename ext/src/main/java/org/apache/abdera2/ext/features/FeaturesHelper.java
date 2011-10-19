@@ -37,6 +37,7 @@ import org.apache.abdera2.protocol.client.AbderaClient;
  * Implementation of the current APP Features Draft
  * (http://www.ietf.org/internet-drafts/draft-snell-atompub-feature-08.txt)
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public final class FeaturesHelper {
 
     public enum Status {

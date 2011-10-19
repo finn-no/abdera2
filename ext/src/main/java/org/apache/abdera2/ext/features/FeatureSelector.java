@@ -20,11 +20,15 @@ package org.apache.abdera2.ext.features;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.ext.features.FeaturesHelper.Status;
 import org.apache.abdera2.model.Collection;
 
-public class FeatureSelector implements Selector {
+@SuppressWarnings("rawtypes")
+public class FeatureSelector 
+extends AbstractSelector
+implements Selector {
 
     private static final long serialVersionUID = -8943638085557912175L;
     private final Set<String> features = new LinkedHashSet<String>();

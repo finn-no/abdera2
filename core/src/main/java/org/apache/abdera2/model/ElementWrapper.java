@@ -37,7 +37,7 @@ import org.apache.abdera2.writer.WriterOptions;
 /**
  * Base implementation used for static extensions.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public abstract class ElementWrapper implements Element {
 
     private Element internal;

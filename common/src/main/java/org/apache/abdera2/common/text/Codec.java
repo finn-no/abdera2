@@ -145,10 +145,15 @@ public enum Codec {
           buf.append(UrlEncoding.encode(string, CharUtils.Profile.RFC5987));
         return buf.toString();
       }
+ 
+      private static final CodepointMatcher CHECKER =
+          CodepointMatcher.and(
+            CodepointMatchers.isToken().negate(),
+            CodepointMatcher.isNot(0x20));
       
       private boolean needs(String string) {
         for (char c : string.toCharArray())
-          if (!CharUtils.isToken(c) && c != 0x20)
+          if (CHECKER.apply(c)) 
             return true;
         return false;
       }

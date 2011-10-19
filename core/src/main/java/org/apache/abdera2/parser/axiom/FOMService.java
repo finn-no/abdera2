@@ -35,7 +35,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation","rawtypes"})
 public class FOMService extends FOMExtensibleElement implements Service {
 
     private static final long serialVersionUID = 7982751563668891240L;

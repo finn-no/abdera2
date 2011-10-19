@@ -25,7 +25,7 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.TypeAdapter;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.BaseProvider;
@@ -97,7 +97,7 @@ public abstract class AbstractActivitiesProvider
     if (base instanceof Activity) {
         Activity ac = (Activity)base;
         id = ac.getId();
-        modified = DateTime.format(ac.getUpdated() != null ? ac.getUpdated() : ac.getPublished());
+        modified = DateTimes.format(ac.getUpdated() != null ? ac.getUpdated() : ac.getPublished());
     } else if (base instanceof Collection) {
         Collection<?> col = (Collection<?>)base;
         id = col.getProperty("id");
@@ -106,9 +106,9 @@ public abstract class AbstractActivitiesProvider
     } else if (base instanceof ASObject) {
         ASObject as = (ASObject)base;
         id = as.getId().toString();
-        modified = DateTime.format(as.getUpdated() != null ? as.getUpdated() : as.getPublished());
+        modified = DateTimes.format(as.getUpdated() != null ? as.getUpdated() : as.getPublished());
     }
-    if (modified == null) modified = DateTime.formatNow();
+    if (modified == null) modified = DateTimes.formatNow();
     return EntityTag.generate(id, modified);
   }
   

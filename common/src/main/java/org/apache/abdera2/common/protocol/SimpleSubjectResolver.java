@@ -22,12 +22,14 @@ import java.security.Principal;
 
 import javax.security.auth.Subject;
 
+import org.apache.abdera2.common.misc.AbstractResolver;
 import org.apache.abdera2.common.misc.Resolver;
 
 /**
  * The default subject resolver implementation
  */
 public class SimpleSubjectResolver 
+  extends AbstractResolver<Subject,Request>
   implements Resolver<Subject,Request> {
 
     public static final Principal ANONYMOUS = new AnonymousPrincipal();

@@ -17,78 +17,50 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.MapContext;
 import org.apache.abdera2.common.templates.ObjectContext;
+import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.common.templates.TemplateManager;
 
 public class TemplateManagerTargetBuilder<T> 
   extends TemplateManager<T>
   implements TargetBuilder<T> {
 
-  public TemplateManagerTargetBuilder() {
-    super();
+  public static <T>Builder<T> make() {
+    return new Builder<T>();
   }
-
-  public TemplateManagerTargetBuilder(boolean iri) {
-    super(iri);
+  
+  public static <T>TemplateManagerTargetBuilder<T> fromMap(Map<T,Object> map) {
+    checkNotNull(map);
+    Builder<T> b = make();
+    b.add(map);
+    return (TemplateManagerTargetBuilder<T>) b.get();
   }
-
-  public TemplateManagerTargetBuilder(Context defaults) {
-    super(defaults);
+  
+  public static class Builder<T> extends TemplateManager.Builder<T> {
+    public TemplateManager<T> get() {
+      return new TemplateManagerTargetBuilder<T>(
+        templates,isiri,base,contextDefaults);
+    }
+    public TemplateManagerTargetBuilder<T> getTargetBuilder() {
+      return (TemplateManagerTargetBuilder<T>) get();
+    }
   }
-
-  public TemplateManagerTargetBuilder(IRI base, boolean iri) {
-    super(base, iri);
-  }
-
-  public TemplateManagerTargetBuilder(IRI base, Context defaults) {
-    super(base, defaults);
-  }
-
-  public TemplateManagerTargetBuilder(IRI base, Object defaults, boolean isiri) {
-    super(base, defaults, isiri);
-  }
-
-  public TemplateManagerTargetBuilder(IRI base, Object defaults) {
-    super(base, defaults);
-  }
-
-  public TemplateManagerTargetBuilder(IRI base) {
-    super(base);
-  }
-
-  public TemplateManagerTargetBuilder(Object defaults, boolean isiri) {
-    super(defaults, isiri);
-  }
-
-  public TemplateManagerTargetBuilder(Object defaults) {
-    super(defaults);
-  }
-
-  public TemplateManagerTargetBuilder(String base, boolean iri) {
-    super(base, iri);
-  }
-
-  public TemplateManagerTargetBuilder(String base, Context defaults) {
-    super(base, defaults);
-  }
-
-  public TemplateManagerTargetBuilder(String base, Object defaults,
-      boolean isiri) {
-    super(base, defaults, isiri);
-  }
-
-  public TemplateManagerTargetBuilder(String base, Object defaults) {
-    super(base, defaults);
-  }
-
-  public TemplateManagerTargetBuilder(String base) {
-    super(base);
-  }
+  
+  TemplateManagerTargetBuilder(
+      Map<T,Template> templates, 
+      boolean isiri, 
+      IRI base, 
+      Context contextDefaults) {
+        super(templates,isiri,base,contextDefaults);
+    }
+  
 
   public String urlFor(Request request, T key, Object param) {
     RequestContext rc = (RequestContext) request;

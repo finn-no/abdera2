@@ -26,9 +26,9 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.abdera2.common.io.CharsetSniffingInputStream;
 import org.apache.abdera2.common.io.PeekAheadInputStream;
 
-
 /**
- * Will attempt to autodetect the character encoding from the XML Stream This will preserve the BOM if it exists.
+ * Will attempt to autodetect the character encoding from the XML Stream 
+ * This will preserve the BOM if it exists.
  */
 public class XMLStreamSniffingInputStream extends CharsetSniffingInputStream {
 
@@ -38,17 +38,20 @@ public class XMLStreamSniffingInputStream extends CharsetSniffingInputStream {
 
     @Override
     protected String detectEncoding() throws IOException {
-        String charset = super.detectEncoding();
-        PeekAheadInputStream pin = getInternal();
-        try {
-            byte[] p = new byte[200];
-            pin.peek(p);
-            XMLStreamReader xmlreader =
-                XMLInputFactory.newInstance().createXMLStreamReader(new java.io.ByteArrayInputStream(p));
-            String cs = xmlreader.getCharacterEncodingScheme();
-            if (cs != null)
-                charset = cs;
-        } catch (Exception e) {
+        String charset = super.detectEncoding(); // first check the bom...
+        if (charset == null) { // if the bom check failed...
+          PeekAheadInputStream pin = getInternal();
+          try {
+              byte[] p = new byte[200]; // peek into the stream a ways
+              pin.peek(p);
+              XMLStreamReader xmlreader =
+                  XMLInputFactory.newInstance().createXMLStreamReader(
+                    new java.io.ByteArrayInputStream(p));
+              String cs = xmlreader.getCharacterEncodingScheme();
+              if (cs != null)
+                  charset = cs;
+          } catch (Exception e) {
+          }
         }
         return charset;
     }

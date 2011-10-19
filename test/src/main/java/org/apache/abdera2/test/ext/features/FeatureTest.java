@@ -63,6 +63,7 @@ public class FeatureTest {
 
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void testSelectors() throws Exception {
 

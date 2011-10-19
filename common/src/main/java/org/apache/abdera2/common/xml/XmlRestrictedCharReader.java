@@ -26,9 +26,15 @@ import org.apache.abdera2.common.io.FilteredCharReader;
 
 
 /**
- * A reader implementation that filters out characters that are not allowed in XML 1.0 or XML 1.1 documents. The default
- * xMLVersion is to assume XML 1.0. By default, invalid characters are simply removed from the stream. Alternatively, a
+ * A reader implementation that filters out characters that are not allowed 
+ * in XML 1.0 or XML 1.1 documents. The two different versions have very 
+ * different requirements as far as restricted characters go, with the latter 
+ * version being far more permissive. The default behavior is to assume XML 1.0. 
+ * By default, invalid characters are simply removed from the stream. Alternatively, a
  * replacement character can be provided so long as it is a valid XML character itself.
+ * Using replacement characters should be done very carefully as it could 
+ * introduce other problems in the stream depending on where they end up. It's
+ * probably better to just ignore the characters when using this reader.
  */
 public class XmlRestrictedCharReader extends FilteredCharReader {
 

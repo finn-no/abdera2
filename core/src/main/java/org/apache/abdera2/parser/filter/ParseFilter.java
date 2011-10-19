@@ -57,18 +57,4 @@ public interface ParseFilter extends Cloneable, Serializable {
      */
     boolean getIgnoreProcessingInstructions();
 
-    /**
-     * True if the parser should ignore comments
-     */
-    ParseFilter setIgnoreComments(boolean ignore);
-
-    /**
-     * True if the parser should ignore insignificant whitespace
-     */
-    ParseFilter setIgnoreWhitespace(boolean ignore);
-
-    /**
-     * True if the parser should ignore processing instructions
-     */
-    ParseFilter setIgnoreProcessingInstructions(boolean ignore);
 }

@@ -4,16 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.abdera2.common.misc.MultiIterator;
 import org.apache.abdera2.common.misc.PoolManager;
 import org.junit.Test;
 
+import com.google.common.collect.Iterators;
+
 public class MiscTest {
 
-  @SuppressWarnings("unchecked")
   @Test
   public void multiIteratorTest() {
     Set<String> a1 = new LinkedHashSet<String>();
@@ -24,8 +25,8 @@ public class MiscTest {
     a2.add("d");
     a2.add("e");
     a2.add("f");
-    MultiIterator<String> mi = 
-      new MultiIterator<String>(a1.iterator(),a2.iterator());
+    Iterator<String> mi = 
+      Iterators.concat(a1.iterator(),a2.iterator());
     assertEquals("a",mi.next());
     assertEquals("b",mi.next());
     assertEquals("c",mi.next());

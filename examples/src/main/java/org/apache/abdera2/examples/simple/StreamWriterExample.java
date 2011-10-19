@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.examples.simple;
 
-import java.util.Date;
-
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.writer.StreamWriter;
 
@@ -37,19 +35,19 @@ public class StreamWriterExample {
                 .writeId("http://example.org").writeTitle("<Testing 123>").writeSubtitle("Foo").writeAuthor("James",
                                                                                                             null,
                                                                                                             null)
-                .writeUpdated(new Date()).writeLink("http://example.org/foo").writeLink("http://example.org/bar",
+                .writeUpdatedNow().writeLink("http://example.org/foo").writeLink("http://example.org/bar",
                                                                                         "self").writeCategory("foo")
                 .writeCategory("bar").writeLogo("logo").writeIcon("icon").writeGenerator("1.0",
                                                                                          "http://example.org",
                                                                                          "foo").flush();
 
         for (int n = 0; n < 100; n++) {
-            out.startEntry().writeId("http://example.org/" + n).writeTitle("Entry #" + n).writeUpdated(new Date())
-                .writePublished(new Date()).writeEdited(new Date()).writeSummary("This is text summary")
+            out.startEntry().writeId("http://example.org/" + n).writeTitle("Entry #" + n).writeUpdatedNow()
+                .writePublishedNow().writeEditedNow().writeSummary("This is text summary")
                 .writeAuthor("James", null, null).writeContributor("Joe", null, null).startContent("application/xml")
                 .startElement("a", "b", "c").startElement("x", "y", "z").writeElementText("This is a test")
                 .startElement("a").writeElementText("foo").endElement().startElement("b", "bar")
-                .writeAttribute("foo", new Date()).writeAttribute("bar", 123L).writeElementText(123.123).endElement()
+                .writeAttributeNow("foo").writeAttribute("bar", 123L).writeElementText(123.123).endElement()
                 .endElement().endElement().endContent().endEntry().flush();
         }
 

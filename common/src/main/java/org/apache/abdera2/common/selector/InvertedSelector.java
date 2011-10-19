@@ -3,12 +3,13 @@ package org.apache.abdera2.common.selector;
 /**
  * Selector that inverts the results of the wrapped selector
  */
-public class InvertedSelector 
-  implements Selector {
+public class InvertedSelector<X> 
+  extends AbstractSelector<X>
+  implements Selector<X> {
 
-  private final Selector selector;
+  private final Selector<X> selector;
   
-  public InvertedSelector(Selector selector) {
+  public InvertedSelector(Selector<X> selector) {
     this.selector = selector;
   }
   

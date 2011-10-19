@@ -18,7 +18,6 @@
 package org.apache.abdera2.examples.appserver.employee;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.apache.abdera2.model.Person;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.apache.abdera2.protocol.server.impl.AbstractEntityCollectionAdapter;
+import org.joda.time.DateTime;
 
 public class EmployeeCollectionAdapter extends AbstractEntityCollectionAdapter<Employee> {
     private static final String ID_PREFIX = "tag:acme.com,2007:employee:entry:";
@@ -97,7 +97,7 @@ public class EmployeeCollectionAdapter extends AbstractEntityCollectionAdapter<E
         return entry.getName();
     }
 
-    public Date getUpdated(Employee entry) {
+    public DateTime getUpdated(Employee entry) {
         return entry.getUpdated();
     }
 
@@ -118,7 +118,7 @@ public class EmployeeCollectionAdapter extends AbstractEntityCollectionAdapter<E
     public Employee postEntry(String title,
                               IRI id,
                               String summary,
-                              Date updated,
+                              DateTime updated,
                               List<Person> authors,
                               Content content,
                               RequestContext request) throws ResponseContextException {
@@ -132,7 +132,7 @@ public class EmployeeCollectionAdapter extends AbstractEntityCollectionAdapter<E
 
     public void putEntry(Employee employee,
                          String title,
-                         Date updated,
+                         DateTime updated,
                          List<Person> authors,
                          String summary,
                          Content content,

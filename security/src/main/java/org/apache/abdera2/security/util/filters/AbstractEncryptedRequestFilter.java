@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Filter;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParseException;
@@ -61,13 +61,13 @@ public abstract class AbstractEncryptedRequestFilter implements Filter {
             Security.addProvider(provider);
     }
 
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
         bootstrap(request);
         String method = request.getMethod();
         if (methods.contains(method.toUpperCase())) {
-            return (S)chain.next(new DecryptingRequestContextWrapper(request));
+            return chain.next(new DecryptingRequestContextWrapper(request));
         } else
-            return (S)chain.next(request);
+            return chain.next(request);
     }
 
     protected abstract void bootstrap(RequestContext request);

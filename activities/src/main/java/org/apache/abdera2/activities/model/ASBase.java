@@ -17,11 +17,12 @@
  */
 package org.apache.abdera2.activities.model;
 
+import org.joda.time.DateTime;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.Writer;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,6 +47,11 @@ public class ASBase
     new HashMap<String,Object>();
   
   public ASBase() {}
+  
+  protected <T>Iterable<T> checkEmpty(Iterable<T> i) {
+    return i == null ?
+      Collections.<T>emptySet() : i;
+  }
   
   public void setLang(Lang lang) {
     setProperty("lang", lang);
@@ -170,7 +176,7 @@ public class ASBase
   /////// DOCUMENT PROPERTIES ///////
   
   private MimeType contentType;
-  private Date lastModified;
+  private DateTime lastModified;
   private EntityTag entityTag;
   private Lang language;
   private String slug;
@@ -192,11 +198,11 @@ public class ASBase
     this.contentType = mimeType;
   }
   
-  public Date getLastModified() {
+  public DateTime getLastModified() {
     return lastModified;
   }
   
-  public void setLastModified(Date lastModified) {
+  public void setLastModified(DateTime lastModified) {
     this.lastModified = lastModified;
   }
   

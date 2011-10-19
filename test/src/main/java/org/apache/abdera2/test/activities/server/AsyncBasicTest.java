@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.abdera2.activities.client.ActivityEntity;
 import org.apache.abdera2.activities.model.ASObject;
@@ -95,7 +94,7 @@ public class AsyncBasicTest {
         activity.setId("http://localhost:9002/sample/foo");
         activity.setTitle("test entry");
         activity.setVerb(Verb.POST);
-        activity.setPublished(new Date());
+        activity.setPublishedNow();
         PersonObject person = new PersonObject();
         person.setDisplayName("James");
         activity.setActor(person);

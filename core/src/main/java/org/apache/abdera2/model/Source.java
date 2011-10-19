@@ -20,7 +20,6 @@ package org.apache.abdera2.model;
 import static org.apache.abdera2.common.Constants.ATOM_NS;
 import static org.apache.abdera2.common.Constants.LN_SOURCE;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.abdera2.common.anno.QName;
@@ -71,6 +70,7 @@ import org.apache.abdera2.common.selector.Selector;
  * </pre>
  */
 @QName(value=LN_SOURCE,ns=ATOM_NS)
+@SuppressWarnings("rawtypes")
 public interface Source extends ExtensibleElement {
     /**
      * Returns the first author listed for the entry
@@ -657,7 +657,7 @@ public interface Source extends ExtensibleElement {
      * 
      * @return The atom:updated as a java.util.Date
      */
-    Date getUpdated();
+    org.joda.time.DateTime getUpdated();
 
     /**
      * Set the atom:updated value
@@ -665,8 +665,10 @@ public interface Source extends ExtensibleElement {
      * @param value The java.util.Date
      * @return The newly created atom:updated element
      */
-    DateTime setUpdated(Date value);
+    DateTime setUpdated(org.joda.time.DateTime value);
 
+    DateTime setUpdatedNow();
+    
     /**
      * Set the atom:updated value
      * 

@@ -19,14 +19,14 @@ package org.apache.abdera2.ext.json;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Date;
 import java.util.Stack;
 
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.iri.IRI;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 public class JSONStream {
 
@@ -124,9 +124,9 @@ public class JSONStream {
         writeColon();
     }
 
-    public void writeField(String name, Date value) throws IOException {
+    public void writeField(String name, DateTime value) throws IOException {
         if (value != null) {
-            writeField(name, DateTime.format(value));
+            writeField(name, DateTimes.format(value));
         }
     }
 

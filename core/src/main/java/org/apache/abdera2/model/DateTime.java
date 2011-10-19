@@ -33,7 +33,7 @@ public interface DateTime extends Element {
      * 
      * @return The Atom Date value of this element
      */
-    org.apache.abdera2.common.date.DateTime getValue();
+    org.joda.time.DateTime getValue();
 
     /**
      * Returns the content value of the element as a java.util.Date object
@@ -68,7 +68,7 @@ public interface DateTime extends Element {
      * 
      * @param dateTime the Atom Date value
      */
-    DateTime setValue(org.apache.abdera2.common.date.DateTime dateTime);
+    DateTime setValue(org.joda.time.DateTime dateTime);
 
     /**
      * Sets the content value of the element

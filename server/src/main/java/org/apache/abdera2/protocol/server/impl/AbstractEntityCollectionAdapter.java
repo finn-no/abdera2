@@ -19,7 +19,6 @@ package org.apache.abdera2.protocol.server.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 
 import javax.activation.MimeType;
@@ -29,7 +28,7 @@ import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.text.CharUtils.Profile;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
@@ -46,6 +45,7 @@ import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 
 /**
  * By extending this class it becomes easy to build Collections which are backed by a set of entities - such as a
@@ -73,7 +73,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
     public abstract T postEntry(String title,
                                 IRI id,
                                 String summary,
-                                Date updated,
+                                DateTime updated,
                                 List<Person> authors,
                                 Content content,
                                 RequestContext request) throws ResponseContextException;
@@ -312,7 +312,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
      * current date and time
      */
     protected void addFeedDetails(Feed feed, RequestContext request) throws ResponseContextException {
-        feed.setUpdated(new Date());
+        feed.setUpdated(DateTime.now());
 
         Iterable<T> entries = getEntries(request);
         if (entries != null) {
@@ -371,10 +371,10 @@ public abstract class AbstractEntityCollectionAdapter<T>
      * media resource. The last-modified header will be set.
      */
     protected <S extends ResponseContext>S buildGetMediaResponse(String id, T entryObj) throws ResponseContextException {
-        Date updated = getUpdated(entryObj);
-        MediaResponseContext ctx = new MediaResponseContext(getMediaStream(entryObj), updated, 200);
+        DateTime updated = getUpdated(entryObj);
+        MediaResponseContext ctx = new MediaResponseContext(getMediaStream(entryObj), updated.toDate(), 200);
         ctx.setContentType(getContentType(entryObj));
-        ctx.setEntityTag(EntityTag.generate(id, DateTime.format(updated)));
+        ctx.setEntityTag(EntityTag.generate(id, DateTimes.format(updated)));
         return (S)ctx;
     }
 
@@ -405,7 +405,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
     /**
      * Get the value to use in the atom:updated element
      */
-    public abstract Date getUpdated(T entry) throws ResponseContextException;
+    public abstract DateTime getUpdated(T entry) throws ResponseContextException;
 
     /**
      * True if this entry is a media-link entry. By default this always returns false. Implementations must override to
@@ -440,7 +440,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                     if (!AbstractAtompubProvider.isValidEntry(entry))
                         return (S)new EmptyResponseContext(400);
 
-                    putEntry(entryObj, entry.getTitle(), new Date(), entry.getAuthors(), entry.getSummary(), entry
+                    putEntry(entryObj, entry.getTitle(), DateTime.now(), entry.getAuthors(), entry.getSummary(), entry
                         .getContentElement(), request);
                     return (S)new EmptyResponseContext(204);
                 } else {
@@ -482,7 +482,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
      */
     public abstract void putEntry(T entry,
                                   String title,
-                                  Date updated,
+                                  DateTime updated,
                                   List<Person> authors,
                                   String summary,
                                   Content content,
@@ -595,7 +595,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 if (!AbstractAtompubProvider.isValidEntry(entry))
                     return (S)new EmptyResponseContext(400);
 
-                entry.setUpdated(new Date());
+                entry.setUpdated(DateTime.now());
 
                 T entryObj =
                     postEntry(entry.getTitle(), entry.getId(), entry.getSummary(), entry.getUpdated(), entry

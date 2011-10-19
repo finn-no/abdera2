@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
+import com.google.common.base.Function;
+
 /**
  * Providers are responsible for processing all requests to the Atompub server.<br>
  * Actual request processing is delegated to {@link AtompubRequestProcessor} implementations, depending on the request
@@ -28,9 +30,9 @@ import javax.security.auth.Subject;
  */
 @SuppressWarnings("rawtypes")
 public interface Provider
-  extends TargetBuilder {
+  extends TargetBuilder, Function<RequestContext,ResponseContext> {
 
-    /**
+    /**`
      * Initialize the Provider.
      */
     void init(Map<String, String> properties);

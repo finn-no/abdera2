@@ -41,7 +41,7 @@ import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.junit.Test;
-import org.apache.abdera2.common.date.DateTime;
+import org.apache.abdera2.common.date.DateTimes;
 
 public class SharingTest {
 
@@ -107,8 +107,8 @@ public class SharingTest {
         Sharing sharing = SharingHelper.getSharing(feed, false);
         assertNotNull(sharing);
 
-        Date since = DateTime.parse("2005-02-13T18:30:02Z");
-        Date until = DateTime.parse("2005-05-23T18:30:02Z");
+        Date since = DateTimes.parse("2005-02-13T18:30:02Z");
+        Date until = DateTimes.parse("2005-05-23T18:30:02Z");
 
         assertEquals(since, sharing.getSince());
         assertEquals(until, sharing.getUntil());
@@ -131,9 +131,9 @@ public class SharingTest {
 
         assertEquals(3, sync.getHistory().size());
 
-        Date d1 = DateTime.parse("2005-05-21T11:43:33Z");
-        Date d2 = DateTime.parse("2005-05-21T10:43:33Z");
-        Date d3 = DateTime.parse("2005-05-21T09:43:33Z");
+        Date d1 = DateTimes.parse("2005-05-21T11:43:33Z");
+        Date d2 = DateTimes.parse("2005-05-21T10:43:33Z");
+        Date d3 = DateTimes.parse("2005-05-21T09:43:33Z");
 
         History history = sync.getHistory().get(0);
         assertEquals(3, history.getSequence());

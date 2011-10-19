@@ -79,6 +79,10 @@ public abstract class BaseProvider
 
     protected abstract Resolver<Target, RequestContext> getTargetResolver(RequestContext request);
 
+    public ResponseContext apply(RequestContext request) {
+      return process(request);
+    }
+    
     public <S extends ResponseContext>S process(RequestContext request) {
         Target target = request.getTarget();
         if (target == null || target.getType() == TargetType.TYPE_NOT_FOUND) {

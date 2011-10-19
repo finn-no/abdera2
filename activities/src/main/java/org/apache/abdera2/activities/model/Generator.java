@@ -1,5 +1,7 @@
 package org.apache.abdera2.activities.model;
 
+import com.google.common.base.Supplier;
+
 /**
  * The Generator is used to create instances of specific
  * types of Activity Objects. They are typically best 
@@ -8,7 +10,7 @@ package org.apache.abdera2.activities.model;
  * activity objects that share a base common set of 
  * properties (e.g. same actor, same provider, same verb, etc)
  */
-public class Generator<T extends ASBase> {
+public class Generator<T extends ASBase> implements Supplier<T> {
 
   private final ASBase template;
   private final Class<T> _class;
@@ -54,6 +56,10 @@ public class Generator<T extends ASBase> {
     T t = item;
     item = null;
     return t;
+  }
+  
+  public T get() {
+    return complete();
   }
   
   public static interface Copyable {

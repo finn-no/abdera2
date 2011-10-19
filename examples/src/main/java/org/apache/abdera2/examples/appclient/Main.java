@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.examples.appclient;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.abdera2.Abdera;
@@ -32,6 +31,7 @@ import org.apache.abdera2.protocol.client.AbderaClientResponse;
 import org.apache.abdera2.protocol.client.AbderaSession;
 import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.common.iri.IRI;
+import org.joda.time.DateTime;
 
 public class Main {
 
@@ -53,7 +53,7 @@ public class Main {
         Entry entry = factory.newEntry();
         entry.setId("tag:example.org,2006:foo");
         entry.setTitle("This is the title");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.addAuthor("James");
         entry.setContent("This is the content");
         report("The Entry to Post", entry.toString());

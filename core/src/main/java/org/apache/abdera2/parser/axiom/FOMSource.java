@@ -47,7 +47,7 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
-@SuppressWarnings( {"unchecked", "deprecation"})
+@SuppressWarnings( {"unchecked", "deprecation", "rawtypes"})
 public class FOMSource extends FOMExtensibleElement implements Source {
 
     private static final long serialVersionUID = 9153127297531238021L;
@@ -432,12 +432,12 @@ public class FOMSource extends FOMExtensibleElement implements Source {
         return (dte != null) ? dte.getString() : null;
     }
 
-    public Date getUpdated() {
+    public org.joda.time.DateTime getUpdated() {
         DateTime dte = getUpdatedElement();
-        return (dte != null) ? dte.getDate() : null;
+        return (dte != null) ? dte.getValue() : null;
     }
 
-    private DateTime setUpdated(org.apache.abdera2.common.date.DateTime value) {
+    public DateTime setUpdated(org.joda.time.DateTime value) {
         complete();
         if (value == null) {
             _removeChildren(UPDATED, false);
@@ -456,11 +456,11 @@ public class FOMSource extends FOMExtensibleElement implements Source {
     }
 
     public DateTime setUpdated(Date value) {
-        return setUpdated((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setUpdated((value != null) ? new org.joda.time.DateTime(value) : null);
     }
 
     public DateTime setUpdated(String value) {
-        return setUpdated((value != null) ? org.apache.abdera2.common.date.DateTime.valueOf(value) : null);
+        return setUpdated((value != null) ? new org.joda.time.DateTime(value) : null);
     }
 
     public Generator getGenerator() {
@@ -655,6 +655,10 @@ public class FOMSource extends FOMExtensibleElement implements Source {
 
     public List<Link> getLinks(Selector selector) {
       return _getChildrenAsSet(AUTHOR,selector);
+    }
+
+    public DateTime setUpdatedNow() {
+      return setUpdated(org.joda.time.DateTime.now());
     }
 
 }

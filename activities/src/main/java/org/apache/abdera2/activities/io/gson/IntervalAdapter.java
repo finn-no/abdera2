@@ -17,7 +17,7 @@
  */
 package org.apache.abdera2.activities.io.gson;
 
-import org.apache.abdera2.common.date.Interval;
+import org.joda.time.Interval;
 
 @AdaptedType(Interval.class)
 public class IntervalAdapter

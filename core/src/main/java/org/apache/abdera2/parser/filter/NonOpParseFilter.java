@@ -19,10 +19,16 @@ package org.apache.abdera2.parser.filter;
 
 import javax.xml.namespace.QName;
 
-public class NonOpParseFilter extends AbstractParseFilter {
-
+public final class NonOpParseFilter
+  implements ParseFilter {
+  
+    public static final ParseFilter INSTANCE = 
+      new NonOpParseFilter();
+  
     private static final long serialVersionUID = -1895875728388522456L;
 
+    private NonOpParseFilter() {}
+    
     public boolean acceptable(QName qname) {
         return true;
     }
@@ -31,4 +37,19 @@ public class NonOpParseFilter extends AbstractParseFilter {
         return true;
     }
 
+    public boolean getIgnoreComments() {
+      return false;
+    }
+
+    public boolean getIgnoreWhitespace() {
+      return false;
+    }
+
+    public boolean getIgnoreProcessingInstructions() {
+      return false;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+      return this;
+    }
 }

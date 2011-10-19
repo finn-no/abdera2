@@ -51,6 +51,7 @@ public class FeedToActivityConverter {
     return item(entry);
   }
   
+  @SuppressWarnings("rawtypes")
   public void convert(
     Feed feed, 
     CollectionWriter writer, 
@@ -105,9 +106,12 @@ public class FeedToActivityConverter {
   
   protected Activity item(Entry entry) {
     Activity activity = new Activity();
-    activity.setId(entry.getId().toString());
-    activity.setUpdated(entry.getUpdated());
-    activity.setPublished(entry.getPublished());
+    if (entry.getId() != null)
+      activity.setId(entry.getId().toString());
+    if (entry.getUpdated() != null)
+      activity.setUpdated(entry.getUpdated());
+    if (entry.getPublished() != null)
+      activity.setPublished(entry.getPublished());
     activity.setUrl(entry.getAlternateLinkResolvedHref());
     activity.setTitle(entry.getTitle());
     activity.setSummary(entry.getSummary());

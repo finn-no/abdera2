@@ -17,8 +17,8 @@
  */
 package org.apache.abdera2.common.templates;
 
-public interface TemplateProvider {
+import com.google.common.base.Supplier;
 
-  String getTemplate();
+public interface TemplateProvider extends Supplier<String> {
   
 }

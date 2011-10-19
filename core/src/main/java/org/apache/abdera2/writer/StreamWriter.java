@@ -22,8 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;
-import java.util.Date;
 import java.util.Locale;
+
+import org.joda.time.DateTime;
 
 import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
@@ -255,21 +256,48 @@ public interface StreamWriter extends Appendable, Closeable {
      * 
      * @param date The date value
      */
-    StreamWriter writeUpdated(Date date);
+    StreamWriter writeUpdated(DateTime date);
+    
+    /**
+     * Write an atom:updated element
+     */
+    StreamWriter writeUpdatedNow();
 
     /**
      * Write an atom:published element
      * 
      * @param date The date value
      */
-    StreamWriter writePublished(Date date);
+    StreamWriter writePublished(DateTime date);
+
+    /**
+     * Write an atom:published element
+     * 
+     * @param date The date value
+     */
+    StreamWriter writePublishedNow();
+    
+    /**
+     * Write an atom:edited element
+     * 
+     * @param date The date value
+     */
+    StreamWriter writeEdited(DateTime date);
 
     /**
      * Write an atom:edited element
      * 
      * @param date The date value
      */
-    StreamWriter writeEdited(Date date);
+    StreamWriter writeEditedNow();
+    
+    /**
+     * Write a Date element
+     * 
+     * @param qname The element qname
+     * @param date The date value
+     */
+    StreamWriter writeDate(QName qname, DateTime date);
 
     /**
      * Write a Date element
@@ -277,7 +305,17 @@ public interface StreamWriter extends Appendable, Closeable {
      * @param qname The element qname
      * @param date The date value
      */
-    StreamWriter writeDate(QName qname, Date date);
+    StreamWriter writeDateNow(QName qname);
+    
+    /**
+     * Write a Date element
+     * 
+     * @param name The element localname
+     * @param namespace The element namespace
+     * @param prefix The element prefix
+     * @param date The date value
+     */
+    StreamWriter writeDate(String name, String namespace, String prefix, DateTime date);
 
     /**
      * Write a Date element
@@ -287,7 +325,16 @@ public interface StreamWriter extends Appendable, Closeable {
      * @param prefix The element prefix
      * @param date The date value
      */
-    StreamWriter writeDate(String name, String namespace, String prefix, Date date);
+    StreamWriter writeDateNow(String name, String namespace, String prefix);
+    
+    /**
+     * Write a Date element
+     * 
+     * @param name The element localname
+     * @param namespace The element namespace
+     * @param date The date value
+     */
+    StreamWriter writeDate(String name, String namespace, DateTime date);
 
     /**
      * Write a Date element
@@ -296,7 +343,15 @@ public interface StreamWriter extends Appendable, Closeable {
      * @param namespace The element namespace
      * @param date The date value
      */
-    StreamWriter writeDate(String name, String namespace, Date date);
+    StreamWriter writeDateNow(String name, String namespace);
+    
+    /**
+     * Write a Date element
+     * 
+     * @param name The element localname
+     * @param date The date value
+     */
+    StreamWriter writeDate(String name, DateTime date);
 
     /**
      * Write a Date element
@@ -304,8 +359,8 @@ public interface StreamWriter extends Appendable, Closeable {
      * @param name The element localname
      * @param date The date value
      */
-    StreamWriter writeDate(String name, Date date);
-
+    StreamWriter writeDateNow(String name);
+    
     /**
      * Write an atom:updated element
      * 
@@ -707,8 +762,15 @@ public interface StreamWriter extends Appendable, Closeable {
      * 
      * @param value The text value
      */
-    StreamWriter writeElementText(Date value);
+    StreamWriter writeElementText(DateTime value);
 
+    /**
+     * Write element text
+     * 
+     * @param value The text value
+     */
+    StreamWriter writeElementTextNow();
+    
     /**
      * Write element text
      * 
@@ -1093,23 +1155,43 @@ public interface StreamWriter extends Appendable, Closeable {
     /**
      * Write an attribute
      */
-    StreamWriter writeAttribute(QName qname, Date value);
+    StreamWriter writeAttribute(QName qname, DateTime value);
 
     /**
      * Write an attribute
      */
-    StreamWriter writeAttribute(String name, Date value);
+    StreamWriter writeAttributeNow(QName qname);
+    
+    /**
+     * Write an attribute
+     */
+    StreamWriter writeAttribute(String name, DateTime value);
 
     /**
      * Write an attribute
      */
-    StreamWriter writeAttribute(String name, String namespace, Date value);
+    StreamWriter writeAttributeNow(String name);
+    
+    /**
+     * Write an attribute
+     */
+    StreamWriter writeAttribute(String name, String namespace, DateTime value);
 
     /**
      * Write an attribute
      */
-    StreamWriter writeAttribute(String name, String namespace, String prefix, Date value);
+    StreamWriter writeAttributeNow(String name, String namespace);
+    
+    /**
+     * Write an attribute
+     */
+    StreamWriter writeAttribute(String name, String namespace, String prefix, DateTime value);
 
+    /**
+     * Write an attribute
+     */
+    StreamWriter writeAttributeNow(String name, String namespace, String prefix);
+    
     /**
      * Write an attribute
      */

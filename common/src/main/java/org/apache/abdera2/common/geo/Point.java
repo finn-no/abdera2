@@ -19,52 +19,92 @@ package org.apache.abdera2.common.geo;
 
 public class Point extends Position {
 
-    private static final long serialVersionUID = 7540202474168797239L;
-
-    private Coordinate coordinate;
-
-    public Point() {}
-
-    public Point(Point point) {
-        this.coordinate = point.getCoordinate().clone();
-    }
-
-    public Point(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    public Point(double latitude, double longitude) {
-        this.coordinate = new Coordinate(latitude, longitude);
-    }
-
-    public Point(String value) {
-        this.coordinate = new Coordinate(value);
-    }
-
-    public Point(IsoPosition pos) {
-        this.coordinate = new Coordinate(pos);
+    public static Point at(Coordinate coordinate) {
+      return make().at(coordinate).get();
     }
     
+    public static Point at(IsoPosition position) {
+      return make().at(position).get();
+    }
+    
+    public static Point at(String position) {
+      return make().at(position).get();
+    }
+    
+    public static Point at(double latitude, double longitude) {
+      return make().at(latitude,longitude).get();
+    }
+    
+    public static Builder make(Coordinate coordinate) {
+      return make().at(coordinate);
+    }
+    
+    public static Builder make(IsoPosition position) {
+      return make().at(position);
+    }
+    
+    public static Builder make(String position) {
+      return make().at(position);
+    }
+    
+    public static Builder make(double latitude, double longitude) {
+      return make().at(latitude,longitude);
+    }
+  
+    public static Builder make() {
+      return new Builder();
+    }
+  
+    public static class Builder extends Position.Builder<Point> {
+
+      private Coordinate coordinate;
+      
+      public Builder at(Coordinate coordinate) {
+        this.coordinate = coordinate;
+        return this;
+      }
+      
+      public Builder at(double latitude, double longitude) {
+        this.coordinate = Coordinate.at(latitude, longitude);
+        return this;
+      }
+      
+      public Builder at(String position) {
+        this.coordinate = Coordinate.at(position);
+        return this;
+      }
+      
+      public Builder at(IsoPosition position) {
+        this.coordinate = Coordinate.at(position);
+        return this;
+      }
+      
+      public Point get() {
+        return new Point(this);
+      }
+      
+    }
+  
+    private static final long serialVersionUID = 7540202474168797239L;
+
+    private final Coordinate coordinate;
+
+    private Point(Builder builder) {
+      super(builder);
+      this.coordinate = builder.coordinate;
+    }
+
     public Coordinate getCoordinate() {
         return coordinate;
     }
-
-    public void setCoordinate(IsoPosition pos) {
-      this.coordinate = new Coordinate(pos);
+    
+    public IsoPosition asIsoPosition() {
+      return new IsoPosition(
+        coordinate.getLatitude(),
+        coordinate.getLongitude(),
+        elevation);
     }
     
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    public void setCoordinate(double latitude, double longitude) {
-        this.coordinate = new Coordinate(latitude, longitude);
-    }
-
-    public void setCoordinate(String value) {
-        this.coordinate = new Coordinate(value);
-    }
-
     @Override
     public int hashCode() {
         final int PRIME = 31;

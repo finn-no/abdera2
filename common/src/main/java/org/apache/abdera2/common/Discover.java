@@ -29,9 +29,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.anno.AnnoUtil;
-import org.apache.abdera2.common.misc.MultiIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.collect.Iterators;
 
 @SuppressWarnings("unchecked")
 public final class Discover {
@@ -174,7 +175,7 @@ public final class Discover {
                         new DefaultLoaderIterator<T>(loader, e.nextElement().openStream(), classesonly, args);
                     list.add(i);
                 }
-                return new MultiIterator<T>(list);
+                return Iterators.concat(list.iterator());
             } catch (Throwable t) {
                 throw new RuntimeException(t);
             }

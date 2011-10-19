@@ -23,10 +23,10 @@ public class SelectorPusher<T>
   extends AbstractPusher<T> {
 
   private final Pusher<T> pusher;
-  private final Selector selector;
+  private final Selector<?> selector;
   
   public SelectorPusher(
-      Selector selector, 
+      Selector<?> selector, 
       Pusher<T> pusher) {
     this.selector = selector;
     this.pusher = pusher;

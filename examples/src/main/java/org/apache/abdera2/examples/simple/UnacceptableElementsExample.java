@@ -25,7 +25,7 @@ import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.parser.filter.BlackListParseFilter;
-import org.apache.abdera2.parser.filter.SetParseFilter;
+import org.apache.abdera2.parser.filter.ParseFilter;
 
 public class UnacceptableElementsExample {
 
@@ -33,33 +33,20 @@ public class UnacceptableElementsExample {
 
         Parser parser = Abdera.getInstance().getParser();
 
-        /**
-         * By subclassing BlackListParseFilter, we can throw an error when 
-         * the parsed XML contains any content we don't want
-         */
-        SetParseFilter exceptionFilter = new BlackListParseFilter() {
-            private static final long serialVersionUID = 7564587859561916928L;
-
-            @Override
-            public boolean acceptable(QName qname) {
-                boolean answer = super.acceptable(qname);
-                if (!(answer)) {
-                    throw new RuntimeException("Unacceptable element ::" + qname);
-                }
-                return answer;
-            }
-
-            @Override
-            public boolean acceptable(QName qname, QName attribute) {
-                return true;
-            }
-        };
-        exceptionFilter.add(new QName("http://example.org", "a"));
-
+        ParseFilter exceptionFilter =
+          BlackListParseFilter
+            .make()
+            .add(new QName("http://example.org", "a"))
+            .throwOnUnacceptable()
+            .get();
+        
         ParserOptions options = parser.getDefaultParserOptions();
         options.setParseFilter(exceptionFilter);
         Document<Feed> doc =
-            parser.parse(UnacceptableElementsExample.class.getResourceAsStream("/xmlcontent.xml"), null, options);
+            parser.parse(
+              UnacceptableElementsExample.class.getResourceAsStream("/xmlcontent.xml"), 
+              null, 
+              options);
 
         // this will throw a FOMException
         doc.writeTo(System.out);

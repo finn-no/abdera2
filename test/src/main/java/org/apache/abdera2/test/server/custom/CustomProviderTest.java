@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Base;
@@ -45,6 +44,7 @@ import org.apache.abdera2.test.server.JettyServer;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -143,7 +143,7 @@ public class CustomProviderTest {
         entry.setTitle("test entry");
         entry.setContent("Test Content");
         entry.addLink("http://example.org");
-        entry.setUpdated(new Date());
+        entry.setUpdated(DateTime.now());
         entry.addAuthor("James");
         AbderaClientResponse resp = (AbderaClientResponse) session.post(BASE + "/feed", entry);
         assertNotNull(resp);

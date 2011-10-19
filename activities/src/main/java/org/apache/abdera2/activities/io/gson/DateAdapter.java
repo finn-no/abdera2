@@ -18,19 +18,16 @@
 package org.apache.abdera2.activities.io.gson;
 
 import java.util.Date;
-
-import org.apache.abdera2.common.date.DateTime;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 @AdaptedType(Date.class)
 public class DateAdapter
   extends SimpleAdapter<Date> {
-
   protected String serialize(Date t) {
-    return DateTime.format(t);
+    return ISODateTimeFormat.dateTime().print(new DateTime(t));
   }
-
   protected Date deserialize(String v) {
-    return DateTime.parse(v);
+    return DateTime.parse(v).toDate();
   }
-
 }

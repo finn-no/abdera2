@@ -17,9 +17,9 @@
  */
 package org.apache.abdera2.security.util.filters;
 
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.FilterChain;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 import org.apache.abdera2.security.util.Constants;
@@ -90,12 +90,11 @@ public class DHEncryptedResponseFilter extends AbstractEncryptedResponseFilter {
 
     }
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S filter(RequestContext request, FilterChain chain) {
-        ResponseContext response = super.filter(request, chain);
+    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
+        ResponseContext response = super.apply(request, chain);
         DHContext context = getDHContext(request);
         response.setHeader(Constants.CONTENT_ENCRYPTED, context.getResponseString());
-        return (S)response;
+        return response;
     }
 
     private void returnPublicKey(ResponseContext response, DHContext context) {

@@ -26,8 +26,9 @@ import java.util.Date;
 
 import javax.activation.MimeType;
 
-import org.apache.abdera2.common.date.Duration;
-import org.apache.abdera2.common.date.Interval;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Interval;
 import org.apache.abdera2.common.geo.IsoPosition;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.iri.IRI;
@@ -47,6 +48,7 @@ import org.apache.abdera2.activities.model.objects.Address;
 import org.apache.abdera2.activities.model.objects.Mood;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
@@ -82,8 +84,10 @@ public class GsonIO extends IO {
     gb.registerTypeHierarchyAdapter(Verb.class, new VerbAdapter());
     gb.registerTypeHierarchyAdapter(Lang.class, new LangAdapter());
     gb.registerTypeHierarchyAdapter(ASBase.class,  asbs);  
+    gb.registerTypeHierarchyAdapter(Multimap.class, new MultimapAdapter());
     gb.registerTypeAdapter(ASBase.class, asbs);
     gb.registerTypeAdapter(Date.class, new DateAdapter());
+    gb.registerTypeAdapter(DateTime.class, new DateTimeAdapter());
     gb.registerTypeAdapter(Duration.class, new DurationAdapter());
     gb.registerTypeAdapter(Interval.class, new IntervalAdapter());
     gb.registerTypeAdapter(Activity.class,  asbs);

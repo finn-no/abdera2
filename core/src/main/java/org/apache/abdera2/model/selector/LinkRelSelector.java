@@ -20,6 +20,7 @@ package org.apache.abdera2.model.selector;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Link;
 
@@ -28,7 +29,9 @@ import org.apache.abdera2.model.Link;
  * that match a given set of rel attribute values
  * @see org.apache.abdera2.common.selector.Selector
  */
-public class LinkRelSelector implements Selector {
+public class LinkRelSelector 
+extends AbstractSelector<Link>
+implements Selector<Link> {
 
   private static final long serialVersionUID = 7008363856043465676L;
   private final Set<String> rels = new HashSet<String>();

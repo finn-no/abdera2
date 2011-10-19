@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.protocol.server.provider.basic;
 
-import java.util.Date;
 import java.util.logging.Logger;
 
 import javax.activation.MimeType;
@@ -36,6 +35,7 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.Target;
+import org.joda.time.DateTime;
 
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
@@ -65,7 +65,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         Feed feed = abdera.newFeed();
         feed.setId(config.getFeedUri());
         feed.setTitle(config.getFeedTitle());
-        feed.setUpdated(new Date());
+        feed.setUpdated(DateTime.now());
         feed.addAuthor(config.getFeedAuthor());
         return feed;
     }

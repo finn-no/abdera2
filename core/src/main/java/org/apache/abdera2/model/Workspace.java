@@ -51,6 +51,7 @@ import org.apache.abdera2.common.selector.Selector;
  * </pre>
  */
 @QName(value=LN_WORKSPACE,ns=APP_NS)
+@SuppressWarnings("rawtypes")
 public interface Workspace extends ExtensibleElement {
 
     /**

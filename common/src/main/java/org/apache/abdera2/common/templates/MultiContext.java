@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import static com.google.common.base.Preconditions.*;
 
 public class MultiContext 
   extends CachingContext {
@@ -36,24 +37,26 @@ public class MultiContext
   }
   
   public MultiContext(Iterable<Context> contexts) {
+    checkNotNull(contexts);
     for (Context context : contexts)
       this.contexts.add(context);
   }
   
   public MultiContext(Collection<Context> contexts) {
+    checkNotNull(contexts);
     if (contexts == null)
       throw new IllegalArgumentException();
     this.contexts.addAll(contexts);
   }
   
   public void add(Context context) {
-    if (context == null)
-      throw new IllegalArgumentException();
+    checkNotNull(context);
     this.contexts.add(context);
   }
   
   @SuppressWarnings("unchecked")
   public void add(Object object) {
+    checkNotNull(object);
     this.contexts.add(
       object instanceof Context ? 
         (Context)object :

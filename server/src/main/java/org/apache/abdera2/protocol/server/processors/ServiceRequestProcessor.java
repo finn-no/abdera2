@@ -62,7 +62,6 @@ public class ServiceRequestProcessor
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected <S extends ResponseContext>S getServiceDocument(
         final RequestContext request, 
         final WorkspaceManager workspaceManager) {
