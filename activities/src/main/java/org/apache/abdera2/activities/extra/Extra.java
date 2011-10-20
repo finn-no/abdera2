@@ -1,22 +1,23 @@
 package org.apache.abdera2.activities.extra;
 
-
-
 import java.util.Comparator;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Activity.Audience;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
+import org.apache.abdera2.common.selector.MultiSelector;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -118,6 +119,452 @@ public class Extra {
       TvSeriesObject.class,
       VersionObject.class,
       BinaryObject.class);
+  }
+   
+  public static Selector<Activity> isTo(ASObject obj) {
+    return Extra.audienceHas(Audience.TO, sameIdentity(obj));
+  }
+  
+  public static Selector<Activity> isBcc(ASObject obj) {
+    return Extra.audienceHas(Audience.BCC, sameIdentity(obj));
+  }
+  
+  public static Selector<Activity> isCc(ASObject obj) {
+    return Extra.audienceHas(Audience.CC, sameIdentity(obj));
+  }
+  
+  public static Selector<Activity> isBTo(ASObject obj) {
+    return Extra.audienceHas(Audience.BTO, sameIdentity(obj));
+  }
+  
+  public static Selector<Activity> isBccMe() {
+    return audienceHasMe(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccMeOr(ASObject obj) {
+    return audienceHasMeOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isBccSelf() {
+    return audienceHasSelf(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccSelfOr(ASObject obj) {
+    return audienceHasSelfOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isBccFriends() {
+    return audienceHasFriends(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccFriendsOr( ASObject obj) {
+    return audienceHasFriendsOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isBccFriends( String id) {
+    return audienceHasFriends(Audience.BCC, id);
+  }
+  
+  public static Selector<Activity> isBccFriendsOr( String id, ASObject obj) {
+    return audienceHasFriendsOr(Audience.BCC, id, obj);
+  }
+  
+  public static Selector<Activity> isBccNetwork() {
+    return audienceHasNetwork(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccNetworkOr( ASObject obj) {
+    return audienceHasNetworkOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isBccAll() {
+    return audienceHasAll(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccAllOr( ASObject obj) {
+    return audienceHasAllOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isBccPublic() {
+    return audienceHasPublic(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccPublicOr( ASObject obj) {
+    return audienceHasPublicOr(Audience.BCC, obj);
+  }
+  
+  public static Selector<Activity> isCcMe() {
+    return audienceHasMe(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcMeOr( ASObject obj) {
+    return audienceHasMeOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isCcSelf() {
+    return audienceHasSelf(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcSelfOr( ASObject obj) {
+    return audienceHasSelfOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isCcFriends() {
+    return audienceHasFriends(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcFriendsOr( ASObject obj) {
+    return audienceHasFriendsOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isCcFriends( String id) {
+    return audienceHasFriends(Audience.CC, id);
+  }
+  
+  public static Selector<Activity> isCcFriendsOr( String id, ASObject obj) {
+    return audienceHasFriendsOr(Audience.CC, id, obj);
+  }
+  
+  public static Selector<Activity> isCcNetwork() {
+    return audienceHasNetwork(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcNetworkOr( ASObject obj) {
+    return audienceHasNetworkOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isCcAll() {
+    return audienceHasAll(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcAllOr( ASObject obj) {
+    return audienceHasAllOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isCcPublic() {
+    return audienceHasPublic(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcPublicOr( ASObject obj) {
+    return audienceHasPublicOr(Audience.CC, obj);
+  }
+  
+  public static Selector<Activity> isBtoMe() {
+    return audienceHasMe(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoMeOr( ASObject obj) {
+    return audienceHasMeOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isBtoSelf() {
+    return audienceHasSelf(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoSelfOr( ASObject obj) {
+    return audienceHasSelfOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isBtoFriends() {
+    return audienceHasFriends(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoFriendsOr( ASObject obj) {
+    return audienceHasFriendsOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isBtoFriends( String id) {
+    return audienceHasFriends(Audience.BTO, id);
+  }
+  
+  public static Selector<Activity> isBtoFriendsOr( String id, ASObject obj) {
+    return audienceHasFriendsOr(Audience.BTO, id, obj);
+  }
+  
+  public static Selector<Activity> isBtoNetwork() {
+    return audienceHasNetwork(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoNetworkOr( ASObject obj) {
+    return audienceHasNetworkOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isBtoAll() {
+    return audienceHasAll(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoAllOr( ASObject obj) {
+    return audienceHasAllOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isBtoPublic() {
+    return audienceHasPublic(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoPublicOr( ASObject obj) {
+    return audienceHasPublicOr(Audience.BTO, obj);
+  }
+  
+  public static Selector<Activity> isToMe() {
+    return audienceHasMe(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToMeOr( ASObject obj) {
+    return audienceHasMeOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> isToSelf() {
+    return audienceHasSelf(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToSelfOr( ASObject obj) {
+    return audienceHasSelfOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> isToFriends() {
+    return audienceHasFriends(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToFriendsOr( ASObject obj) {
+    return audienceHasFriendsOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> isToFriends( String id) {
+    return audienceHasFriends(Audience.TO, id);
+  }
+  
+  public static Selector<Activity> isToFriendsOr( String id, ASObject obj) {
+    return audienceHasFriendsOr(Audience.TO, id, obj);
+  }
+  
+  public static Selector<Activity> isToNetwork() {
+    return audienceHasNetwork(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToNetworkOr( ASObject obj) {
+    return audienceHasNetworkOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> isToAll() {
+    return audienceHasAll(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToAllOr( ASObject obj) {
+    return audienceHasAllOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> isToPublic() {
+    return audienceHasPublic(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToPublicOr( ASObject obj) {
+    return audienceHasPublicOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> actorIsMe() {
+    return actorIs(Extra.<Activity>isMe());
+  }
+  
+  public static Selector<Activity> actorIsMeOr(ASObject object) {
+    return actorIs(Extra.<Activity>isMeOr(object));
+  }
+  
+  public static Selector<Activity> actorIsSelf() {
+    return actorIs(Extra.<Activity>isSelf());
+  }
+  
+  public static Selector<Activity> actorIsSelfOr(ASObject object) {
+    return actorIs(Extra.<Activity>isSelfOr(object));
+  }
+  
+  public static Selector<Activity> actorIsFriends() {
+    return actorIs(Extra.<Activity>isFriends());
+  }
+  
+  public static Selector<Activity> actorIsFriendsOr(ASObject object) {
+    return actorIs(Extra.<Activity>isFriendsOr(object));
+  }
+  
+  public static Selector<Activity> actorIsFriends(String id) {
+    return actorIs(Extra.<Activity>isFriends(id));
+  }
+  
+  public static Selector<Activity> actorIsFriendsOr(String id, ASObject object) {
+    return actorIs(Extra.<Activity>isFriendsOr(id, object));
+  }
+  
+  public static Selector<Activity> actorIsNetwork() {
+    return actorIs(Extra.<Activity>isNetwork());
+  }
+  
+  public static Selector<Activity> actorIsNetworkOr(ASObject object) {
+    return actorIs(Extra.<Activity>isNetworkOr(object));
+  }
+  
+  public static Selector<Activity> actorIsAll() {
+    return actorIs(Extra.<Activity>isAll());
+  }
+  
+  public static Selector<Activity> actorIsAllOr(ASObject object) {
+    return actorIs(Extra.<Activity>isAllOr(object));
+  }
+  
+  public static Selector<Activity> actorIsPublic() {
+    return actorIs(Extra.<Activity>isPublic());
+  }
+  
+  public static Selector<Activity> actorIsPublicOr(ASObject object) {
+    return actorIs(Extra.<Activity>isPublicOr(object));
+  }
+  
+  private static Selector<Activity> actorIs(Predicate<Activity> pred) {
+    return 
+        PropertySelector
+          .<Activity>create(
+            Activity.class, 
+            "getActor", 
+            pred);
+  }
+  
+  public static Selector<Activity> audienceHasMe(Audience audience) {
+    return audienceHas(audience,isMe());
+  }
+  
+  public static Selector<Activity> audienceHasMeOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isMeOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasSelf(Audience audience) {
+    return audienceHas(audience,isSelf());
+  }
+  
+  public static Selector<Activity> audienceHasSelfOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isSelfOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasFriends(Audience audience) {
+    return audienceHas(audience,isFriends());
+  }
+  
+  public static Selector<Activity> audienceHasFriendsOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isFriendsOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasFriends(Audience audience, String id) {
+    return audienceHas(audience,isFriends(id));
+  }
+  
+  public static Selector<Activity> audienceHasFriendsOr(Audience audience, String id, ASObject obj) {
+    return audienceHas(audience,isFriendsOr(id,obj));
+  }
+  
+  public static Selector<Activity> audienceHasNetwork(Audience audience) {
+    return audienceHas(audience,isNetwork());
+  }
+  
+  public static Selector<Activity> audienceHasNetworkOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isNetworkOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasAll(Audience audience) {
+    return audienceHas(audience,isMe());
+  }
+  
+  public static Selector<Activity> audienceHasAllOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isAllOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasPublic(Audience audience) {
+    return audienceHas(audience,isPublic());
+  }
+  
+  public static Selector<Activity> audienceHasPublicOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isPublicOr(obj));
+  }
+  
+  private static Selector<Activity> audienceHas(
+    final Audience audience, 
+    final Selector<ASObject> pred) {
+      return new AbstractSelector<Activity>() {
+        public boolean select(Object item) {
+          checkArgument(item instanceof Activity);
+          Activity activity = (Activity) item;
+          Iterable<ASObject> aud = 
+            activity.getAudience(audience, pred);
+          return !Iterables.isEmpty(aud);
+        }
+      };
+  }
+  
+  
+  public static <X extends ASObject>Selector<X> isMe() {
+    return (Selector<X>)sameIdentity(ME());
+  }
+  
+  public static <X extends ASObject>Selector<X> isSelf() {
+    return (Selector<X>)sameIdentity(SELF());
+  }
+  
+  public static <X extends ASObject>Selector<X> isFriends() {
+    return (Selector<X>)sameIdentity(FRIENDS());
+  }
+  
+  public static <X extends ASObject>Selector<X> isFriends(String id) {
+    return (Selector<X>)sameIdentity(FRIENDS(id));
+  }
+  
+  public static <X extends ASObject>Selector<X> isNetwork() {
+    return (Selector<X>)sameIdentity(NETWORK());
+  }
+  
+  public static <X extends ASObject>Selector<X> isAll() {
+    return (Selector<X>)sameIdentity(ALL());
+  }
+  
+  public static <X extends ASObject>Selector<X> isPublic() {
+    return (Selector<X>)sameIdentity(PUBLIC());
+  }
+  
+  public static <X extends ASObject>Selector<X> isMeOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(ME());
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isSelfOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(SELF());
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isFriendsOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(FRIENDS());
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isFriendsOr(String id, ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(FRIENDS(id));
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isNetworkOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(NETWORK());
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isAllOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(ALL());
+    return MultiSelector.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isPublicOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(PUBLIC());
+    return MultiSelector.<X>or(s1,s2);
   }
   
   /**
@@ -237,8 +684,13 @@ public class Extra {
     return anonymousObject("used");
   }
   
-  public static Selector<ASObject> sameIdentity(final ASObject obj) {
-    return new AbstractSelector<ASObject>() {
+  /**
+   * Returns a Selector that tests if two objects are identity equivalent.
+   * ASObjets are identity equivalent if they have the same objectType
+   * and id property values.
+   */
+  public static <X extends ASObject>Selector<X> sameIdentity(final ASObject obj) {
+    return new AbstractSelector<X>() {
       public boolean select(Object item) {
         checkArgument(item instanceof ASObject);
         ASObject other = (ASObject) item;
@@ -247,6 +699,10 @@ public class Extra {
     };
   }
   
+  /**
+   * Equivalence instance that can be used to check the equivalence of two
+   * ASObjects
+   */
   public static final Equivalence<ASObject> IDENTITY_EQUIVALENCE = identity();
   
   /**

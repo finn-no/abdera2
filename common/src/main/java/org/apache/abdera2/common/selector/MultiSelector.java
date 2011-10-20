@@ -22,25 +22,40 @@ package org.apache.abdera2.common.selector;
  * invoked in order. By default, the selector will accept the item unless one 
  * of the selectors rejects it. 
  */
-public final class MultiSelector<X> 
+public abstract class MultiSelector<X> 
   extends AbstractSelector<X>
   implements Selector<X> {
 
   private static final long serialVersionUID = 5257601171344714824L;
-  private final Selector<X>[] selectors;
+  protected final Selector<X>[] selectors;
   
   public MultiSelector(Selector<X>... selectors) {
     this.selectors = selectors;
   }
-  
-  public boolean select(Object item) {
-    for (Selector<X> selector : selectors)
-        if (!selector.select(item))
-            return false;
-    return true;
+
+  public static <X>Selector<X> not(Selector<X>...selectors) {
+    return Selector.Utils.negate(and(selectors));
   }
 
-  public static <X>Selector<X> with(Selector<X>... selectors) {
-    return new MultiSelector<X>(selectors);
+  public static <X>Selector<X> or(Selector<X>...selectors) {
+    return new MultiSelector<X>(selectors) {
+      public boolean select(Object item) {
+        for (Selector<X> selector : selectors)
+          if (selector.select(item))
+            return true;
+        return false;
+      }
+    };
+  }
+  
+  public static <X>Selector<X> and(Selector<X>...selectors) {
+    return new MultiSelector<X>(selectors) {
+      public boolean select(Object item) {
+        for (Selector<X> selector : selectors)
+          if (!selector.select(item))
+            return false;
+        return true;
+      }
+    };
   }
 }

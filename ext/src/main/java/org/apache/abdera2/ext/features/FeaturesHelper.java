@@ -321,7 +321,7 @@ public final class FeaturesHelper {
      * Select a Collection from the Workspace
      */
     public static Iterable<Collection> select(Workspace workspace, Selector... selectors) {
-        MultiSelector selector = new MultiSelector(selectors);
+        Selector<Collection> selector = MultiSelector.and(selectors);
         return workspace.getCollections(selector);
     }
 

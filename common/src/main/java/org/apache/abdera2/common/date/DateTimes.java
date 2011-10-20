@@ -132,6 +132,38 @@ public final class DateTimes {
     }
   }
 
+  public static DateTime dt(String dt) {
+    return new DateTime(dt);
+  }
+  
+  public static DateTime dt(Date date) {
+    return new DateTime(date);
+  }
+  
+  public static DateTime dt(Calendar cal) {
+    return new DateTime(cal);
+  }
+  
+  public static DateTime dt(long millis) {
+    return new DateTime(millis);
+  }
+  
+  public static DateTime now() {
+    return DateTime.now();
+  }
+  
+  public static DateTime now(String tz) {
+    return DateTime.now(DateTimeZone.forID(tz));
+  }
+  
+  public static DateTime now(TimeZone tz) {
+    return DateTime.now(DateTimeZone.forTimeZone(tz));
+  }
+  
+  public static DateTime utcNow() {
+    return DateTime.now(DateTimeZone.UTC);
+  }
+  
   public static Selector<DateTime> selectorForRange(Range<DateTime> range) {
     return Selector.Utils.forPredicate(range);
   }

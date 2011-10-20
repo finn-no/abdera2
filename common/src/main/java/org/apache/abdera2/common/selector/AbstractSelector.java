@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Constraint;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractSelector<X> 
   implements Selector<X> {
 
@@ -27,8 +28,29 @@ public abstract class AbstractSelector<X>
   public Constraint<X> asConstraint() {
     return this;
   }
+  
+  public Selector<X> limit(int limit) {
+    return (Selector<X>)and(Utils.<X>counting(limit));
+  }
+  
   public <Y>Selector<Y> compose(Function<Y,X> transform) {
     return Utils.compose(this, transform);
   }
   
+  public Selector<X> negate() {
+    return Utils.negate(this);
+  }
+  
+  public Selector<X> and(Selector<X> selector) {
+    return MultiSelector.<X>and(this,selector);
+  }
+  public Selector<X> or(Selector<X> selector) {
+    return MultiSelector.<X>or(this,selector);
+  }
+  public Selector<X> andNot(Selector<X> selector) {
+    return MultiSelector.<X>and(this, selector.negate());
+  }
+  public Selector<X> orNot(Selector<X> selector) {
+    return MultiSelector.<X>or(this, selector.negate());
+  }
 }
