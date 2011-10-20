@@ -33,6 +33,7 @@ import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.common.templates.Expression.VarSpec;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import static com.google.common.base.Preconditions.*;
 
@@ -263,6 +264,10 @@ public final class Template implements Iterable<Expression>, Serializable {
       return new TSupplier(this,context);
     }
     
+    public Function<Object,String> asFunction() {
+      return new TFunction(this);
+    }
+    
     private static class TSupplier implements Supplier<String> {
       private final Template template;
       private final Object context;
@@ -272,6 +277,16 @@ public final class Template implements Iterable<Expression>, Serializable {
       }
       public String get() {
         return template.expand(context);
+      }
+    }
+    
+    private static class TFunction implements Function<Object,String> {
+      private final Template template;
+      TFunction(Template template) {
+        this.template = template;
+      }
+      public String apply(Object object) {
+        return template.expand(object);
       }
     }
 }

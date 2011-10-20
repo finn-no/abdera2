@@ -26,6 +26,9 @@ import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+
 /**
  * A language range used for matching language tags
  */
@@ -108,6 +111,42 @@ public final class Range
         return true;
     }
 
+    public Predicate<Lang> matches() {
+      final Range thisRange = this;
+      return new Predicate<Lang>() {
+        public boolean apply(Lang input) {
+          return thisRange.matches(input);
+        }
+      };
+    }
+    
+    public Predicate<String> matchesString() {
+      final Range thisRange = this;
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return thisRange.matches(input);
+        }
+      };
+    }
+    
+    public Predicate<Lang> matchesExtended() {
+      final Range thisRange = this;
+      return new Predicate<Lang>() {
+        public boolean apply(Lang input) {
+          return thisRange.matches(input,true);
+        }
+      };
+    }
+    
+    public Predicate<String> matchesStringExtended() {
+      final Range thisRange = this;
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return thisRange.matches(input,true);
+        }
+      };
+    }
+    
     public boolean matches(String lang) {
         return matches(new Lang(lang), extended);
     }
@@ -165,6 +204,24 @@ public final class Range
         }
     }
 
+    public Function<Lang[],Lang[]> filter() {
+      final Range thisRange = this;
+      return new Function<Lang[],Lang[]>() {
+        public Lang[] apply(Lang[] input) {
+          return thisRange.filter(input);
+        }
+      };
+    }
+    
+    public Function<String[],String[]> filterString() {
+      final Range thisRange = this;
+      return new Function<String[],String[]>() {
+        public String[] apply(String[] input) {
+          return thisRange.filter(input);
+        }
+      };
+    }
+    
     public Lang[] filter(Lang... lang) {
         List<Lang> langs = new LinkedList<Lang>();
         for (Lang l : lang)
@@ -188,7 +245,7 @@ public final class Range
     public static String[] filter(String range, String... lang) {
         return new Range(range).filter(lang);
     }
-
+    
     public static boolean matches(String range, Lang lang, boolean extended) {
         return new Range(range, extended).matches(lang);
     }
@@ -205,6 +262,22 @@ public final class Range
         return new Range(range).matches(lang);
     }
 
+    public static Predicate<String> matchesString(final String range) {
+      return new Range(range).matchesString();
+    }
+    
+    public static Predicate<String> matchesStringExtended(final String range) {
+      return new Range(range).matchesStringExtended();
+    }
+    
+    public static Predicate<Lang> matchesLang(final String range) {
+      return new Range(range).matches();
+    }
+    
+    public static Predicate<Lang> matchesLangExtended(final String range) {
+      return new Range(range).matchesExtended();
+    }
+    
     // Parsing logic //
 
     private static final String SEP = "\\s*[-_]\\s*";

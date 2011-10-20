@@ -19,6 +19,7 @@ package org.apache.abdera2.common.text;
 
 import com.google.common.base.Equivalence;
 import com.google.common.base.Equivalences;
+import com.google.common.base.Function;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.Normalizer2.Mode;
 
@@ -52,7 +53,7 @@ public enum NormalizationForm {
       return ne.equivalent(s1, s2);
     }
     
-    public NormalizedEquivalence equivalence() {
+    public Equivalence<CharSequence> equivalence() {
       return ne;
     }
     
@@ -80,4 +81,31 @@ public enum NormalizationForm {
       }
       
     }
+    
+  private static class NormalFunction 
+    implements Function<CharSequence,CharSequence> {
+    private final NormalizationForm form;
+    NormalFunction(NormalizationForm form) {
+      this.form = form;
+    }
+    public CharSequence apply(CharSequence input) {
+      return form.normalize(input);
+    }
+  }
+  
+  public static Function<CharSequence,CharSequence> D() {
+    return new NormalFunction(NormalizationForm.D);
+  }
+  
+  public static Function<CharSequence,CharSequence> C() {
+    return new NormalFunction(NormalizationForm.C);
+  }
+  
+  public static Function<CharSequence,CharSequence> KD() {
+    return new NormalFunction(NormalizationForm.KD);
+  }
+  
+  public static Function<CharSequence,CharSequence> KC() {
+    return new NormalFunction(NormalizationForm.KC);
+  }
 }

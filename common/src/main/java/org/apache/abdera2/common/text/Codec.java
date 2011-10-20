@@ -26,6 +26,8 @@ import org.apache.commons.codec.StringEncoder;
 import org.apache.commons.codec.net.BCodec;
 import org.apache.commons.codec.net.QCodec;
 
+import com.google.common.base.Function;
+
 public enum Codec {
     B, 
     Q,
@@ -158,4 +160,53 @@ public enum Codec {
         return false;
       }
     }
+  
+  public static Function<String,String> decode() {
+    return new DecodeFunction();
+  }
+  
+  public static Function<String,String> encodeB(String charset) {
+    return new EncodeFunction(Codec.B,charset);
+  }
+  
+  public static Function<String,String> encodeB() {
+    return encodeB("UTF-8");
+  }
+  
+  public static Function<String,String> encodeQ(String charset) {
+    return new EncodeFunction(Codec.Q,charset);
+  }
+  
+  public static Function<String,String> encodeQ() {
+    return encodeQ("UTF-8");
+  }
+  
+  public static Function<String,String> encodeStar() {
+    return new EncodeFunction(Codec.STAR, "UTF-8");
+  }
+    
+  public static Function<String,String> encodeStar(String charset) {
+    return new EncodeFunction(Codec.STAR, charset);
+  }
+  
+  private static class EncodeFunction 
+    implements Function<String,String> {
+    private final Codec c;
+    private final String charset;
+    EncodeFunction(Codec c, String charset) {
+      this.c = c;
+      this.charset = charset;
+    }
+    public String apply(String input) {
+      return encode(input,charset,c);
+    }
+  }
+  
+  private static class DecodeFunction
+    implements Function<String,String> {
+    public String apply(String input) {
+      return decode(input);
+    }
+  }
+  
 }

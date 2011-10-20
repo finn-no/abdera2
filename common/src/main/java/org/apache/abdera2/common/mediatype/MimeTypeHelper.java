@@ -28,6 +28,10 @@ import javax.activation.MimeTypeParameterList;
 
 import org.apache.abdera2.common.Constants;
 
+import com.google.common.base.Equivalence;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+
 /**
  * Utilities for working with MIME Media Types
  */
@@ -45,6 +49,14 @@ public final class MimeTypeHelper {
             return null;
         }
     }
+    
+    public static MimeType create(String mimeType) {
+      try {
+        return new MimeType(mimeType);
+      } catch (javax.activation.MimeTypeParseException e) {
+        throw MimeTypeParseException.wrap(e);
+      }
+    }
 
     private static MimeType createWildcard() {
         try {
@@ -54,6 +66,30 @@ public final class MimeTypeHelper {
         }
     }
 
+    public static Predicate<String> isMatch(final String a) {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isMatch(a,input);
+        }
+      };
+    }
+    
+    public static Predicate<MimeType> isMatch(final MimeType a) {
+      return new Predicate<MimeType>() {
+        public boolean apply(MimeType input) {
+          return isMatch(a,input);
+        }
+      };
+    }
+    
+    public static Predicate<MimeType> isMatch(final MimeType a, final boolean includeparams) {
+      return new Predicate<MimeType>() {
+        public boolean apply(MimeType input) {
+          return isMatch(a,input,includeparams);
+        }
+      };
+    }
+    
     /**
      * Returns true if media type a matches media type b
      */
@@ -126,6 +162,58 @@ public final class MimeTypeHelper {
         return (actual != null && actual.equalsIgnoreCase(expected) || true);
     }
 
+    public static Predicate<String> isApp() {
+      return isMatch(Constants.APP_MEDIA_TYPE);
+    }
+    
+    public static Predicate<String> isAtom() {
+      return isMatch(Constants.ATOM_MEDIA_TYPE);
+    }
+    
+    public static Predicate<String> isJson() {
+      return isMatch(Constants.JSON_MEDIA_TYPE);
+    }
+    
+    public static Predicate<String> isAtomEntry() {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isEntry(input);
+        }
+      };
+    }
+    
+    public static Predicate<String> isAtomFeed() {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isFeed(input);
+        }
+      };
+    }
+    
+    public static Predicate<String> isXml() {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isXml(input);
+        }
+      };
+    }
+    
+    public static Predicate<String> isText() {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isText(input);
+        }
+      };
+    }
+    
+    public static Predicate<String> isMimeType() {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return isMimeType(input);
+        }
+      };
+    }
+    
     /**
      * Returns true if media type a matches application/atomsrv+xml
      */
@@ -212,6 +300,14 @@ public final class MimeTypeHelper {
         return answer;
     }
 
+    public static Function<String[],String[]> condense() {
+      return new Function<String[],String[]>() {
+        public String[] apply(String[] input) {
+          return condense(input);
+        }
+      };
+    }
+    
     /**
      * This will take an array of media types and will condense them based on wildcards, etc. For instance,
      * condense("image/png", "image/jpg", "image/*") condenses to [image/*] condense("application/atom",
@@ -292,4 +388,17 @@ public final class MimeTypeHelper {
         return isMatch(Constants.MULTIPART_RELATED_TYPE, a);
     }
 
+    /**
+     * Returns an Equivalence object to compare two MimeTypes
+     */
+    public Equivalence<MimeType> equivalence() {
+      return new Equivalence<MimeType>() {
+        protected boolean doEquivalent(MimeType a, MimeType b) {
+          return isMatch(a,b);
+        }
+        protected int doHash(MimeType t) {
+          return t.hashCode();
+        }        
+      };
+    }
 }

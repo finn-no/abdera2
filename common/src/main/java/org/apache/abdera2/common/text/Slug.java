@@ -19,6 +19,8 @@ package org.apache.abdera2.common.text;
 
 import org.apache.abdera2.common.text.CharUtils.Profile;
 
+import com.google.common.base.Function;
+
 public class Slug {
 
     public static final String SANITIZE_PATTERN = "[^A-Za-z0-9\\%!$&\\\\'()*+,;=_]+";
@@ -130,4 +132,74 @@ public class Slug {
       return true;
     }
     
+    public static Function<String,Slug> createFunction() {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler, 
+      final boolean lower) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler, lower);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler, 
+      final boolean lower, 
+      final NormalizationForm nf) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler, lower, nf);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler, 
+      final boolean lower, 
+      final NormalizationForm nf, 
+      final String pattern) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler, lower, nf, pattern);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler, 
+      final boolean lower, 
+      final String pattern) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler, lower, pattern);
+        }
+      };
+    }
+    
+    public static Function<String,Slug> createFunction(
+      final String filler, 
+      final String pattern) {
+      return new Function<String,Slug>() {
+        public Slug apply(String input) {
+          return create(input, filler, pattern);
+        }
+      };
+    }
 }

@@ -1,6 +1,8 @@
 package org.apache.abdera2.common.security;
 import java.security.Key;
 
+import com.google.common.base.Supplier;
+
 /**
  * Utility class for generating One-Time-Passwords using the HOTP algorithm
  */
@@ -71,6 +73,57 @@ public abstract class Otp extends KeyBase {
           % (int)Math.pow(10, len)),
       len,'0');
   } 
+  
+  private static class OtpSupplier implements Supplier<String> {
+    private final Otp otp;
+    OtpSupplier(Otp otp) {
+      this.otp = otp;
+    }
+    public String get() {
+      return otp.generateNext();
+    }
+    
+  }
+  
+  public static Supplier<String> supplier(Otp otp) {
+    return new OtpSupplier(otp);
+  }
+  
+  public static Supplier<String> totpSupplier(byte[] key, int step, int size) {
+    return new OtpSupplier(new Totp(step,key,size));
+  }
+  
+  public static Supplier<String> totpSupplier(byte[] key, int step) {
+    return new OtpSupplier(new Totp(step,key));
+  }
+  
+  public static Supplier<String> totpSupplier(byte[] key, int step, int size, String alg) {
+    return new OtpSupplier(new Totp(step,key,alg,size));
+  }
+  
+  public static Supplier<String> totpSupplier(Key key, int step, int size) {
+    return new OtpSupplier(new Totp(step,key,size));
+  }
+  
+  public static Supplier<String> totpSupplier(Key key, int step) {
+    return new OtpSupplier(new Totp(step,key));
+  }
+  
+  public static Supplier<String> totpSupplier(Key key, int step, int size, String alg) {
+    return new OtpSupplier(new Totp(step,key,alg,size));
+  }
+  
+  public static Supplier<String> totpSupplier(String key, int step, int size) {
+    return new OtpSupplier(new Totp(step,key,size));
+  }
+  
+  public static Supplier<String> totpSupplier(String key, int step) {
+    return new OtpSupplier(new Totp(step,key));
+  }
+  
+  public static Supplier<String> totpSupplier(String key, int step, int size, String alg) {
+    return new OtpSupplier(new Totp(step,key,alg,size));
+  }
   
   /**
    * Utility implementation of the Time-based One Time Password (TOTP) 

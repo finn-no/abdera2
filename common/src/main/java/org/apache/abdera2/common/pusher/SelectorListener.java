@@ -21,11 +21,11 @@ import org.apache.abdera2.common.selector.Selector;
 public class SelectorListener<T> 
   implements Listener<T> {
 
-  private final Selector<?> selector;
+  private final Selector<T> selector;
   private final Listener<T> listener;
 
   public SelectorListener(
-    Selector<?> selector,
+    Selector<T> selector,
     Listener<T> listener) {
     this.selector = selector;
     this.listener = listener;

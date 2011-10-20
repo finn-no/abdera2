@@ -28,6 +28,9 @@ import java.util.List;
 
 import org.apache.abdera2.common.text.UrlEncoding;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+
 /**
  * Implements an EntityTag.
  */
@@ -73,6 +76,54 @@ public class EntityTag
         return etags;
     }
 
+    public static Predicate<String> matchesAny(final EntityTag tag) {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return matchesAny(tag,input);
+        }
+      };
+    }
+    
+    public static Predicate<String> matchesAnyWeak(final EntityTag tag) {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return matchesAny(tag,input,true);
+        }
+      };
+    }
+    
+    public static Predicate<Iterable<EntityTag>> matchesAnyInList(final EntityTag tag) {
+      return new Predicate<Iterable<EntityTag>>() {
+        public boolean apply(Iterable<EntityTag> input) {
+          return matchesAny(tag,input,false);
+        }
+      };
+    }
+    
+    public static Predicate<Iterable<EntityTag>> matchesAnyWeakInList(final EntityTag tag) {
+      return new Predicate<Iterable<EntityTag>>() {
+        public boolean apply(Iterable<EntityTag> input) {
+          return matchesAny(tag,input,true);
+        }
+      };
+    }
+    
+    public static Predicate<String> matchesAny(final String tag) {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return matchesAny(tag,input);
+        }
+      };
+    }
+    
+    public static Predicate<String> matchesAnyWeak(final String tag) {
+      return new Predicate<String>() {
+        public boolean apply(String input) {
+          return matchesAny(tag,input,true);
+        }
+      };
+    }
+    
     public static boolean matchesAny(EntityTag tag1, String tags) {
         return matchesAny(tag1, parseTags(tags), false);
     }
@@ -111,6 +162,30 @@ public class EntityTag
         return false;
     }
 
+    public static Predicate<EntityTag> matches(final EntityTag tag1) {
+      return new Predicate<EntityTag>() {
+        public boolean apply(EntityTag tag) {
+          return matches(tag1,tag);
+        }
+      };
+    }
+    
+    public static Predicate<EntityTag> matchesWeak(final EntityTag tag1) {
+      return new Predicate<EntityTag>() {
+        public boolean apply(EntityTag tag) {
+          return matches(tag1,tag,true);
+        }
+      };
+    }
+    
+    public static Predicate<String> matches(final String tag1) {
+      return new Predicate<String>() {
+        public boolean apply(String tag) {
+          return matches(tag1,tag);
+        }
+      };
+    }
+    
     public static boolean matches(EntityTag tag1, EntityTag tag2) {
         return tag1.equals(tag2);
     }
@@ -129,6 +204,21 @@ public class EntityTag
         return tag1.equals(parse(tag2));
     }
 
+    public static Function<String[],EntityTag> variation(final EntityTag tag) {
+      return new Function<String[],EntityTag>() {
+        public EntityTag apply(String[] labels) {
+          if (labels.length > 1) {
+            String label = labels[0];
+            String[] other = new String[labels.length-1];
+            System.arraycopy(labels, 1, other, 0, other.length);
+            return variation(tag,label,other);
+          } else {
+            return variation(tag,labels[0]);
+          }
+        }
+      };
+    }
+    
     /**
      * Produces a variation of the entity tag by appending one or 
      * more labels to the tag. This is helpful when generating 
@@ -181,6 +271,10 @@ public class EntityTag
         this.wild = wild;
     }
 
+    public Function<String[],EntityTag> variation() {
+      return variation(this);
+    }
+    
     public EntityTag variation(String label, String... labels) {
       return variation(this,label,labels);
     }
@@ -265,6 +359,22 @@ public class EntityTag
         }
     }
 
+    public static Function<String[],EntityTag> generate() {
+      return new Function<String[],EntityTag>() {
+        public EntityTag apply(String[] material) {
+          return generate(material);
+        }
+      };
+    }
+    
+    public static Function<Object,EntityTag> generateFromObject() {
+      return new Function<Object,EntityTag>() {
+        public EntityTag apply(Object obj) {
+          return generate(obj);
+        }
+      };
+    }
+    
     /**
      * Utility method for generating ETags. Works by concatenating the UTF-8 bytes of the provided strings then
      * generating an MD5 hash of the result.
@@ -289,6 +399,14 @@ public class EntityTag
         return new EntityTag(etag);
     }
     
+    public static Predicate<EntityTag> matches(final String... material) {
+      return new Predicate<EntityTag>() {
+        public boolean apply(EntityTag input) {
+          return matches(input,material);
+        }
+      };
+    }
+    
     /**
      * Checks that the passed in ETag matches the ETag generated by the generate method
      */
@@ -296,7 +414,7 @@ public class EntityTag
         EntityTag etag2 = generate(material);
         return EntityTag.matches(etag, etag2);
     }
-
+    
     public static String toString(EntityTag tag, EntityTag... tags) {
         if (tag == null) return null;
         StringBuilder buf = new StringBuilder();

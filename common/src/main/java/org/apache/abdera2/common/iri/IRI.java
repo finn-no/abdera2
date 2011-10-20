@@ -29,6 +29,7 @@ import org.apache.abdera2.common.text.NormalizationForm;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.text.CharUtils.Profile;
 
+import com.google.common.base.Function;
 import com.ibm.icu.text.IDNA;
 
 public final class IRI implements Serializable, Cloneable {
@@ -596,4 +597,28 @@ public final class IRI implements Serializable, Cloneable {
       return this.resolve(path + "/");
     }
 
+    public static Function<IRI,IRI> normalizeIRI() {
+      return new Function<IRI,IRI>() {
+        public IRI apply(IRI input) {
+          return input.normalize();
+        }
+      };
+    }
+    
+    public static Function<IRI,IRI> resolveIRI(final IRI base) {
+      return new Function<IRI,IRI>() {
+        public IRI apply(IRI input) {
+          return base.resolve(input);
+        }
+      };
+    }
+    
+    public static Function<IRI,IRI> relativizeIRI(final IRI base) {
+      return new Function<IRI,IRI>() {
+        public IRI apply(IRI input) {
+          return base.relativize(input);
+        }
+      };
+    }
+    
 }

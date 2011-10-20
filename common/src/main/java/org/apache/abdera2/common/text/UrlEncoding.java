@@ -32,7 +32,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.CharBuffer;
 
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.text.CharUtils.Profile;
+
+import com.google.common.base.Function;
 
 /**
  * Performs URL Percent Encoding
@@ -547,4 +550,38 @@ public final class UrlEncoding {
         return (byte)(decode(c1, 4) | decode(c2, 0));
     }
 
+    public static Function<CharSequence,String> encoder(
+        final Profile... profiles) {
+        return encoder("UTF-8", profiles);
+      }
+    
+    public static Function<CharSequence,String> encoder(
+      final String charset, 
+      final Profile... profiles) {
+      return new Function<CharSequence,String>() {
+        public String apply(CharSequence input) {
+          try {
+            return encode(input, charset, profiles);
+          } catch (Throwable t) {
+            throw ExceptionHelper.propogate(t);
+          }
+        }
+      };
+    }
+    
+    public static Function<String,String> decoder() {
+      return decoder("UTF-8");
+    }
+    
+    public static Function<String,String> decoder(final String charset) {
+      return new Function<String,String>() {
+        public String apply(String input) {
+          try {
+            return decode(input,charset);
+          } catch (Throwable t) {
+            throw ExceptionHelper.propogate(t);
+          }
+        }
+      };
+    }
 }
