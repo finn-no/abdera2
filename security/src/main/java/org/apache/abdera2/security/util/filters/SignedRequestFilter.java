@@ -49,11 +49,15 @@ public class SignedRequestFilter implements Filter {
         if (method.equals("POST") || method.equals("PUT")) {
             try {
                 Document<Element> doc = context.getDocument();
-                boolean valid = sig.verify(doc.getRoot(), null);
-                if (!valid)
-                    return ProviderHelper.badrequest(request, Localizer.get("VALID.SIGNATURE.REQUIRED"));
-                request.setAttribute(VALID, valid);
-                request.setAttribute(CERTS, sig.getValidSignatureCertificates(doc.getRoot(), null));
+                if (security.notVerified(doc))
+                    return ProviderHelper.badrequest(
+                      request, 
+                      Localizer.get("VALID.SIGNATURE.REQUIRED"));
+                request.setAttribute(
+                  VALID, true);
+                request.setAttribute(
+                  CERTS, 
+                  sig.getValidSignatureCertificates(doc.getRoot(), null));
             } catch (Exception e) {
             }
         }

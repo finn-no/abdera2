@@ -19,7 +19,13 @@ package org.apache.abdera2.security;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.Discover;
+import org.apache.abdera2.model.Base;
+import org.apache.abdera2.model.Document;
+import org.apache.abdera2.model.Element;
 import org.apache.abdera2.util.Configuration;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 /**
  * The AbderaSecurity class provides the entry point for using XML Digital Signatures and XML Encryption with Abdera.
@@ -80,4 +86,66 @@ public class Security {
         return signature;
     }
 
+    public <T extends Element,E extends Element>Function<Document<T>,Document<E>> encryptor(final EncryptionOptions options) {
+      return new Function<Document<T>,Document<E>>() {
+        public Document<E> apply(Document<T> input) {
+          return getEncryption().<E>encrypt(input, options);
+        }
+      };
+    }
+    
+    public <T extends Element,E extends Element>Function<Document<T>,Document<E>> decryptor(final EncryptionOptions options) {
+      return new Function<Document<T>,Document<E>>() {
+        @SuppressWarnings("unchecked")
+        public Document<E> apply(Document<T> input) {
+          Encryption enc = getEncryption();
+          if (!enc.isEncrypted(input)) return (Document<E>)input;
+          return enc.<E>decrypt(input, options);
+        }
+      };
+    }
+    
+    public <T extends Element>Function<T,T> signer(final SignatureOptions options) {
+      return new Function<T,T>() {
+        public T apply(T input) {
+          return getSignature().sign(input, options);
+        }
+      };
+    }
+    
+    public <T extends Element>Function<T,Boolean> verifier(final SignatureOptions options) {
+      return new Function<T,Boolean>() {
+        public Boolean apply(T input) {
+          return getSignature().verify(input, options);
+        }
+      };
+    }
+        
+    public <T extends Element>Predicate<T> isVerified() {
+      return isVerified(null);
+    }
+    
+    public <T extends Element>Predicate<T> isVerified(final SignatureOptions options) {
+      return new Predicate<T>() {
+        public boolean apply(T input) {
+          return verifier(options).apply(input);
+        }
+      };
+    }
+    
+    public boolean verified(Base e) {
+      return isVerified().apply(e instanceof Document ? ((Document<?>)e).getRoot() : (Element)e);
+    }
+    
+    public boolean notVerified(Base e) {
+      return !verified(e);
+    }
+    
+    public boolean verified(Base e, SignatureOptions options) {
+      return isVerified(options).apply(e instanceof Document ? ((Document<?>)e).getRoot() : (Element)e);
+    }
+    
+    public boolean notVerified(Base e, SignatureOptions options) {
+      return !verified(e,options);
+    }
 }
