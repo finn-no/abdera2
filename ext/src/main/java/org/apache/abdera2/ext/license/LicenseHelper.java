@@ -25,6 +25,8 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Source;
 
+import com.google.common.base.Predicate;
+
 /**
  * Implementation of the Atom License Extension, RFC 4946
  */
@@ -69,6 +71,54 @@ public final class LicenseHelper {
         return getLicense(base, true);
     }
 
+    public static Predicate<Base> hasUnspecifiedLicense() {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasUnspecifiedLicense(input,false);
+        }
+      };
+    }
+    
+    public static Predicate<Base> hasInheritedUnspecifiedLicense() {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasUnspecifiedLicense(input,true);
+        }
+      };
+    }
+    
+    public static Predicate<Base> hasLicense(final String uri) {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasLicense(input,uri, false);
+        }
+      };
+    }
+    
+    public static Predicate<Base> hasInheritedLicense(final String uri) {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasLicense(input,uri, true);
+        }
+      };
+    }
+    
+    public static Predicate<Base> hasLicense() {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasLicense(input);
+        }
+      };
+    }
+    
+    public static Predicate<Base> hasInheritedLicense() {
+      return new Predicate<Base>() {
+        public boolean apply(Base input) {
+          return hasLicense(input,true);
+        }
+      };
+    }
+    
     public static boolean hasUnspecifiedLicense(Base base, boolean inherited) {
         return hasLicense(base, UNSPECIFIED_LICENSE, inherited);
     }

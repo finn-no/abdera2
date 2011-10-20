@@ -25,10 +25,10 @@ import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.ext.features.FeaturesHelper.Status;
 import org.apache.abdera2.model.Collection;
 
-@SuppressWarnings("rawtypes")
+
 public class FeatureSelector 
-extends AbstractSelector
-implements Selector {
+extends AbstractSelector<Collection>
+implements Selector<Collection> {
 
     private static final long serialVersionUID = -8943638085557912175L;
     private final Set<String> features = new LinkedHashSet<String>();

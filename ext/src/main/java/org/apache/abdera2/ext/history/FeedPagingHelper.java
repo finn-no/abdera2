@@ -41,6 +41,7 @@ import org.apache.abdera2.protocol.client.AbderaSession;
 import org.apache.abdera2.protocol.client.RequestOptions;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 /**
  * Initial support for Mark Nottingham's Feed Paging and Archiving draft
@@ -100,6 +101,30 @@ public final class FeedPagingHelper {
               el.getExtension(qname).discard();
   }
 
+    public static Predicate<Source> isArchive() {
+      return new Predicate<Source>() {
+        public boolean apply(Source input) {
+          return isArchive(input);
+        }
+      };
+    }
+    
+    public static Predicate<Source> isPaged() {
+      return new Predicate<Source>() {
+        public boolean apply(Source input) {
+          return isPaged(input);
+        }
+      };
+    }
+    
+    public static Predicate<Source> isComplete() {
+      return new Predicate<Source>() {
+        public boolean apply(Source input) {
+          return isComplete(input);
+        }
+      };
+    }
+    
     /**
      * Return true if the feed has been marked as an archive
      * 
@@ -263,6 +288,102 @@ public final class FeedPagingHelper {
      */
     public static IRI getCurrent(Source feed) {
         return _getLink(feed,REL_CURRENT);
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchNext(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchNext(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchPrevious(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchPrevious(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchCurrent(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchCurrent(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchLast(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchLast(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchNextArchive(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchNextArchive(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchPreviousArchive(final AbderaSession session) {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchPreviousArchive(input,session);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchNext() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchNext(input);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchPrevious() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchPrevious(input);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchCurrent() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchCurrent(input);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchLast() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchLast(input);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchNextArchive() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchNextArchive(input);
+        }
+      };
+    }
+    
+    public static <E extends Element>Function<Source,Document<E>> fetchPreviousArchive() {
+      return new Function<Source,Document<E>>() {
+        public Document<E> apply(Source input) {
+          return fetchPreviousArchive(input);
+        }
+      };
     }
     
     public static <E extends Element>Document<E> fetchNext(Source source) {

@@ -33,6 +33,8 @@ import org.apache.abdera2.model.Service;
 import org.apache.abdera2.model.Workspace;
 import org.apache.abdera2.protocol.client.AbderaClient;
 
+import com.google.common.base.Predicate;
+
 /**
  * Implementation of the current APP Features Draft
  * (http://www.ietf.org/internet-drafts/draft-snell-atompub-feature-08.txt)
@@ -284,6 +286,19 @@ public final class FeaturesHelper {
         return collection.addExtension(FEATURES);
     }
 
+    public static Predicate<Collection> hasFeature(String... features) {
+      final FeatureSelector fs = new FeatureSelector(features);
+      return new Predicate<Collection>() {
+        public boolean apply(Collection input) {
+          return fs.apply(input);
+        }
+      };
+    }
+    
+    public static Iterable<Collection> select(Service service, String... features) {
+      return select(service, new FeatureSelector(features));
+    }
+    
     /**
      * Select a Collection from the service document
      */
