@@ -19,13 +19,18 @@ package org.apache.abdera2.protocol.server.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.BasicCollectionInfo;
 import org.apache.abdera2.model.Collection;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
+
+import com.google.common.collect.Iterables;
 
 public class SimpleCollectionInfo 
   extends BasicCollectionInfo
@@ -34,25 +39,32 @@ public class SimpleCollectionInfo
 
     private static final long serialVersionUID = 8026455829158149510L;
 
+    public static Generator make() {
+      return new Generator();
+    }
+    
+    public static class Generator extends BasicCollectionInfo.Generator {
+      private final Set<AtompubCategoriesInfo> catinfos =
+        new LinkedHashSet<AtompubCategoriesInfo>();
+      public Generator category(AtompubCategoriesInfo info) {
+        this.catinfos.add(info);
+        return this;
+      }
+      public CollectionInfo get() {
+        return new SimpleCollectionInfo(this);
+      }
+    }
+    
     private final List<AtompubCategoriesInfo> catinfos = 
       new ArrayList<AtompubCategoriesInfo>();
 
-    public SimpleCollectionInfo(String title, String href, String... accepts) {
-        super(title,href,accepts);
+    protected SimpleCollectionInfo(Generator generator) {
+      super(generator);
+      this.catinfos.addAll(generator.catinfos);
     }
 
-    public AtompubCategoriesInfo[] getCategoriesInfo(RequestContext request) {
-        return catinfos.toArray(new AtompubCategoriesInfo[catinfos.size()]);
-    }
-
-    public void addCategoriesInfo(AtompubCategoriesInfo... catinfos) {
-        for (AtompubCategoriesInfo catinfo : catinfos)
-            this.catinfos.add(catinfo);
-    }
-
-    public void setCategoriesInfo(AtompubCategoriesInfo... catinfos) {
-        this.catinfos.clear();
-        addCategoriesInfo(catinfos);
+    public Iterable<AtompubCategoriesInfo> getCategoriesInfo(RequestContext request) {
+        return Iterables.<AtompubCategoriesInfo>unmodifiableIterable(catinfos);
     }
 
     @Override

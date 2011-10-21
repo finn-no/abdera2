@@ -32,7 +32,7 @@ public interface AtompubCollectionInfo
      * Return the collection of CategoriesInfo objects for the app:collection element's app:categories elements. These
      * tell a client which atom:category elements are defined for use in the collections atom:entries
      */
-    AtompubCategoriesInfo[] getCategoriesInfo(RequestContext request);
+    Iterable<AtompubCategoriesInfo> getCategoriesInfo(RequestContext request);
 
     /**
      * Converts this to an instance of the FOM Collection interface

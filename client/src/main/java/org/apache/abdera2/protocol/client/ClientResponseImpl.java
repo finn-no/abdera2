@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +51,7 @@ import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.joda.time.DateTime;
 
 class ClientResponseImpl 
   implements ClientResponse {
@@ -94,7 +94,7 @@ class ClientResponseImpl
     return response.getStatusLine().getReasonPhrase();
   }
 
-  public Date getLastModified() {
+  public DateTime getLastModified() {
     return getDateHeader("Last-Modified");
   }
 
@@ -121,7 +121,7 @@ class ClientResponseImpl
     return a != null ? Long.parseLong(a) : -1;
   }
 
-  public Date getExpires() {
+  public DateTime getExpires() {
     return getDateHeader("Expires");
   }
 
@@ -184,10 +184,10 @@ class ClientResponseImpl
     return ct != null ? new Lang(ct).toString() : null;
   }
 
-  public Date getDateHeader(String name) {
+  public DateTime getDateHeader(String name) {
     try {
       String ct = getHeader(name);
-      return ct != null ? DateUtils.parseDate(ct) : null;
+      return ct != null ? new DateTime(DateUtils.parseDate(ct)) : null;
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -257,7 +257,7 @@ class ClientResponseImpl
     return reader;
   }
 
-  public Date getServerDate() {
+  public DateTime getServerDate() {
     return getDateHeader("Date");
   }
 

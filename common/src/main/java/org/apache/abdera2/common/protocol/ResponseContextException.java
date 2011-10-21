@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import org.apache.abdera2.common.http.ResponseType;
+
 
 public class ResponseContextException extends RuntimeException {
 
@@ -59,5 +61,9 @@ public class ResponseContextException extends RuntimeException {
 
     public int getStatusCode() {
         return responseContext.getStatus();
+    }
+    
+    public ResponseType getResponseType() {
+      return ResponseType.select(getStatusCode());
     }
 }

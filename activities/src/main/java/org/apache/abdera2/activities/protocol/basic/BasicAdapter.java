@@ -44,6 +44,8 @@ import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.Pusher;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
  * options/features. The idea of the basic adapter is to make it easy to provide a minimally capable Atompub server
@@ -55,6 +57,13 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
     protected BasicAdapter(FeedConfiguration config) {
         super(config);
+        putHandler(TargetType.TYPE_COLLECTION,"GET",getItemList());
+        putHandler(TargetType.TYPE_COLLECTION,"HEAD",getItemList());
+        putHandler(TargetType.TYPE_COLLECTION,"POST",postItem());
+        putHandler(TargetType.TYPE_ENTRY,"GET",getItem());
+        putHandler(TargetType.TYPE_ENTRY,"HEAD",getItem());
+        putHandler(TargetType.TYPE_ENTRY,"DELETE",deleteItem());
+        putHandler(TargetType.TYPE_ENTRY,"PUT",putItem());
     }
 
     public String getProperty(String key) throws Exception {
@@ -115,13 +124,13 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
       }
     }
     
-    private <S extends ResponseContext>S createOrUpdateObject(RequestContext context, boolean createFlag) {
+    private ResponseContext createOrUpdateObject(RequestContext context, boolean createFlag) {
         try {
             ActivitiesRequestContext request = (ActivitiesRequestContext) context;
             MimeType mimeType = request.getContentType();
             String contentType = mimeType == null ? null : mimeType.toString();
             if (contentType != null && !MimeTypeHelper.isJson(contentType))
-                return (S)ProviderHelper.notsupported(request);
+                return ProviderHelper.notsupported(request);
             
             ASBase base = (ASBase)request.getEntity();
             Target target = request.getTarget();
@@ -143,7 +152,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                   retl.addItem(err);
                 }
               }
-              return (S)
+              return
                 new ActivitiesResponseContext<Collection<ASObject>>(retl)
                   .setStatus(createFlag?201:200);
             } else if (base instanceof ASObject){
@@ -157,73 +166,88 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                     new ActivitiesResponseContext<ASObject>(newEntry);
                   rc.setStatus(createFlag?201:200);
                   rc.setLocation(loc);
-                  return (S)rc;
+                  return rc;
               } else {
-                  return (S)ProviderHelper.notfound(request);
+                  return ProviderHelper.notfound(request);
               }
             } else {
-              return (S)ProviderHelper.notallowed(request);
+              return ProviderHelper.notallowed(request);
             }
             
         } catch (Exception e) {
-            return (S)ProviderHelper.servererror(context, e.getMessage(), e);
+            return ProviderHelper.servererror(context, e.getMessage(), e);
         }
     }
 
-    public <S extends ResponseContext>S postItem(RequestContext request) {
-        return (S)createOrUpdateObject(request, true);
-    }
-
-    public <S extends ResponseContext>S deleteItem(RequestContext request) {
-        Target target = request.getTarget();
-        String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
-        try {
-            return (S)(deleteItem(entryId) ? ProviderHelper.nocontent() : ProviderHelper.notfound(request));
-        } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+    private Function<RequestContext,ResponseContext> postItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createOrUpdateObject(input,true);
         }
+      };
     }
-
-    public <S extends ResponseContext>S putItem(RequestContext request) {
-        return (S)createOrUpdateObject(request, false);
-    }
-
-    public <S extends ResponseContext>S getItem(RequestContext request) {
-        Target target = request.getTarget();
-        String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
-        try {
-            ASObject object = getItem(entryId);
-            if (object != null) {
-              return (S) 
-                new ActivitiesResponseContext<ASObject>(object)
-                  .setStatus(200);
-            } else return (S)ProviderHelper.notfound(request);       
-        } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+    
+    private Function<RequestContext,ResponseContext> deleteItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          Target target = input.getTarget();
+          String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
+          try {
+              return deleteItem(entryId) ? 
+                ProviderHelper.nocontent() : 
+                ProviderHelper.notfound(input);
+          } catch (Exception e) {
+              return ProviderHelper.servererror(
+                input, e.getMessage(), e);
+          }
         }
+      };
     }
 
-    public <S extends ResponseContext>S getItemList(RequestContext request) {
-        try {
+    private Function<RequestContext,ResponseContext> putItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createOrUpdateObject(input,false);
+        }
+      };
+    }
+
+    private Function<RequestContext,ResponseContext> getItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          Target target = input.getTarget();
+          String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
+          try {
+              ASObject object = getItem(entryId);
+              if (object != null) {
+                return 
+                  new ActivitiesResponseContext<ASObject>(object)
+                    .setStatus(200);
+              } else return ProviderHelper.notfound(input);       
+          } catch (Exception e) {
+              return ProviderHelper.servererror(input, e.getMessage(), e);
+          }
+        }
+      };
+    }
+
+    public Function<RequestContext,ResponseContext> getItemList() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
             Collection<ASObject> collection = 
               getCollection();
 
             if (collection != null) { 
-              return (S) 
+              return 
                 new ActivitiesResponseContext<Collection<ASObject>>(collection)
                   .setStatus(200);
-            } else return (S)ProviderHelper.notfound(request);
+            } else return ProviderHelper.notfound(input);
         } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+            return ProviderHelper.servererror(input, e.getMessage(), e);
         }
-    }
-
-    public <S extends ResponseContext>S extensionRequest(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request, ProviderHelper.getDefaultMethods(request));
-    }
-
-    public <S extends ResponseContext>S getCategories(RequestContext request) {
-        return (S)ProviderHelper.notfound(request);
+        }
+      };
     }
 
     public abstract Collection<ASObject> getCollection() throws Exception;

@@ -17,11 +17,15 @@
  */
 package org.apache.abdera2.activities.protocol.managed;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
+
+import com.google.common.base.Supplier;
 
 public class FeedConfiguration extends Configuration implements CollectionInfo {
     public static final String PROP_NAME_ADAPTER_CLASS = "adapterClassName";
@@ -39,46 +43,127 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
     public static final String ENTRY_ELEM_NAME_UPDATED = "updated";
     public static final String ENTRY_ELEM_NAME_LINK = "link";
 
+    public static class Generator implements Supplier<FeedConfiguration> {
+
+      private String feedId;
+      private String subUri;
+      private String adapterClassName;
+      private String feedConfigLocation;
+      private ServerConfiguration serverConfiguration;
+      private String feedTitle = "unknown";
+      private String feedAuthor = "unknown";
+      private final Map<Object, Object> optionalProperties = 
+        new HashMap<Object,Object>();
+      private CollectionAdapterConfiguration adapterConfiguration;      
+      
+      public Generator id(String id) {
+        this.feedId = id;
+        return this;
+      }
+      
+      public Generator subUri(String uri) {
+        this.subUri = uri;
+        return this;
+      }
+      
+      public Generator adapter(String className) {
+        this.adapterClassName = className;
+        return this;
+      }
+      
+      public Generator location(String location) {
+        this.feedConfigLocation = location;
+        return this;
+      }
+      
+      public Generator serverConfig(ServerConfiguration config) {
+        this.serverConfiguration = config;
+        return this;
+      }
+      
+      public Generator title(String title) {
+        this.feedTitle = title;
+        return this;
+      }
+      
+      public Generator author(String author) {
+        this.feedAuthor = author;
+        return this;
+      }
+      
+      public Generator set(Object key, Object val) {
+        this.optionalProperties.put(key, val);
+        return this;
+      }
+      
+      public Generator setAll(Map<Object,Object> props) {
+        this.optionalProperties.putAll(props);
+        return this;
+      }
+      
+      public Generator adapterConfif(CollectionAdapterConfiguration config) {
+        this.adapterConfiguration = config;
+        return this;
+      }
+      
+      public FeedConfiguration get() {
+        return new FeedConfiguration(this);
+      }
+      
+    }
+    
+    public static Generator make() {
+      return new Generator();
+    }
+    
     private final String feedId;
     private final String subUri;
     private final String adapterClassName;
     private final String feedConfigLocation;
     private final ServerConfiguration serverConfiguration;
-    private String feedTitle = "unknown";
-    private String feedAuthor = "unknown";
-    private Map<Object, Object> optionalProperties;
+    private final String feedTitle;
+    private final String feedAuthor;
+    private final Map<Object, Object> optionalProperties = 
+      new HashMap<Object,Object>();
     private final CollectionAdapterConfiguration adapterConfiguration;
 
-    public FeedConfiguration(String feedId,
-                             String subUri,
-                             String adapterClassName,
-                             String feedConfigLocation,
-                             ServerConfiguration serverConfiguration) {
-        this.feedId = feedId;
-        this.subUri = subUri;
-        this.adapterClassName = adapterClassName;
-        this.feedConfigLocation = feedConfigLocation;
-        this.adapterConfiguration = new CollectionAdapterConfiguration(serverConfiguration, feedConfigLocation);
-        this.serverConfiguration = serverConfiguration;
+    protected FeedConfiguration(Generator gen) {
+      this.feedId = gen.feedId;
+      this.subUri = gen.subUri;
+      this.adapterClassName = gen.adapterClassName;
+      this.feedConfigLocation = gen.feedConfigLocation;
+      this.serverConfiguration = gen.serverConfiguration;
+      this.feedTitle = gen.feedTitle;
+      this.feedAuthor = gen.feedAuthor;
+      this.optionalProperties.putAll(gen.optionalProperties);
+      this.adapterConfiguration = gen.adapterConfiguration;
     }
 
-    public static FeedConfiguration getFeedConfiguration(String feedId,
-                                                         Properties properties,
-                                                         ServerConfiguration serverConfiguration) {
-        FeedConfiguration feedConfiguration =
-            new FeedConfiguration(feedId, Configuration.getProperty(properties, PROP_SUB_URI_NAME), Configuration
-                .getProperty(properties, PROP_NAME_ADAPTER_CLASS), Configuration
-                .getProperty(properties, PROP_FEED_CONFIG_LOCATION_NAME), serverConfiguration);
-        if (properties.containsKey(PROP_AUTHOR_NAME)) {
-            feedConfiguration.setFeedAuthor(Configuration.getProperty(properties, PROP_AUTHOR_NAME));
-        }
-
-        if (properties.containsKey(PROP_TITLE_NAME)) {
-            feedConfiguration.setFeedTitle(Configuration.getProperty(properties, PROP_TITLE_NAME));
-        }
-        feedConfiguration.optionalProperties = properties;
-        return feedConfiguration;
-    }
+    public static FeedConfiguration getFeedConfiguration(
+        String feedId,
+        Properties properties,
+        ServerConfiguration serverConfiguration) {
+        
+        String author = "unknown";
+        String title = "unknown";
+        
+        if (properties.containsKey(PROP_AUTHOR_NAME))
+          author = Configuration.getProperty(properties, PROP_AUTHOR_NAME);
+        if (properties.containsKey(PROP_TITLE_NAME))
+          title = Configuration.getProperty(properties, PROP_TITLE_NAME);
+        
+        return FeedConfiguration
+          .make()
+            .id(feedId)
+            .subUri(Configuration.getProperty(properties, PROP_SUB_URI_NAME))
+            .adapter(Configuration.getProperty(properties, PROP_NAME_ADAPTER_CLASS))
+            .location(Configuration.getProperty(properties, PROP_FEED_CONFIG_LOCATION_NAME))
+            .serverConfig(serverConfiguration)
+            .title(title)
+            .author(author)
+            .setAll(properties)
+          .get();
+      }
 
     public String getAdapterClassName() {
         return adapterClassName;
@@ -104,14 +189,6 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
         return subUri;
     }
 
-    public void setFeedAuthor(String feedAuthor) {
-        this.feedAuthor = feedAuthor;
-    }
-
-    public void setFeedTitle(String feedTitle) {
-        this.feedTitle = feedTitle;
-    }
-
     public String getFeedUri() {
         return serverConfiguration.getServerUri() + "/" + getSubUri();
     }
@@ -128,11 +205,13 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
         return adapterConfiguration;
     }
     
-    public String[] getAccepts(RequestContext request) {
+    public Iterable<String> getAccepts(RequestContext request) {
         Object accepts = optionalProperties.get(PROP_ACCEPTS);
+        String[] arr = null;
         if (accepts == null || !(accepts instanceof String))
-            return new String[] {"application/json"};
-        return ((String)accepts).split("\\s*,\\s*");
+            arr = new String[] {"application/json"};
+        arr = ((String)accepts).split("\\s*,\\s*");
+        return Arrays.<String>asList(arr);
     }
 
     public String getHref(RequestContext request) {

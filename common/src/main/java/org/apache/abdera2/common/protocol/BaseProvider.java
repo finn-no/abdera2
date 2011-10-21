@@ -25,9 +25,14 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+
+import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.misc.Resolver;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.base.Function;
 
 /**
  * Base Provider implementation that provides the core implementation details for all Providers. This class provides the
@@ -39,10 +44,10 @@ public abstract class BaseProvider
 
     private final static Log log = LogFactory.getLog(BaseProvider.class);
     protected Map<String, String> properties;
-    protected Set<Filter> filters = 
-      new LinkedHashSet<Filter>();
-    protected Map<TargetType, RequestProcessor> requestProcessors = 
-      new HashMap<TargetType, RequestProcessor>();
+    protected Set<Task<RequestContext,ResponseContext>> filters = 
+      new LinkedHashSet<Task<RequestContext,ResponseContext>>();
+    protected Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors = 
+      new HashMap<TargetType, Function<CollectionAdapter,? extends RequestProcessor>>();
 
     public void init(Map<String,String> properties) {
       this.properties = properties != null ? properties : new HashMap<String,String>();
@@ -80,51 +85,40 @@ public abstract class BaseProvider
     protected abstract Resolver<Target, RequestContext> getTargetResolver(RequestContext request);
 
     public ResponseContext apply(RequestContext request) {
-      return process(request);
-    }
-    
-    public <S extends ResponseContext>S process(RequestContext request) {
-        Target target = request.getTarget();
-        if (target == null || target.getType() == TargetType.TYPE_NOT_FOUND) {
-            return (S)ProviderHelper.notfound(request);
-        }
-
-        TargetType type = target.getType();
-        log.debug(String.format("Processing [%s] request for Target [%s] of Type [%s]",request.getMethod(),target.getIdentity(),type.toString()));
-        RequestProcessor processor = 
-          (RequestProcessor) this.requestProcessors.get(type);
-        if (processor == null) {
-            return (S)ProviderHelper.notfound(request);
-        }
-
-        WorkspaceManager wm = getWorkspaceManager(request);
-        CollectionAdapter adapter = wm.getCollectionAdapter(request);
-        Transactional transaction = 
-          adapter instanceof Transactional ? (Transactional)adapter : null;
-        S response = null;
-        try {
-            transactionStart(transaction, request);
-            response = (S)processor.process(request, wm, adapter);
-            response = (S)(response != null ? response : processExtensionRequest(request, adapter));
-        } catch (Throwable e) {
-            if (e instanceof ResponseContextException) {
-                ResponseContextException rce = (ResponseContextException)e;
-                if (rce.getStatusCode() >= 400 && rce.getStatusCode() < 500) {
-                    // don't report routine 4xx HTTP errors
-                    log.info(e);
-                } else {
-                    log.error(e);
-                }
-            } else {
-                log.error(e);
-            }
-            transactionCompensate(transaction, request, e);
-            response = (S)createErrorResponse(request, e);
-            return response;
-        } finally {
-            transactionEnd(transaction, request, response);
-        }
-        return (S)(response != null ? response : ProviderHelper.badrequest(request));
+      Target target = request.getTarget();
+      if (Target.NOT_FOUND.apply(target))
+          return ProviderHelper.notfound(request);
+      TargetType type = target.getType();
+      log.debug(String.format(
+        "Processing [%s] request for Target [%s] of Type [%s]",
+        request.getMethod(),
+        target.getIdentity(),
+        type.toString()));
+      CollectionAdapter adapter = 
+        getWorkspaceManager()
+          .getCollectionAdapter(request);
+      if (adapter == null)
+        return ProviderHelper.servererror(request, null);
+      RequestProcessor processor = 
+        (RequestProcessor) this.requestProcessors
+          .get(type)
+          .apply(adapter);
+      if (processor == null)
+          return ProviderHelper.notfound(request);
+      Chain<RequestContext,ResponseContext> chain = 
+        Chain.<RequestContext,ResponseContext>make()
+        .to(processor)
+        .via(getFilters(request))
+        .get();
+      ResponseContext response = null;
+      try {
+        response = chain.apply(request);
+      } catch (Throwable t) {
+        response = createErrorResponse(request, t);
+      }
+      return response != null ? 
+        response : 
+        ProviderHelper.badrequest(request);
     }
 
     /**
@@ -134,55 +128,32 @@ public abstract class BaseProvider
         return ProviderHelper.servererror(request, e);
     }
 
-    protected void transactionCompensate(Transactional transactional, RequestContext request, Throwable e) {
-        if (transactional != null) {
-            transactional.compensate(request, e);
-        }
+    protected abstract WorkspaceManager getWorkspaceManager();
+
+    public void setFilters(Collection<Task<RequestContext,ResponseContext>> filters) {
+        this.filters = new LinkedHashSet<Task<RequestContext,ResponseContext>>(filters);
     }
 
-    protected void transactionEnd(Transactional transactional, RequestContext request, ResponseContext response) {
-        if (transactional != null) {
-            transactional.end(request, response);
-        }
-    }
-
-    protected void transactionStart(Transactional transactional, RequestContext request)
-        throws ResponseContextException {
-        if (transactional != null) {
-            transactional.start(request);
-        }
-    }
-
-    protected ResponseContext processExtensionRequest(RequestContext context, CollectionAdapter adapter) {
-        return adapter.extensionRequest(context);
-    }
-
-    protected abstract WorkspaceManager getWorkspaceManager(RequestContext request);
-
-    public void setFilters(Collection<Filter> filters) {
-        this.filters = new LinkedHashSet<Filter>(filters);
-    }
-
-    public Iterable<Filter> getFilters(RequestContext request) {
+    public Iterable<Task<RequestContext,ResponseContext>> getFilters(RequestContext request) {
         return filters;
     }
 
-    public void addFilter(Filter... filters) {
-        for (Filter filter : filters) {
+    public void addFilter(Task<RequestContext,ResponseContext>... filters) {
+        for (Task<RequestContext,ResponseContext> filter : filters) {
             this.filters.add(filter);
         }
     }
 
-    public void setRequestProcessors(Map<TargetType, RequestProcessor> requestProcessors) {
+    public void setRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors) {
         this.requestProcessors.clear();
         this.requestProcessors.putAll(requestProcessors);
     }
 
-    public void addRequestProcessors(Map<TargetType, RequestProcessor> requestProcessors) {
+    public void addRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors) {
         this.requestProcessors.putAll(requestProcessors);
     }
 
-    public Map<TargetType, RequestProcessor> getRequestProcessors() {
+    public Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> getRequestProcessors() {
         return Collections.unmodifiableMap(this.requestProcessors);
     }
     

@@ -18,6 +18,9 @@
 package org.apache.abdera2.protocol.server.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
@@ -30,8 +33,6 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.Parser;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
-import org.apache.abdera2.protocol.server.AtompubMediaCollectionAdapter;
 import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
@@ -44,66 +45,61 @@ import org.joda.time.DateTime;
 @SuppressWarnings("unchecked")
 public abstract class AbstractAtompubCollectionAdapter 
   extends AbstractCollectionAdapter
-  implements AtompubCollectionAdapter, 
-             AtompubMediaCollectionAdapter,
-             AtompubCollectionInfo {
+  implements AtompubCollectionInfo {
 
-      public String[] getAccepts(RequestContext request) {
-        return new String[] {"application/atom+xml;type=entry"};
-      }
-    
-    public AtompubCategoriesInfo[] getCategoriesInfo(RequestContext request) {
-        return null;
+    public AbstractAtompubCollectionAdapter(String href) {
+    super(href);
+  }
+
+    public Iterable<String> getAccepts(RequestContext request) {
+      return Arrays.<String>asList("application/atom+xml;type=entry");
     }
     
-    public <S extends ResponseContext>S getCategories(RequestContext request) {
-        return null;
+    public Iterable<AtompubCategoriesInfo> getCategoriesInfo(RequestContext request) {
+      return Collections.<AtompubCategoriesInfo>emptySet();
     }
-  
+    
     /**
      * Creates the ResponseContext for a newly created entry. By default, a BaseResponseContext is returned. The
      * Location, Content-Location, Etag and status are set appropriately.
      */
-    protected <S extends ResponseContext>S buildCreateEntryResponse(String link, Entry entry) {
-        FOMResponseContext<Entry> rc = new FOMResponseContext<Entry>(entry);
-        rc.setLocation(link);
-        rc.setContentLocation(rc.getLocation().toString());
-        rc.setEntityTag(AbstractAtompubProvider.calculateEntityTag(entry));
-        rc.setStatus(201);
-        return (S)rc;
+    protected ResponseContext buildCreateEntryResponse(String link, Entry entry) {
+        return new FOMResponseContext<Entry>(entry)
+          .setLocation(link)
+          .setContentLocation(link)
+          .setEntityTag(AbstractAtompubProvider.calculateEntityTag(entry))
+          .setStatus(201);
     }
 
     /**
      * Creates the ResponseContext for a newly created entry. By default, a BaseResponseContext is returned. The
      * Location, Content-Location, Etag and status are set appropriately.
      */
-    protected <S extends ResponseContext>S buildPostMediaEntryResponse(String link, Entry entry) {
-        return (S)buildCreateEntryResponse(link, entry);
+    protected ResponseContext buildPostMediaEntryResponse(String link, Entry entry) {
+      return buildCreateEntryResponse(link, entry);
     }
 
     /**
      * Creates the ResponseContext for a GET entry request. By default, a BaseResponseContext is returned. The Entry
      * will contain an appropriate atom:source element and the Etag header will be set.
      */
-    protected <S extends ResponseContext>S buildGetEntryResponse(RequestContext request, Entry entry)
+    protected ResponseContext buildGetEntryResponse(RequestContext request, Entry entry)
         throws ResponseContextException {
         Feed feed = createFeedBase(request);
         entry.setSource(feed.getAsSource());
         Document<Entry> entry_doc = entry.getDocument();
-        FOMResponseContext<Document<Entry>> rc = new FOMResponseContext<Document<Entry>>(entry_doc);
-        rc.setEntityTag(AbstractAtompubProvider.calculateEntityTag(entry));
-        return (S)rc;
+        return new FOMResponseContext<Document<Entry>>(entry_doc)
+          .setEntityTag(AbstractAtompubProvider.calculateEntityTag(entry));
     }
 
     /**
      * Creates the ResponseContext for a GET feed request. By default, a BaseResponseContext is returned. The Etag
      * header will be set.
      */
-    protected <S extends ResponseContext>S buildGetFeedResponse(Feed feed) {
+    protected ResponseContext buildGetFeedResponse(Feed feed) {
         Document<Feed> document = feed.getDocument();
-        FOMResponseContext<Document<Feed>> rc = new FOMResponseContext<Document<Feed>>(document);
-        rc.setEntityTag(AbstractAtompubProvider.calculateEntityTag(document.getRoot()));
-        return (S)rc;
+        return new FOMResponseContext<Document<Feed>>(document)
+          .setEntityTag(AbstractAtompubProvider.calculateEntityTag(document.getRoot()));
     }
 
     /**

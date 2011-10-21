@@ -1,7 +1,5 @@
 package org.apache.abdera2.activities.client;
 
-import java.util.Date;
-
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
@@ -146,9 +144,9 @@ public class ActivitiesSession
     EntityTag etag = resp.getEntityTag();
     if (etag != null)
         base.setEntityTag(etag);
-    Date lm = resp.getLastModified();
+    DateTime lm = resp.getLastModified();
     if (lm != null)
-        base.setLastModified(new DateTime(lm));
+        base.setLastModified(lm);
     MimeType mt = resp.getContentType();
     if (mt != null)
         base.setContentType(mt.toString());

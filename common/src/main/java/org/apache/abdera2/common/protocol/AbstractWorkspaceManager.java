@@ -18,10 +18,12 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 /**
  * Base implementation for WorkspaceManager implementations
@@ -29,26 +31,25 @@ import org.apache.abdera2.common.http.EntityTag;
 public abstract class AbstractWorkspaceManager 
   implements WorkspaceManager {
 
-    protected Collection<WorkspaceInfo> workspaces;
+    protected final Set<WorkspaceInfo> workspaces = 
+      new LinkedHashSet<WorkspaceInfo>();
     public static final String COLLECTION_ADAPTER_ATTRIBUTE = "collectionProvider";
 
     public Collection<WorkspaceInfo> getWorkspaces(RequestContext request) {
         return workspaces;
     }
 
-    public void setWorkspaces(Collection<WorkspaceInfo> workspaces) {
-        this.workspaces = workspaces;
+    public synchronized void setWorkspaces(Collection<WorkspaceInfo> workspaces) {
+        this.workspaces.clear();
+        this.workspaces.addAll(workspaces);
     }
 
-    public void addWorkspace(WorkspaceInfo workspace) {
-        if (workspaces == null) {
-            workspaces = new HashSet<WorkspaceInfo>();
-        }
+    public synchronized void addWorkspace(WorkspaceInfo workspace) {
         workspaces.add(workspace);
     }
     
-    public Date getLastModified() {
-      return new Date();
+    public DateTime getLastModified() {
+      return DateTimes.utcNow();
     }
     
     public EntityTag getEntityTag() { 

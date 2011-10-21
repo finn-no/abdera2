@@ -17,34 +17,30 @@
  */
 package org.apache.abdera2.protocol.server.processors;
 
-import org.apache.abdera2.common.protocol.RequestContext;
-import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.CollectionAdapter;
-import org.apache.abdera2.common.protocol.ProviderHelper;
+import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
+
+import com.google.common.base.Predicate;
 
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for categories
  * documents.
  */
-public class CategoriesRequestProcessor implements RequestProcessor {
+public class CategoriesRequestProcessor 
+  extends RequestProcessor {
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S process(RequestContext context,
-                                   WorkspaceManager workspaceManager,
-                                   CollectionAdapter collectionAdapter) {
-        if (collectionAdapter == null || !(collectionAdapter instanceof AtompubCollectionAdapter)) {
-            return (S)ProviderHelper.notfound(context);
-        } else {
-            return (S)this.processCategories(context, collectionAdapter);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <S extends ResponseContext>S processCategories(RequestContext context, CollectionAdapter adapter) {
-          return (S)(context.getMethod().equalsIgnoreCase("GET") ? 
-            ((AtompubCollectionAdapter)adapter).getCategories(context) : null);
+  public CategoriesRequestProcessor(
+    WorkspaceManager manager,
+    CollectionAdapter adapter) {
+      super(manager,adapter);
+  }
+  
+  public CategoriesRequestProcessor(
+      WorkspaceManager manager,
+      CollectionAdapter adapter,
+      Predicate<RequestContext> predicate) {
+        super(manager,adapter,predicate);
     }
 }

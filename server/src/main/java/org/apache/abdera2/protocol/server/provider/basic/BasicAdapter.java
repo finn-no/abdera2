@@ -35,7 +35,10 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.Target;
+import org.apache.abdera2.common.protocol.TargetType;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Function;
 
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
@@ -44,10 +47,20 @@ import org.joda.time.DateTime;
 @SuppressWarnings("unchecked")
 public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
-    public static Logger logger = Logger.getLogger(BasicAdapter.class.getName());
+    public static Logger logger = 
+      Logger.getLogger(BasicAdapter.class.getName());
 
     protected BasicAdapter(Abdera abdera, FeedConfiguration config) {
         super(abdera,config);
+        putHandler(TargetType.TYPE_CATEGORIES,"GET",getCategories());
+        putHandler(TargetType.TYPE_CATEGORIES,"HEAD",getCategories());
+        putHandler(TargetType.TYPE_COLLECTION,"GET",getItemList());
+        putHandler(TargetType.TYPE_COLLECTION,"HEAD",getItemList());
+        putHandler(TargetType.TYPE_COLLECTION,"POST",postItem());
+        putHandler(TargetType.TYPE_ENTRY,"GET",getItem());
+        putHandler(TargetType.TYPE_ENTRY,"HEAD",getItem());
+        putHandler(TargetType.TYPE_ENTRY,"PUT",putItem());
+        putHandler(TargetType.TYPE_ENTRY,"DELETE",deleteItem());
     }
 
     public String getProperty(String key) throws Exception {
@@ -116,54 +129,74 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         }
     }
 
-    public <S extends ResponseContext>S postItem(RequestContext request) {
-        return (S)createOrUpdateEntry(request, true);
-    }
-
-    public <S extends ResponseContext>S deleteItem(RequestContext request) {
-        Target target = request.getTarget();
-        String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
-        try {
-            return (S)(deleteEntry(entryId) ? ProviderHelper.nocontent() : ProviderHelper.notfound(request));
-        } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+    private Function<RequestContext,ResponseContext> postItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createOrUpdateEntry(input,true);
         }
+      };
+    }
+    
+    private Function<RequestContext,ResponseContext> deleteItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          Target target = input.getTarget();
+          String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
+          try {
+            return deleteEntry(entryId) ? 
+              ProviderHelper.nocontent() : 
+              ProviderHelper.notfound(input);
+          } catch (Exception e) {
+            return ProviderHelper.servererror(input, e.getMessage(), e);
+          }  
+        }
+      };
     }
 
-    public <S extends ResponseContext>S putItem(RequestContext request) {
-        return (S)createOrUpdateEntry(request, false);
+    private Function<RequestContext,ResponseContext> putItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createOrUpdateEntry(input,false);
+        }
+      };
     }
 
-    public <S extends ResponseContext>S getItem(RequestContext request) {
-        Target target = request.getTarget();
-        String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
-        try {
+    private Function<RequestContext,ResponseContext> getItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          Target target = input.getTarget();
+          String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
+          try {
             Entry entry = getEntry(entryId);
-            return (S)(entry != null ? AbstractAtompubProvider.returnBase(entry.getDocument(), 200, null) : ProviderHelper
-                .notfound(request));
-        } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+            return entry != null ? 
+              AbstractAtompubProvider.returnBase(entry.getDocument(), 200, null) : 
+              ProviderHelper.notfound(input);
+          } catch (Exception e) {
+            return ProviderHelper.servererror(input, e.getMessage(), e);
+          }
         }
+      };
     }
 
-    public <S extends ResponseContext>S getItemList(RequestContext request) {
-        try {
+    private Function<RequestContext,ResponseContext> getItemList() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
             Feed feed = getFeed();
-            return feed != null ? (S)AbstractAtompubProvider.returnBase(feed.getDocument(), 200, null) : 
-              (S)ProviderHelper.notfound(request);
-        } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+            return feed != null ? 
+              AbstractAtompubProvider.returnBase(feed.getDocument(), 200, null) : 
+              ProviderHelper.notfound(input);
+          } catch (Exception e) {
+            return ProviderHelper.servererror(input, e.getMessage(), e);
+          }
         }
+      };
     }
 
-    public <S extends ResponseContext>S extensionRequest(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request, ProviderHelper.getDefaultMethods(request));
+    private Function<RequestContext,ResponseContext> getCategories() {
+      return NOT_FOUND;
     }
-
-    public <S extends ResponseContext>S getCategories(RequestContext request) {
-        return (S)ProviderHelper.notfound(request);
-    }
-
+    
     public abstract Feed getFeed() throws Exception;
 
     public abstract Entry getEntry(Object entryId) throws Exception;

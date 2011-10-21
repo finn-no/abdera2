@@ -18,10 +18,10 @@
 package org.apache.abdera2.protocol.server.processors;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 
 import org.apache.abdera2.common.Constants;
+import org.apache.abdera2.common.protocol.CollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.CollectionInfo;
@@ -42,12 +42,16 @@ import org.apache.abdera2.writer.StreamWriter;
 public class MultipartRelatedServiceRequestProcessor 
   extends ServiceRequestProcessor {
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected <S extends ResponseContext>S getServiceDocument(
+    protected MultipartRelatedServiceRequestProcessor(
+      WorkspaceManager workspaceManager, 
+      CollectionAdapter adapter) {
+        super(workspaceManager, adapter);
+    }
+
+    protected ResponseContext getServiceDocument(
       final RequestContext request, 
       final WorkspaceManager workspaceManager) {
-        return (S)new StreamWriterResponseContext(
+        return new StreamWriterResponseContext(
             AbstractAtompubProvider.getAbdera(request)) {
 
             @Override
@@ -55,7 +59,7 @@ public class MultipartRelatedServiceRequestProcessor
                 sw.startDocument().startService();
                 for (WorkspaceInfo wi : workspaceManager.getWorkspaces(request)) {
                     sw.startWorkspace().writeTitle(wi.getTitle(request));
-                    Collection<CollectionInfo> collections = wi.getCollections(request);
+                    Iterable<CollectionInfo> collections = wi.getCollections(request);
 
                     if (collections != null) {
                         for (CollectionInfo c : collections) {
@@ -74,7 +78,7 @@ public class MultipartRelatedServiceRequestProcessor
                             } else {
                                 sw.writeAccepts(ci.getAccepts(request));
                             }
-                            AtompubCategoriesInfo[] catinfos = ci.getCategoriesInfo(request);
+                            Iterable<AtompubCategoriesInfo> catinfos = ci.getCategoriesInfo(request);
                             if (catinfos != null) {
                                 for (AtompubCategoriesInfo catinfo : catinfos) {
                                     String cathref = catinfo.getHref(request);

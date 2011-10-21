@@ -131,6 +131,8 @@ public interface Collection extends ExtensibleElement {
      */
     Collection setAccept(String... mediaRanges);
 
+    Collection setAccept(Iterable<String> mediaRanges);
+    
     /**
      * Returns true if the collection accepts the given media-type
      * 

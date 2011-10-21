@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.security.Principal;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +34,7 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
+import org.joda.time.DateTime;
 
 @SuppressWarnings("unchecked")
 public class BaseRequestContextWrapper
@@ -164,7 +164,7 @@ public class BaseRequestContextWrapper
         return request.getIfMatch();
     }
 
-    public Date getIfModifiedSince() {
+    public DateTime getIfModifiedSince() {
         return request.getIfModifiedSince();
     }
 
@@ -172,7 +172,7 @@ public class BaseRequestContextWrapper
         return request.getIfNoneMatch();
     }
 
-    public Date getIfUnmodifiedSince() {
+    public DateTime getIfUnmodifiedSince() {
         return request.getIfUnmodifiedSince();
     }
 
@@ -192,7 +192,7 @@ public class BaseRequestContextWrapper
         return request.getContentType();
     }
 
-    public Date getDateHeader(String name) {
+    public DateTime getDateHeader(String name) {
         return request.getDateHeader(name);
     }
 

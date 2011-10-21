@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +56,7 @@ import org.apache.abdera2.protocol.client.BasicClient;
 import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
@@ -384,7 +384,7 @@ public class AppTest {
         Client abderaClient = new BasicClient();
         Session session = abderaClient.newSession();
         RequestOptions options = session.getDefaultRequestOptions();
-        options.setIfModifiedSince(new Date());
+        options.setIfModifiedSince(DateTimes.now());
         assertNotNull(options.getIfModifiedSince());
 
         options.set4xxRequestException(true);

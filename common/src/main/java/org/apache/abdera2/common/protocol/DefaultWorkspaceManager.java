@@ -19,6 +19,9 @@ package org.apache.abdera2.common.protocol;
 
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 
 /**
  * The DefaultWorkspaceManager is used by the DefaultProvider
@@ -28,26 +31,37 @@ public class DefaultWorkspaceManager
     // URI reserved delimiter characters (gen-delims) from RFC 3986 section 2.2
     private static final String URI_GEN_DELIMS = ":/?#[]@";
     public CollectionAdapter getCollectionAdapter(RequestContext request) {
-        String path = request.getContextPath() + request.getTargetPath();
-
-        // Typically this happens when a Resolver wants to override the CollectionAdapter being used
-        CollectionAdapter ca = 
-          (CollectionAdapter)request.getAttribute(
-            Scope.REQUEST, AbstractWorkspaceManager.COLLECTION_ADAPTER_ATTRIBUTE);
-        if (ca != null) {
-            return ca;
-        }
-        for (WorkspaceInfo wi : workspaces) {
-            for (CollectionInfo ci : wi.getCollections(request)) {
-                String href = ci.getHref(request);
-                if (path.equals(href) || (href != null && path.startsWith(href) && URI_GEN_DELIMS.contains(path
-                    .substring(href.length(), href.length() + 1)))) {
-                    return (CollectionAdapter)ci;
-                }
-            }
-        }
-
-        return null;
+      String path = request.getContextPath() + request.getTargetPath();
+      CollectionAdapter ca = 
+        (CollectionAdapter)request.getAttribute(
+          Scope.REQUEST, 
+          AbstractWorkspaceManager.COLLECTION_ADAPTER_ATTRIBUTE);
+      if (ca != null)
+          return ca;
+      for (WorkspaceInfo wi : workspaces) {
+        CollectionInfo ci = 
+          Iterables.<CollectionInfo>find(
+            wi.getCollections(request), 
+            CI(request,path),null);
+        if (ci != null)
+          return (CollectionAdapter)ci;
+      }
+      return null;
     }
-
+    
+    private static final Predicate<CollectionInfo> CI(
+      final RequestContext rc, 
+      final String path) { 
+      return new Predicate<CollectionInfo>() {
+        public boolean apply(CollectionInfo input) {
+          String href = input.getHref(rc);
+          return (
+            path.equals(href) || 
+            (href != null && 
+             path.startsWith(href) && 
+             URI_GEN_DELIMS.contains(
+              path.substring(href.length(), href.length() + 1))));
+        }
+      }; 
+    }
 }

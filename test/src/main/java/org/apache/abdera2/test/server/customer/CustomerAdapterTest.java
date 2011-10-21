@@ -60,15 +60,14 @@ public class CustomerAdapterTest {
 
     private void setupAbdera(String base) throws Exception {
         customerProvider = new DefaultAtompubProvider(base);
-
-        CustomerAdapter ca = new CustomerAdapter();
-        ca.setHref("customers");
-
-        SimpleWorkspaceInfo wi = new SimpleWorkspaceInfo();
-        wi.setTitle("Customer Workspace");
-        wi.addCollection(ca);
-
-        customerProvider.addWorkspace(wi);
+        CustomerAdapter ca = new CustomerAdapter("customers");
+        customerProvider
+          .addWorkspace(
+            SimpleWorkspaceInfo
+              .make()
+              .title("Customer Workspace")
+              .collection(ca)
+              .get());
     }
 
     @Test

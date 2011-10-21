@@ -17,10 +17,9 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.http.Authentication;
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 public abstract class AbstractRequest extends AbstractMessage implements Request {
 
@@ -49,7 +48,7 @@ public abstract class AbstractRequest extends AbstractMessage implements Request
         return EntityTag.parseTags(getHeader("If-Match"));
     }
 
-    public Date getIfModifiedSince() {
+    public DateTime getIfModifiedSince() {
         return getDateHeader("If-Modified-Since");
     }
 
@@ -57,7 +56,7 @@ public abstract class AbstractRequest extends AbstractMessage implements Request
         return EntityTag.parseTags(getHeader("If-None-Match"));
     }
 
-    public Date getIfUnmodifiedSince() {
+    public DateTime getIfUnmodifiedSince() {
         return getDateHeader("If-Unmodified-Since");
     }
 

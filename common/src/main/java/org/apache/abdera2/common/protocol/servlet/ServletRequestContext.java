@@ -36,6 +36,7 @@ import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.protocol.AbstractBaseRequestContext;
 import org.apache.abdera2.common.protocol.Provider;
+import org.joda.time.DateTime;
 
 @SuppressWarnings({ "unchecked" })
 public class ServletRequestContext 
@@ -139,9 +140,9 @@ public class ServletRequestContext
         return values != null ? java.util.Arrays.asList(values) : null;
     }
 
-    public Date getDateHeader(String name) {
+    public DateTime getDateHeader(String name) {
         long value = request.getDateHeader(name);
-        return value != -1 ? new Date(value) : null;
+        return value != -1 ? new DateTime(value) : null;
     }
 
     public String getHeader(String name) {

@@ -39,6 +39,6 @@ public interface CollectionInfo {
      * Returns an array of MIME media types for the app:collection element's app:accept elements. These tell a client
      * which media types the collection will accept on a POST
      */
-    String[] getAccepts(RequestContext request);
+    Iterable<String> getAccepts(RequestContext request);
 
 }

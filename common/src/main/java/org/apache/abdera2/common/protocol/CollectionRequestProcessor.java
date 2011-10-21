@@ -17,40 +17,27 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import com.google.common.base.Predicate;
+
 
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for collection
  * documents.
  */
-@SuppressWarnings("unchecked")
 public abstract class CollectionRequestProcessor
-  implements RequestProcessor {
+  extends TransactionalRequestProcessor {
 
-    protected abstract boolean isAcceptableItemType(RequestContext context);
+  public CollectionRequestProcessor(
+      WorkspaceManager workspaceManager,
+      CollectionAdapter adapter) {
+      super(workspaceManager,adapter);
+    }
   
-    public <S extends ResponseContext>S process(
-        RequestContext context,
-        WorkspaceManager workspaceManager,
-        CollectionAdapter collectionAdapter) {
-        if (collectionAdapter == null) {
-            return (S)ProviderHelper.notfound(context);
-        } else {
-            return (S)this.processCollection(context, collectionAdapter);
-        }
-    }
-
-    private <S extends ResponseContext>S processCollection(
-        RequestContext context, 
-        CollectionAdapter adapter) {
-        String method = context.getMethod();
-        if (method.equalsIgnoreCase("GET")) {
-            return (S)adapter.getItemList(context);
-        } else if (method.equalsIgnoreCase("POST")) {
-            return (S)(isAcceptableItemType(context) ? adapter.postItem(context)
-                : adapter instanceof MediaCollectionAdapter ? ((MediaCollectionAdapter)adapter).postMedia(context)
-                    : ProviderHelper.notallowed(context));
-        } else {
-            return null;
-        }
-    }
+  public CollectionRequestProcessor(
+    WorkspaceManager workspaceManager,
+    CollectionAdapter adapter,
+    Predicate<RequestContext> predicate) {
+    super(workspaceManager,adapter,predicate);
+  }
+  
 }

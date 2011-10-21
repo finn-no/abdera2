@@ -17,9 +17,8 @@
  */
 package org.apache.abdera2.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 public abstract class AbstractEntityProvider implements EntityProvider {
 
@@ -31,7 +30,7 @@ public abstract class AbstractEntityProvider implements EntityProvider {
         return null;
     }
 
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return null;
     }
 

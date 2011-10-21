@@ -17,46 +17,27 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import com.google.common.base.Predicate;
+
 
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for entry
  * documents.
  */
 public class EntryRequestProcessor
-    implements RequestProcessor {
+    extends TransactionalRequestProcessor {
   
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S process(RequestContext context,
-                     WorkspaceManager workspaceManager,
-                     CollectionAdapter collectionAdapter) {
-        if (collectionAdapter == null) {
-            return (S)ProviderHelper.notfound(context);
-        } else {
-            return (S)this.processEntry(context, collectionAdapter);
-        }
+    public EntryRequestProcessor(
+      WorkspaceManager workspaceManager, 
+      CollectionAdapter adapter) {
+        super(workspaceManager,adapter);
     }
 
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S processEntry(
-        RequestContext context, 
-        CollectionAdapter adapter) {
-        String method = context.getMethod();
-        if (method.equalsIgnoreCase("GET")) {
-            return (S)adapter.getItem(context);
-        } else if (method.equalsIgnoreCase("POST")) {
-            return (S)adapter.postItem(context);
-        } else if (method.equalsIgnoreCase("PUT")) {
-            return (S)adapter.putItem(context);
-        } else if (method.equalsIgnoreCase("DELETE")) {
-            return (S)adapter.deleteItem(context);
-        } else if (method.equalsIgnoreCase("HEAD")) {
-            return (S)adapter.headItem(context);
-        } else if (method.equalsIgnoreCase("OPTIONS")) {
-            return (S)adapter.optionsItem(context);
-        } else if (method.equalsIgnoreCase("PATCH") && adapter instanceof PatchAdapter) {
-            return (S)((PatchAdapter)adapter).patchItem(context);
-        } else {
-            return null;
-        }
-    }
+    public EntryRequestProcessor(
+        WorkspaceManager workspaceManager, 
+        CollectionAdapter adapter,
+        Predicate<RequestContext> predicate) {
+          super(workspaceManager,adapter,predicate);
+      }
+    
 }

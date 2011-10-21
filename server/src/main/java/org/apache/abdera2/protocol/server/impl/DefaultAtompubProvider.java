@@ -39,7 +39,6 @@ import org.apache.abdera2.common.protocol.WorkspaceManager;
 public class DefaultAtompubProvider 
   extends AbstractAtompubProvider {
 
-    protected WorkspaceManager workspaceManager;
     protected Resolver<Target,RequestContext> targetResolver;
     protected Resolver<Subject,Request> subjectResolver;
     protected TargetBuilder<?> targetBuilder;
@@ -51,19 +50,17 @@ public class DefaultAtompubProvider
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public DefaultAtompubProvider(String base) {
-        if (base == null) {
-            base = "/";
-        }
-        workspaceManager = new DefaultWorkspaceManager();
-        routeManager =
-            new RouteManager()
-              .addRoute("service", base, TargetType.TYPE_SERVICE)
-              .addRoute("feed", base + ":collection", TargetType.TYPE_COLLECTION)
-              .addRoute("entry", base + ":collection/:entry", TargetType.TYPE_ENTRY)
-              .addRoute("categories", base + ":collection/:entry;categories", TargetType.TYPE_CATEGORIES);
-
-        targetBuilder = routeManager;
-        targetResolver = routeManager;
+      super(new DefaultWorkspaceManager());
+      if (base == null)
+        base = "/";
+      routeManager =
+          new RouteManager()
+            .addRoute("service", base, TargetType.TYPE_SERVICE)
+            .addRoute("feed", base + ":collection", TargetType.TYPE_COLLECTION)
+            .addRoute("entry", base + ":collection/:entry", TargetType.TYPE_ENTRY)
+            .addRoute("categories", base + ":collection/:entry;categories", TargetType.TYPE_CATEGORIES);
+      targetBuilder = routeManager;
+      targetResolver = routeManager;
     }
 
     @SuppressWarnings("rawtypes")
@@ -93,10 +90,6 @@ public class DefaultAtompubProvider
 
     public Resolver<Subject,Request> getSubjectResolver() {
         return subjectResolver;
-    }
-
-    protected WorkspaceManager getWorkspaceManager(RequestContext request) {
-        return getWorkspaceManager();
     }
 
     public WorkspaceManager getWorkspaceManager() {

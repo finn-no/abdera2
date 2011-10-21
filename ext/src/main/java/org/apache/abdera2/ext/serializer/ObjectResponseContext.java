@@ -19,16 +19,13 @@ package org.apache.abdera2.ext.serializer;
 
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.ext.serializer.annotation.EntityTag;
 import org.apache.abdera2.ext.serializer.annotation.LastModified;
 import org.apache.abdera2.ext.serializer.annotation.MediaType;
 import org.apache.abdera2.protocol.server.context.StreamWriterResponseContext;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 public class ObjectResponseContext extends StreamWriterResponseContext {
 
@@ -84,8 +81,8 @@ public class ObjectResponseContext extends StreamWriterResponseContext {
         setLastModified(getObjectLastModified());
     }
 
-    private Date getObjectLastModified() {
-        Date date = null;
+    private DateTime getObjectLastModified() {
+        DateTime date = null;
         AccessibleObject accessor = objectContext.getAccessor(LastModified.class, conventions);
         if (accessor != null) {
             Object value = BaseSerializer.eval(accessor, object);
@@ -94,22 +91,8 @@ public class ObjectResponseContext extends StreamWriterResponseContext {
         return date;
     }
 
-    private Date getDate(Object value) {
-        Date date = null;
-        if (value == null)
-            return null;
-        if (value instanceof Date) {
-            date = (Date)value;
-        } else if (value instanceof Calendar) {
-            date = ((Calendar)value).getTime();
-        } else if (value instanceof Long) {
-            date = new Date(((Long)value).longValue());
-        } else if (value instanceof String) {
-            date = DateTimes.parse((String)value);
-        } else {
-            date = DateTimes.parse(value.toString());
-        }
-        return date;
+    private DateTime getDate(Object value) {
+        return new DateTime(value);
     }
 
     private String getObjectEntityTag() {

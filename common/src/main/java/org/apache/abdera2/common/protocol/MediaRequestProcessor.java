@@ -17,51 +17,26 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import com.google.common.base.Predicate;
+
 
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for media
  * documents.
  */
-@SuppressWarnings("unchecked")
 public class MediaRequestProcessor
-    implements RequestProcessor {
+    extends TransactionalRequestProcessor {
 
-    public <S extends ResponseContext>S process(
-        RequestContext context,
-        WorkspaceManager workspaceManager,
-        CollectionAdapter collectionAdapter) {
-        if (collectionAdapter == null) {
-            return (S)ProviderHelper.notfound(context);
-        } else {
-            return (S)this.processMedia(context, collectionAdapter);
-        }
+    public MediaRequestProcessor(
+      WorkspaceManager workspaceManager, 
+      CollectionAdapter adapter) {
+      super(workspaceManager, adapter);
     }
-
-    public <S extends ResponseContext>S processMedia(
-        RequestContext context, 
-        CollectionAdapter adapter) {
-        String method = context.getMethod();
-        if (adapter instanceof MediaCollectionAdapter) {
-            MediaCollectionAdapter mcadapter = (MediaCollectionAdapter)adapter;
-            if (method.equalsIgnoreCase("GET")) {
-                return (S)mcadapter.getMedia(context);
-            } else if (method.equalsIgnoreCase("POST")) {
-                return (S)mcadapter.postMedia(context);
-            } else if (method.equalsIgnoreCase("PUT")) {
-                return (S)mcadapter.putMedia(context);
-            } else if (method.equalsIgnoreCase("DELETE")) {
-                return (S)mcadapter.deleteMedia(context);
-            } else if (method.equalsIgnoreCase("HEAD")) {
-                return (S)mcadapter.headMedia(context);
-            } else if (method.equalsIgnoreCase("OPTIONS")) {
-                return (S)mcadapter.optionsMedia(context);
-            } else if (method.equalsIgnoreCase("PATCH") && mcadapter instanceof PatchMediaAdapter) {
-                return (S)((PatchMediaAdapter)mcadapter).patchMedia(context);
-            } else {
-                return null;
-            }
-        } else {
-            return (S)ProviderHelper.notallowed(context);
-        }
+    
+    public MediaRequestProcessor(
+      WorkspaceManager workspaceManager, 
+      CollectionAdapter adapter,
+      Predicate<RequestContext> predicate) {
+      super(workspaceManager, adapter,predicate);
     }
 }

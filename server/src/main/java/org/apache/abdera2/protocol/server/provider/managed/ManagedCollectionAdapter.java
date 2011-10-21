@@ -20,17 +20,16 @@ package org.apache.abdera2.protocol.server.provider.managed;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubCollectionAdapter;
 
 public abstract class ManagedCollectionAdapter 
-  extends AbstractAtompubCollectionAdapter 
-  implements AtompubCollectionAdapter {
+  extends AbstractAtompubCollectionAdapter {
 
     protected final FeedConfiguration config;
     protected final Abdera abdera;
 
     protected ManagedCollectionAdapter(Abdera abdera, FeedConfiguration config) {
+      super(null);
         this.config = config;
         this.abdera = abdera;
     }

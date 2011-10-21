@@ -458,6 +458,13 @@ public abstract class AbstractStreamWriter implements StreamWriter {
         return this;
     }
 
+    public StreamWriter writeAccepts(Iterable<String> accepts) {
+      for (String accept : accepts) {
+        startElement(Constants.ACCEPT).writeElementText(accept).endElement();
+      }
+      return this;
+    }
+    
     public StreamWriter writeAccepts(String... accepts) {
         for (String accept : accepts) {
             startElement(Constants.ACCEPT).writeElementText(accept).endElement();

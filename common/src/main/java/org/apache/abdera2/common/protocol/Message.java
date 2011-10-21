@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.http.Authentication;
@@ -26,6 +24,7 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
 import org.apache.abdera2.common.iri.IRI;
+import org.joda.time.DateTime;
 
 /**
  * A protocol message. This is used as the basis for both request and response objects in order to provide a consistent
@@ -81,7 +80,7 @@ public interface Message {
     /**
      * Return the value of a Date header
      */
-    Date getDateHeader(String name);
+    DateTime getDateHeader(String name);
 
     /**
      * Return the Cache Control Data

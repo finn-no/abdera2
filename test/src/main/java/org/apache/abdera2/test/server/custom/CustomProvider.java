@@ -18,14 +18,14 @@
 package org.apache.abdera2.test.server.custom;
 
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
+import org.apache.abdera2.common.protocol.CollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.BaseRequestContextWrapper;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.common.protocol.RegexTargetResolver;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.TemplateManagerTargetBuilder;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubWorkspaceProvider;
 import org.apache.abdera2.protocol.server.impl.SimpleWorkspaceInfo;
 
@@ -33,8 +33,9 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
 
     private final SimpleAdapter adapter;
 
-    public CustomProvider() {
-        this.adapter = new SimpleAdapter();
+    @SuppressWarnings("unchecked")
+    public CustomProvider(String href) {
+        this.adapter = new SimpleAdapter(href);
         RegexTargetResolver<RequestContext> resolver = 
           new RegexTargetResolver<RequestContext>()
             .setPattern("/atom(\\?[^#]*)?", TargetType.TYPE_SERVICE)
@@ -53,18 +54,21 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
               .add(TargetType.TYPE_ENTRY, "{target_base}/atom/{collection}/{entry}")
               .get();
         setTargetBuilder(tmb);
-        SimpleWorkspaceInfo workspace = new SimpleWorkspaceInfo();
-        workspace.setTitle("A Simple Workspace");
-        workspace.addCollection(adapter);
-        addWorkspace(workspace);
+        addWorkspace(
+          SimpleWorkspaceInfo
+            .make()
+            .title("A Simple Workspace")
+            .collection(adapter)
+            .get()
+        );
         addFilter(new SimpleFilter());
     }
 
-    public AtompubCollectionAdapter getCollectionAdapter(RequestContext request) {
+    public CollectionAdapter getCollectionAdapter(RequestContext request) {
         return adapter;
     }
 
-    public class SimpleFilter implements Filter {
+    public class SimpleFilter implements Task<RequestContext,ResponseContext> {
         public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
             BaseRequestContextWrapper rcw = new BaseRequestContextWrapper(request);
             rcw.setAttribute("offset", 10);

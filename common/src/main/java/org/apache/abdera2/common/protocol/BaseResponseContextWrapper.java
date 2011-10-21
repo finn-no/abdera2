@@ -20,7 +20,6 @@ package org.apache.abdera2.common.protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
 
 import javax.activation.MimeType;
 
@@ -32,6 +31,7 @@ import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.http.WebLink;
+import org.joda.time.DateTime;
 
 @SuppressWarnings("unchecked")
 public class BaseResponseContextWrapper implements ResponseContext {
@@ -136,7 +136,7 @@ public class BaseResponseContextWrapper implements ResponseContext {
         return (T)this;
     }
 
-    public <T extends ResponseContext>T setExpires(Date date) {
+    public <T extends ResponseContext>T setExpires(DateTime date) {
         response.setExpires(date);
         return (T)this;
     }
@@ -151,7 +151,7 @@ public class BaseResponseContextWrapper implements ResponseContext {
         return (T)this;
     }
 
-    public <T extends ResponseContext>T setLastModified(Date date) {
+    public <T extends ResponseContext>T setLastModified(DateTime date) {
         response.setLastModified(date);
         return (T)this;
     }
@@ -200,11 +200,11 @@ public class BaseResponseContextWrapper implements ResponseContext {
         return response.getEntityTag();
     }
 
-    public Date getExpires() {
+    public DateTime getExpires() {
         return response.getExpires();
     }
 
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return response.getLastModified();
     }
 
@@ -240,7 +240,7 @@ public class BaseResponseContextWrapper implements ResponseContext {
         return response.getContentType();
     }
 
-    public Date getDateHeader(String name) {
+    public DateTime getDateHeader(String name) {
         return response.getDateHeader(name);
     }
 

@@ -19,13 +19,13 @@ package org.apache.abdera2.common.protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
 
 import org.apache.abdera2.common.text.CharUtils.Profile;
 import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
+import org.joda.time.DateTime;
 
 /**
  * The ResponseContext encapsulates a server response
@@ -159,12 +159,12 @@ public interface ResponseContext extends Response {
     /**
      * Set the value of the Expires header
      */
-    <B extends ResponseContext>B setExpires(Date date);
+    <B extends ResponseContext>B setExpires(DateTime date);
 
     /**
      * Set the value of the Last-Modified header
      */
-    <B extends ResponseContext>B setLastModified(Date date);
+    <B extends ResponseContext>B setLastModified(DateTime date);
 
     /**
      * Set the value of the Location header

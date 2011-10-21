@@ -19,9 +19,9 @@ package org.apache.abdera2.security.util.filters;
 
 import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
@@ -33,7 +33,7 @@ import org.apache.abdera2.security.Signature;
  * Servlet Filter that verifies that an Atom document received by the server via PUT or POST contains a valid XML
  * Digital Signature.
  */
-public class SignedRequestFilter implements Filter {
+public class SignedRequestFilter implements Task<RequestContext,ResponseContext> {
 
     public static final String VALID = "org.apache.abdera.security.util.servlet.SignedRequestFilter.valid";
     public static final String CERTS = "org.apache.abdera.security.util.servlet.SignedRequestFilter.certs";

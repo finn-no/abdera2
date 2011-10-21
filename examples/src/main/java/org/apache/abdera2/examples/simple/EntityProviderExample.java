@@ -17,12 +17,11 @@
  */
 package org.apache.abdera2.examples.simple;
 
-import java.util.Date;
-
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.protocol.EntityProvider;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 /**
  * The EntityProvider interface allows developers to provide custom Object-to-Java serialization based on the
@@ -55,7 +54,7 @@ public class EntityProviderExample {
             return EntityTag.generate(foo, bar, baz);
         }
 
-        public Date getLastModified() {
+        public DateTime getLastModified() {
             return null;
         }
 

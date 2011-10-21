@@ -27,34 +27,36 @@ import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
-import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.BaseProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.RequestContext;
+import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
+import org.apache.abdera2.common.protocol.WorkspaceManager;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractActivitiesProvider 
   extends BaseProvider
   implements ActivitiesProvider {
 
   protected Set<TypeAdapter<?>> typeAdapters = new HashSet<TypeAdapter<?>>();
+  protected final WorkspaceManager workspaceManager;
   
-  protected AbstractActivitiesProvider() {
+  protected AbstractActivitiesProvider(
+    WorkspaceManager workspaceManager) {
+    this.workspaceManager = workspaceManager;
     this.requestProcessors.put(
       TargetType.TYPE_COLLECTION, 
-      new CollectionRequestProcessor() {
-        protected boolean isAcceptableItemType(RequestContext context) {
-          return MimeTypeHelper.isMatch(
-            context.getContentType().toString(), 
-            "application/json");
-        }        
-      });
+      RequestProcessor.forClass(
+        CollectionRequestProcessor.class,
+        workspaceManager,
+        AbstractActivitiesWorkspaceProvider.isJson()));
     this.requestProcessors.put(
       TargetType.TYPE_ENTRY, 
-      new EntryRequestProcessor());
+      RequestProcessor.forClass(
+        EntryRequestProcessor.class,
+        workspaceManager));
   }
   
   public void addTypeAdapter(TypeAdapter<?> typeAdapter) {
@@ -69,11 +71,11 @@ public abstract class AbstractActivitiesProvider
     return typeAdapters;
   }
   
-  public <S extends ResponseContext> S createErrorResponse(
+  public ResponseContext createErrorResponse(
     int code,
     String message, 
     Throwable t) {
-      return (S) 
+      return
         new ActivitiesResponseContext<ErrorObject>(
             ErrorObject
             .makeError()
@@ -85,8 +87,8 @@ public abstract class AbstractActivitiesProvider
   }
 
   @Override
-  public <S extends ResponseContext> S process(RequestContext request) {
-    return (S)super.process(
+  public ResponseContext apply(RequestContext request) {
+    return super.apply(
       request instanceof ActivitiesRequestContext?
         request:
         new ActivitiesRequestContext(request));

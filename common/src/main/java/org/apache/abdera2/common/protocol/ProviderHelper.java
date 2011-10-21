@@ -30,6 +30,8 @@ import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Predicate;
+
 public class ProviderHelper {
     public final static Log log = LogFactory.getLog(ProviderHelper.class);
 
@@ -285,6 +287,14 @@ public class ProviderHelper {
 
     public static boolean defaultCheckMethod(RequestContext request, String[] methods) {
         return (java.util.Arrays.binarySearch(methods, request.getMethod()) >= 0);
+    }
+    
+    public static Predicate<RequestContext> isAtom() {
+      return new Predicate<RequestContext>() {
+        public boolean apply(RequestContext input) {
+          return isAtom(input);
+        }
+      };
     }
     
     public static boolean isAtom(RequestContext request) {

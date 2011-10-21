@@ -28,9 +28,9 @@ import java.security.cert.X509Certificate;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
@@ -82,7 +82,7 @@ import org.apache.abdera2.writer.Writer;
  * &lt;/filter-mapping>
  * </pre>
  */
-public class SignedResponseFilter implements Filter {
+public class SignedResponseFilter implements Task<RequestContext,ResponseContext> {
 
     private static final String keystoreType = "JKS";
 

@@ -17,105 +17,128 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 /**
  * Base CollectionAdapter implementation that provides a number of helper 
  * utility methods for adapter implementations.
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractCollectionAdapter 
   implements CollectionAdapter, 
-             MediaCollectionAdapter, 
-             Transactional,
              CollectionInfo {
 
     private final static Log log = 
       LogFactory.getLog(AbstractCollectionAdapter.class);
 
     private String href;
-    private Map<String, Object> hrefParams = 
+    private final Map<String, Object> hrefParams = 
       new HashMap<String, Object>();
+    
+    private final Map<HandlerKey,Function<RequestContext,ResponseContext>> handlers = 
+      new HashMap<HandlerKey,Function<RequestContext,ResponseContext>>();
 
-    public AbstractCollectionAdapter() {
+    private static class HandlerKey implements Serializable {
+      private static final long serialVersionUID = -580349554867112812L;
+      private final TargetType type;
+      private final String method;
+      HandlerKey(TargetType type, String method) {
+        this.type = type;
+        this.method = method.toUpperCase();
+      }
+      public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((method == null) ? 0 : method.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+      }
+      public boolean equals(Object obj) {
+        if (this == obj)
+          return true;
+        if (obj == null)
+          return false;
+        if (getClass() != obj.getClass())
+          return false;
+        HandlerKey other = (HandlerKey) obj;
+        if (method == null) {
+          if (other.method != null)
+            return false;
+        } else if (!method.equals(other.method))
+          return false;
+        if (type == null) {
+          if (other.type != null)
+            return false;
+        } else if (!type.equals(other.type))
+          return false;
+        return true;
+      }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected synchronized <X extends AbstractCollectionAdapter>X putHandler(
+      TargetType targetType,
+      String method,
+      Function<RequestContext,ResponseContext> handler) {
+        HandlerKey key = new HandlerKey(targetType,method);
+        handlers.put(key, handler);
+        return (X)this;
+    }
+    
+    public AbstractCollectionAdapter(String href) {
         super();
+        putHandler(TargetType.TYPE_CATEGORIES, "GET", NOT_FOUND);
+        putHandler(TargetType.TYPE_CATEGORIES, "HEAD", NOT_FOUND);
+        setHref(href);
     }
 
     public String getHref() {
         return href;
     }
 
-    public void setHref(String href) {
+    private void setHref(String href) {
         this.href = href;
-        hrefParams.put("collection", href);
+        if (href != null)
+          hrefParams.put("collection", href);
     }
 
     public String getHref(RequestContext request) {
         return request.urlFor("feed", hrefParams);
     }
 
-    public void compensate(RequestContext request, Throwable t) {
-    }
+    public abstract String getAuthor(
+      RequestContext request) 
+        throws ResponseContextException;
 
-    public void end(RequestContext request, ResponseContext response) {
-    }
-
-    public void start(RequestContext request) {
-    }
-
-    public <S extends ResponseContext>S deleteMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S getMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S headMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S optionsMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S putMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S postMedia(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S headItem(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public <S extends ResponseContext>S optionsItem(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request);
-    }
-
-    public abstract String getAuthor(RequestContext request) throws ResponseContextException;
-
-    public abstract String getId(RequestContext request);
+    public abstract String getId(
+      RequestContext request);
 
     /**
      * Creates the ResponseContext for a HEAD entry request. By default, an EmptyResponseContext is returned. The Etag
      * header will be set.
      */
-    protected <S extends ResponseContext>S buildHeadEntryResponse(RequestContext request, String id, DateTime updated)
+    protected ResponseContext buildHeadEntryResponse(
+      RequestContext request, 
+      String id, 
+      DateTime updated)
         throws ResponseContextException {
-        EmptyResponseContext rc = new EmptyResponseContext(200);
-        rc.setEntityTag(EntityTag.generate(id, DateTimes.format(updated)));
-        return (S)rc;
+        return new EmptyResponseContext(200)
+          .setEntityTag(
+            EntityTag.generate(
+              id, 
+              DateTimes.format(updated)));
     }
 
     /**
@@ -124,15 +147,10 @@ public abstract class AbstractCollectionAdapter
      * @param e
      * @return
      */
-    protected <S extends ResponseContext>S createErrorResponse(ResponseContextException e) {
-        if (log.isDebugEnabled()) {
-            log.debug("A ResponseException was thrown.", e);
-        } else if (e.getResponseContext() instanceof EmptyResponseContext && ((EmptyResponseContext)e
-            .getResponseContext()).getStatus() >= 500) {
-            log.warn("A ResponseException was thrown.", e);
-        }
-
-        return (S)e.getResponseContext();
+    protected ResponseContext createErrorResponse(
+      ResponseContextException e) {
+        ExceptionHelper.responseLog(log,e);
+        return e.getResponseContext();
     }
 
     /**
@@ -149,12 +167,48 @@ public abstract class AbstractCollectionAdapter
         return UrlEncoding.decode(id);
     }
 
-    public <S extends ResponseContext>S extensionRequest(RequestContext request) {
-        return (S)ProviderHelper.notallowed(request, getMethods(request));
-    }
-
-    private String[] getMethods(RequestContext request) {
+    protected String[] getMethods(RequestContext request) {
         return ProviderHelper.getDefaultMethods(request);
     }
 
+    private static final Predicate<HandlerKey> COLLECTION_POST_CHECK = 
+      new Predicate<HandlerKey>() {
+        public boolean apply(HandlerKey input) {
+          return input.method.equalsIgnoreCase("POST") && 
+                 input.type == TargetType.TYPE_COLLECTION;
+        }
+    };
+    
+    public Function<RequestContext,ResponseContext> handlerFor(
+      Target target, 
+      String method) {
+        HandlerKey key = new HandlerKey(target.getType(),method);
+        Function<RequestContext,ResponseContext> handler = handlers.get(key);
+        return handler != null ?
+          handler :
+          COLLECTION_POST_CHECK.apply(key) ? // if this is a post to a collection, and the handler is null
+            UNSUPPORTED_TYPE :               // return an unsupported_type reponse since POST is always 
+            NOT_ALLOWED;                     // allowed on the collection
+    }
+    
+    protected final Function<RequestContext,ResponseContext> UNSUPPORTED_TYPE = 
+      new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return ProviderHelper.notsupported(input);
+        }
+    };
+    
+    protected final Function<RequestContext,ResponseContext> NOT_ALLOWED =
+      new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return ProviderHelper.notallowed(input,getMethods(input));
+        }
+    };
+    
+    protected final Function<RequestContext,ResponseContext> NOT_FOUND = 
+      new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return ProviderHelper.notfound(input);
+        }
+    };
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.protocol.CollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
@@ -28,6 +29,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.junit.Test;
 
+import com.google.common.base.Function;
+
 @SuppressWarnings("serial")
 public class MultipartRelatedTest {
 
@@ -37,20 +40,24 @@ public class MultipartRelatedTest {
             @Override
             protected AtompubProvider createProvider() {
                 DefaultAtompubProvider provider = new DefaultAtompubProvider("/");
-                Map<TargetType,RequestProcessor> map = 
-                  new HashMap<TargetType,RequestProcessor>();
+
+                Map<TargetType,Function<CollectionAdapter,? extends RequestProcessor>> map = 
+                  new HashMap<TargetType,Function<CollectionAdapter,? extends RequestProcessor>>();
                 map.put(TargetType.TYPE_SERVICE, 
-                    new MultipartRelatedServiceRequestProcessor());
+                  RequestProcessor.forClass(
+                    MultipartRelatedServiceRequestProcessor.class, 
+                    provider.getWorkspaceManager()));
                 provider.addRequestProcessors(map);
-
-                MultipartRelatedAdapter ca = new MultipartRelatedAdapter();
-                ca.setHref("media");
-
-                SimpleWorkspaceInfo wi = new SimpleWorkspaceInfo();
-                wi.setTitle("multimedia/related Workspace");
-                wi.addCollection(ca);
-
-                provider.addWorkspace(wi);
+                
+                MultipartRelatedAdapter ca = new MultipartRelatedAdapter("media");
+                
+                provider
+                  .addWorkspace(
+                    SimpleWorkspaceInfo
+                      .make()
+                      .title("multipart/related Workspace")
+                      .collection(ca)
+                      .get());
 
                 provider.init(Abdera.getInstance(), null);
                 return provider;

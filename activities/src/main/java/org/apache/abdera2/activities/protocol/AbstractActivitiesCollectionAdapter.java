@@ -18,6 +18,7 @@
 package org.apache.abdera2.activities.protocol;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
@@ -32,18 +33,21 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.joda.time.DateTime;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractActivitiesCollectionAdapter
   extends AbstractCollectionAdapter
   implements CollectionAdapter, 
              CollectionInfo {
 
-  public String[] getAccepts(RequestContext request) {
-    return new String[] {"application/json"};
+  public AbstractActivitiesCollectionAdapter(String href) {
+    super(href);
+  }
+
+  public Iterable<String> getAccepts(RequestContext request) {
+    return Arrays.asList("application/json");
   }
   
-  protected <S extends ResponseContext>S buildCreateEntryResponse(String link, ASBase base) {
-    return (S)
+  protected ResponseContext buildCreateEntryResponse(String link, ASBase base) {
+    return
       new ActivitiesResponseContext<ASBase>(base)
         .setLocation(link)
         .setContentLocation(link)
@@ -51,16 +55,16 @@ public abstract class AbstractActivitiesCollectionAdapter
         .setStatus(201);
   }
 
-  protected <S extends ResponseContext>S buildGetEntryResponse(RequestContext request, ASObject base)
+  protected ResponseContext buildGetEntryResponse(RequestContext request, ASObject base)
       throws ResponseContextException {
       base.setSource(createSourceObject(request));
-      return (S)
+      return 
         new ActivitiesResponseContext<ASObject>(base)
          .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base));
   }
 
-  protected <S extends ResponseContext>S buildGetFeedResponse(Collection<ASObject> collection) {
-      return (S) 
+  protected ResponseContext buildGetFeedResponse(Collection<ASObject> collection) {
+      return 
         new ActivitiesResponseContext<Collection<ASObject>>(collection)
           .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(collection));
   }

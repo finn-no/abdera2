@@ -35,7 +35,6 @@ import org.apache.abdera2.common.protocol.WorkspaceManager;
 public class DefaultActivitiesProvider
   extends AbstractActivitiesProvider {
 
-  protected WorkspaceManager workspaceManager;
   protected Resolver<Target,RequestContext> targetResolver;
   protected Resolver<Subject,Request> subjectResolver;
   protected TargetBuilder<?> targetBuilder;
@@ -47,8 +46,8 @@ public class DefaultActivitiesProvider
   
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public DefaultActivitiesProvider(String base) {
+    super(new DefaultWorkspaceManager());
     if (base == null) base = "/";
-    workspaceManager = new DefaultWorkspaceManager();
     routeManager =
         new RouteManager()
           .addRoute("stream", base + ":stream", TargetType.TYPE_COLLECTION)
@@ -93,10 +92,6 @@ public class DefaultActivitiesProvider
 
   public WorkspaceManager getWorkspaceManager() {
       return workspaceManager;
-  }
-
-  public void setWorkspaceManager(WorkspaceManager workspaceManager) {
-      this.workspaceManager = workspaceManager;
   }
 
   @SuppressWarnings("rawtypes")

@@ -43,9 +43,12 @@ import org.apache.abdera2.common.protocol.EmptyResponseContext;
 import org.apache.abdera2.common.protocol.MediaResponseContext;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.ResponseContextException;
+import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Function;
 
 /**
  * By extending this class it becomes easy to build Collections which are backed by a set of entities - such as a
@@ -53,12 +56,26 @@ import org.joda.time.DateTime;
  * 
  * @param <T> The entity that this is backed by.
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractEntityCollectionAdapter<T> 
   extends AbstractAtompubCollectionAdapter {
 
   private final static Log log = LogFactory.getLog(AbstractEntityCollectionAdapter.class);
 
+  public AbstractEntityCollectionAdapter(String href) {
+    super(href);
+    putHandler(TargetType.TYPE_COLLECTION,"POST",handlePost());
+    putHandler(TargetType.TYPE_COLLECTION,"GET",getItemList());
+    putHandler(TargetType.TYPE_COLLECTION,"HEAD",getItemList());
+    putHandler(TargetType.TYPE_MEDIA,"PUT",putMedia());
+    putHandler(TargetType.TYPE_MEDIA,"DELETE",deleteMedia());
+    putHandler(TargetType.TYPE_MEDIA, "HEAD", headMedia());
+    putHandler(TargetType.TYPE_MEDIA, "GET", getMedia());
+    putHandler(TargetType.TYPE_ENTRY,"DELETE",deleteItem());
+    putHandler(TargetType.TYPE_ENTRY,"GET",getItem());
+    putHandler(TargetType.TYPE_ENTRY,"HEAD",headItem());
+    putHandler(TargetType.TYPE_ENTRY,"PUT",putItem());
+  }
+  
     /**
      * Create a new entry
      * 
@@ -78,25 +95,29 @@ public abstract class AbstractEntityCollectionAdapter<T>
                                 Content content,
                                 RequestContext request) throws ResponseContextException;
 
-    @Override
-    public <S extends ResponseContext>S postMedia(RequestContext request) {
-        return (S)createMediaEntry(request);
-    }
-
-    @Override
-    public <S extends ResponseContext>S putMedia(RequestContext request) {
-        try {
-            String id = getResourceName(request);
-            T entryObj = getEntry(id, request);
-
-            putMedia(entryObj, request.getContentType(), request.getSlug(), request.getInputStream(), request);
-
-            return (S)new EmptyResponseContext(200);
-        } catch (IOException e) {
-            return (S)new EmptyResponseContext(500);
-        } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+    private Function<RequestContext,ResponseContext> postMedia() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createMediaEntry(input);
         }
+      };
+    }
+    
+    private Function<RequestContext,ResponseContext> putMedia() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            String id = getResourceName(input);
+            T entryObj = getEntry(id, input);
+            putMedia(entryObj, input.getContentType(), input.getSlug(), input.getInputStream(), input);
+            return new EmptyResponseContext(200);
+          } catch (IOException e) {
+              return new EmptyResponseContext(500);
+          } catch (ResponseContextException e) {
+              return createErrorResponse(e);
+          }
+        }
+      };
     }
 
     /**
@@ -114,10 +135,24 @@ public abstract class AbstractEntityCollectionAdapter<T>
         throw new ResponseContextException(ProviderHelper.notallowed(request));
     }
 
-    public <S extends ResponseContext>S postItem(RequestContext request) {
-        return (S)createNonMediaEntry(request);
+    private Function<RequestContext,ResponseContext> postItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return createNonMediaEntry(input);
+        }
+      };
     }
-
+    
+    private Function<RequestContext,ResponseContext> handlePost() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          return AbstractAtompubProvider.IS_ATOM.apply(input) ?
+            postItem().apply(input) :
+            postMedia().apply(input);
+        }
+      };
+    }
+    
     protected String getLink(T entryObj, IRI feedIri, RequestContext request) throws ResponseContextException {
         return getLink(entryObj, feedIri, request, false);
     }
@@ -168,21 +203,23 @@ public abstract class AbstractEntityCollectionAdapter<T>
         throws ResponseContextException {
         throw new UnsupportedOperationException();
     }
-
-    public <S extends ResponseContext>S deleteItem(RequestContext request) {
-        String id = getResourceName(request);
-        if (id != null) {
-
-            try {
-                deleteEntry(id, request);
-            } catch (ResponseContextException e) {
-                return (S)createErrorResponse(e);
-            }
-
-            return (S)new EmptyResponseContext(204);
-        } else {
-            return (S)new EmptyResponseContext(404);
+    
+    private Function<RequestContext,ResponseContext> deleteItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          String id = getResourceName(input);
+          if (id != null) {
+              try {
+                  deleteEntry(id, input);
+              } catch (ResponseContextException e) {
+                  return createErrorResponse(e);
+              }
+              return new EmptyResponseContext(204);
+          } else {
+            return new EmptyResponseContext(404);
+          }
         }
+      };
     }
 
     /**
@@ -193,20 +230,22 @@ public abstract class AbstractEntityCollectionAdapter<T>
      */
     public abstract void deleteEntry(String resourceName, RequestContext request) throws ResponseContextException;
 
-    public <S extends ResponseContext>S deleteMedia(RequestContext request) {
-        String resourceName = getResourceName(request);
-        if (resourceName != null) {
-
-            try {
-                deleteMedia(resourceName, request);
-            } catch (ResponseContextException e) {
-                return (S)createErrorResponse(e);
-            }
-
-            return (S)new EmptyResponseContext(204);
-        } else {
-            return (S)new EmptyResponseContext(404);
+    private Function<RequestContext,ResponseContext> deleteMedia() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          String resourceName = getResourceName(input);
+          if (resourceName != null) {
+              try {
+                  deleteMedia(resourceName, input);
+              } catch (ResponseContextException e) {
+                  return createErrorResponse(e);
+              }
+              return new EmptyResponseContext(204);
+          } else {
+              return new EmptyResponseContext(404);
+          }
         }
+      };
     }
 
     /**
@@ -244,19 +283,23 @@ public abstract class AbstractEntityCollectionAdapter<T>
      */
     public abstract Iterable<T> getEntries(RequestContext request) throws ResponseContextException;
 
-    public <S extends ResponseContext>S getItem(RequestContext request) {
-        try {
-            Entry entry = getEntryFromCollectionProvider(request);
+    private Function<RequestContext,ResponseContext> getItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            Entry entry = getEntryFromCollectionProvider(input);
             if (entry != null) {
-                return (S)buildGetEntryResponse(request, entry);
+                return buildGetEntryResponse(input, entry);
             } else {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
+        }
+      };
     }
-
+   
     /**
      * Get a specific entry
      * 
@@ -265,47 +308,57 @@ public abstract class AbstractEntityCollectionAdapter<T>
      */
     public abstract T getEntry(String resourceName, RequestContext request) throws ResponseContextException;
 
-    public <S extends ResponseContext>S headItem(RequestContext request) {
-        try {
-            String resourceName = getResourceName(request);
-            T entryObj = getEntry(resourceName, request);
-
+    private Function<RequestContext,ResponseContext> headItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            String resourceName = getResourceName(input);
+            T entryObj = getEntry(resourceName, input);
             if (entryObj != null) {
-                return (S)buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
+                return buildHeadEntryResponse(input, resourceName, getUpdated(entryObj));
             } else {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
+        }
+      };
     }
-
-    public <S extends ResponseContext>S headMedia(RequestContext request) {
-        try {
-            String resourceName = getResourceName(request);
-            T entryObj = getEntry(resourceName, request);
+    
+    private Function<RequestContext,ResponseContext> headMedia() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            String resourceName = getResourceName(input);
+            T entryObj = getEntry(resourceName, input);
 
             if (entryObj != null) {
-                return (S)buildHeadEntryResponse(request, resourceName, getUpdated(entryObj));
+                return buildHeadEntryResponse(input, resourceName, getUpdated(entryObj));
             } else {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
+        }
+      };
     }
 
-    public <S extends ResponseContext>S getItemList(RequestContext request) {
-        try {
-            Feed feed = createFeedBase(request);
-
-            addFeedDetails(feed, request);
-
-            return (S)buildGetFeedResponse(feed);
+    public Function<RequestContext,ResponseContext> getItemList() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            Feed feed = createFeedBase(input);
+            addFeedDetails(feed, input);
+            return buildGetFeedResponse(feed);
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
+        }
+      };
     }
+
 
     /**
      * Adds the selected entries to the Feed document. By default, this will set the feed's atom:updated element to the
@@ -344,38 +397,39 @@ public abstract class AbstractEntityCollectionAdapter<T>
      */
     public abstract String getId(T entry) throws ResponseContextException;
 
-    public <S extends ResponseContext>S getMedia(RequestContext request) {
-        try {
-            String resource = getResourceName(request);
-            T entryObj = getEntry(resource, request);
-
+    private Function<RequestContext,ResponseContext> getMedia() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            String resource = getResourceName(input);
+            T entryObj = getEntry(resource, input);
             if (entryObj == null) {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
-
-            return (S)buildGetMediaResponse(resource, entryObj);
+            return buildGetMediaResponse(resource, entryObj);
         } catch (ParseException pe) {
-            return (S)new EmptyResponseContext(415);
+            return new EmptyResponseContext(415);
         } catch (ClassCastException cce) {
-            return (S)new EmptyResponseContext(415);
+            return new EmptyResponseContext(415);
         } catch (ResponseContextException e) {
-            return (S)e.getResponseContext();
+            return e.getResponseContext();
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
-            return (S)new EmptyResponseContext(400);
+            return new EmptyResponseContext(400);
         }
+        }
+      };
     }
-
+    
     /**
      * Creates a ResponseContext for a GET media request. By default, this returns a MediaResponseContext containing the
      * media resource. The last-modified header will be set.
      */
-    protected <S extends ResponseContext>S buildGetMediaResponse(String id, T entryObj) throws ResponseContextException {
+    protected ResponseContext buildGetMediaResponse(String id, T entryObj) throws ResponseContextException {
         DateTime updated = getUpdated(entryObj);
-        MediaResponseContext ctx = new MediaResponseContext(getMediaStream(entryObj), updated.toDate(), 200);
-        ctx.setContentType(getContentType(entryObj));
-        ctx.setEntityTag(EntityTag.generate(id, DateTimes.format(updated)));
-        return (S)ctx;
+        return new MediaResponseContext(getMediaStream(entryObj), updated, 200)
+          .setContentType(getContentType(entryObj))
+          .setEntityTag(EntityTag.generate(id, DateTimes.format(updated)));
     }
 
     /**
@@ -415,53 +469,56 @@ public abstract class AbstractEntityCollectionAdapter<T>
         return false;
     }
 
-    public <S extends ResponseContext>S putItem(RequestContext request) {
-        try {
-            String id = getResourceName(request);
-            T entryObj = getEntry(id, request);
+    private Function<RequestContext,ResponseContext> putItem() {
+      return new Function<RequestContext,ResponseContext>() {
+        public ResponseContext apply(RequestContext input) {
+          try {
+            String id = getResourceName(input);
+            T entryObj = getEntry(id, input);
 
             if (entryObj == null) {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
 
             Entry orig_entry =
-                getEntryFromCollectionProvider(entryObj, new IRI(getFeedIriForEntry(entryObj, request)), request);
+                getEntryFromCollectionProvider(entryObj, new IRI(getFeedIriForEntry(entryObj, input)), input);
             if (orig_entry != null) {
 
-                MimeType contentType = request.getContentType();
+                MimeType contentType = input.getContentType();
                 if (contentType != null && !MimeTypeHelper.isAtom(contentType.toString()))
-                    return (S)new EmptyResponseContext(415);
+                    return new EmptyResponseContext(415);
 
-                Entry entry = getEntryFromRequest(request);
+                Entry entry = getEntryFromRequest(input);
                 if (entry != null) {
                     if (!entry.getId().equals(orig_entry.getId()))
-                        return (S)new EmptyResponseContext(409);
+                        return new EmptyResponseContext(409);
 
                     if (!AbstractAtompubProvider.isValidEntry(entry))
-                        return (S)new EmptyResponseContext(400);
+                        return new EmptyResponseContext(400);
 
                     putEntry(entryObj, entry.getTitle(), DateTime.now(), entry.getAuthors(), entry.getSummary(), entry
-                        .getContentElement(), request);
-                    return (S)new EmptyResponseContext(204);
+                        .getContentElement(), input);
+                    return new EmptyResponseContext(204);
                 } else {
-                    return (S)new EmptyResponseContext(400);
+                    return new EmptyResponseContext(400);
                 }
             } else {
-                return (S)new EmptyResponseContext(404);
+                return new EmptyResponseContext(404);
             }
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         } catch (ParseException pe) {
-            return (S)new EmptyResponseContext(415);
+            return new EmptyResponseContext(415);
         } catch (ClassCastException cce) {
-            return (S)new EmptyResponseContext(415);
+            return new EmptyResponseContext(415);
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
-            return (S)new EmptyResponseContext(400);
+            return new EmptyResponseContext(400);
         }
-
+        }
+      };
     }
-
+    
     /**
      * Get the Feed IRI
      */
@@ -564,7 +621,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
      * 
      * @param request The request context
      */
-    protected <S extends ResponseContext>S createMediaEntry(RequestContext request) {
+    protected ResponseContext createMediaEntry(RequestContext request) {
         try {
             T entryObj = postMedia(request.getContentType(), request.getSlug(), request.getInputStream(), request);
 
@@ -575,11 +632,13 @@ public abstract class AbstractEntityCollectionAdapter<T>
             addMediaContent(feedUri, entry, entryObj, request);
 
             String location = getLink(entryObj, feedUri, request, true);
-            return (S)buildPostMediaEntryResponse(location, entry);
+            return buildPostMediaEntryResponse(location, entry);
+        } catch (UnsupportedOperationException e) {
+          return UNSUPPORTED_TYPE.apply(request);
         } catch (IOException e) {
-            return (S)new EmptyResponseContext(500);
+            return new EmptyResponseContext(500);
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
     }
 
@@ -588,12 +647,12 @@ public abstract class AbstractEntityCollectionAdapter<T>
      * 
      * @param request The request context
      */
-    protected <S extends ResponseContext>S createNonMediaEntry(RequestContext request) {
+    protected ResponseContext createNonMediaEntry(RequestContext request) {
         try {
             Entry entry = getEntryFromRequest(request);
             if (entry != null) {
                 if (!AbstractAtompubProvider.isValidEntry(entry))
-                    return (S)new EmptyResponseContext(400);
+                    return new EmptyResponseContext(400);
 
                 entry.setUpdated(DateTime.now());
 
@@ -609,12 +668,12 @@ public abstract class AbstractEntityCollectionAdapter<T>
                 entry.addLink(link, "edit");
 
                 String location = getLink(entryObj, feedUri, request, true);
-                return (S)buildCreateEntryResponse(location, entry);
+                return buildCreateEntryResponse(location, entry);
             } else {
-                return (S)new EmptyResponseContext(400);
+                return new EmptyResponseContext(400);
             }
         } catch (ResponseContextException e) {
-            return (S)createErrorResponse(e);
+            return createErrorResponse(e);
         }
     }
 

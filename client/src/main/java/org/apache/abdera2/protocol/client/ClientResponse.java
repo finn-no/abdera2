@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.util.Date;
 
 import org.apache.abdera2.common.http.Method;
 import org.apache.abdera2.common.protocol.Response;
+import org.joda.time.DateTime;
 
 public interface ClientResponse extends Response {
 
@@ -64,7 +64,7 @@ public interface ClientResponse extends Response {
     /**
      * Return the server-specified date returned in the response
      */
-    Date getServerDate();
+    DateTime getServerDate();
 
     /**
      * Return the character set encoding specified in the ContentType header, if any

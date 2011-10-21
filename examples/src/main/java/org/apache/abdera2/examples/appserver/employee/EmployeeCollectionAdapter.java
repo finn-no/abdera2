@@ -34,6 +34,10 @@ import org.apache.abdera2.protocol.server.impl.AbstractEntityCollectionAdapter;
 import org.joda.time.DateTime;
 
 public class EmployeeCollectionAdapter extends AbstractEntityCollectionAdapter<Employee> {
+    public EmployeeCollectionAdapter(String href) {
+    super(href);
+  }
+
     private static final String ID_PREFIX = "tag:acme.com,2007:employee:entry:";
 
     private AtomicInteger nextId = new AtomicInteger(1000);

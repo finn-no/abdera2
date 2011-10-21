@@ -18,11 +18,13 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.misc.Resolver;
+import org.joda.time.DateTime;
 
 /**
  * An abstract base Provider implementation that implements the WorkspaceManager interface. This is intended to be used
@@ -34,9 +36,10 @@ public abstract class AbstractWorkspaceProvider
 
     protected Resolver<Target,RequestContext> targetResolver;
     protected TargetBuilder<?> targetBuilder;
-    protected Collection<WorkspaceInfo> workspaces;
+    protected final Set<WorkspaceInfo> workspaces = 
+      new LinkedHashSet<WorkspaceInfo>();
 
-    protected WorkspaceManager getWorkspaceManager(RequestContext request) {
+    protected WorkspaceManager getWorkspaceManager() {
       return this;
     }
 
@@ -61,10 +64,12 @@ public abstract class AbstractWorkspaceProvider
         return workspaces;
     }
 
-    public void addWorkspace(WorkspaceInfo workspace) {
-        if (workspaces == null) {
-            workspaces = new HashSet<WorkspaceInfo>();
-        }
+    public synchronized void setWorkspaces(Collection<WorkspaceInfo> workspaces) {
+      workspaces.clear();
+      workspaces.addAll(workspaces);
+    }
+    
+    public synchronized void addWorkspace(WorkspaceInfo workspace) {
         workspaces.add(workspace);
     }
 
@@ -74,7 +79,7 @@ public abstract class AbstractWorkspaceProvider
     }
     
     // JIRA: https://issues.apache.org/jira/browse/ABDERA-255
-    public Date getLastModified() {
-      return new Date();
+    public DateTime getLastModified() {
+      return DateTimes.utcNow();
     }
 }

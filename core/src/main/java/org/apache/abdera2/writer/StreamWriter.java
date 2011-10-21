@@ -1079,6 +1079,8 @@ public interface StreamWriter extends Appendable, Closeable {
      * @param accepts accept element values
      */
     StreamWriter writeAccepts(String... accepts);
+    
+    StreamWriter writeAccepts(Iterable<String> accepts);
 
     /**
      * Writes an app:accept element indicating that entries are accepted

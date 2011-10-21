@@ -44,9 +44,16 @@ import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.common.collect.Iterables;
+
 @SuppressWarnings("unchecked")
-public abstract class AbstractMultipartCollectionAdapter extends AbstractAtompubCollectionAdapter implements
-    MultipartRelatedCollectionInfo {
+public abstract class AbstractMultipartCollectionAdapter 
+  extends AbstractAtompubCollectionAdapter 
+  implements MultipartRelatedCollectionInfo {
+
+    public AbstractMultipartCollectionAdapter(String href) {
+    super(href);
+  }
 
     private static final String CONTENT_TYPE_HEADER = "content-type";
     private static final String CONTENT_ID_HEADER = "content-id";
@@ -56,9 +63,9 @@ public abstract class AbstractMultipartCollectionAdapter extends AbstractAtompub
 
     protected Map<String, String> accepts;
 
-    public String[] getAccepts(RequestContext request) {
+    public Iterable<String> getAccepts(RequestContext request) {
         Collection<String> acceptKeys = getAlternateAccepts(request).keySet();
-        return acceptKeys.toArray(new String[acceptKeys.size()]);
+        return Iterables.unmodifiableIterable(acceptKeys);
     }
 
     protected MultipartRelatedPost getMultipartRelatedData(RequestContext request) throws IOException, ParseException,

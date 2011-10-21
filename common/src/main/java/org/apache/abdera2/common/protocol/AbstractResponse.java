@@ -17,12 +17,11 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.http.Authentication;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.ResponseType;
+import org.joda.time.DateTime;
 
 public abstract class AbstractResponse extends AbstractMessage implements Response {
 
@@ -53,11 +52,11 @@ public abstract class AbstractResponse extends AbstractMessage implements Respon
         return (etag != null) ? EntityTag.parse(getHeader("ETag")) : null;
     }
 
-    public Date getExpires() {
+    public DateTime getExpires() {
         return getDateHeader("Expires");
     }
 
-    public Date getLastModified() {
+    public DateTime getLastModified() {
         return getDateHeader("Last-Modified");
     }
 

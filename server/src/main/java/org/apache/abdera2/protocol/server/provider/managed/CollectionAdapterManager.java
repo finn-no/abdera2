@@ -27,14 +27,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
+import org.apache.abdera2.common.protocol.CollectionAdapter;
 
 public class CollectionAdapterManager {
 
     public static Logger logger = Logger.getLogger(CollectionAdapterManager.class.getName());
 
     // maps a feed id to an adapter instance
-    protected static Map<String, AtompubCollectionAdapter> adapterInstanceMap = new HashMap<String, AtompubCollectionAdapter>();
+    protected static Map<String, CollectionAdapter> adapterInstanceMap = 
+      new HashMap<String, CollectionAdapter>();
 
     protected final Abdera abdera;
     protected final ServerConfiguration config;
@@ -44,7 +45,7 @@ public class CollectionAdapterManager {
         this.config = config;
     }
 
-    public AtompubCollectionAdapter getAdapter(String feedId) throws Exception {
+    public CollectionAdapter getAdapter(String feedId) throws Exception {
         FeedConfiguration feedConfiguration = config.loadFeedConfiguration(feedId);
         return createAdapterInstance(feedConfiguration, abdera);
     }
@@ -85,9 +86,9 @@ public class CollectionAdapterManager {
         return config.loadFeedConfiguration(feedId);
     }
 
-    protected static synchronized AtompubCollectionAdapter createAdapterInstance(FeedConfiguration config, Abdera abdera)
+    protected static synchronized CollectionAdapter createAdapterInstance(FeedConfiguration config, Abdera abdera)
         throws Exception {
-        AtompubCollectionAdapter basicAdapter = adapterInstanceMap.get(config.getFeedId());
+        CollectionAdapter basicAdapter = adapterInstanceMap.get(config.getFeedId());
         if (basicAdapter != null) {
             return basicAdapter;
         }
@@ -99,7 +100,7 @@ public class CollectionAdapterManager {
         }
         Constructor<?> c = adapterClass.getConstructor(new Class[] {Abdera.class, FeedConfiguration.class});
         c.setAccessible(true);
-        AtompubCollectionAdapter adapterInstance = (AtompubCollectionAdapter)c.newInstance(abdera, config);
+        CollectionAdapter adapterInstance = (CollectionAdapter)c.newInstance(abdera, config);
 
         // put this adapter instance in adapterInstanceMap
         adapterInstanceMap.put(config.getFeedId(), adapterInstance);

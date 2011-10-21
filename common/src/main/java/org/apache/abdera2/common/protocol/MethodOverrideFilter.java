@@ -21,11 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 
 /**
  * Abdera Filter implementation that supports the use of the X-HTTP-Method-Override header used by GData.
  */
-public class MethodOverrideFilter implements Filter {
+public class MethodOverrideFilter implements Task<RequestContext,ResponseContext> {
 
     private Set<String> methods = new HashSet<String>();
 

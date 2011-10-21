@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
+import org.apache.abdera2.common.misc.Task;
+
 import com.google.common.base.Function;
 
 /**
@@ -58,29 +60,24 @@ public interface Provider
     Target resolveTarget(RequestContext request);
 
     /**
-     * Process the request
-     */
-    <S extends ResponseContext>S process(RequestContext request);
-
-    /**
      * Return the listing of filters for this request
      */
-    Iterable<Filter> getFilters(RequestContext request);
+    Iterable<Task<RequestContext,ResponseContext>> getFilters(RequestContext request);
 
-    <S extends ResponseContext>S createErrorResponse(int code, String message, Throwable t);
+    ResponseContext createErrorResponse(int code, String message, Throwable t);
     
     /**
      * Set a map of {@link AtompubRequestProcessor}s to register on this provider, overriding already registered ones.
      */
-    void setRequestProcessors(Map<TargetType, RequestProcessor> requestProcessors);
+    void setRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors);
 
     /**
      * Add a map of {@link AtompubRequestProcessor}s to register on this provider, without overriding already registered ones.
      */
-    void addRequestProcessors(Map<TargetType, RequestProcessor> requestProcessors);
+    void addRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors);
 
     /**
      * Return a map of registered {@link AtompubRequestProcessor}s with related {@link TargetType}.
      */
-    Map<TargetType, RequestProcessor> getRequestProcessors();
+    Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> getRequestProcessors();
 }

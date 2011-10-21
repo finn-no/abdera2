@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.util.Date;
 
 import javax.activation.MimeType;
 
@@ -16,6 +15,7 @@ import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.http.WebLink;
 import org.apache.abdera2.common.iri.IRI;
+import org.joda.time.DateTime;
 
 public class ClientResponseWrapper 
   implements ClientResponse {
@@ -42,7 +42,7 @@ public class ClientResponseWrapper
     return internal.getStatusText();
   }
 
-  public Date getLastModified() {
+  public DateTime getLastModified() {
     return internal.getLastModified();
   }
 
@@ -62,7 +62,7 @@ public class ClientResponseWrapper
     return internal.getAge();
   }
 
-  public Date getExpires() {
+  public DateTime getExpires() {
     return internal.getExpires();
   }
 
@@ -102,7 +102,7 @@ public class ClientResponseWrapper
     return internal.getContentLanguage();
   }
 
-  public Date getDateHeader(String name) {
+  public DateTime getDateHeader(String name) {
     return internal.getDateHeader(name);
   }
 
@@ -150,7 +150,7 @@ public class ClientResponseWrapper
     return internal.getReader(charset);
   }
 
-  public Date getServerDate() {
+  public DateTime getServerDate() {
     return internal.getServerDate();
   }
 

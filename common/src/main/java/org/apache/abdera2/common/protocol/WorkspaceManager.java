@@ -18,9 +18,9 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.Collection;
-import java.util.Date;
 
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 /**
  * The Workspace Manager is used by a Provider to access metadata used to construct Atompub service documents and to
@@ -38,7 +38,7 @@ public interface WorkspaceManager {
      */
     Collection<WorkspaceInfo> getWorkspaces(RequestContext request);
 
-    Date getLastModified();
+    DateTime getLastModified();
     
     EntityTag getEntityTag();
     

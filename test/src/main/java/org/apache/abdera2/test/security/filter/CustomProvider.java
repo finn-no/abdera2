@@ -17,10 +17,10 @@
  */
 package org.apache.abdera2.test.security.filter;
 
+import org.apache.abdera2.common.protocol.CollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.RouteManager;
 import org.apache.abdera2.common.protocol.TargetType;
-import org.apache.abdera2.protocol.server.AtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubWorkspaceProvider;
 import org.apache.abdera2.protocol.server.impl.SimpleWorkspaceInfo;
 import org.apache.abdera2.security.util.filters.SignedRequestFilter;
@@ -38,9 +38,9 @@ public class CustomProvider
     private static final String certificateAlias = "James";
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public CustomProvider() {
+    public CustomProvider(String href) {
 
-        this.adapter = new SimpleAdapter();
+        this.adapter = new SimpleAdapter(href);
 
         RouteManager rm =
             new RouteManager()
@@ -51,10 +51,12 @@ public class CustomProvider
         setTargetBuilder(rm);
         setTargetResolver(rm);
 
-        SimpleWorkspaceInfo workspace = new SimpleWorkspaceInfo();
-        workspace.setTitle("A Simple Workspace");
-        workspace.addCollection(adapter);
-        addWorkspace(workspace);
+        addWorkspace(
+          SimpleWorkspaceInfo
+            .make()
+            .title("A Simple Workspace")
+            .collection(adapter)
+            .get());
 
         addFilter(
           new SignedRequestFilter());
@@ -67,7 +69,7 @@ public class CustomProvider
               null));
     }
 
-    public AtompubCollectionAdapter getCollectionAdapter(RequestContext request) {
+    public CollectionAdapter getCollectionAdapter(RequestContext request) {
         return adapter;
     }
 

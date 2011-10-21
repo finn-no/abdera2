@@ -30,7 +30,6 @@ import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.protocol.RequestContext;
-import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Element;
@@ -46,15 +45,12 @@ public class CustomerAdapter extends AbstractEntityCollectionAdapter<Customer> {
     private Map<Integer, Customer> customers = new HashMap<Integer, Customer>();
     private Factory factory = Abdera.getInstance().getFactory();
 
-    public CustomerAdapter() {
+    public CustomerAdapter(String href) {
+      super(href);
     }
     
     public String getId(RequestContext request) {
         return "tag:example.org,2007:feed";
-    }
-
-    public <S extends ResponseContext>S getCategories(RequestContext request) {
-        return null;
     }
 
     @Override

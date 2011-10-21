@@ -27,9 +27,12 @@ import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.RequestContext;
+import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
+
+import com.google.common.base.Predicate;
 
 public abstract class AbstractActivitiesWorkspaceProvider 
   extends AbstractWorkspaceProvider
@@ -39,16 +42,25 @@ public abstract class AbstractActivitiesWorkspaceProvider
   
   protected Set<TypeAdapter<?>> typeAdapters = new HashSet<TypeAdapter<?>>();
   
+  public static Predicate<RequestContext> isJson() {
+    return new Predicate<RequestContext>() {
+      public boolean apply(RequestContext input) {
+        return MimeTypeHelper.isJson(input.getContentType().toString());
+      }
+    };
+  }
+  
   protected AbstractActivitiesWorkspaceProvider() {
-    this.requestProcessors.put(TargetType.TYPE_COLLECTION, 
-        new CollectionRequestProcessor() {
-          protected boolean isAcceptableItemType(RequestContext context) {
-            return MimeTypeHelper.isMatch(
-                context.getContentType().toString(), 
-                "application/json");
-          }
-    });
-    this.requestProcessors.put(TargetType.TYPE_ENTRY, new EntryRequestProcessor());
+    this.requestProcessors.put(
+      TargetType.TYPE_COLLECTION, 
+      RequestProcessor.forClass(
+        CollectionRequestProcessor.class, 
+        this,isJson()));
+    this.requestProcessors.put(
+      TargetType.TYPE_ENTRY, 
+      RequestProcessor.forClass(
+        EntryRequestProcessor.class,
+        this));
   }
   
   public void addTypeAdapter(TypeAdapter<?> typeAdapter) {
@@ -63,7 +75,7 @@ public abstract class AbstractActivitiesWorkspaceProvider
     return typeAdapters;
   }
   
-  public <S extends ResponseContext> S createErrorResponse(
+  public ResponseContext createErrorResponse(
     int code,
     String message, 
     Throwable t) {
@@ -77,11 +89,10 @@ public abstract class AbstractActivitiesWorkspaceProvider
         .setStatus(code)
         .setStatusText(message);
   }
-  
-  @SuppressWarnings("unchecked")
+
   @Override
-  public <S extends ResponseContext> S process(RequestContext request) {
-    return (S)super.process(
+  public ResponseContext apply(RequestContext request) {
+    return super.apply(
       request instanceof ActivitiesRequestContext?
         request:
         new ActivitiesRequestContext(request));

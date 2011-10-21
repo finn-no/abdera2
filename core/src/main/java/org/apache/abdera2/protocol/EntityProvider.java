@@ -17,10 +17,9 @@
  */
 package org.apache.abdera2.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 /**
  * An EntityProvider is used to serialize entities using the StreamWriter interface. The EntityProvider interface can be
@@ -51,6 +50,6 @@ public interface EntityProvider {
     /**
      * Return the Last-Modified date of the entity
      */
-    Date getLastModified();
+    DateTime getLastModified();
 
 }

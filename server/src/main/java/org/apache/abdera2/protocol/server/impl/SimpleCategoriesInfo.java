@@ -27,8 +27,43 @@ import org.apache.abdera2.model.Categories;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCategoryInfo;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterators;
+
 public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable {
 
+    public static Generator make() {
+      return new Generator();
+    }
+  
+    public static class Generator implements Supplier<AtompubCategoriesInfo> {
+      private String href;
+      private String scheme;
+      private boolean fixed;
+      private final List<AtompubCategoryInfo> list = 
+        new ArrayList<AtompubCategoryInfo>();
+      public Generator href(String href) {
+        this.href = href;
+        return this;
+      }
+      public Generator scheme(String scheme) {
+        this.scheme = scheme;
+        return this;
+      }
+      public Generator fixed() {
+        this.fixed = true;
+        return this;
+      }
+      public Generator category(AtompubCategoryInfo info) {
+        this.list.add(info);
+        return this;
+      }
+      public AtompubCategoriesInfo get() {
+        return new SimpleCategoriesInfo(this);
+      }
+      
+    }
+  
     private static final long serialVersionUID = 8732335394387909260L;
 
     private final String href;
@@ -36,27 +71,13 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     private final boolean fixed;
     private final List<AtompubCategoryInfo> list = new ArrayList<AtompubCategoryInfo>();
 
-    public SimpleCategoriesInfo() {
-        this(null, false);
+    protected SimpleCategoriesInfo(Generator gen) {
+      this.href = gen.href;
+      this.scheme = gen.scheme;
+      this.fixed = gen.fixed;
+      this.list.addAll(gen.list);
     }
-
-    public SimpleCategoriesInfo(boolean fixed) {
-        this(null, fixed);
-    }
-
-    public SimpleCategoriesInfo(String href) {
-        this.href = href;
-        this.scheme = null;
-        this.fixed = false;
-    }
-
-    public SimpleCategoriesInfo(String scheme, boolean fixed, AtompubCategoryInfo... categories) {
-        this.href = null;
-        this.scheme = scheme;
-        this.fixed = fixed;
-        addCategoryInfo(categories);
-    }
-
+    
     public String getHref(RequestContext request) {
         return href;
     }
@@ -70,18 +91,7 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     }
 
     public Iterator<AtompubCategoryInfo> iterator() {
-        return list.iterator();
-    }
-
-    public SimpleCategoriesInfo addCategoryInfo(AtompubCategoryInfo... categories) {
-        for (AtompubCategoryInfo cat : categories)
-            list.add(cat);
-        return this;
-    }
-
-    public SimpleCategoriesInfo setCategoryInfo(AtompubCategoryInfo... categories) {
-        list.clear();
-        return addCategoryInfo(categories);
+        return Iterators.<AtompubCategoryInfo>unmodifiableIterator(list.iterator());
     }
 
     public int hashCode() {

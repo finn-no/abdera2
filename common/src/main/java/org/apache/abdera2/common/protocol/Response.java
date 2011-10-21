@@ -17,11 +17,10 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.ResponseType;
+import org.joda.time.DateTime;
 
 /**
  * Base interface for an Atompub protocol response message
@@ -51,7 +50,7 @@ public interface Response extends Message {
     /**
      * Get the value of the Last-Modified response header
      */
-    Date getLastModified();
+    DateTime getLastModified();
 
     /**
      * Get the value of the Content-Length response header
@@ -76,6 +75,6 @@ public interface Response extends Message {
     /**
      * Get the date/time this response expires
      */
-    Date getExpires();
+    DateTime getExpires();
 
 }

@@ -20,6 +20,8 @@ package org.apache.abdera2.protocol.server.impl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import javax.activation.MimeType;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.Abdera;
@@ -37,11 +39,13 @@ import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.MediaRequestProcessor;
 import org.apache.abdera2.common.protocol.RequestContext;
+import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceInfo;
+import org.apache.abdera2.common.protocol.WorkspaceManager;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Document;
@@ -67,6 +71,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Predicate;
+
 /**
  * Base Provider implementation that provides the core implementation details for all Providers. This class provides the
  * basic request routing logic.
@@ -77,17 +83,45 @@ public abstract class AbstractAtompubProvider
 
     private final static Log log = LogFactory.getLog(AbstractAtompubProvider.class);
     protected Abdera abdera;
+    protected WorkspaceManager workspaceManager;
+    public static final Predicate<RequestContext> IS_ATOM = 
+      new Predicate<RequestContext>() {
+        public boolean apply(RequestContext input) {
+          MimeType ct = input.getContentType();
+          if (ct == null) return false;
+          return MimeTypeHelper.isAtom(ct.toString());
+        }
+    };
 
-    protected AbstractAtompubProvider() {
-        this.requestProcessors.put(TargetType.TYPE_SERVICE, new ServiceRequestProcessor());
-        this.requestProcessors.put(TargetType.TYPE_CATEGORIES, new CategoriesRequestProcessor());
-        this.requestProcessors.put(TargetType.TYPE_COLLECTION, new CollectionRequestProcessor() {
-          protected boolean isAcceptableItemType(RequestContext context) {
-            return ProviderHelper.isAtom(context);
-          }
-        });
-        this.requestProcessors.put(TargetType.TYPE_ENTRY, new EntryRequestProcessor());
-        this.requestProcessors.put(TargetType.TYPE_MEDIA, new MediaRequestProcessor());
+    protected AbstractAtompubProvider(
+      WorkspaceManager workspaceManager) {
+      this.workspaceManager = workspaceManager;
+        this.requestProcessors.put(
+          TargetType.TYPE_SERVICE, 
+          RequestProcessor.forClass(
+            ServiceRequestProcessor.class, 
+            workspaceManager));
+        this.requestProcessors.put(
+          TargetType.TYPE_CATEGORIES, 
+          RequestProcessor.forClass(
+            CategoriesRequestProcessor.class,
+            workspaceManager));
+        this.requestProcessors.put(
+          TargetType.TYPE_COLLECTION, 
+          RequestProcessor.forClass(
+            CollectionRequestProcessor.class,
+            workspaceManager,
+            ProviderHelper.isAtom()));
+        this.requestProcessors.put(
+          TargetType.TYPE_ENTRY, 
+          RequestProcessor.forClass(
+            EntryRequestProcessor.class,
+            workspaceManager));
+        this.requestProcessors.put(
+          TargetType.TYPE_MEDIA, 
+          RequestProcessor.forClass(
+            MediaRequestProcessor.class, 
+            workspaceManager));
     }
 
     public void init(Abdera abdera, Map<String, String> properties) {
@@ -101,7 +135,7 @@ public abstract class AbstractAtompubProvider
 
     protected Service getServiceElement(RequestContext request) {
         Service service = abdera.newService();
-        for (WorkspaceInfo wi : getWorkspaceManager(request).getWorkspaces(request)) {
+        for (WorkspaceInfo wi : getWorkspaceManager().getWorkspaces(request)) {
             if (wi instanceof AtompubWorkspaceInfo) {
               AtompubWorkspaceInfo awi = (AtompubWorkspaceInfo) wi;
               service.addWorkspace(awi.asWorkspaceElement(request));
@@ -110,9 +144,12 @@ public abstract class AbstractAtompubProvider
         return service;
     }
     
-    @SuppressWarnings("unchecked")
-    public <S extends ResponseContext>S createErrorResponse(int code, String message, Throwable t) {
-      return (S)createErrorResponse(abdera,code,message,t);
+    public WorkspaceManager getWorkspaceManager() {
+      return workspaceManager;
+  }
+    
+    public ResponseContext createErrorResponse(int code, String message, Throwable t) {
+      return createErrorResponse(abdera,code,message,t);
     }
     
     public static Abdera getAbdera(RequestContext context) {
@@ -273,19 +310,22 @@ public abstract class AbstractAtompubProvider
         FOMResponseContext<Base> response = new FOMResponseContext<Base>(base);
         response.setStatus(status);
         if (lastModified != null)
-            response.setLastModified(lastModified.toDate());
+            response.setLastModified(lastModified);
         // response.setContentType(MimeTypeHelper.getMimeType(base));
         Document<?> doc = base instanceof Document ? (Document<?>)base : ((Element)base).getDocument();
         if (doc.getEntityTag() != null) {
             response.setEntityTag(doc.getEntityTag());
         } else if (doc.getLastModified() != null) {
-            response.setLastModified(doc.getLastModified().toDate());
+            response.setLastModified(doc.getLastModified());
         }
         return response;
     }
 
     @Override
-    public <S extends ResponseContext> S process(RequestContext request) {
-      return super.<S>process(request instanceof AtompubRequestContext?request:new AtompubRequestContext(request));
+    public ResponseContext apply(RequestContext request) {
+      return super.apply(
+        request instanceof AtompubRequestContext ? 
+          request : 
+          new AtompubRequestContext(request));
     }
 }

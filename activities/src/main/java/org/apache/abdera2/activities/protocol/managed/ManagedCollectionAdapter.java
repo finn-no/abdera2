@@ -29,6 +29,7 @@ public abstract class ManagedCollectionAdapter
     protected final FeedConfiguration config;
 
     protected ManagedCollectionAdapter(FeedConfiguration config) {
+      super(null);
         this.config = config;
     }
 

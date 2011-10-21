@@ -40,6 +40,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+import com.google.common.collect.Iterables;
+
 @SuppressWarnings({"deprecation","rawtypes"})
 public class FOMCollection extends FOMExtensibleElement implements Collection {
 
@@ -147,6 +149,10 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
         return setAccept(new String[] {mediaRange});
     }
 
+    public Collection setAccept(Iterable<String> mediaRanges) {
+      return setAccept(Iterables.toArray(mediaRanges, String.class));
+    }
+    
     public Collection setAccept(String... mediaRanges) {
         complete();
         if (mediaRanges != null && mediaRanges.length > 0) {

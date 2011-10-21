@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.BasicWorkspaceInfo;
 import org.apache.abdera2.common.protocol.CollectionInfo;
+import org.apache.abdera2.common.protocol.WorkspaceInfo;
 import org.apache.abdera2.model.Workspace;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.apache.abdera2.protocol.server.model.AtompubWorkspaceInfo;
@@ -32,7 +33,18 @@ public class SimpleWorkspaceInfo
 
     private static final long serialVersionUID = -8459688584319762878L;
 
-    public SimpleWorkspaceInfo() {
+    public static Generator make() {
+      return new Generator();
+    }
+    
+    public static class Generator extends BasicWorkspaceInfo.Generator {
+      public WorkspaceInfo get() {
+        return new SimpleWorkspaceInfo(this);
+      } 
+    }
+    
+    public SimpleWorkspaceInfo(Generator generator) {
+      super(generator);
     }
 
     public SimpleWorkspaceInfo(String title) {

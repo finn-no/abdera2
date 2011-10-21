@@ -23,26 +23,47 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.model.Category;
 import org.apache.abdera2.protocol.server.model.AtompubCategoryInfo;
 
+import com.google.common.base.Supplier;
+
 public class SimpleCategoryInfo implements AtompubCategoryInfo, Serializable {
 
+    public static Generator make() {
+      return new Generator();
+    }
+  
+    public static class Generator implements Supplier<AtompubCategoryInfo> {
+      private String label;
+      private String term;
+      private String scheme;
+      public Generator label(String label) {
+        this.label = label;
+        return this;
+      }
+      public Generator term(String term) {
+        this.term = term;
+        return this;
+      }
+      public Generator scheme(String scheme) {
+        this.scheme = scheme;
+        return this;
+      }
+      public AtompubCategoryInfo get() {
+        return new SimpleCategoryInfo(this);
+      }
+      
+    }
+  
     private static final long serialVersionUID = -4013333222147077975L;
     private final String label;
     private final String term;
     private final String scheme;
 
-    public SimpleCategoryInfo(String term) {
-        this(term, null, null);
+    protected SimpleCategoryInfo(Generator gen) {
+      this.label = gen.label;
+      this.term = gen.term;
+      this.scheme = gen.scheme;
     }
-
-    public SimpleCategoryInfo(String term, String scheme) {
-        this(term, scheme, null);
-    }
-
-    public SimpleCategoryInfo(String term, String scheme, String label) {
-        this.term = term;
-        this.scheme = scheme;
-        this.label = label;
-    }
+    
 
     public String getLabel(RequestContext request) {
         return label;

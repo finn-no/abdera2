@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import com.google.common.base.Predicate;
 
 /**
  * Identifies the target of the request.
@@ -50,4 +51,11 @@ public interface Target extends Iterable<String> {
      */
     public <T> T getMatcher();
 
+    public static final Predicate<Target> NOT_FOUND = 
+      new Predicate<Target>() {
+        public boolean apply(Target input) {
+          return input == null || 
+                 input.getType() == TargetType.TYPE_NOT_FOUND;
+        }
+    };
 }

@@ -17,22 +17,108 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import java.lang.reflect.Constructor;
+
+import org.apache.abdera2.common.misc.ExceptionHelper;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+
 /**
  * Request processors implement the actual business logic for handling requests to the Atompub server and producing the
  * related response.
  */
-public interface RequestProcessor {
+public abstract class RequestProcessor 
+  implements Function<RequestContext,ResponseContext> {
  
-    /**
-     * Provide the actual request processing logic.
-     * 
-     * @param requestContext The {@link AtompubRequestContext} object, holding information about the request to process.
-     * @param workspaceManager The {@link AtompubWorkspaceManager} object, holding information useful for request processing.
-     * @param collectionAdapter The {@link AtompubCollectionAdapter} object, holding information useful for request processing;
-     *            may be null if not needed.
-     * @return A {@link AtompubResponseContext} object, as resulted from the request processing.
-     */
-  <S extends ResponseContext>S process(RequestContext requestContext,
-            WorkspaceManager workspaceManager,
-            CollectionAdapter collectionAdapter);
+  protected final WorkspaceManager workspaceManager;
+  protected final CollectionAdapter adapter;
+  protected final Predicate<RequestContext> predicate;
+  
+  protected RequestProcessor(
+    WorkspaceManager workspaceManager, 
+    CollectionAdapter adapter) {
+    this.workspaceManager = workspaceManager;
+    this.adapter = adapter;
+    this.predicate = null;
+  }
+  
+  protected RequestProcessor(
+      WorkspaceManager workspaceManager, 
+      CollectionAdapter adapter,
+      Predicate<RequestContext> predicate) {
+      this.workspaceManager = workspaceManager;
+      this.adapter = adapter;
+      this.predicate = predicate;
+    }
+  
+  protected ResponseContext actuallyApply(RequestContext request) {
+    if (predicate != null && !predicate.apply(request))
+      return ProviderHelper.notallowed(request);
+    Function<RequestContext,ResponseContext> handler = 
+      adapter.handlerFor(
+        request.getTarget(),
+        request.getMethod());
+    return handler != null ?
+      handler.apply(request) :
+      ProviderHelper.notfound(request);
+  }
+  
+  public ResponseContext apply(RequestContext request) {
+    return actuallyApply(request);
+  }
+
+  public static abstract class RequestProcessorSupplier<T extends RequestProcessor> 
+    implements Function<CollectionAdapter,T> {
+    protected final WorkspaceManager workspaceManager;
+    protected RequestProcessorSupplier(
+      WorkspaceManager workspaceManager) {
+      this.workspaceManager = workspaceManager;
+    }
+  }
+  
+  public static <T extends RequestProcessor>Function<CollectionAdapter,T> forClass(
+      final Class<T> _class, 
+      final WorkspaceManager workspaceManager,
+      final Predicate<RequestContext> predicate) {
+      try {
+        final Constructor<T> c = 
+          _class.getConstructor(
+            WorkspaceManager.class,
+            CollectionAdapter.class);
+        return new RequestProcessorSupplier<T>(workspaceManager) {
+          public T apply(CollectionAdapter adapter) {
+            try {
+              return c.newInstance(workspaceManager,adapter);
+            } catch (Throwable t) {
+              throw ExceptionHelper.propogate(t);
+            }
+          }
+        };
+      } catch (Throwable t) {
+        throw ExceptionHelper.propogate(t);
+      }
+    }
+  
+  public static <T extends RequestProcessor>Function<CollectionAdapter,T> forClass(
+    final Class<T> _class, 
+    final WorkspaceManager workspaceManager) {
+    try {
+      final Constructor<T> c = 
+        _class.getConstructor(
+          WorkspaceManager.class,
+          CollectionAdapter.class);
+      return new RequestProcessorSupplier<T>(workspaceManager) {
+        public T apply(CollectionAdapter adapter) {
+          try {
+            return c.newInstance(workspaceManager,adapter);
+          } catch (Throwable t) {
+            throw ExceptionHelper.propogate(t);
+          }
+        }
+      };
+    } catch (Throwable t) {
+      throw ExceptionHelper.propogate(t);
+    }
+  }
 }

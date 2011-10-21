@@ -19,7 +19,6 @@ package org.apache.abdera2.activities.protocol;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,9 +70,9 @@ public class ActivitiesRequestContext extends BaseRequestContextWrapper {
     String etag = getHeader("ETag");
     if (etag != null)
         base.setEntityTag(etag);
-    Date lm = getDateHeader("Last-Modified");
+    DateTime lm = getDateHeader("Last-Modified");
     if (lm != null)
-        base.setLastModified(new DateTime(lm));
+        base.setLastModified(lm);
     MimeType mt = getContentType();
     if (mt != null)
         base.setContentType(mt.toString());

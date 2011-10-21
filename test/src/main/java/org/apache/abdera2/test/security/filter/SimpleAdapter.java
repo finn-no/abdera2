@@ -42,83 +42,108 @@ import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.writer.StreamWriter;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 @SuppressWarnings("unchecked")
 public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
 
-    @Override
-    public String getAuthor(RequestContext request) throws ResponseContextException {
-        return "Simple McGee";
-    }
+  public SimpleAdapter(String href) {
+    super(href);
+    putHandler(TargetType.TYPE_COLLECTION,"GET",getItemList());
+    putHandler(TargetType.TYPE_COLLECTION,"HEAD",getItemList());
+    putHandler(TargetType.TYPE_COLLECTION,"POST",postItem());
+    putHandler(TargetType.TYPE_ENTRY,"DELETE",deleteItem());
+    putHandler(TargetType.TYPE_ENTRY,"GET",getItem());
+    putHandler(TargetType.TYPE_ENTRY,"HEAD",getItem());
+    putHandler(TargetType.TYPE_ENTRY,"PUT",putItem());
+    putHandler(TargetType.TYPE_CATEGORIES,"GET",getCategories());
+    putHandler(TargetType.TYPE_CATEGORIES,"HEAD",getCategories());
+  }
 
-    @Override
-    public String getId(RequestContext request) {
-        return "tag:example.org,2008:feed";
-    }
+  @Override
+  public String getAuthor(RequestContext request) throws ResponseContextException {
+      return "Simple McGee";
+  }
 
-    public String getHref(RequestContext request) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("collection", "feed");
-        return request.urlFor("feed", params);
-    }
+  @Override
+  public String getId(RequestContext request) {
+      return "tag:example.org,2008:feed";
+  }
 
-    public String getTitle(RequestContext request) {
-        return "A simple feed";
-    }
+  public String getHref(RequestContext request) {
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put("collection", "feed");
+      return request.urlFor(TargetType.TYPE_COLLECTION, params);
+  }
 
-    public ResponseContext extensionRequest(RequestContext request) {
-        return ProviderHelper.notallowed(request, "Method Not Allowed", ProviderHelper.getDefaultMethods(request));
-    }
+  public String getTitle(RequestContext request) {
+      return "A simple feed";
+  }
 
-    private Document<Feed> getFeedDocument(RequestContext context) throws ResponseContextException {
-        Feed feed = (Feed)context.getAttribute(Scope.SESSION, "feed");
-        if (feed == null) {
-            feed = createFeedBase(context);
-            feed.setBaseUri(getHref(context));
-            context.setAttribute(Scope.SESSION, "feed", feed);
-        }
-        return feed.getDocument();
-    }
+  private Document<Feed> getFeedDocument(RequestContext context) throws ResponseContextException {
+      Feed feed = (Feed)context.getAttribute(Scope.SESSION, "feed");
+      if (feed == null) {
+          feed = createFeedBase(context);
+          feed.setBaseUri(getHref(context));
+          context.setAttribute(Scope.SESSION, "feed", feed);
+      }
+      return feed.getDocument();
+  }
 
-    public ResponseContext getItemList(RequestContext request) {
+  private Function<RequestContext,ResponseContext> getItemList() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
         Document<Feed> feed;
         try {
-            feed = getFeedDocument(request);
+            feed = getFeedDocument(input);
         } catch (ResponseContextException e) {
             return e.getResponseContext();
         }
+        return AbstractAtompubProvider
+          .returnBase(feed, 200, feed.getRoot().getUpdated())
+          .setEntityTag(
+            AbstractAtompubProvider
+              .calculateEntityTag(feed.getRoot()));
+      }
+    };
+  }
 
-        return AbstractAtompubProvider.returnBase(feed, 200, feed.getRoot().getUpdated()).setEntityTag(AbstractAtompubProvider
-            .calculateEntityTag(feed.getRoot()));
-    }
-
-    public ResponseContext deleteItem(RequestContext request) {
-        Entry entry = getAbderaEntry(request);
+  public Function<RequestContext,ResponseContext> deleteItem() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
+        Entry entry = getAbderaEntry(input);
         if (entry != null)
             entry.discard();
         return ProviderHelper.nocontent();
-    }
+      }
+    };
+  }
 
-    public ResponseContext getItem(RequestContext request) {
-        Entry entry = (Entry)getAbderaEntry(request);
+  private Function<RequestContext,ResponseContext> getItem() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
+        Entry entry = (Entry)getAbderaEntry(input);
         if (entry != null) {
             Feed feed = entry.getParentElement();
             entry = (Entry)entry.clone();
             entry.setSource(feed.getAsSource());
             Document<Entry> entry_doc = entry.getDocument();
-            return AbstractAtompubProvider.returnBase(entry_doc, 200, entry.getEdited()).setEntityTag(AbstractAtompubProvider
+            return AbstractAtompubProvider
+              .returnBase(entry_doc, 200, entry.getEdited())
+              .setEntityTag(AbstractAtompubProvider
                 .calculateEntityTag(entry));
         } else {
-            return ProviderHelper.notfound(request);
+            return ProviderHelper.notfound(input);
         }
-    }
-
-    private static Abdera getAbdera(RequestContext request) {
-      return AbstractAtompubProvider.getAbdera(request);
-    }
-    
-    public ResponseContext postItem(RequestContext context) {
-        Abdera abdera = getAbdera(context);
-        AtompubRequestContext request = (AtompubRequestContext) context;
+      }
+    };
+  }
+  
+  private Function<RequestContext,ResponseContext> postItem() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
+        AtompubRequestContext request = (AtompubRequestContext) input;
+        Abdera abdera = request.getAbdera();
         try {
             Document<Entry> entry_doc = (Document<Entry>)request.getDocument(abdera.getParser()).clone();
             if (entry_doc != null) {
@@ -144,25 +169,29 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
         } catch (Exception e) {
             return ProviderHelper.badrequest(request);
         }
-    }
+      }
+    };
+  }
+  
+  private void setEntryDetails(RequestContext request, Entry entry, String id) {
+      entry.setUpdated(DateTime.now());
+      entry.setEdited(entry.getUpdated());
+      entry.getIdElement().setValue(id);
+      entry.addLink(getEntryLink(request, entry.getId().toASCIIString()), "edit");
+  }
 
-    private void setEntryDetails(RequestContext request, Entry entry, String id) {
-        entry.setUpdated(DateTime.now());
-        entry.setEdited(entry.getUpdated());
-        entry.getIdElement().setValue(id);
-        entry.addLink(getEntryLink(request, entry.getId().toASCIIString()), "edit");
-    }
+  private String getEntryLink(RequestContext request, String entryid) {
+      Map<String, String> params = new HashMap<String, String>();
+      params.put("collection", request.getTarget().getParameter("collection"));
+      params.put("entry", entryid);
+      return request.urlFor(TargetType.TYPE_ENTRY, params);
+  }
 
-    private String getEntryLink(RequestContext request, String entryid) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("collection", request.getTarget().getParameter("collection"));
-        params.put("entry", entryid);
-        return request.urlFor("entry", params);
-    }
-
-    public ResponseContext putItem(RequestContext context) {
-        Abdera abdera = getAbdera(context);
-        AtompubRequestContext request = (AtompubRequestContext) context;
+  private Function<RequestContext,ResponseContext> putItem() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
+        AtompubRequestContext request = (AtompubRequestContext) input;
+        Abdera abdera = request.getAbdera();
         Entry orig_entry = getAbderaEntry(request);
         if (orig_entry != null) {
             try {
@@ -192,29 +221,36 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
         } else {
             return ProviderHelper.notfound(request);
         }
-    }
+      }
+    };
+  }
+  
+  private Entry getAbderaEntry(RequestContext request) {
+      try {
+          return getFeedDocument(request).getRoot().getEntry(getResourceName(request));
+      } catch (Exception e) {
+      }
+      return null;
+  }
 
-    private Entry getAbderaEntry(RequestContext request) {
-        try {
-            return getFeedDocument(request).getRoot().getEntry(getResourceName(request));
-        } catch (Exception e) {
-        }
-        return null;
-    }
+  public String getResourceName(RequestContext request) {
+      if (request.getTarget().getType() != TargetType.TYPE_ENTRY)
+          return null;
+      String[] segments = request.getUri().toString().split("/");
+      return UrlEncoding.decode(segments[segments.length - 1]);
+  }
 
-    public String getResourceName(RequestContext request) {
-        if (request.getTarget().getType() != TargetType.TYPE_ENTRY)
-            return null;
-        String[] segments = request.getUri().toString().split("/");
-        return UrlEncoding.decode(segments[segments.length - 1]);
-    }
-
-    public ResponseContext getCategories(RequestContext request) {
-        return new StreamWriterResponseContext(getAbdera(request)) {
+  private Function<RequestContext,ResponseContext> getCategories() {
+    return new Function<RequestContext,ResponseContext>() {
+      public ResponseContext apply(RequestContext input) {
+        AtompubRequestContext request = (AtompubRequestContext) input;
+        return new StreamWriterResponseContext(request.getAbdera()) {
             protected void writeTo(StreamWriter sw) throws IOException {
                 sw.startDocument().startCategories(false).writeCategory("foo").writeCategory("bar")
                     .writeCategory("baz").endCategories().endDocument();
             }
         }.setStatus(200).setContentType(Constants.CAT_MEDIA_TYPE);
-    }
+      }
+    };
+  }
 }

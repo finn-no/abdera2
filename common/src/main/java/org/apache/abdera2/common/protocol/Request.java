@@ -17,9 +17,8 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 /**
  * A protocol request. This is used as a base for both server and client requests
@@ -54,7 +53,7 @@ public interface Request extends Message {
     /**
      * Get the value of the If-Modified-Since header
      */
-    Date getIfModifiedSince();
+    DateTime getIfModifiedSince();
 
     /**
      * Get a listing of ETags from the If-None-Match header
@@ -64,6 +63,6 @@ public interface Request extends Message {
     /**
      * Get the value of the If-Unmodified-Since header
      */
-    Date getIfUnmodifiedSince();
+    DateTime getIfUnmodifiedSince();
 
 }

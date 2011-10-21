@@ -24,9 +24,9 @@ import java.io.OutputStream;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
@@ -39,7 +39,7 @@ import org.apache.abdera2.writer.Writer;
  * specifies a higher preference value for JSON or explicitly requests JSON by including a format=json querystring
  * parameter
  */
-public class JSONFilter implements Filter {
+public class JSONFilter implements Task<RequestContext,ResponseContext> {
 
     public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
         AtompubResponseContext resp = (AtompubResponseContext) chain.next(request);

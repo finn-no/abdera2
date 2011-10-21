@@ -25,9 +25,9 @@ import java.util.List;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParseException;
@@ -38,7 +38,7 @@ import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractEncryptedRequestFilter implements Filter {
+public abstract class AbstractEncryptedRequestFilter implements Task<RequestContext,ResponseContext> {
 
     // The methods that allow encrypted bodies
     protected final List<String> methods = new ArrayList<String>();

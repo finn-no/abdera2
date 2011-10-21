@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.protocol.client;
 
-import java.util.Date;
-
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.http.EntityTag;
@@ -76,9 +74,9 @@ class AbderaClientResponseImpl
       EntityTag etag = getEntityTag();
       if (etag != null)
           doc.setEntityTag(etag);
-      Date lm = getLastModified();
+      DateTime lm = getLastModified();
       if (lm != null)
-          doc.setLastModified(new DateTime(lm));
+          doc.setLastModified(lm);
       MimeType mt = getContentType();
       if (mt != null)
           doc.setContentType(mt.toString());

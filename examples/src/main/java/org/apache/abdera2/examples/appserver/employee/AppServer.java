@@ -51,15 +51,16 @@ public class AppServer {
         private static final long serialVersionUID = -549428240693531463L;
 
         protected Provider createProvider() {
-            EmployeeCollectionAdapter ca = new EmployeeCollectionAdapter();
-            ca.setHref("employee");
-
-            SimpleWorkspaceInfo wi = new SimpleWorkspaceInfo();
-            wi.setTitle("Employee Directory Workspace");
-            wi.addCollection(ca);
-
-            DefaultAtompubProvider provider = new DefaultAtompubProvider("/");
-            provider.addWorkspace(wi);
+            EmployeeCollectionAdapter ca = new EmployeeCollectionAdapter("employee");
+            DefaultAtompubProvider provider = 
+              new DefaultAtompubProvider("/");
+            provider
+              .addWorkspace(
+                SimpleWorkspaceInfo
+                  .make()
+                  .title("Employee Directory Workspace")
+                  .collection(ca)
+                  .get());
 
             provider.init(Abdera.getInstance(), null);
             return provider;

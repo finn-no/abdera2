@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Collection;
-
 
 /**
  * Metadata interface used by WorkspaceManager and Provider implementations to construct Atompub Service Documents. The
@@ -35,6 +33,6 @@ public interface WorkspaceInfo {
     /**
      * Return the listing of collections available as part of the workspace
      */
-    Collection<CollectionInfo> getCollections(RequestContext request);
+    Iterable<CollectionInfo> getCollections(RequestContext request);
 
 }

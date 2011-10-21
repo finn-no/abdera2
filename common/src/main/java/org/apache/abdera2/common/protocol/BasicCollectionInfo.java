@@ -18,26 +18,54 @@
 package org.apache.abdera2.common.protocol;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import com.google.common.base.Supplier;
 
 public class BasicCollectionInfo 
   implements CollectionInfo, 
              Serializable {
 
+    public static Generator make() {
+      return new Generator();
+    }
+  
+    public static class Generator implements Supplier<CollectionInfo> {
+      private String title;
+      private String href;
+      private final Set<String> accepts = 
+        new LinkedHashSet<String>();
+      public Generator title(String title) {
+        this.title = title;
+        return this;
+      }
+      public Generator href(String href) {
+        this.href = href;
+        return this;
+      }
+      public Generator accept(String type) {
+        this.accepts.add(type);
+        return this;
+      }
+      public CollectionInfo get() {
+        return new BasicCollectionInfo(this);
+      }
+    }
+  
     private static final long serialVersionUID = 8026455829158149510L;
 
     private final String title;
     private final String href;
-    private final String[] accepts;
+    private final Set<String> accepts = new LinkedHashSet<String>();
 
-    public BasicCollectionInfo(String title, String href, String... accepts) {
-        this.title = title;
-        this.accepts = accepts;
-        this.href = href;
+    protected BasicCollectionInfo(Generator gen) {
+        this.title = gen.title;
+        this.accepts.addAll(gen.accepts);
+        this.href = gen.href;
     }
 
-    public String[] getAccepts(RequestContext request) {
+    public Iterable<String> getAccepts(RequestContext request) {
         return accepts;
     }
 
@@ -49,36 +77,40 @@ public class BasicCollectionInfo
         return title;
     }
 
+    @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Arrays.hashCode(accepts);
-        result = prime * result + ((href == null) ? 0 : href.hashCode());
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        return result;
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((accepts == null) ? 0 : accepts.hashCode());
+      result = prime * result + ((href == null) ? 0 : href.hashCode());
+      result = prime * result + ((title == null) ? 0 : title.hashCode());
+      return result;
     }
 
+    @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        final BasicCollectionInfo other = (BasicCollectionInfo)obj;
-        if (!Arrays.equals(accepts, other.accepts))
-            return false;
-        if (href == null) {
-            if (other.href != null)
-                return false;
-        } else if (!href.equals(other.href))
-            return false;
-        if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equals(other.title))
-            return false;
+      if (this == obj)
         return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      BasicCollectionInfo other = (BasicCollectionInfo) obj;
+      if (accepts == null) {
+        if (other.accepts != null)
+          return false;
+      } else if (!accepts.equals(other.accepts))
+        return false;
+      if (href == null) {
+        if (other.href != null)
+          return false;
+      } else if (!href.equals(other.href))
+        return false;
+      if (title == null) {
+        if (other.title != null)
+          return false;
+      } else if (!title.equals(other.title))
+        return false;
+      return true;
     }
-
 }

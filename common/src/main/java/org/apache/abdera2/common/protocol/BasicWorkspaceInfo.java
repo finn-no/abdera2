@@ -18,9 +18,11 @@
 package org.apache.abdera2.common.protocol;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
 
 
 public class BasicWorkspaceInfo
@@ -28,11 +30,36 @@ public class BasicWorkspaceInfo
              Serializable {
 
     private static final long serialVersionUID = -8459688584319762878L;
+    
+    public static class Generator implements Supplier<WorkspaceInfo> {
 
-    protected String title;
-    protected Set<CollectionInfo> collections;
+      private String title;
+      private final Set<CollectionInfo> collections = 
+        new LinkedHashSet<CollectionInfo>();
+      
+      public Generator title(String title) {
+        this.title = title;
+        return this;
+      }
+      
+      public Generator collection(CollectionInfo info) {
+        this.collections.add(info);
+        return this;
+      }
+      
+      public WorkspaceInfo get() {
+        return new BasicWorkspaceInfo(this);
+      }
+      
+    }
+    
+    protected final String title;
+    protected final Set<CollectionInfo> collections =
+      new LinkedHashSet<CollectionInfo>();
 
-    public BasicWorkspaceInfo() {
+    protected BasicWorkspaceInfo(Generator generator) {
+      this.title = generator.title;
+      this.collections.addAll(generator.collections);
     }
 
     public BasicWorkspaceInfo(String title) {
@@ -43,32 +70,12 @@ public class BasicWorkspaceInfo
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getTitle(RequestContext request) {
         return title;
     }
 
-    public void addCollection(CollectionInfo ci) {
-        getCollections().add(ci);
-    }
-
-    public Collection<CollectionInfo> getCollections(RequestContext request) {
-        return collections;
-    }
-
-    public Set<CollectionInfo> getCollections() {
-        if (collections == null) {
-            collections = new HashSet<CollectionInfo>();
-        }
-
-        return collections;
-    }
-
-    public void setCollections(Set<CollectionInfo> collections) {
-        this.collections = collections;
+    public Iterable<CollectionInfo> getCollections(RequestContext request) {
+        return Iterables.unmodifiableIterable(collections);
     }
 
     public int hashCode() {

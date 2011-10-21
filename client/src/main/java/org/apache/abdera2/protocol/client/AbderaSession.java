@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.protocol.client;
 
-import java.util.Date;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Document;
@@ -30,6 +29,7 @@ import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Method;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.joda.time.DateTime;
 
 /**
  * A client session. Session's MUST NOT be used by more
@@ -141,7 +141,7 @@ public class AbderaSession extends Session {
             if (etag != null)
                 options.setIfMatch(etag);
             else {
-                Date lm = provider.getLastModified();
+                DateTime lm = provider.getLastModified();
                 if (lm != null)
                     options.setIfUnmodifiedSince(lm);
             }
@@ -168,7 +168,7 @@ public class AbderaSession extends Session {
                 if (d.getEntityTag() != null)
                     options.setIfMatch(d.getEntityTag());
                 else if (d.getLastModified() != null)
-                    options.setIfUnmodifiedSince(d.getLastModified().toDate());
+                    options.setIfUnmodifiedSince(d.getLastModified());
             }
         }
         return (T)wrap(execute("PUT", uri, new AbderaEntity(base), options));

@@ -59,7 +59,8 @@ public class BasicProvider extends ManagedProvider {
     public CollectionAdapter getCollectionAdapter(RequestContext request) {
         try {
             return getCollectionAdapterManager(request)
-              .getAdapter(request.getTarget().getParameter(PARAM_FEED));
+              .getAdapter(
+                request.getTarget().getParameter(PARAM_FEED));
         } catch (Exception e) {
             return null;
         }

@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.protocol.client;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -39,6 +38,7 @@ import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
+import org.joda.time.DateTime;
 
 /**
  * The RequestOptions class allows a variety of options affecting the execution of the request to be modified.
@@ -67,7 +67,7 @@ public class RequestOptions extends AbstractRequest implements Request {
      * 
      * @param ifModifiedSince
      */
-    public RequestOptions(Date ifModifiedSince) {
+    public RequestOptions(DateTime ifModifiedSince) {
         this();
         setIfModifiedSince(ifModifiedSince);
     }
@@ -98,7 +98,7 @@ public class RequestOptions extends AbstractRequest implements Request {
      * @param ifModifiedSince
      * @param IfNoneMatch
      */
-    public RequestOptions(Date ifModifiedSince, String ifNoneMatch) {
+    public RequestOptions(DateTime ifModifiedSince, String ifNoneMatch) {
         this();
         setIfModifiedSince(ifModifiedSince);
         setIfNoneMatch(ifNoneMatch);
@@ -110,7 +110,7 @@ public class RequestOptions extends AbstractRequest implements Request {
      * @param ifModifiedSince
      * @param IfNoneMatch
      */
-    public RequestOptions(Date ifModifiedSince, String etag, String... ifNoneMatch) {
+    public RequestOptions(DateTime ifModifiedSince, String etag, String... ifNoneMatch) {
         this();
         setIfModifiedSince(ifModifiedSince);
         setIfNoneMatch(etag, ifNoneMatch);
@@ -228,8 +228,11 @@ public class RequestOptions extends AbstractRequest implements Request {
     /**
      * Set the date value of the specified HTTP header
      */
-    public RequestOptions setDateHeader(String header, Date value) {
-        return value != null ? setHeader(header, DateUtils.formatDate(value)) : removeHeaders(header);
+    public RequestOptions setDateHeader(String header, DateTime value) {
+        return value != null ? setHeader(
+          header, 
+          DateUtils.formatDate(value.toDate())) : 
+            removeHeaders(header);
     }
 
     /**
@@ -284,10 +287,10 @@ public class RequestOptions extends AbstractRequest implements Request {
     /**
      * Similar to setDateHeader but allows for multiple instances of the specified header
      */
-    public RequestOptions addDateHeader(String header, Date value) {
+    public RequestOptions addDateHeader(String header, DateTime value) {
         if (value == null)
             return this;
-        return addHeader(header, DateUtils.formatDate(value));
+        return addHeader(header, DateUtils.formatDate(value.toDate()));
     }
 
     /**
@@ -309,10 +312,10 @@ public class RequestOptions extends AbstractRequest implements Request {
     /**
      * Returns the date value of the specified header
      */
-    public Date getDateHeader(String header) {
+    public DateTime getDateHeader(String header) {
         String val = getHeader(header);
         try {
-            return (val != null) ? DateUtils.parseDate(val) : null;
+            return (val != null) ? new DateTime(DateUtils.parseDate(val)) : null;
         } catch (DateParseException e) {
             throw new RuntimeException(e);
         }
@@ -384,14 +387,14 @@ public class RequestOptions extends AbstractRequest implements Request {
     /**
      * Sets the value of the HTTP If-Modified-Since header
      */
-    public RequestOptions setIfModifiedSince(Date date) {
+    public RequestOptions setIfModifiedSince(DateTime date) {
         return setDateHeader("If-Modified-Since", date);
     }
 
     /**
      * Sets the value of the HTTP If-Unmodified-Since header
      */
-    public RequestOptions setIfUnmodifiedSince(Date date) {
+    public RequestOptions setIfUnmodifiedSince(DateTime date) {
         return setDateHeader("If-Unmodified-Since", date);
     }
 

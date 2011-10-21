@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +36,11 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.misc.Functions;
+import org.joda.time.DateTime;
+
+import com.google.common.collect.Iterables;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractResponseContext extends AbstractResponse implements ResponseContext {
@@ -73,11 +80,10 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setEncodedHeader(String name, String charset, String... vals) {
-        Object[] evals = new Object[vals.length];
-        for (int n = 0; n < vals.length; n++) {
-            evals[n] = Codec.encode(vals[n], charset);
-        }
-        return (T)setHeader(name, evals);
+        String[] evals = 
+          Functions.<String,String>each(
+            vals, Codec.encodeStar(charset), String.class);
+        return (T)setHeader(name, (Object[])evals);
     }
 
     public <T extends ResponseContext>T setEscapedHeader(String name, Profile profile, String value) {
@@ -91,8 +97,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     public <T extends ResponseContext>T setHeader(String name, Object... vals) {
         Map<String, Iterable<Object>> headers = getHeaders();
         Set<Object> values = new HashSet<Object>();
-        for (Object value : vals)
-            values.add(value);
+        values.addAll(Arrays.asList(vals));
         headers.put(name, values);
         return (T)this;
     }
@@ -102,10 +107,9 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T addEncodedHeaders(String name, String charset, String... vals) {
-        for (String value : vals) {
-            addHeader(name, Codec.encode(value, charset));
-        }
-        return (T)this;
+      String[] evals = Functions.<String,String>each(vals, Codec.encodeStar(charset),String.class);
+      addHeaders(name,(Object[])evals);
+      return (T)this;
     }
 
     public <T extends ResponseContext>T addHeader(String name, Object value) {
@@ -115,14 +119,11 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     public <T extends ResponseContext>T addHeaders(String name, Object... vals) {
         Map<String, Iterable<Object>> headers = getHeaders();
         Iterable<Object> values = headers.get(name);
-        Set<Object> l = null;
-        if (values == null)
-            l = new HashSet<Object>();
-        else
-            l = (Set<Object>)values;
-        for (Object value : vals) {
-            l.add(value);
-        }
+        Set<Object> l = 
+          values == null ? 
+            new HashSet<Object>() :
+            (Set<Object>)values;
+        l.addAll(Arrays.asList(vals));
         headers.put(name, l);
         return (T)this;
     }
@@ -133,25 +134,27 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
         return headers;
     }
 
-    public Date getDateHeader(String name) {
+    public DateTime getDateHeader(String name) {
         Map<String, Iterable<Object>> headers = getHeaders();
         Iterable<Object> values = headers.get(name);
         if (values != null) {
             for (Object value : values) {
                 if (value instanceof Date)
-                    return (Date)value;
+                    return new DateTime(value);
+                else if (value instanceof DateTime)
+                    return (DateTime)value;
+                else if (value instanceof Calendar)
+                    return new DateTime(value);
             }
         }
         return null;
     }
 
     public String getHeader(String name) {
-        Map<String, Iterable<Object>> headers = getHeaders();
-        Iterable<Object> values = headers.get(name);
-        if (values != null)
-          for (Object val : values)
-            return val.toString();
-        return null;
+      Map<String, Iterable<Object>> headers = getHeaders();
+      Iterable<Object> values = headers.get(name);
+      Object obj = Iterables.getFirst(values,null);
+      return obj != null ? obj.toString() : null;
     }
 
     public Iterable<Object> getHeaders(String name) {
@@ -181,12 +184,15 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setSlug(String slug) {
-        if (slug == null) {
+        if (slug == null)
             return (T)removeHeader("Slug");
-        }
-        if (slug.indexOf((char)10) > -1 || slug.indexOf((char)13) > -1)
-            throw new IllegalArgumentException(Localizer.get("SLUG.BAD.CHARACTERS"));
-        return (T)setEscapedHeader("Slug", Profile.PATHNODELIMS, slug);
+        if (slug.indexOf((char)10) > -1 || 
+            slug.indexOf((char)13) > -1)
+          throw new IllegalArgumentException(
+            Localizer.get("SLUG.BAD.CHARACTERS"));
+        return (T)setEscapedHeader(
+          "Slug", 
+          Profile.PATHNODELIMS, slug);
     }
 
     public <T extends ResponseContext>T setContentType(String type) {
@@ -194,17 +200,12 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setContentType(String type, String charset) {
-        if (type == null) {
+        if (type == null)
             return (T)removeHeader("Content-Type");
-        }
-        try {
-            MimeType mimeType = new MimeType(type);
-            if (charset != null)
-                mimeType.setParameter("charset", charset);
-            return (T)setHeader("Content-Type", mimeType.toString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        MimeType mimeType = MimeTypeHelper.create(type);
+        if (charset != null)
+            mimeType.setParameter("charset", charset);
+        return (T)setHeader("Content-Type", mimeType.toString());
     }
 
     public <T extends ResponseContext>T setEntityTag(String etag) {
@@ -215,11 +216,11 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
         return (T)(etag == null ? removeHeader("ETag") : setHeader("ETag", etag.toString()));
     }
 
-    public <T extends ResponseContext>T setExpires(Date date) {
+    public <T extends ResponseContext>T setExpires(DateTime date) {
         return (T)(date == null ? removeHeader("Expires") : setHeader("Expires", date));
     }
 
-    public <T extends ResponseContext>T setLastModified(Date date) {
+    public <T extends ResponseContext>T setLastModified(DateTime date) {
         return (T)(date == null ? removeHeader("Last-Modified") : setHeader("Last-Modified", date));
     }
 

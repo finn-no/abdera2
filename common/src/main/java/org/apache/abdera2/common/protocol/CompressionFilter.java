@@ -27,21 +27,21 @@ import org.apache.abdera2.common.http.QualityHelper.QToken;
 import org.apache.abdera2.common.io.Compression;
 import org.apache.abdera2.common.io.Compression.CompressionCodec;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 
 /**
  * Abdera Filter implementation that selectively applies compression to the response payload
  */
-public class CompressionFilter implements Filter {
+public class CompressionFilter implements Task<RequestContext,ResponseContext> {
 
     public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
         String encoding = request.getHeader("Accept-Encoding");
         QToken[] encodings = encoding != null ? QualityHelper.orderByQ(encoding) : new QToken[0];
         for (QToken enc : encodings) {
-            try {
-                CompressionCodec codec = CompressionCodec.valueOf(enc.token().toUpperCase());
-                return new CompressingResponseContextWrapper(chain.next(request), codec);
-            } catch (Exception e) {
-            }
+          try {
+              CompressionCodec codec = CompressionCodec.valueOf(enc.token().toUpperCase());
+              return new CompressingResponseContextWrapper(chain.next(request), codec);
+          } catch (Exception e) {}
         }
         return chain.next(request);
     }

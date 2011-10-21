@@ -18,8 +18,6 @@
 package org.apache.abdera2.protocol.server.processors;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
 
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.http.EntityTag;
@@ -36,37 +34,42 @@ import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCategoryInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.apache.abdera2.writer.StreamWriter;
+import org.joda.time.DateTime;
 
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for service
  * documents.
  */
-@SuppressWarnings("unchecked")
 public class ServiceRequestProcessor 
-  implements RequestProcessor {
+  extends RequestProcessor {
 
-    public <S extends ResponseContext> S process(
-        RequestContext request, WorkspaceManager workspaceManager,
-        CollectionAdapter collectionAdapter) {
-      return (S)this.processService(request, workspaceManager);
+    protected ServiceRequestProcessor(
+      WorkspaceManager workspaceManager,
+      CollectionAdapter adapter) {
+        super(workspaceManager, adapter);
+    }
+
+    public ResponseContext apply(
+        RequestContext request) {
+      return processService(request, workspaceManager);
     }
   
-    private <S extends ResponseContext>S processService(
+    private ResponseContext processService(
         RequestContext context, 
         WorkspaceManager workspaceManager) {
         String method = context.getMethod();
         if (method.equalsIgnoreCase("GET")) {
-            return (S)this.getServiceDocument(context, workspaceManager);
+            return this.getServiceDocument(context, workspaceManager);
         } else {
             return null;
         }
     }
 
-    protected <S extends ResponseContext>S getServiceDocument(
+    protected ResponseContext getServiceDocument(
         final RequestContext request, 
         final WorkspaceManager workspaceManager) {
  
-        return (S)new StreamWriterResponseContext(
+        return new StreamWriterResponseContext(
             AbstractAtompubProvider.getAbdera(request)) {
 
           // JIRA: https://issues.apache.org/jira/browse/ABDERA-255
@@ -78,8 +81,8 @@ public class ServiceRequestProcessor
 
           // JIRA: https://issues.apache.org/jira/browse/ABDERA-255
           @Override
-          public Date getLastModified() {
-            Date lm = workspaceManager.getLastModified();
+          public DateTime getLastModified() {
+            DateTime lm = workspaceManager.getLastModified();
             return lm != null ? lm : super.getLastModified();
           }
 
@@ -87,13 +90,13 @@ public class ServiceRequestProcessor
                 sw.startDocument().startService();
                 for (WorkspaceInfo wi : workspaceManager.getWorkspaces(request)) {
                     sw.startWorkspace().writeTitle(wi.getTitle(request));
-                    Collection<CollectionInfo> collections = wi.getCollections(request);
+                    Iterable<CollectionInfo> collections = wi.getCollections(request);
                     if (collections != null) {
                         for (CollectionInfo c : collections) {
                             AtompubCollectionInfo ci = (AtompubCollectionInfo) c;
                             sw.startCollection(ci.getHref(request)).writeTitle(ci.getTitle(request)).writeAccepts(ci
                                 .getAccepts(request));
-                            AtompubCategoriesInfo[] catinfos = ci.getCategoriesInfo(request);
+                            Iterable<AtompubCategoriesInfo> catinfos = ci.getCategoriesInfo(request);
                             if (catinfos != null) {
                                 for (AtompubCategoriesInfo catinfo : catinfos) {
                                     String cathref = catinfo.getHref(request);

@@ -26,9 +26,9 @@ import java.security.Security;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.Filter;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
@@ -38,7 +38,7 @@ import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 import org.apache.abdera2.writer.Writer;
 
-public abstract class AbstractEncryptedResponseFilter implements Filter {
+public abstract class AbstractEncryptedResponseFilter implements Task<RequestContext,ResponseContext> {
 
     public AbstractEncryptedResponseFilter() {
         initProvider();

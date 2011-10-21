@@ -25,9 +25,9 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Date;
 
 import org.apache.abdera2.common.http.EntityTag;
+import org.joda.time.DateTime;
 
 /**
  * ResponseContext implementation for arbitrary media resources
@@ -59,14 +59,14 @@ public class MediaResponseContext extends SimpleResponseContext {
         this(in,status,true);
     }
 
-    public MediaResponseContext(InputStream in, Date lastmodified, int status, boolean autoclose) {
+    public MediaResponseContext(InputStream in, DateTime lastmodified, int status, boolean autoclose) {
       this.in = in;
       this.status = status;
       this.autoclose = autoclose;
       setLastModified(lastmodified);
     }
     
-    public MediaResponseContext(InputStream in, Date lastmodified, int status) {
+    public MediaResponseContext(InputStream in, DateTime lastmodified, int status) {
         this(in,lastmodified,status,true);
     }
 
@@ -74,7 +74,7 @@ public class MediaResponseContext extends SimpleResponseContext {
         this(new ByteArrayInputStream(bytes), status);
     }
 
-    public MediaResponseContext(byte[] bytes, Date lastmodified, int status) {
+    public MediaResponseContext(byte[] bytes, DateTime lastmodified, int status) {
         this(new ByteArrayInputStream(bytes), lastmodified, status);
     }
 
@@ -90,11 +90,11 @@ public class MediaResponseContext extends SimpleResponseContext {
         this(channel,status,true);
     }
 
-    public MediaResponseContext(ReadableByteChannel channel, Date lastmodified, int status, boolean autoclose) {
+    public MediaResponseContext(ReadableByteChannel channel, DateTime lastmodified, int status, boolean autoclose) {
       this(Channels.newInputStream(channel), lastmodified,status,autoclose);
     }
     
-    public MediaResponseContext(ReadableByteChannel channel, Date lastmodified, int status) {
+    public MediaResponseContext(ReadableByteChannel channel, DateTime lastmodified, int status) {
         this(channel, lastmodified, status, true);
     }
 
