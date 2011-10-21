@@ -54,4 +54,36 @@ public abstract class ExtendedEventObject extends EventObject {
     setProperty("performers", performers);
   }
   
+  public static <T extends ExtendedEventObject>ExtendedEventObjectGenerator<T> makeExtendedEvent() {
+    return new ExtendedEventObjectGenerator<T>();
+  }
+  
+  public static class ExtendedEventObjectGenerator<T extends ExtendedEventObject> extends EventObjectGenerator<T> {
+    public ExtendedEventObjectGenerator() {
+      super((Class<? extends T>) ExtendedEventObject.class);
+    }
+    public ExtendedEventObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends ExtendedEventObjectGenerator<T>>X host(ASObject object) {
+      item.setHost(object);
+      return (X)this;
+    }
+    public <X extends ExtendedEventObjectGenerator<T>>X offers(ASObject object) {
+      item.setOffers(object);
+      return (X)this;
+    }
+    public <X extends ExtendedEventObjectGenerator<T>>X performers(ASObject object) {
+      item.setPerformers(object);
+      return (X)this;
+    }
+    public <X extends ExtendedEventObjectGenerator<T>>X subEvents(ASObject object) {
+      item.setSubEvents(object);
+      return (X)this;
+    }
+    public <X extends ExtendedEventObjectGenerator<T>>X superEvent(ASObject object) {
+      item.setSuperEvent(object);
+      return (X)this;
+    }
+  }
 }

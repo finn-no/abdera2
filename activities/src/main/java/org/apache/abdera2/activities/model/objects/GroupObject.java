@@ -32,4 +32,17 @@ public class GroupObject
     setDisplayName(displayName);
   }
 
+  public static <T extends GroupObject>GroupObjectGenerator<T> makeGroup() {
+    return new GroupObjectGenerator<T>();
+  }
+  
+  public static class GroupObjectGenerator<T extends GroupObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public GroupObjectGenerator() {
+      super((Class<? extends T>) GroupObject.class);
+    }
+    public GroupObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

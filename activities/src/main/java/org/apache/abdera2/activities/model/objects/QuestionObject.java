@@ -53,6 +53,24 @@ public class QuestionObject
     }
     list.add(option); 
   }
+  
+  public static <T extends QuestionObject>QuestionObjectGenerator<T> makeQuestion() {
+    return new QuestionObjectGenerator<T>();
+  }
 
+  @SuppressWarnings("unchecked")
+  public static class QuestionObjectGenerator<T extends QuestionObject> 
+    extends ASObjectGenerator<T> {
+    public QuestionObjectGenerator() {
+      super((Class<? extends T>) QuestionObject.class);
+    }
+    public QuestionObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends QuestionObjectGenerator<T>>X option(ASObject object) {
+      item.addOption(object);
+      return (X)this;
+    }
+  }
 }
 

@@ -18,6 +18,7 @@
 package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.activities.model.MediaLink;
 
 public class Mood extends ASBase {
@@ -50,5 +51,27 @@ public class Mood extends ASBase {
   
   public String toString() {
     return getDisplayName();
+  }
+  
+  public static <T extends Mood>MoodGenerator<T> makeMood() {
+    return new MoodGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class MoodGenerator<T extends Mood> extends Generator<T> {
+    public MoodGenerator() {
+      super((Class<? extends T>) Mood.class);
+    }
+    public MoodGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends MoodGenerator<T>>X displayName(String dn) {
+      item.setDisplayName(dn);
+      return (X)this;
+    }
+    public <X extends MoodGenerator<T>>X image(MediaLink link) {
+      item.setImage(link);
+      return (X)this;
+    }
   }
 }

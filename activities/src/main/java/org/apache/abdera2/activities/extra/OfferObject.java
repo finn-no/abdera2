@@ -1,11 +1,10 @@
 package org.apache.abdera2.activities.extra;
 
-import java.util.Date;
-
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
+import org.joda.time.DateTime;
 
 /**
  * A simple "objectType":"offer" object that serves primarily as an 
@@ -13,8 +12,8 @@ import org.apache.abdera2.common.anno.Name;
  */
 @Name("offer")
 @Properties({
-  @Property(name="validFrom",to=Date.class),
-  @Property(name="validUntil",to=Date.class)
+  @Property(name="validFrom",to=DateTime.class),
+  @Property(name="validUntil",to=DateTime.class)
 })
 @SuppressWarnings("unchecked")
 public class OfferObject extends ASObject {
@@ -67,19 +66,19 @@ public class OfferObject extends ASObject {
     setProperty("currency",currency);
   }
   
-  public Date getValidUntil() {
+  public DateTime getValidUntil() {
     return getProperty("validUntil");
   }
   
-  public void setValidUntil(Date date) {
+  public void setValidUntil(DateTime date) {
     setProperty("validUntil", date);
   }
   
-  public Date getValidFrom() {
+  public DateTime getValidFrom() {
     return getProperty("validFrom");
   }
   
-  public void setValidFrom(Date date) {
+  public void setValidFrom(DateTime date) {
     setProperty("validFrom", date);
   }
 
@@ -89,5 +88,50 @@ public class OfferObject extends ASObject {
   
   public void setRestriction(ASObject restriction) {
     setProperty("restriction", restriction);
+  }
+  
+  public static <T extends OfferObject>OfferObjectGenerator<T> makeOffer() {
+    return new OfferObjectGenerator<T>();
+  }
+  
+  public static class OfferObjectGenerator<T extends OfferObject> extends ASObjectGenerator<T> {
+    public OfferObjectGenerator() {
+      super((Class<T>)OfferObject.class);
+    }
+    public OfferObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends OfferObjectGenerator<T>>X availability(ASObject obj) {
+      item.setAvailability(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X condition(ASObject obj) {
+      item.setCondition(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X currency(String obj) {
+      item.setCurrency(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X item(ASObject obj) {
+      item.setItem(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X price(String obj) {
+      item.setPrice(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X restriction(ASObject obj) {
+      item.setRestriction(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X validFrom(DateTime obj) {
+      item.setValidFrom(obj);
+      return (X)this;
+    }
+    public <X extends OfferObjectGenerator<T>>X validUntil(DateTime obj) {
+      item.setValidUntil(obj);
+      return (X)this;
+    }
   }
 }

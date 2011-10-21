@@ -79,4 +79,44 @@ public class MediaLink extends ASBase {
     setProperty(URL, url);
   }
   
+  public void setUrl(String url) {
+    setUrl(new IRI(url));
+  }
+  
+  public static MediaLinkGenerator make() {
+    return new MediaLinkGenerator();
+  }
+  
+  public static class MediaLinkGenerator extends Generator<MediaLink> {
+
+    public MediaLinkGenerator() {
+      super(MediaLink.class);
+    }
+    
+    public MediaLinkGenerator duration(int duration) {
+      item.setDuration(duration);
+      return this;
+    }
+    
+    public MediaLinkGenerator height(int height) {
+      item.setHeight(height);
+      return this;
+    }
+    
+    public MediaLinkGenerator width(int width) {
+      item.setWidth(width);
+      return this;
+    }
+    
+    public MediaLinkGenerator url(IRI iri) {
+      item.setUrl(iri);
+      return this;
+    }
+    
+    public MediaLinkGenerator url(String uri) {
+      item.setUrl(new IRI(uri));
+      return this;
+    }
+  }
+  
 }

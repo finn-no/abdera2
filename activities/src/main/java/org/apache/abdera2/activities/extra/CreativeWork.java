@@ -63,5 +63,34 @@ public abstract class CreativeWork extends ASObject {
   public void setEditor(ASObject editor) {
     setProperty("editor", editor);
   }
- 
+  
+  public static abstract class CreativeWorkGenerator<T extends CreativeWork> extends ASObjectGenerator<T> {
+    protected CreativeWorkGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends CreativeWorkGenerator<T>>X about(ASObject object) {
+      item.setAbout(object);
+      return (X)this;
+    }
+    public <X extends CreativeWorkGenerator<T>>X contributor(ASObject object) {
+      item.setContributor(object);
+      return (X)this;
+    }
+    public <X extends CreativeWorkGenerator<T>>X editor(ASObject object) {
+      item.setEditor(object);
+      return (X)this;
+    }
+    public <X extends CreativeWorkGenerator<T>>X genre(ASObject object) {
+      item.setGenre(object);
+      return (X)this;
+    }
+    public <X extends CreativeWorkGenerator<T>>X provider(ASObject object) {
+      item.setProvider(object);
+      return (X)this;
+    }
+    public <X extends CreativeWorkGenerator<T>>X publisher(ASObject object) {
+      item.setPublisher(object);
+      return (X)this;
+    }
+  }
 }

@@ -88,4 +88,42 @@ public class Address extends ASObject {
     }
     return buf.toString();
   }
+  
+  public static <T extends Address>AddressGenerator<T> makeAddress() {
+    return new AddressGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class AddressGenerator<T extends Address> extends ASObjectGenerator<T> {
+    public AddressGenerator() {
+      super((Class<? extends T>) Address.class);
+    }
+    public AddressGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends AddressGenerator<T>>X country(String country) {
+      item.setCountry(country);
+      return (X)this;
+    }
+    public <X extends AddressGenerator<T>>X formatted(String formatted) {
+      item.setFormatted(formatted);
+      return (X)this;
+    }
+    public <X extends AddressGenerator<T>>X locality(String locality) {
+      item.setLocality(locality);
+      return (X)this;
+    }
+    public <X extends AddressGenerator<T>>X postalCode(String postalCode) {
+      item.setPostalCode(postalCode);
+      return (X)this;
+    }
+    public <X extends AddressGenerator<T>>X region(String region) {
+      item.setRegion(region);
+      return (X)this;
+    }
+    public <X extends AddressGenerator<T>>X streetAddress(String address) {
+      item.setStreetAddress(address);
+      return (X)this;
+    }
+  }
 }

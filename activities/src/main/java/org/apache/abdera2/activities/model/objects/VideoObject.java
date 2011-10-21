@@ -49,4 +49,26 @@ public class VideoObject
   public void setStream(MediaLink stream) {
     setProperty(STREAM, stream);
   }
+  
+  public static <T extends VideoObject>VideoObjectGenerator<T> makeVideo() {
+    return new VideoObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class VideoObjectGenerator<T extends VideoObject> extends ASObjectGenerator<T> {
+    public VideoObjectGenerator() {
+      super((Class<? extends T>) VideoObject.class);
+    }
+    public VideoObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends VideoObjectGenerator<T>>X embedCode(String code) {
+      item.setEmbedCode(code);
+      return (X)this;
+    }
+    public <X extends VideoObjectGenerator<T>>X stream(MediaLink stream) {
+      item.setStream(stream);
+      return (X)this;
+    }
+  }
 }

@@ -17,11 +17,10 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
-import java.util.Date;
-
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.common.anno.Name;
+import org.joda.time.DateTime;
 
 @Name("event")
 public class EventObject 
@@ -62,11 +61,11 @@ public class EventObject
     setProperty(ATTENDING, attending);
   }
   
-  public Date getEndTime() {
+  public DateTime getEndTime() {
     return getProperty(ENDTIME);
   }
   
-  public void setEndTime(Date endTime) {
+  public void setEndTime(DateTime endTime) {
     setProperty(ENDTIME, endTime);
   }
   
@@ -94,12 +93,52 @@ public class EventObject
     setProperty(NOTATTENDING, notAttending);
   }
   
-  public Date getStartTime() {
+  public DateTime getStartTime() {
     return getProperty(STARTTIME);
   }
   
-  public void setStartTime(Date startTime) {
+  public void setStartTime(DateTime startTime) {
     setProperty(STARTTIME, startTime);
   }
 
+  public static <T extends EventObject>EventObjectGenerator<T> makeEvent() {
+    return new EventObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class EventObjectGenerator<T extends EventObject> extends ASObjectGenerator<T> {
+
+    public EventObjectGenerator() {
+      super((Class<? extends T>) EventObject.class);
+    }
+    
+    public EventObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+    
+    public <X extends EventObjectGenerator<T>>X attending(Collection<ASObject> col) {
+      item.setAttending(col);
+      return (X)this;
+    }
+    
+    public <X extends EventObjectGenerator<T>>X endTime(DateTime dt) {
+      item.setEndTime(dt);
+      return (X)this;
+    }
+    
+    public <X extends EventObjectGenerator<T>>X maybeAttending(Collection<ASObject> col) {
+      item.setMaybeAttending(col);
+      return (X)this;
+    }
+    
+    public <X extends EventObjectGenerator<T>>X notAttending(Collection<ASObject> col) {
+      item.setNotAttending(col);
+      return (X)this;
+    }
+    
+    public <X extends EventObjectGenerator<T>>X startTime(DateTime t) {
+      item.setStartTime(t);
+      return (X)this;
+    }
+  }
 }

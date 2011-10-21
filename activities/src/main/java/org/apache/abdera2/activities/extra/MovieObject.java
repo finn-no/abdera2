@@ -82,4 +82,45 @@ public class MovieObject extends CreativeWork {
   public void setPreview(MediaLink link) {
     setProperty("preview", link);
   }
+  
+  public static <T extends MovieObject>MovieObjectGenerator<T> makeMovie() {
+    return new MovieObjectGenerator<T>();
+  }
+  
+  public static class MovieObjectGenerator<T extends MovieObject> extends CreativeWorkGenerator<T> {
+    public MovieObjectGenerator() {
+      super((Class<T>) MovieObject.class);
+    }
+    public MovieObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends MovieObjectGenerator<T>>X actors(ASObject obj) {
+      item.setActors(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X director(ASObject obj) {
+      item.setDirector(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X duration(Duration obj) {
+      item.setDuration(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X musicBy(ASObject obj) {
+      item.setMusicBy(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X preview(MediaLink obj) {
+      item.setPreview(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X producer(ASObject obj) {
+      item.setProducer(obj);
+      return (X)this;
+    }
+    public <X extends MovieObjectGenerator<T>>X productionCompany(ASObject obj) {
+      item.setProductionCompany(obj);
+      return (X)this;
+    }
+  }
 }

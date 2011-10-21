@@ -316,4 +316,64 @@ public class Activity extends ASObject {
       list.add(obj);
   }
 
+  public static ActivityGenerator make() {
+    return new ActivityGenerator();
+  }
+  
+  public static class ActivityGenerator extends ASObjectGenerator<Activity> {
+    ActivityGenerator() {
+      super(Activity.class);
+    }
+    protected ActivityGenerator(Class<? extends Activity> _class) {
+      super(_class);
+    }
+    public <T extends ActivityGenerator>T to(ASObject object) {
+      item.addAudience(Audience.TO, object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T cc(ASObject object) {
+      item.addAudience(Audience.CC, object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T bcc(ASObject object) {
+      item.addAudience(Audience.BCC, object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T bto(ASObject object) {
+      item.addAudience(Audience.BTO, object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T actor(ASObject object) {
+      item.setActor(object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T generator(ASObject object) {
+      item.setGenerator(object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T icon(MediaLink link) {
+      item.setIcon(link);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T object(ASObject object) {
+      item.setObject(object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T provider(ASObject object) {
+      item.setProvider(object);
+      return (T)this;
+    }
+    public <T extends ActivityGenerator>T target(ASObject object) {
+      item.setTarget(object);
+      return (T)this;
+    }
+    public <X extends ActivityGenerator>X title(String title) {
+      item.setTitle(title);
+      return (X)this;
+    }
+    public <T extends ActivityGenerator>T verb(Verb verb) {
+      item.setVerb(verb);
+      return (T)this;
+    }
+  }
 }

@@ -46,6 +46,10 @@ public class FileObject
     setProperty(FILEURL, fileUrl);
   }
   
+  public void setFileUrl(String fileUrl) {
+    setFileUrl(new IRI(fileUrl));
+  }
+  
   public MimeType getMimeType() {
     return getProperty("mimeType");
   }
@@ -59,6 +63,36 @@ public class FileObject
       setProperty("mimeType", new MimeType(mimeType));
     } catch (MimeTypeParseException e) {
       throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
+    }
+  }
+  
+  public static <T extends FileObject>FileObjectGenerator<T> makeFile() {
+    return new FileObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class FileObjectGenerator<T extends FileObject> extends ASObjectGenerator<T> {
+    public FileObjectGenerator() {
+      super((Class<? extends T>) FileObject.class);
+    }
+    public FileObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends FileObjectGenerator<T>>X fileUrl(IRI iri) {
+      item.setFileUrl(iri);
+      return (X)this;
+    }
+    public <X extends FileObjectGenerator<T>>X fileUrl(String uri) {
+      item.setFileUrl(uri);
+      return (X)this;
+    }
+    public <X extends FileObjectGenerator<T>>X mimeType(MimeType mimeType) {
+      item.setMimeType(mimeType);
+      return (X)this;
+    }
+    public <X extends FileObjectGenerator<T>>X mimeType(String mimeType) {
+      item.setMimeType(mimeType);
+      return (X)this;
     }
   }
 }

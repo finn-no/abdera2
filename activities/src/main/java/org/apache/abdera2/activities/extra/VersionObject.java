@@ -13,7 +13,9 @@ import org.apache.abdera2.common.anno.Name;
 @Name("version")
 @Properties({
   @Property(name="previousVersion", to=VersionObject.class),
-  @Property(name="nextVersion",to=VersionObject.class)
+  @Property(name="nextVersion",to=VersionObject.class),
+  @Property(name="stableVersion",to=VersionObject.class),
+  @Property(name="activeVersion",to=VersionObject.class)
 })
 public class VersionObject 
   extends ASObject {
@@ -94,4 +96,49 @@ public class VersionObject
     setProperty("revision", val);
   }
   
+  public static <T extends VersionObject>VersionObjectGenerator<T> makeVersion() {
+    return new VersionObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class VersionObjectGenerator<T extends VersionObject> extends ASObjectGenerator<T> {
+    public VersionObjectGenerator() {
+      super((Class<? extends T>) VersionObject.class);
+    }
+    public VersionObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends VersionObjectGenerator<T>>X active(VersionObject object) {
+      item.setActiveVersion(object);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X major(String val) {
+      item.setMajor(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X minor(String val) {
+      item.setMinor(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X next(VersionObject val) {
+      item.setNextVersion(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X of(ASObject val) {
+      item.setOf(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X previous(VersionObject val) {
+      item.setPreviousVersion(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X revision(String val) {
+      item.setRevision(val);
+      return (X)this;
+    }
+    public <X extends VersionObjectGenerator<T>>X stable(VersionObject val) {
+      item.setStableVersion(val);
+      return (X)this;
+    }
+  }
 }

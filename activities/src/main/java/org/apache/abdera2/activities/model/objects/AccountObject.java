@@ -39,4 +39,30 @@ public class AccountObject
   public void setUserId(String userid) {
     setProperty("userId", userid);
   }
+  
+  public static <T extends AccountObject>AccountGenerator<T> makeAccount() {
+    return new AccountGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class AccountGenerator<T extends AccountObject> extends ServiceObjectGenerator<T> {
+    public AccountGenerator() {
+      super((Class<? extends T>) AccountObject.class);
+    }
+    public AccountGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends AccountGenerator<T>>X domain(String domain) {
+      item.setDomain(domain);
+      return (X)this;
+    }
+    public <X extends AccountGenerator<T>>X username(String username) {
+      item.setUsername(username);
+      return (X)this;
+    }
+    public <X extends AccountGenerator<T>>X userId(String userid) {
+      item.setUserId(userid);
+      return (X)this;
+    }
+  }
 }

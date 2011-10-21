@@ -32,4 +32,17 @@ public class ReviewObject
     setDisplayName(displayName);
   }
   
+  public static <T extends ReviewObject>ReviewObjectGenerator<T> makeReview() {
+    return new ReviewObjectGenerator<T>();
+  }
+  
+  public static class ReviewObjectGenerator<T extends ReviewObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public ReviewObjectGenerator() {
+      super((Class<? extends T>) ReviewObject.class);
+    }
+    public ReviewObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

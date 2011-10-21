@@ -13,15 +13,15 @@ import com.google.common.base.Supplier;
 public class Generator<T extends ASBase> implements Supplier<T> {
 
   private final ASBase template;
-  private final Class<T> _class;
+  private final Class<? extends T> _class;
   
-  private T item;
+  protected T item;
   
-  public Generator(Class<T> _class) {
+  public Generator(Class<? extends T> _class) {
     this(_class,null);
   }
   
-  public Generator(Class<T> _class, ASBase template) {
+  public Generator(Class<? extends T> _class, ASBase template) {
     this._class = _class;
     this.template = template;
   }
@@ -31,13 +31,15 @@ public class Generator<T extends ASBase> implements Supplier<T> {
       throw new IllegalStateException();
     try {
       item = _class.newInstance();
-      for (String name : template) {
-        Object obj = template.getProperty(name);
-        item.setProperty(
-          name, 
-          obj instanceof Copyable ? 
-            ((Copyable)obj).copy() : 
-            obj);
+      if (template != null) {
+        for (String name : template) {
+          Object obj = template.getProperty(name);
+          item.setProperty(
+            name, 
+            obj instanceof Copyable ? 
+              ((Copyable)obj).copy() : 
+              obj);
+        }
       }
     } catch (Throwable t) {
       throw new RuntimeException(t);

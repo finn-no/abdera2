@@ -285,4 +285,103 @@ public class PersonObject
     }
     list.add(org);
   }
+  
+  @SuppressWarnings("rawtypes")
+  public static <T extends PersonObject>PersonObjectGenerator makePerson() {
+    return new PersonObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class PersonObjectGenerator<T extends PersonObject> extends ASObjectGenerator<T> {
+    public PersonObjectGenerator() {
+      super((Class<T>)PersonObject.class);
+    }
+    public PersonObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+    public <X extends PersonObjectGenerator<T>>X account(AccountObject object) {
+      item.addAccount(object);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X address(Address object) {
+      item.addAddress(object);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X alternateName(NameObject name) {
+      item.addAlternateName(name);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X email(String email) {
+      item.addEmail(email);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X im(String im) {
+      item.addIm(im);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X organization(OrganizationObject object) {
+      item.addOrganization(object);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X phoneNumber(String pn) {
+      item.addPhoneNumber(pn);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X urls(String url) {
+      item.addUrl(url);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X urls(IRI url) {
+      item.addUrl(url);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X aboutMe(String val) {
+      item.setAboutMe(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X contactPreference(String val) {
+      item.setContactPreference(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X dn(String val) {
+      item.setDn(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X name(NameObject val) {
+      item.setName(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X nativeName(NameObject val) {
+      item.setNativeName(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X preferredName(NameObject val) {
+      item.setPreferredName(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X profileUrl(String val) {
+      item.setProfileUrl(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X profileUrl(IRI val) {
+      item.setProfileUrl(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X status(String val) {
+      item.setStatus(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X thumbnailUrl(String val) {
+      item.setThumbnailUrl(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X thumbnailUrl(IRI val) {
+      item.setThumbnailUrl(val);
+      return (X)this;
+    }
+    public <X extends PersonObjectGenerator<T>>X utcOffset(String val) {
+      item.setUtcOffset(val);
+      return (X)this;
+    }
+  }
 }

@@ -50,4 +50,25 @@ public class PlaceObject
     setProperty(ADDRESS, address);
   }
 
+  public static <T extends PlaceObject>PlaceObjectGenerator<T> makePlace() {
+    return new PlaceObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class PlaceObjectGenerator<T extends PlaceObject> extends ASObjectGenerator<T> {
+    public PlaceObjectGenerator() {
+      super((Class<? extends T>) PlaceObject.class);
+    }
+    public PlaceObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends PlaceObjectGenerator<T>>X position(String position) {
+      item.setPosition(position);
+      return (X)this;
+    }
+    public <X extends PlaceObjectGenerator<T>>X address(Address address) {
+      item.setAddress(address);
+      return (X)this;
+    }
+  }
 }

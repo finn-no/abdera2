@@ -80,4 +80,54 @@ public class NameObject
   public void setPronunciationUrl(String val) {
     setPronunciationUrl(new IRI(val));
   }
+  
+  public static <T extends NameObject>NameObjectGenerator<T> makeName() {
+    return new NameObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class NameObjectGenerator<T extends NameObject> extends ASObjectGenerator<T> {
+    public NameObjectGenerator() {
+      super((Class<? extends T>) NameObject.class);
+    }
+    public NameObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends NameObjectGenerator<T>>X familyName(String fn) {
+      item.setFamilyName(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X formatted(String fn) {
+      item.setFormatted(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X givenName(String fn) {
+      item.setGivenName(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X honorificPrefix(String fn) {
+      item.setHonorificPrefix(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X honorificSuffix(String fn) {
+      item.setHonorificSuffix(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X middleName(String fn) {
+      item.setMiddleName(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X pronunciation(String fn) {
+      item.setPronunciation(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X pronunciationUrl(String fn) {
+      item.setPronunciationUrl(fn);
+      return (X)this;
+    }
+    public <X extends NameObjectGenerator<T>>X pronunciationUrl(IRI fn) {
+      item.setPronunciationUrl(fn);
+      return (X)this;
+    }
+  }
 }

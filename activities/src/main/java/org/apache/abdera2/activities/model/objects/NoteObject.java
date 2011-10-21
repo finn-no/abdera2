@@ -31,4 +31,18 @@ public class NoteObject
   public NoteObject(String displayName) {
     setDisplayName(displayName);
   }  
+  
+  public static <T extends NoteObject>NoteObjectGenerator<T> makeNote() {
+    return new NoteObjectGenerator<T>();
+  }
+  
+  public static class NoteObjectGenerator<T extends NoteObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public NoteObjectGenerator() {
+      super((Class<? extends T>) NoteObject.class);
+    }
+    public NoteObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

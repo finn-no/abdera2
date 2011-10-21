@@ -41,4 +41,22 @@ public class ImageObject
   public void setFullImage(MediaLink fullImage) {
     setProperty(FULLIMAGE, fullImage);
   }
+  
+  public static <T extends ImageObject>ImageObjectGenerator<T> makeImage() {
+    return new ImageObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class ImageObjectGenerator<T extends ImageObject> extends ASObjectGenerator<T> {
+    public ImageObjectGenerator() {
+      super((Class<? extends T>) ImageObject.class);
+    }
+    public ImageObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends ImageObjectGenerator<T>>X fullImage(MediaLink fullImage) {
+      item.setFullImage(fullImage);
+      return (X)this;
+    }
+  }
 }

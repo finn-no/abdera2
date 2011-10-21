@@ -59,5 +59,38 @@ public class BookObject extends CreativeWork {
   public void setIllustrator(ASObject illustrator) {
     setProperty("illustrator", illustrator);
   }
+ 
+  public static <T extends BookObject>BookObjectGenerator<T> makeBook() {
+    return new BookObjectGenerator<T>();
+  }
   
+  @SuppressWarnings("unchecked")
+  public static class BookObjectGenerator<T extends BookObject> extends CreativeWorkGenerator<T> {
+    public BookObjectGenerator() {
+      super((Class<T>) BookObject.class);
+    }
+    public BookObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends BookObjectGenerator<T>>X edition(String val) {
+      item.setEdition(val);
+      return (X)this;
+    }
+    public <X extends BookObjectGenerator<T>>X format(ASObject obj) {
+      item.setFormat(obj);
+      return (X)this;
+    }
+    public <X extends BookObjectGenerator<T>>X illustrator(ASObject obj) {
+      item.setIllustrator(obj);
+      return (X)this;
+    }
+    public <X extends BookObjectGenerator<T>>X isbn(String val) {
+      item.setIsbn(val);
+      return (X)this;
+    }
+    public <X extends BookObjectGenerator<T>>X pageCount(int count) {
+      item.setPageCount(count);
+      return (X)this;
+    }
+  }
 }

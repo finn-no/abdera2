@@ -19,6 +19,7 @@ package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
+import org.apache.abdera2.common.iri.IRI;
 
 @Name("bookmark")
 public class BookmarkObject 
@@ -41,4 +42,25 @@ public class BookmarkObject
     setProperty(TARGETURL, targetUrl);
   }
 
+  public static <T extends BookmarkObject>BookmarkObjectGenerator<T> makeBookmark() {
+    return new BookmarkObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class BookmarkObjectGenerator<T extends BookmarkObject> extends ASObjectGenerator<T> {
+    public BookmarkObjectGenerator() {
+      super((Class<? extends T>) BookmarkObject.class);
+    }
+    public BookmarkObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends BookmarkObjectGenerator<T>>X targetUrl(String uri) {
+      item.setTargetUrl(uri);
+      return (X)this;
+    }
+    public <X extends BookmarkObjectGenerator<T>>X targetUrl(IRI uri) {
+      item.setTargetUrl(uri != null ? uri.toString() : null);
+      return (X)this;
+    }
+  }
 }

@@ -1,12 +1,11 @@
 package org.apache.abdera2.activities.extra;
 
-import java.util.Date;
-
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
+import org.joda.time.DateTime;
 
 /**
  * A simple "objectType":"tv-series" object that serves primarily as an 
@@ -14,8 +13,8 @@ import org.apache.abdera2.common.anno.Name;
  */
 @Name("tv-series")
 @Properties({
-  @Property(name="startDate",to=Date.class),
-  @Property(name="endDate",to=Date.class),
+  @Property(name="startDate",to=DateTime.class),
+  @Property(name="endDate",to=DateTime.class),
   @Property(name="preview",to=MediaLink.class)
 })
 @SuppressWarnings("unchecked")
@@ -33,7 +32,7 @@ public class TvSeriesObject extends CreativeWork {
     return (T)getProperty("actors");
   }
   
-  public void setActor(ASObject actors) {
+  public void setActors(ASObject actors) {
     setProperty("actors", actors);
   }
   
@@ -77,19 +76,19 @@ public class TvSeriesObject extends CreativeWork {
     setProperty("preview", link);
   }
   
-  public Date getStartDate() {
+  public DateTime getStartDate() {
     return getProperty("startDate");
   }
   
-  public void setStartDate(Date date) {
+  public void setStartDate(DateTime date) {
     setProperty("startDate", date);
   }
   
-  public Date getEndDate() {
+  public DateTime getEndDate() {
     return getProperty("endDate");
   }
   
-  public void setEndDate(Date date) {
+  public void setEndDate(DateTime date) {
     setProperty("endDate", date);
   }
   
@@ -107,5 +106,60 @@ public class TvSeriesObject extends CreativeWork {
   
   public void setEpisodes(ASObject episodes) {
     setProperty("episodes", episodes);
+  }
+  
+  
+  
+  public static <T extends TvSeriesObject>TvSeriesObjectGenerator<T> makeTvSeries() {
+    return new TvSeriesObjectGenerator<T>();
+  }
+  
+  public static class TvSeriesObjectGenerator<T extends TvSeriesObject> extends CreativeWorkGenerator<T> {
+    public TvSeriesObjectGenerator() {
+      super((Class<T>) TvSeriesObject.class);
+    }
+    public TvSeriesObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X actors(ASObject obj) {
+      item.setActors(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X director(ASObject obj) {
+      item.setDirector(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X musicBy(ASObject obj) {
+      item.setMusicBy(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X preview(MediaLink obj) {
+      item.setPreview(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X producer(ASObject obj) {
+      item.setProducer(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X productionCompany(ASObject obj) {
+      item.setProductionCompany(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X episodes(ASObject obj) {
+      item.setEpisodes(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X seasons(ASObject obj) {
+      item.setSeasons(obj);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X startDate(DateTime dt) {
+      item.setStartDate(dt);
+      return (X)this;
+    }
+    public <X extends TvSeriesObjectGenerator<T>>X endDate(DateTime dt) {
+      item.setEndDate(dt);
+      return (X)this;
+    }
   }
 }

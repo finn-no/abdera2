@@ -31,4 +31,18 @@ public class ServiceObject
   public ServiceObject(String displayName) {
     setDisplayName(displayName);
   }  
+  
+  public static <T extends ServiceObject>ServiceObjectGenerator<T> makeService() {
+    return new ServiceObjectGenerator<T>();
+  }
+  
+  public static class ServiceObjectGenerator<T extends ServiceObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public ServiceObjectGenerator() {
+      super((Class<? extends T>) ServiceObject.class);
+    }
+    public ServiceObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

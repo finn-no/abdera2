@@ -32,4 +32,17 @@ public class CommentObject
     setDisplayName(displayName);
   }
 
+  public static <T extends CommentObject>CommentObjectGenerator<T> makeComment() {
+    return new CommentObjectGenerator<T>();
+  }
+  
+  public static class CommentObjectGenerator<T extends CommentObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public CommentObjectGenerator() {
+      super((Class<? extends T>) CommentObject.class);
+    }
+    public CommentObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

@@ -32,4 +32,17 @@ public class ArticleObject
     setDisplayName(displayName);
   }
   
+  public static <T extends ArticleObject>ArticleObjectGenerator<T> makeArticle() {
+    return new ArticleObjectGenerator<T>();
+  }
+  
+  public static class ArticleObjectGenerator<T extends ArticleObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public ArticleObjectGenerator() {
+      super((Class<? extends T>) ArticleObject.class);
+    }
+    public ArticleObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

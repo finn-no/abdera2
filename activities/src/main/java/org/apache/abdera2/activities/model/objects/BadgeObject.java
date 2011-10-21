@@ -32,4 +32,17 @@ public class BadgeObject
     setDisplayName(displayName);
   }
   
+  public static <T extends BadgeObject>BadgeObjectGenerator<T> makeBadge() {
+    return new BadgeObjectGenerator<T>();
+  }
+  
+  public static class BadgeObjectGenerator<T extends BadgeObject> extends ASObjectGenerator<T> {
+    @SuppressWarnings("unchecked")
+    public BadgeObjectGenerator() {
+      super((Class<? extends T>) BadgeObject.class);
+    }
+    public BadgeObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+    }
+  }
 }

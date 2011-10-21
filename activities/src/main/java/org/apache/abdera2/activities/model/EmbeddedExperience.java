@@ -66,4 +66,56 @@ public class EmbeddedExperience
   public void setPreviewImage(String iri) {
     setGadget(new IRI(iri));
   }
+  
+  public static EmbeddedExperienceGenerator make() {
+    return new EmbeddedExperienceGenerator();
+  }
+  
+  public static class EmbeddedExperienceGenerator 
+    extends Generator<EmbeddedExperience> {
+
+    public EmbeddedExperienceGenerator() {
+      super(EmbeddedExperience.class);
+    }
+    
+    public EmbeddedExperienceGenerator context(ASObject object) {
+      item.setContext(object);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator context(Map<String,Object> map) {
+      item.setContext(map);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator gadget(IRI iri) {
+      item.setGadget(iri);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator gadget(String iri) {
+      item.setGadget(iri);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator previewImage(IRI iri) {
+      item.setPreviewImage(iri);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator previewImage(String iri) {
+      item.setPreviewImage(iri);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator url(IRI iri) {
+      item.setUrl(iri);
+      return this;
+    }
+    
+    public EmbeddedExperienceGenerator url(String uri) {
+      item.setUrl(uri);
+      return this;
+    }
+  }
 }

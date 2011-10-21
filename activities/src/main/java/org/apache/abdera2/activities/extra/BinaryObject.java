@@ -163,5 +163,51 @@ public class BinaryObject extends FileObject {
   public void setData(byte[] data, int s, int e, Hasher hash, CompressionCodec... comps) throws IOException {
     setData(new ByteArrayInputStream(data,s,e),hash,comps);
   }
+ 
+  public static <T extends BinaryObject>BinaryObjectGenerator<T> makeBinary() {
+    return new BinaryObjectGenerator<T>();
+  }
   
+  @SuppressWarnings("unchecked")
+  public static class BinaryObjectGenerator<T extends BinaryObject> extends FileObjectGenerator<T> {
+    public BinaryObjectGenerator() {
+      super((Class<T>) BinaryObject.class);
+    }
+    public BinaryObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(InputStream in) throws IOException {
+      item.setData(in);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(InputStream in, Hasher hasher, CompressionCodec... codecs) throws IOException {
+      item.setData(in,hasher,codecs);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(DataHandler in, CompressionCodec... codecs) throws IOException {
+      item.setData(in,codecs);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(DataHandler in, Hasher hasher, CompressionCodec... codecs) throws IOException {
+      item.setData(in,hasher,codecs);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(byte[] in, CompressionCodec... codecs) throws IOException {
+      item.setData(in,codecs);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(byte[] in, Hasher hasher, CompressionCodec... codecs) throws IOException {
+      item.setData(in,hasher,codecs);
+      return (X)this;
+    }
+    
+    public <X extends BinaryObjectGenerator<T>>X data(byte[] in, int s, int e, CompressionCodec... codecs) throws IOException {
+      item.setData(in,s,e,codecs);
+      return (X)this;
+    }
+    public <X extends BinaryObjectGenerator<T>>X data(byte[] in, int s, int e, Hasher hasher, CompressionCodec... codecs) throws IOException {
+      item.setData(in,s,e,hasher,codecs);
+      return (X)this;
+    }
+  }
 }

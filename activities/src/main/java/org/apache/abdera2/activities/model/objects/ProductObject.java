@@ -42,4 +42,21 @@ public class ProductObject
     setProperty(FULLIMAGE, fullImage);
   }
 
+  public static <T extends ProductObject>ProductObjectGenerator<T> makeProduct() {
+    return new ProductObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class ProductObjectGenerator<T extends ProductObject> extends ASObjectGenerator<T> {
+    public ProductObjectGenerator() {
+      super((Class<? extends T>) ProductObject.class);
+    }
+    public ProductObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends ProductObjectGenerator<T>>X fullImage(MediaLink fullImage) {
+      item.setFullImage(fullImage);
+      return (X)this;
+    }
+  }
 }

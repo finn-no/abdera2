@@ -423,4 +423,140 @@ public class ASObject extends ASBase {
   public boolean is(ASObject obj) {
     return Extra.sameIdentity(this).apply(obj);
   }
+  
+  public static <X extends ASObjectGenerator<T>,T extends ASObject>X make() {
+    return (X)new ASObjectGenerator<T>();
+  }
+  
+  public static class ASObjectGenerator<T extends ASObject> extends Generator<T> {
+
+    public ASObjectGenerator() {
+      super((Class<? extends T>) ASObject.class);
+      startNew();
+    }
+    
+    public ASObjectGenerator(Class<? extends T> _class) {
+      super(_class);
+      startNew();
+    }
+
+    public <X extends ASObjectGenerator<T>>X attachment(ASObject object) {
+      item.addAttachment(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X downstreamDuplicate(String id) {
+      item.addDownstreamDuplicate(id);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X inReplyTo(ASObject object) {
+      item.addInReplyTo(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X tag(ASObject object) {
+      item.addTag(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X upstreamDuplicate(String id) {
+      item.addUpstreamDuplicate(id);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X author(ASObject object) {
+      item.setAuthor(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X content(String content) {
+      item.setContent(content);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X displayName(String displayName) {
+      item.setDisplayName(displayName);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X embed(ASObject object) {
+      item.setEmbed(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X embeddedExperience(EmbeddedExperience ee) {
+      item.setEmbeddedExperience(ee);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X id(String id) {
+      item.setId(id);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X image(MediaLink link) {
+      item.setImage(link);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X location(PlaceObject object) {
+      item.setLocation(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X mood(Mood mood) {
+      item.setMood(mood);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X objectType(String type) {
+      item.setObjectType(type);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X published(DateTime dt) {
+      item.setPublished(dt);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X publishedNow() {
+      item.setPublishedNow();
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X rating(double rating) {
+      item.setRating(rating);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X source(ASObject object) {
+      item.setSource(object);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X summary(String summary) {
+      item.setSummary(summary);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X updated(DateTime dt) {
+      item.setUpdated(dt);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X updatedNow() {
+      item.setUpdatedNow();
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X url(IRI url) {
+      item.setUrl(url);
+      return (X)this;
+    }
+    
+    public <X extends ASObjectGenerator<T>>X url(String url) {
+      return url(new IRI(url));
+    }
+  }
 }

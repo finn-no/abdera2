@@ -124,4 +124,30 @@ public class Collection<T extends ASObject>
     setTotalItems(list.size());
   }
   
+  public static <T extends ASObject>CollectionGenerator<T> make() {
+    return new CollectionGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class CollectionGenerator<T extends ASObject> 
+    extends ASObjectGenerator<Collection<T>> {
+    
+    public CollectionGenerator() {
+      super((Class<? extends Collection<T>>) Collection.class);
+    }
+    
+    public CollectionGenerator(Class<? extends Collection<T>> _class) {
+      super(_class);
+    }
+    
+    public <X extends CollectionGenerator<T>>X totalItems(int items) {
+      item.setTotalItems(items);
+      return (X)this;
+    }
+    
+    public <X extends CollectionGenerator<T>>X item(T item) {
+      this.item.addItem(item);
+      return (X)this;
+    }
+  }
 }

@@ -51,4 +51,25 @@ public class AudioObject
     setProperty(STREAM, stream);
   }
 
+  public static <T extends AudioObject>AudioObjectGenerator<T> makeAudio() {
+    return new AudioObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class AudioObjectGenerator<T extends AudioObject> extends ASObjectGenerator<T> {
+    public AudioObjectGenerator() {
+      super((Class<? extends T>) AudioObject.class);
+    }
+    public AudioObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends AudioObjectGenerator<T>>X embedCode(String code) {
+      item.setEmbedCode(code);
+      return (X)this;
+    }
+    public <X extends AudioObjectGenerator<T>>X stream(MediaLink stream) {
+      item.setStream(stream);
+      return (X)this;
+    }
+  }
 }

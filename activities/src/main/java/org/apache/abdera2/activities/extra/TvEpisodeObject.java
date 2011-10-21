@@ -5,6 +5,7 @@ import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
+import org.joda.time.DateTime;
 
 /**
  * A simple "objectType":"tv-episode" object that serves primarily as an 
@@ -12,7 +13,8 @@ import org.apache.abdera2.common.anno.Name;
  */
 @Name("tv-episode")
 @Properties({
-  @Property(name="preview",to=MediaLink.class)
+  @Property(name="preview",to=MediaLink.class),
+  @Property(name="aired",to=DateTime.class)
 })
 @SuppressWarnings("unchecked")
 public class TvEpisodeObject extends CreativeWork {
@@ -65,6 +67,14 @@ public class TvEpisodeObject extends CreativeWork {
     setProperty("productionCompany", org);
   }
   
+  public DateTime getAired() {
+    return getProperty("aired");
+  }
+  
+  public void setAired(DateTime dt) {
+    setProperty("aired",dt);
+  }
+  
   public MediaLink getPreview() {
     return getProperty("preview");
   }
@@ -95,5 +105,59 @@ public class TvEpisodeObject extends CreativeWork {
   
   public void setEpisodeNumber(int episode) {
     setProperty("episode", episode);
+  }
+  
+  
+  public static <T extends TvEpisodeObject>TvEpisodeObjectGenerator<T> makeTvEpisode() {
+    return new TvEpisodeObjectGenerator<T>();
+  }
+  
+  public static class TvEpisodeObjectGenerator<T extends TvEpisodeObject> extends CreativeWorkGenerator<T> {
+    public TvEpisodeObjectGenerator() {
+      super((Class<T>) TvEpisodeObject.class);
+    }
+    public TvEpisodeObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X actors(ASObject obj) {
+      item.setActors(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X director(ASObject obj) {
+      item.setDirector(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X episodeNumber(int n) {
+      item.setEpisodeNumber(n);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X season(ASObject obj) {
+      item.setSeason(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X series(ASObject obj) {
+      item.setSeries(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X musicBy(ASObject obj) {
+      item.setMusicBy(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X preview(MediaLink obj) {
+      item.setPreview(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X producer(ASObject obj) {
+      item.setProducer(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X productionCompany(ASObject obj) {
+      item.setProductionCompany(obj);
+      return (X)this;
+    }
+    public <X extends TvEpisodeObjectGenerator<T>>X aired(DateTime dateTime) {
+      item.setAired(dateTime);
+      return (X)this;
+    }
   }
 }
