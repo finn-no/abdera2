@@ -18,7 +18,6 @@
 package org.apache.abdera2.activities.protocol;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
@@ -31,6 +30,7 @@ import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
+import org.joda.time.DateTime;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractActivitiesCollectionAdapter
@@ -43,54 +43,58 @@ public abstract class AbstractActivitiesCollectionAdapter
   }
   
   protected <S extends ResponseContext>S buildCreateEntryResponse(String link, ASBase base) {
-    ActivitiesResponseContext<ASBase> rc = 
-      new ActivitiesResponseContext<ASBase>(base);
-    rc.setLocation(link);
-    rc.setContentLocation(rc.getLocation().toString());
-    rc.setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base));
-    rc.setStatus(201);
-    return (S)rc;
+    return (S)
+      new ActivitiesResponseContext<ASBase>(base)
+        .setLocation(link)
+        .setContentLocation(link)
+        .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base))
+        .setStatus(201);
   }
 
   protected <S extends ResponseContext>S buildGetEntryResponse(RequestContext request, ASObject base)
       throws ResponseContextException {
       base.setSource(createSourceObject(request));
-      ActivitiesResponseContext<ASObject> rc = 
-        new ActivitiesResponseContext<ASObject>(base);
-      rc.setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base));
-      return (S)rc;
+      return (S)
+        new ActivitiesResponseContext<ASObject>(base)
+         .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base));
   }
 
   protected <S extends ResponseContext>S buildGetFeedResponse(Collection<ASObject> collection) {
-      ActivitiesResponseContext<Collection<ASObject>> rc = 
-        new ActivitiesResponseContext<Collection<ASObject>>(collection);
-      rc.setEntityTag(AbstractActivitiesProvider.calculateEntityTag(collection));
-      return (S)rc;
+      return (S) 
+        new ActivitiesResponseContext<Collection<ASObject>>(collection)
+          .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(collection));
   }
 
   protected ServiceObject createSourceObject(RequestContext request) throws ResponseContextException {
-    ServiceObject object = new ServiceObject();
-    object.setDisplayName(getTitle(request));
-    object.setId(getId(request));
-    PersonObject personObject = new PersonObject();
-    personObject.setDisplayName(getAuthor(request));
-    object.setProperty("author", personObject);
-    return object;
+    return 
+      ServiceObject
+        .makeService()
+        .displayName(getTitle(request))
+        .id(getId(request))
+        .author(
+          PersonObject
+            .makePerson()
+            .displayName(getAuthor(request))
+            .get())
+        .get();
   }
   
   /**
    * Create the base feed for the requested collection.
    */
   protected Collection<ASObject> createCollectionBase(RequestContext request) throws ResponseContextException {
-      Collection<ASObject> collection = 
-        new Collection<ASObject>();
-      collection.setProperty("id", getId(request));
-      collection.setProperty("title", getTitle(request));
-      collection.setProperty("updated", new Date());  
-      PersonObject personObject = new PersonObject();
-      personObject.setDisplayName(getAuthor(request));
-      collection.setProperty("author", personObject);
-      return collection;
+    return 
+      Collection
+        .makeCollection()
+        .id(getId(request))
+        .set("title", getTitle(request))
+        .set("updated", DateTime.now())
+        .set("author", 
+          PersonObject
+            .makePerson()
+            .displayName(getAuthor(request))
+            .get()) 
+        .get();
   }
 
   protected ASObject getEntryFromRequest(RequestContext request) throws ResponseContextException {

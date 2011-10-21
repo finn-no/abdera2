@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.activities.protocol.basic;
 
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -43,6 +42,7 @@ import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.Pusher;
+import org.joda.time.DateTime;
 
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
@@ -69,21 +69,25 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
     }
 
     protected Collection<ASObject> createCollection() {
-      Collection<ASObject> col = new Collection<ASObject>();
-      col.setProperty("id", config.getFeedUri());
-      col.setProperty("title", config.getFeedTitle());
-      col.setProperty("updated", new Date());
-      PersonObject person = new PersonObject();
-      person.setDisplayName(config.getFeedAuthor());
-      col.setProperty("author", person);
+      Collection<ASObject> col = 
+        Collection
+          .makeCollection()
+          .id(config.getFeedUri())
+          .set("title", config.getFeedTitle())
+          .set("updated", DateTime.now())
+          .set("author", 
+            PersonObject
+              .makePerson()
+              .displayName(config.getFeedAuthor())
+              .get())
+          .get();
       col.setItems(new LinkedHashSet<ASObject>());
       return col;
     }
     
     protected void addEditLinkToObject(ASObject object) throws Exception {
-      if (AbstractActivitiesProvider.getEditUriFromEntry(object) == null) {
+      if (AbstractActivitiesProvider.getEditUriFromEntry(object) == null)
         object.setProperty("editLink", object.getId());
-      }
     }
 
     protected void setObjectIdIfNull(ASObject object) throws Exception {
@@ -139,10 +143,9 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                   retl.addItem(err);
                 }
               }
-              ActivitiesResponseContext<Collection<ASObject>> rc = 
-                new ActivitiesResponseContext<Collection<ASObject>>(retl);
-              rc.setStatus(createFlag?201:200);
-              return (S)rc;
+              return (S)
+                new ActivitiesResponseContext<Collection<ASObject>>(retl)
+                  .setStatus(createFlag?201:200);
             } else if (base instanceof ASObject){
               String entryId = !createFlag ? target.getParameter(BasicProvider.PARAM_ENTRY) : null;
               ASObject inputEntry = (ASObject) base;
@@ -190,12 +193,10 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
         try {
             ASObject object = getItem(entryId);
-            
             if (object != null) {
-              ActivitiesResponseContext<ASObject> rc = 
-                new ActivitiesResponseContext<ASObject>(object);
-              rc.setStatus(200);
-              return (S)rc;
+              return (S) 
+                new ActivitiesResponseContext<ASObject>(object)
+                  .setStatus(200);
             } else return (S)ProviderHelper.notfound(request);       
         } catch (Exception e) {
             return (S)ProviderHelper.servererror(request, e.getMessage(), e);
@@ -208,10 +209,9 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
               getCollection();
 
             if (collection != null) { 
-              ActivitiesResponseContext<Collection<ASObject>> rc = 
-                new ActivitiesResponseContext<Collection<ASObject>>(collection);
-              rc.setStatus(200);
-              return (S)rc;
+              return (S) 
+                new ActivitiesResponseContext<Collection<ASObject>>(collection)
+                  .setStatus(200);
             } else return (S)ProviderHelper.notfound(request);
         } catch (Exception e) {
             return (S)ProviderHelper.servererror(request, e.getMessage(), e);

@@ -63,19 +63,19 @@ public abstract class AbstractActivitiesWorkspaceProvider
     return typeAdapters;
   }
   
-  @SuppressWarnings("unchecked")
   public <S extends ResponseContext> S createErrorResponse(
     int code,
     String message, 
     Throwable t) {
-      ErrorObject errorObject = new ErrorObject();
-      errorObject.setDisplayName(message);
-      errorObject.setCode(code);
-      ActivitiesResponseContext<ErrorObject> rc = 
-        new ActivitiesResponseContext<ErrorObject>(errorObject);
-      rc.setStatus(code);
-      rc.setStatusText(message);
-      return (S)rc;
+      return 
+        new ActivitiesResponseContext<ErrorObject>(
+          ErrorObject
+            .makeError()
+            .code(code)
+            .displayName(message)
+            .get())
+        .setStatus(code)
+        .setStatusText(message);
   }
   
   @SuppressWarnings("unchecked")

@@ -67,7 +67,7 @@ public class EmbeddedExperience
     setGadget(new IRI(iri));
   }
   
-  public static EmbeddedExperienceGenerator make() {
+  public static EmbeddedExperienceGenerator makeEmbeddedExperience() {
     return new EmbeddedExperienceGenerator();
   }
   

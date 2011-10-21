@@ -316,64 +316,64 @@ public class Activity extends ASObject {
       list.add(obj);
   }
 
-  public static ActivityGenerator make() {
-    return new ActivityGenerator();
+  public static <T extends Activity>ActivityGenerator<T> makeActivity() {
+    return new ActivityGenerator<T>();
   }
   
-  public static class ActivityGenerator extends ASObjectGenerator<Activity> {
+  public static class ActivityGenerator<T extends Activity> extends ASObjectGenerator<T> {
     ActivityGenerator() {
-      super(Activity.class);
+      super((Class<? extends T>) Activity.class);
     }
-    protected ActivityGenerator(Class<? extends Activity> _class) {
+    protected ActivityGenerator(Class<? extends T> _class) {
       super(_class);
     }
-    public <T extends ActivityGenerator>T to(ASObject object) {
+    public <X extends ActivityGenerator<T>>X to(ASObject object) {
       item.addAudience(Audience.TO, object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T cc(ASObject object) {
+    public <X extends ActivityGenerator<T>>X cc(ASObject object) {
       item.addAudience(Audience.CC, object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T bcc(ASObject object) {
+    public <X extends ActivityGenerator<T>>X bcc(ASObject object) {
       item.addAudience(Audience.BCC, object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T bto(ASObject object) {
+    public <X extends ActivityGenerator<T>>X bto(ASObject object) {
       item.addAudience(Audience.BTO, object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T actor(ASObject object) {
+    public <X extends ActivityGenerator<T>>X actor(ASObject object) {
       item.setActor(object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T generator(ASObject object) {
+    public <X extends ActivityGenerator<T>>X generator(ASObject object) {
       item.setGenerator(object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T icon(MediaLink link) {
+    public <X extends ActivityGenerator<T>>X icon(MediaLink link) {
       item.setIcon(link);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T object(ASObject object) {
+    public <X extends ActivityGenerator<T>>X object(ASObject object) {
       item.setObject(object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T provider(ASObject object) {
+    public <X extends ActivityGenerator<T>>X provider(ASObject object) {
       item.setProvider(object);
-      return (T)this;
+      return (X)this;
     }
-    public <T extends ActivityGenerator>T target(ASObject object) {
+    public <X extends ActivityGenerator<T>>X target(ASObject object) {
       item.setTarget(object);
-      return (T)this;
+      return (X)this;
     }
-    public <X extends ActivityGenerator>X title(String title) {
+    public <X extends ActivityGenerator<T>>X title(String title) {
       item.setTitle(title);
       return (X)this;
     }
-    public <T extends ActivityGenerator>T verb(Verb verb) {
+    public <X extends ActivityGenerator<T>>X verb(Verb verb) {
       item.setVerb(verb);
-      return (T)this;
+      return (X)this;
     }
   }
 }

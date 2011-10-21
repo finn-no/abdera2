@@ -124,7 +124,7 @@ public class Collection<T extends ASObject>
     setTotalItems(list.size());
   }
   
-  public static <T extends ASObject>CollectionGenerator<T> make() {
+  public static <T extends ASObject>CollectionGenerator<T> makeCollection() {
     return new CollectionGenerator<T>();
   }
   

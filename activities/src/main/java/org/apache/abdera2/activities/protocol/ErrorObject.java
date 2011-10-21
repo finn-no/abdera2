@@ -37,11 +37,28 @@ public class ErrorObject extends ASObject {
   public String getObjectType() {
     return TYPE;
   }
-  public void setObjectType(String objectType) {}
   public int getCode() {
     return (Integer)getProperty("code");
   }
   public void setCode(int code) {
     setProperty("code",code);
+  }
+  
+  public static <T extends ErrorObject>ErrorObjectGenerator<T> makeError() {
+    return new ErrorObjectGenerator<T>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static class ErrorObjectGenerator<T extends ErrorObject> extends ASObjectGenerator<T> {
+    public ErrorObjectGenerator() {
+      super((Class<? extends T>) ErrorObject.class);
+    }
+    public ErrorObjectGenerator(Class<T> _class) {
+      super(_class);
+    }
+    public <X extends ErrorObjectGenerator<T>>X code(int code) {
+      item.setCode(code);
+      return (X)this;
+    }
   }
 }

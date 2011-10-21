@@ -286,8 +286,7 @@ public class PersonObject
     list.add(org);
   }
   
-  @SuppressWarnings("rawtypes")
-  public static <T extends PersonObject>PersonObjectGenerator makePerson() {
+  public static <T extends PersonObject>PersonObjectGenerator<T> makePerson() {
     return new PersonObjectGenerator<T>();
   }
   

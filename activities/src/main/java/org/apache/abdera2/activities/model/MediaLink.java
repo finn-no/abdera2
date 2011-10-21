@@ -83,7 +83,7 @@ public class MediaLink extends ASBase {
     setUrl(new IRI(url));
   }
   
-  public static MediaLinkGenerator make() {
+  public static MediaLinkGenerator makeMediaLink() {
     return new MediaLinkGenerator();
   }
   
