@@ -70,9 +70,13 @@ public abstract class AbstractAtompubWorkspaceProvider
         this));
   }
   
-  public void init(Abdera abdera, Map<String, String> properties) {
+  public void init(Map<String, Object> properties) {
+    this.abdera = 
+      properties != null && 
+      properties.containsKey("abdera") ?
+        (Abdera)properties.get("abdera") :
+        Abdera.getInstance();
     super.init(properties);
-    this.abdera = abdera;
   }
 
   public Abdera getAbdera() {

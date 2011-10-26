@@ -196,7 +196,7 @@ public class CustomerAdapterTest {
         JettyUtil.addServlet(new ServletHolder(new AbderaServlet() {
             @Override
             protected AtompubProvider createProvider() {
-                customerProvider.init(Abdera.getInstance(), null);
+                customerProvider.init(null);
                 return customerProvider;
             }
         }), "/*");

@@ -19,54 +19,46 @@ package org.apache.abdera2.common.protocol;
 
 import java.util.Map;
 
-import org.apache.abdera2.common.Discover;
-import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.protocol.servlet.async.DefaultProcessor;
 import org.apache.abdera2.common.protocol.servlet.async.DefaultTaskExecutor;
 import org.apache.abdera2.common.protocol.servlet.async.ProcessorQueue;
 import org.apache.abdera2.common.protocol.servlet.async.TaskExecutor;
 import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.SimpleChannelManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static org.apache.abdera2.common.misc.MoreFunctions.*;
 
 /**
- * The ServiceManager is used by the AbderaServlet to bootstrap the server instance. There should be little to no reason
- * why an end user would need to use this class directly.
+ * The ServiceManager is used by the AbderaServlet to bootstrap the server 
+ * instance. There should be little to no reason why an end user would 
+ * need to use this class directly.
  */
-public abstract class AbstractServiceManager<P extends Provider> 
-  implements ServiceManager<P> {
-
-    private final static Log log = LogFactory.getLog(AbstractServiceManager.class);
+public abstract class AbstractServiceManager 
+  implements ServiceManager {
 
     protected AbstractServiceManager() {}
 
-    public ProcessorQueue newProcessorQueue(Map<String, String> properties) {
-      String instance = properties.get(PROCESSORQUEUE);
-      if (instance == null)
-        instance = DefaultProcessor.class.getName();
-      log.debug(Localizer.sprintf("CREATING.NEW.INSTANCE", "ProcessorQueue"));
-      ProcessorQueue queue = (ProcessorQueue)Discover.locate(ProcessorQueue.class, instance);
-      return queue;
+    public ProcessorQueue newProcessorQueue(
+      Map<String, Object> properties) {    
+        return discoverInitializable(
+          ProcessorQueue.class,
+          DefaultProcessor.class)
+            .apply(properties);
     }
     
-    public TaskExecutor newTaskExecutor(Map<String, String> properties) {
-      String instance = properties.get(TASKEXECUTOR);
-      if (instance == null)
-        instance = DefaultTaskExecutor.class.getName();
-      log.debug(Localizer.sprintf("CREATING.NEW.INSTANCE", "TaskExecutor"));
-      TaskExecutor exec = (TaskExecutor)Discover.locate(TaskExecutor.class, instance);
-      exec.init(properties);
-      return exec;
+    public TaskExecutor newTaskExecutor(
+      Map<String, Object> properties) {  
+        return discoverInitializable(
+            TaskExecutor.class,
+            DefaultTaskExecutor.class)
+              .apply(properties);
     }
     
-    public ChannelManager newChannelManager(Map<String, String> properties) {
-      String instance = properties.get(CHANNELMANAGER);
-      if (instance == null)
-        instance = SimpleChannelManager.class.getName();
-      log.debug(Localizer.sprintf("CREATING.NEW.INSTANCE", "ChannelManager"));
-      ChannelManager cm = (ChannelManager)Discover.locate(ChannelManager.class, instance);
-      cm.init(properties);
-      return cm;
+    public ChannelManager newChannelManager(
+      Map<String, Object> properties) {
+        return discoverInitializable(
+            ChannelManager.class,
+            SimpleChannelManager.class)
+              .apply(properties);
     }
+    
 }

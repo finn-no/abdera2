@@ -85,11 +85,12 @@ public abstract class RequestProcessor
         final Constructor<T> c = 
           _class.getConstructor(
             WorkspaceManager.class,
-            CollectionAdapter.class);
+            CollectionAdapter.class,
+            Predicate.class);
         return new RequestProcessorSupplier<T>(workspaceManager) {
           public T apply(CollectionAdapter adapter) {
             try {
-              return c.newInstance(workspaceManager,adapter);
+              return c.newInstance(workspaceManager,adapter,predicate);
             } catch (Throwable t) {
               throw ExceptionHelper.propogate(t);
             }

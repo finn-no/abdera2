@@ -35,6 +35,8 @@ import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.apache.abdera2.protocol.server.multipart.MultipartRelatedCollectionInfo;
 import org.apache.abdera2.writer.StreamWriter;
 
+import com.google.common.base.Predicate;
+
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for service
  * documents. It writes multipart/related accept attributes when is enabled.
@@ -42,11 +44,18 @@ import org.apache.abdera2.writer.StreamWriter;
 public class MultipartRelatedServiceRequestProcessor 
   extends ServiceRequestProcessor {
 
-    protected MultipartRelatedServiceRequestProcessor(
+    public MultipartRelatedServiceRequestProcessor(
       WorkspaceManager workspaceManager, 
       CollectionAdapter adapter) {
         super(workspaceManager, adapter);
     }
+    
+    public MultipartRelatedServiceRequestProcessor(
+        WorkspaceManager workspaceManager, 
+        CollectionAdapter adapter,
+        Predicate<RequestContext> predicate) {
+          super(workspaceManager, adapter, predicate);
+      }
 
     protected ResponseContext getServiceDocument(
       final RequestContext request, 

@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import javax.security.auth.Subject;
 
-import org.apache.abdera2.common.misc.Resolver;
 import org.apache.abdera2.common.protocol.DefaultWorkspaceManager;
 import org.apache.abdera2.common.protocol.Request;
 import org.apache.abdera2.common.protocol.RequestContext;
@@ -32,11 +31,13 @@ import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceInfo;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
 
+import com.google.common.base.Function;
+
 public class DefaultActivitiesProvider
   extends AbstractActivitiesProvider {
 
-  protected Resolver<Target,RequestContext> targetResolver;
-  protected Resolver<Subject,Request> subjectResolver;
+  protected Function<RequestContext,Target> targetResolver;
+  protected Function<Request,Subject> subjectResolver;
   protected TargetBuilder<?> targetBuilder;
   protected RouteManager<TargetType,RequestContext> routeManager;
   
@@ -62,27 +63,27 @@ public class DefaultActivitiesProvider
       return routeManager;
   }
 
-  protected Resolver<Target,RequestContext> getTargetResolver(RequestContext request) {
+  protected Function<RequestContext,Target> getTargetResolver(RequestContext request) {
       return targetResolver;
   }
 
-  public void setTargetResolver(Resolver<Target,RequestContext> targetResolver) {
+  public void setTargetResolver(Function<RequestContext,Target> targetResolver) {
       this.targetResolver = targetResolver;
   }
 
-  protected Resolver<Subject,Request> getSubjectResolver(RequestContext request) {
+  protected Function<Request,Subject> getSubjectResolver(RequestContext request) {
       return subjectResolver;
   }
 
-  public void setSubjectResolver(Resolver<Subject,Request> subjectResolver) {
+  public void setSubjectResolver(Function<Request,Subject> subjectResolver) {
       this.subjectResolver = subjectResolver;
   }
 
-  public Resolver<Target,RequestContext> getTargetResolver() {
+  public Function<RequestContext,Target> getTargetResolver() {
       return targetResolver;
   }
 
-  public Resolver<Subject,Request> getSubjectResolver() {
+  public Function<Request,Subject> getSubjectResolver() {
       return subjectResolver;
   }
 

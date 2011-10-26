@@ -32,6 +32,9 @@ import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Predicate;
+import static com.google.common.base.Preconditions.*;
+
 @WebListener
 public class AbderaAsyncService 
   implements ServletContextListener, Runnable {
@@ -53,15 +56,14 @@ public class AbderaAsyncService
     private TaskExecutor exec;
     private ProcessorQueue queue;
     private ChannelManager cm;
-    private boolean deployAtompubService;
-    private boolean deployChannelService;
+    private Map<String,Object> properties;
   
     public AbderaAsyncService() {
       log.debug("Abdera Async Service Created");
     }
     
-    protected Map<String, String> getProperties(ServletContext context) {
-      Map<String, String> properties = new HashMap<String, String>();
+    protected Map<String, Object> getProperties(ServletContext context) {
+      Map<String, Object> properties = new HashMap<String, Object>();
       Enumeration<String> e = context.getInitParameterNames();
       while (e.hasMoreElements()) {
           String key = e.nextElement();
@@ -71,36 +73,56 @@ public class AbderaAsyncService
       return properties;
     }
     
-    private int worker_threads(Map<String,String> properties) {
+    private int worker_threads(Map<String,Object> properties) {
       int c = DEFAULT_WORKER_THREADS;
       if (properties.containsKey(PROPERTY_WORKER_THREADS)) {
-        String val = properties.get(PROPERTY_WORKER_THREADS);
-        c = Math.max(1,Integer.parseInt(val));
+        Object v = properties.get(PROPERTY_WORKER_THREADS);
+        if (v != null) {
+          if (v instanceof Integer) 
+            c = ((Integer)v).intValue();
+          else
+            c = Math.max(1,Integer.parseInt(v.toString()));
+        } 
       }
       return c;
     }
     
-    private boolean getBooleanProperty(Map<String, String> properties, String name, boolean def) {
+    private static boolean getBooleanProperty(Map<String, Object> properties, String name, boolean def) {
       boolean answer = def;
       if (properties.containsKey(name)) {
-        String val = properties.get(name);
-        answer = "TRUE".equalsIgnoreCase(val) || 
-                 "1".equals(val) ||
-                 "YES".equalsIgnoreCase(val);
+        Object v = properties.get(name);
+        if (v == null) answer = false;
+        else if (v instanceof Boolean) answer = ((Boolean)v).booleanValue();
+        else {
+          answer = "TRUE".equalsIgnoreCase(v.toString()) || 
+                   "1".equals(v.toString()) ||
+                   "YES".equalsIgnoreCase(v.toString());
+        }
       }
       return answer;
     }
     
-    public boolean isDeployAtompubService(Map<String,String> properties) {
-      return getBooleanProperty(properties,PROPERTY_ATOMPUB_SERVICE,false);
+    public static final Predicate<Map<String,Object>> DEPLOY_ATOMPUB = 
+      isDeployAtompubService();
+    private static Predicate<Map<String,Object>> isDeployAtompubService() {
+      return new Predicate<Map<String,Object>>() {
+        public boolean apply(Map<String,Object> properties) {
+          return getBooleanProperty(properties,PROPERTY_ATOMPUB_SERVICE,false);
+        }
+      };
     }
     
-    public boolean isDeployChannelService(Map<String,String> properties) {
-      return getBooleanProperty(properties,PROPERTY_CHANNEL_SERVICE,false);
+    public static final Predicate<Map<String,Object>> DEPLOY_CHANNEL =
+      isDeployChannelService();
+    private static Predicate<Map<String,Object>> isDeployChannelService() {
+      return new Predicate<Map<String,Object>>() {
+        public boolean apply(Map<String,Object> properties) {
+          return getBooleanProperty(properties,PROPERTY_CHANNEL_SERVICE,false);
+        }
+      };
     }
     
-    @SuppressWarnings("unchecked")
-    protected ServiceManager<Provider> createServiceManager(ServletContext context) {
+    protected ServiceManager createServiceManager(ServletContext context) {
       String prop = context.getInitParameter(ServiceManager.class.getName());
       return prop != null ? 
         ServiceManager.Factory.getInstance(prop) :  
@@ -110,18 +132,14 @@ public class AbderaAsyncService
     
     public void contextInitialized(ServletContextEvent event) {   
       this.context = event.getServletContext();
-      Map<String,String> properties = getProperties(context);
-      this.deployAtompubService = isDeployAtompubService(properties);
-      this.deployChannelService = isDeployChannelService(properties);
-      ServiceManager<Provider> manager = 
-        createServiceManager(context);
+      this.properties = getProperties(context);
+      ServiceManager manager = 
+        createServiceManager(context);      
+      checkState(
+        manager != null, 
+        "Service Manager is null");
       
-      if (manager == null) {
-          log.error("Service Manager is null. Application can not function correctly");
-          throw new IllegalStateException("Service Manager is null");
-      }
-      
-      if (deployAtompubService) {
+      if (DEPLOY_ATOMPUB.apply(properties)) {
         log.debug("Initializing Abdera Atompub Service...");
         queue = manager.newProcessorQueue(properties);
         exec = manager.newTaskExecutor(properties);
@@ -134,42 +152,25 @@ public class AbderaAsyncService
         log.debug(String.format("Service Manager: %s",manager));
         log.debug(String.format("Provider:        %s",provider));
         
-        if (processor != null)
-          context.setAttribute(Processor.NAME, processor);
-        else {
-          log.error("Queue Processor is null. Application can not function correctly");
-          throw new IllegalStateException("Queue Processor is null");
-        }
-        if (exec != null)
-          context.setAttribute(RUNNER, exec);
-        else {
-          log.error("Task Executor is null. Application can not function correctly");
-          throw new IllegalStateException("Task Executor is null");
-        }
-        if (provider != null)
-          context.setAttribute(PROVIDER, provider);
-        else {
-          log.error("Provider is null. Application can not function correctly");
-          throw new IllegalStateException("Provider is null");
-        }
-        if (queue != null)
-          context.setAttribute(QUEUE, queue);
-        else {
-          log.error("Queue is null. Application can not function correctly");
-          throw new IllegalStateException("Queue is null");
-        }
+        checkState(processor != null, "Queue Processor is null");
+        checkState(exec != null, "Task Executor is null");
+        checkState(provider != null, "Provider is null");
+        checkState(queue != null, "Queue is null");
+        
+        context.setAttribute(Processor.NAME, processor);
+        context.setAttribute(RUNNER, exec);
+        context.setAttribute(PROVIDER, provider);
+        context.setAttribute(QUEUE, queue);
         context.setAttribute(SERVICEMANAGER, manager);
-  
         int ct = worker_threads(properties);
         log.debug(String.format("Launching watcher threads [%d]",ct));
         
-        for (int c = 0; c < ct; c++)
-          exec.startWorker(this);
+        exec.startWorker(ct,this);
         
         log.debug("Abdera Atompub Service is ready...");
       }
       
-      if (deployChannelService) {
+      if (DEPLOY_ATOMPUB.apply(properties)) {
         log.debug("Initializing Abdera Channel Service");
         cm = manager.newChannelManager(properties);
         log.debug(String.format("Channel Manager: %s", cm));
@@ -182,7 +183,7 @@ public class AbderaAsyncService
     
     public void contextDestroyed(ServletContextEvent event) {
       ServletContext context = event.getServletContext();
-      if (deployAtompubService) {
+      if (DEPLOY_ATOMPUB.apply(properties)) {
         log.debug("Shutting down the Abdera Service...");
         if (exec != null)
           exec.shutdown();
@@ -197,7 +198,7 @@ public class AbderaAsyncService
         context.removeAttribute(PROVIDER);
         context.removeAttribute(QUEUE);
       }
-      if (deployChannelService) {
+      if (DEPLOY_ATOMPUB.apply(properties)) {
         if (cm != null)
           cm.shutdown();
         context.removeAttribute(CM);

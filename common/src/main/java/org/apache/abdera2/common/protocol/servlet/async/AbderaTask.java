@@ -42,11 +42,14 @@ public class AbderaTask {
   private final RequestContext requestContext;
   private final Provider provider;
   
-  AbderaTask(AsyncContext context, Provider provider, RequestContext requestContext) {
-    this.context = context;
-    this.provider = provider;
-    this.requestContext = requestContext;
-    this.id = UUID.randomUUID().toString();
+  AbderaTask(
+    AsyncContext context, 
+    Provider provider, 
+    RequestContext requestContext) {
+      this.context = context;
+      this.provider = provider;
+      this.requestContext = requestContext;
+      this.id = UUID.randomUUID().toString();
   }
     
   public String getId() {
@@ -159,11 +162,10 @@ public class AbderaTask {
         if (response.isCommitted()) {
             log.error("Could not write an error message as the headers & HTTP status were already committed!");
         } else {
-          ResponseContext resp = 
-            provider.createErrorResponse(500, message, t);
-          response.setStatus(500);
           response.setCharacterEncoding("UTF-8");
-          resp.writeTo(response.getOutputStream());
+          response.setStatus(500);
+          provider.createErrorResponse(500, message, t)
+           .writeTo(response.getOutputStream());
         }
       } catch (IOException e) {
         log.error(String.format("Error writing to output stream (%s)",getId()),e);

@@ -34,38 +34,32 @@ public abstract class AbstractBaseRequestContext
     protected final String method;
     protected final IRI requestUri;
     protected final IRI baseUri;
+    protected final Principal principal;
     protected Subject subject;
-    protected Principal principal;
     protected Target target;
     
     protected AbstractBaseRequestContext(
-        Provider provider, 
-        String method, 
-        IRI requestUri, 
-        IRI baseUri) {
+      Provider provider, 
+      String method, 
+      IRI requestUri, 
+      IRI baseUri,
+      Principal principal) {
         this.provider = provider;
         this.method = method;
         this.baseUri = baseUri;
         this.requestUri = requestUri;
+        this.principal = principal;
     }
     
-    protected Target initTarget(Provider provider) {
+    protected Target initTarget() {
       try {
-          return provider.resolveTarget(this);
+        Target target = provider.resolveTarget(this);
+        return target != null ? 
+          target : 
+          new SimpleTarget(TargetType.TYPE_NOT_FOUND, this);
       } catch (Exception e) {
           throw new RuntimeException(e);
       }
-  }
-    
-    protected Target initTarget() {
-        try {
-            Target target = initTarget(provider);
-            return target != null ? 
-              target : 
-              new SimpleTarget(TargetType.TYPE_NOT_FOUND, this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public IRI getBaseUri() {

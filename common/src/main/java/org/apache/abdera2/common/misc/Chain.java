@@ -17,7 +17,6 @@ package org.apache.abdera2.common.misc;
  * directory of this distribution.
  */
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -28,10 +27,12 @@ import com.google.common.base.Supplier;
 
 import static com.google.common.base.Preconditions.*;
 
-public final class Chain<T,R> implements Function<T,R> {
+public final class Chain<T,R> 
+  implements Function<T,R> {
 
     private final Iterator<Task<T,R>> tasks;
     private final Function<T,R> to;
+    private boolean started = false;
 
     public Chain(Function<T,R> to, Task<T,R>... tasks) {
       this.to = to;
@@ -50,9 +51,12 @@ public final class Chain<T,R> implements Function<T,R> {
     }
 
     public R apply(T input) {
+      checkState(!started,"Chain has already been started");
+      started = true;
       return next(input);
     }
 
+    @SuppressWarnings("synthetic-access")
     public static <T,R>Builder<T,R> make() {
       return new Builder<T,R>();
     }
@@ -75,6 +79,12 @@ public final class Chain<T,R> implements Function<T,R> {
           via(task);
         return this;
       }
+      /**
+       * Creates a Task that applies specified functions to the input and output.
+       */
+      public Builder<T,R> via(Function<T,T> in, Function<R,R> out) {
+        return via(new FunctionTask<T,R>(in,out));
+      }
       public Builder<T,R> via(Iterable<? extends Task<T,R>> tasks) {
         for (Task<T,R> task : tasks)
           via(task);
@@ -87,6 +97,23 @@ public final class Chain<T,R> implements Function<T,R> {
       public Chain<T,R> get() {
         checkNotNull(finalTask);
         return new Chain<T,R>(finalTask,tasks);
+      }
+    }
+    
+    private static class FunctionTask<T,R> 
+      implements Task<T, R> {
+      private final Function<T,T> in;
+      private final Function<R,R> out;
+      FunctionTask(
+        Function<T,T> in, 
+        Function<R,R> out) {
+        this.in = in;
+        this.out = out;
+      }
+      public R apply(T input, Chain<T, R> flow) {
+        input = in != null ? in.apply(input) : input;
+        R output = flow.next(input);
+        return out != null ? out.apply(output) : output;
       }
     }
 }

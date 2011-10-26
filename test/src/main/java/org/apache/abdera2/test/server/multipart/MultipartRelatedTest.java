@@ -47,8 +47,7 @@ public class MultipartRelatedTest {
                   RequestProcessor.forClass(
                     MultipartRelatedServiceRequestProcessor.class, 
                     provider.getWorkspaceManager()));
-                provider.addRequestProcessors(map);
-                
+                provider.addRequestProcessors(map);            
                 MultipartRelatedAdapter ca = new MultipartRelatedAdapter("media");
                 
                 provider
@@ -59,7 +58,7 @@ public class MultipartRelatedTest {
                       .collection(ca)
                       .get());
 
-                provider.init(Abdera.getInstance(), null);
+                provider.init(null);
                 return provider;
             }
         }), "/*");

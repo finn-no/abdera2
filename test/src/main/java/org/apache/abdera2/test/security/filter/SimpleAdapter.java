@@ -156,9 +156,17 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
                 feed.setUpdated(DateTime.now());
                 FOMResponseContext<?> rc =
                     (FOMResponseContext<?>)AbstractAtompubProvider.returnBase(entry_doc, 201, entry.getEdited());
-                return rc.setLocation(ProviderHelper.resolveBase(request).resolve(entry.getEditLinkResolvedHref())
-                    .toString()).setContentLocation(rc.getLocation().toString()).setEntityTag(AbstractAtompubProvider
-                    .calculateEntityTag(entry));
+                return rc
+                  .setLocation(
+                    ProviderHelper
+                      .resolveBase(request)
+                      .resolve(entry.getEditLinkResolvedHref()))
+                  .setContentLocation(
+                    rc.getLocation()
+                      .toString())
+                  .setEntityTag(
+                    AbstractAtompubProvider
+                      .calculateEntityTag(entry));
             } else {
                 return ProviderHelper.badrequest(request);
             }
@@ -184,7 +192,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
       Map<String, String> params = new HashMap<String, String>();
       params.put("collection", request.getTarget().getParameter("collection"));
       params.put("entry", entryid);
-      return request.urlFor(TargetType.TYPE_ENTRY, params);
+      return request.urlFor("entry",params);
   }
 
   private Function<RequestContext,ResponseContext> putItem() {

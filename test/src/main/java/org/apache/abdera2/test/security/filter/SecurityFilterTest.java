@@ -54,7 +54,7 @@ public class SecurityFilterTest {
         try {
 
             server = new JettyServer();
-            server.start(CustomProvider.class);
+            server.start(CustomAtompubServiceManager.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.examples.appserver.employee;
 
-import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
 import org.apache.abdera2.protocol.server.impl.DefaultAtompubProvider;
@@ -25,7 +24,6 @@ import org.apache.abdera2.protocol.server.impl.SimpleWorkspaceInfo;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-
 
 public class AppServer {
 
@@ -46,10 +44,8 @@ public class AppServer {
         server.join();
     }
 
-    // START SNIPPET: servlet
     public static final class EmployeeProviderServlet extends AbderaServlet {
         private static final long serialVersionUID = -549428240693531463L;
-
         protected Provider createProvider() {
             EmployeeCollectionAdapter ca = new EmployeeCollectionAdapter("employee");
             DefaultAtompubProvider provider = 
@@ -61,10 +57,8 @@ public class AppServer {
                   .title("Employee Directory Workspace")
                   .collection(ca)
                   .get());
-
-            provider.init(Abdera.getInstance(), null);
+            provider.init(null);
             return provider;
         }
     }
-    // END SNIPPET: servlet
 }

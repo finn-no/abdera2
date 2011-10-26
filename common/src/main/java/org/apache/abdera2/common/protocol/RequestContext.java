@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.security.Principal;
-import java.util.List;
 import java.util.Locale;
 
 import javax.security.auth.Subject;
@@ -141,12 +140,12 @@ public interface RequestContext
     /**
      * Return all the values for the specified parameter
      */
-    List<String> getParameters(String name);
+    Iterable<String> getParameters(String name);
 
     /**
      * Get the named attribute from the specified scope
      */
-    Object getAttribute(Scope scope, String name);
+    <T>T getAttribute(Scope scope, String name);
 
     /**
      * Return the list of attribute names in the specified scope

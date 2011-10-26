@@ -25,36 +25,22 @@ import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
 import org.apache.abdera2.common.protocol.servlet.async.AbderaAsyncService;
 import org.apache.abdera2.common.protocol.servlet.async.AbderaChannelServlet;
 import org.apache.abdera2.common.protocol.servlet.async.AsyncAbderaServlet;
-import org.apache.abdera2.protocol.server.AtompubServiceManager;
 import org.apache.abdera2.test.JettyUtil;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 public class JettyServer {
 
-    public void start(Class<? extends Provider> _class) throws Exception {
-        ServletHolder servletHolder = new ServletHolder(new AbderaServlet());
-        servletHolder.setInitParameter(AtompubServiceManager.PROVIDER, _class.getName());
-
-      JettyUtil.addServlet(servletHolder, "/*");
-      JettyUtil.start();
-    }
-
-    
     public void start(
-        Class<? extends ServiceManager<?>> _smclass, 
-        Class<? extends Provider> _class) throws Exception {
+        Class<? extends ServiceManager> _smclass) throws Exception {
       
       ServletHolder servletHolder = new ServletHolder(new AbderaServlet());
-      servletHolder.setInitParameter(ServiceManager.PROVIDER, _class.getName());
       servletHolder.setInitParameter(ServiceManager.class.getName(), _smclass.getName());
       JettyUtil.addServlet(servletHolder, "/*");
       JettyUtil.start();
     }
     
-    
     public void startAsync(
-        Class<? extends ServiceManager<?>> _smclass, 
-        Class<? extends Provider> _class,
+        Class<? extends ServiceManager> _smclass, 
         AbderaChannelServlet acs) throws Exception {
       
       ServletHolder servletHolder = new ServletHolder(new AsyncAbderaServlet());
@@ -72,7 +58,6 @@ public class JettyServer {
       JettyUtil.getSch().setInitParameter("AbderaAtompubService", "true");
       JettyUtil.getSch().setInitParameter("AbderaChannelService", "true");
       JettyUtil.getSch().setInitParameter(ServiceManager.class.getName(), _smclass.getName());
-      JettyUtil.getSch().setInitParameter(ServiceManager.PROVIDER, _class.getName());
       JettyUtil.getSch().setEventListeners(listeners);
       JettyUtil.start();
     }

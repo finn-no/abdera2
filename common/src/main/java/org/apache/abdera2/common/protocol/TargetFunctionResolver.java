@@ -10,9 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.iri.IRI;
-import org.apache.abdera2.common.misc.AbstractResolver;
 import org.apache.abdera2.common.misc.ExceptionHelper;
-import org.apache.abdera2.common.misc.Resolver;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
@@ -26,8 +24,7 @@ import com.google.common.collect.Iterables;
  * function in the list is tried
  */
 public class TargetFunctionResolver<R extends RequestContext>
-  extends AbstractResolver<Target,R>
-  implements Resolver<Target,R> {
+  implements Function<R,Target> {
 
   public static <R extends RequestContext>TargetFunctionResolver<R> create(
     TargetFunction<R>... functions) {
@@ -53,7 +50,7 @@ public class TargetFunctionResolver<R extends RequestContext>
       return this;
   }
 
-  public Target resolve(R request) {
+  public Target apply(R request) {
     for (TargetFunction<R> f : functions) {
       Target target = f.apply(request);
       if (target != null)

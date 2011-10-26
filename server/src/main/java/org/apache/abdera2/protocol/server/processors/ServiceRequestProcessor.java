@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.http.EntityTag;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.CollectionAdapter;
@@ -36,6 +37,8 @@ import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.apache.abdera2.writer.StreamWriter;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Predicate;
+
 /**
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for service
  * documents.
@@ -43,11 +46,19 @@ import org.joda.time.DateTime;
 public class ServiceRequestProcessor 
   extends RequestProcessor {
 
-    protected ServiceRequestProcessor(
+    public ServiceRequestProcessor(
       WorkspaceManager workspaceManager,
       CollectionAdapter adapter) {
         super(workspaceManager, adapter);
     }
+    
+    public ServiceRequestProcessor(
+        WorkspaceManager workspaceManager,
+        CollectionAdapter adapter,
+        Predicate<RequestContext> predicate) {
+          super(workspaceManager, adapter,predicate);
+      }
+
 
     public ResponseContext apply(
         RequestContext request) {
@@ -59,7 +70,7 @@ public class ServiceRequestProcessor
         WorkspaceManager workspaceManager) {
         String method = context.getMethod();
         if (method.equalsIgnoreCase("GET")) {
-            return this.getServiceDocument(context, workspaceManager);
+            return getServiceDocument(context, workspaceManager);
         } else {
             return null;
         }

@@ -124,9 +124,13 @@ public abstract class AbstractAtompubProvider
             workspaceManager));
     }
 
-    public void init(Abdera abdera, Map<String, String> properties) {
-        this.abdera = abdera == null ? abdera : Abdera.getInstance();
-        this.init(properties);
+    public void init(Map<String, Object> properties) {
+      this.abdera = 
+        properties != null && 
+        properties.containsKey("abdera") ?
+          (Abdera)properties.get("abdera") :
+          Abdera.getInstance();
+      super.init(properties);
     }
 
     public Abdera getAbdera() {

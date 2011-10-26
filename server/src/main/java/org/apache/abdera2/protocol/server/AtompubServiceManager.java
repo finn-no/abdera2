@@ -20,39 +20,36 @@ package org.apache.abdera2.protocol.server;
 import java.util.Map;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.common.Discover;
-import org.apache.abdera2.common.Localizer;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.AbstractServiceManager;
+import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.protocol.server.impl.DefaultAtompubProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
- * The ServiceManager is used by the AbderaServlet to bootstrap the server instance. There should be little to no reason
- * why an end user would need to use this class directly.
+ * The ServiceManager is used by the AbderaServlet to bootstrap the server 
+ * instance. There should be little to no reason why an end user would need 
+ * to use this class directly.
  */
 public class AtompubServiceManager 
-  extends AbstractServiceManager<AtompubProvider> {
+  extends AbstractServiceManager {
 
-    private final static Log log = LogFactory.getLog(AtompubServiceManager.class);
+    private final Abdera abdera;
 
-    private final Abdera abdera = Abdera.getInstance();
-
-    public AtompubServiceManager() {}
-
-    public Abdera getAbdera() {
-        return abdera;
+    public AtompubServiceManager() {
+      this.abdera = Abdera.getInstance();
+    }
+    
+    public AtompubServiceManager(Abdera abdera) {
+      this.abdera = abdera;
     }
 
-    public AtompubProvider newProvider(Map<String, String> properties) {
-        Abdera abdera = getAbdera();
-        String instance = properties.get(PROVIDER);
-        if (instance == null)
-            instance = DefaultAtompubProvider.class.getName();
-        log.debug(Localizer.sprintf("CREATING.NEW.INSTANCE", "Provider"));
-        AtompubProvider provider = (AtompubProvider)Discover.locate(AtompubProvider.class, instance);
-        log.debug(Localizer.sprintf("INITIALIZING.INSTANCE", "Provider"));
-        provider.init(abdera, properties);
-        return provider;
+    @SuppressWarnings("unchecked")
+    public <P extends Provider>P newProvider(
+      Map<String, Object> properties) {
+      properties.put("abdera",abdera);
+      return (P)MoreFunctions
+        .discoverInitializable(
+          Provider.class,
+          DefaultAtompubProvider.class).apply(properties);
     }    
 }

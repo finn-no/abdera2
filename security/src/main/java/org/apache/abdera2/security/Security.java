@@ -128,7 +128,7 @@ public class Security {
     public <T extends Element>Predicate<T> isVerified(final SignatureOptions options) {
       return new Predicate<T>() {
         public boolean apply(T input) {
-          return verifier(options).apply(input);
+          return  verifier(options).apply(input);
         }
       };
     }

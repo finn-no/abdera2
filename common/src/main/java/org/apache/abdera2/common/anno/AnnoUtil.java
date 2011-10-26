@@ -23,7 +23,6 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-
 public final class AnnoUtil {
 
   private AnnoUtil() {}

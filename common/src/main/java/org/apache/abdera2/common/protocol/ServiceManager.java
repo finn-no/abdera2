@@ -26,30 +26,25 @@ import org.apache.abdera2.common.protocol.servlet.async.TaskExecutor;
 import org.apache.abdera2.common.pusher.ChannelManager;
 
 @DefaultImplementation("org.apache.abdera2.protocol.server.AtompubServiceManager")
-public interface ServiceManager<P extends Provider> {
-
-  public static final String PROVIDER = Provider.class.getName();
-  public static final String PROCESSORQUEUE = ProcessorQueue.class.getName();
-  public static final String TASKEXECUTOR = TaskExecutor.class.getName();
-  public static final String CHANNELMANAGER = ChannelManager.class.getName();
-
+public interface ServiceManager {
   
-  public abstract P newProvider(Map<String, String> properties);
+  public abstract <P extends Provider>P newProvider(
+    Map<String, Object> properties);
 
   public abstract ProcessorQueue newProcessorQueue(
-      Map<String, String> properties);
+    Map<String, Object> properties);
 
-  public abstract TaskExecutor newTaskExecutor(Map<String, String> properties);
+  public abstract TaskExecutor newTaskExecutor(
+    Map<String, Object> properties);
 
   public abstract ChannelManager newChannelManager(
-      Map<String, String> properties);
+      Map<String, Object> properties);
 
-  @SuppressWarnings({"rawtypes" })
   public static class Factory {
     
-    @SuppressWarnings("unchecked")
-    public static ServiceManager<Provider> getInstance() {
-      return getInstance("org.apache.abdera2.protocol.server.AtompubServiceManager");
+    public static ServiceManager getInstance() {
+      return getInstance(
+        "org.apache.abdera2.protocol.server.AtompubServiceManager");
     }
   
     public static ServiceManager getInstance(String impl) {

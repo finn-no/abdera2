@@ -43,10 +43,11 @@ public abstract class AbstractAbderaServlet
   extends HttpServlet {
 
   private static final long serialVersionUID = 2722733242417632126L;
+  
+    private final static Log log = 
+      LogFactory.getLog(AbstractAbderaServlet.class);
 
-    private final static Log log = LogFactory.getLog(AbstractAbderaServlet.class);
-
-    protected ServiceManager<Provider> manager;
+    protected ServiceManager manager;
     protected Provider provider;
 
     @Override
@@ -58,12 +59,11 @@ public abstract class AbstractAbderaServlet
         log.debug("Using provider - " + provider);
     }
 
-    protected ServiceManager<Provider> getServiceManager() {
+    protected ServiceManager getServiceManager() {
         return manager;
     }
 
-    @SuppressWarnings("unchecked")
-    protected ServiceManager<Provider> createServiceManager() {
+    protected ServiceManager createServiceManager() {
         String prop = this.getInitParameter(ServiceManager.class.getName());
         return prop != null ? 
           ServiceManager.Factory.getInstance(prop) :  
@@ -71,14 +71,18 @@ public abstract class AbstractAbderaServlet
     }
 
     protected Provider createProvider() {
-        return manager.newProvider(getProperties(getServletConfig()));
+        return manager.newProvider(
+          getProperties(
+            getServletConfig()));
     }
 
     protected void process(
       HttpServletRequest request,
       HttpServletResponse response,
       ServletContext context) {
-      RequestContext reqcontext = new ServletRequestContext(provider, request, context);
+      RequestContext reqcontext = 
+        new ServletRequestContext(
+          provider, request, context);
       try {
           output(request, response, provider.apply(reqcontext));
       } catch (Throwable t) {
@@ -88,7 +92,10 @@ public abstract class AbstractAbderaServlet
       log.debug("Request complete");
     }
     
-    protected void output(HttpServletRequest request, HttpServletResponse response, ResponseContext context)
+    protected void output(
+      HttpServletRequest request, 
+      HttpServletResponse response, 
+      ResponseContext context)
         throws IOException {
         if (context != null) {
             response.setStatus(context.getStatus());
@@ -102,8 +109,7 @@ public abstract class AbstractAbderaServlet
                 MimeType ct = context.getContentType();
                 if (ct != null)
                     response.setContentType(ct.toString());
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
             Iterable<String> names = context.getHeaderNames();
             for (String name : names) {
                 Iterable<Object> headers = context.getHeaders(name);
@@ -122,29 +128,28 @@ public abstract class AbstractAbderaServlet
         }
     }
 
-    protected void error(String message, Throwable t, HttpServletResponse response) {
+    protected void error(
+      String message, 
+      Throwable t, 
+      HttpServletResponse response) {
       try {
-        if (t != null)
-            log.error(message, t);
-        else
-            log.error(message);
-
-        if (response.isCommitted()) {
-            log.error("Could not write an error message as the headers & HTTP status were already committed!");
-        } else {
-            ResponseContext resp = 
-              provider.createErrorResponse(500, message, t);
-            response.setStatus(500);
+        if (t != null) log.error(message, t);
+        else log.error(message);
+        if (response.isCommitted())
+          log.error("Could not write an error message as the headers & HTTP status were already committed!");
+        else {
             response.setCharacterEncoding("UTF-8");
-            resp.writeTo(response.getOutputStream());
+            response.setStatus(500);
+            provider.createErrorResponse(500, message, t)
+             .writeTo(response.getOutputStream());
         }
       } catch (IOException e) {
         log.error("Error writing to output stream",e);
       }
     }
 
-    protected Map<String, String> getProperties(ServletConfig config) {
-        Map<String, String> properties = new HashMap<String, String>();
+    protected Map<String, Object> getProperties(ServletConfig config) {
+        Map<String, Object> properties = new HashMap<String, Object>();
         Enumeration<String> e = config.getInitParameterNames();
         while (e.hasMoreElements()) {
             String key = e.nextElement();

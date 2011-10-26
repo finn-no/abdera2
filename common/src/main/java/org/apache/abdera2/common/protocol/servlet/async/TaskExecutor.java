@@ -17,14 +17,16 @@
  */
 package org.apache.abdera2.common.protocol.servlet.async;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 
-public interface TaskExecutor extends Executor {
+import org.apache.abdera2.common.misc.Initializable;
 
-  void init(Map<String,String> properties);
+public interface TaskExecutor
+  extends Executor, Initializable {
   
   void startWorker(Runnable runnable);
+  
+  void startWorker(int count, Runnable runnable);
   
   void shutdown();
   

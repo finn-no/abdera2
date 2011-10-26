@@ -22,33 +22,31 @@ import java.security.Principal;
 
 import javax.security.auth.Subject;
 
-import org.apache.abdera2.common.misc.AbstractResolver;
-import org.apache.abdera2.common.misc.Resolver;
+import com.google.common.base.Function;
 
 /**
  * The default subject resolver implementation
  */
 public class SimpleSubjectResolver 
-  extends AbstractResolver<Subject,Request>
-  implements Resolver<Subject,Request> {
+  implements Function<Request,Subject> {
 
     public static final Principal ANONYMOUS = new AnonymousPrincipal();
 
-    public Subject resolve(Request request) {
+    public Subject apply(Request request) {
         RequestContext context = (RequestContext)request;
-        return resolve(context.getPrincipal());
+        return apply(context.getPrincipal());
     }
 
-    public Subject resolve(Principal principal) {
+    public Subject apply(Principal principal) {
         Subject subject = new Subject();
         subject.getPrincipals().add((principal != null) ? principal : ANONYMOUS);
         return subject;
     }
 
-    public Subject resolve(String userid) {
+    public Subject apply(String userid) {
         if (userid == null)
-            return resolve(ANONYMOUS);
-        return resolve(new SimplePrincipal(userid));
+            return apply(ANONYMOUS);
+        return apply(new SimplePrincipal(userid));
     }
 
     static class SimplePrincipal implements Principal, Serializable {

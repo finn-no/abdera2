@@ -9,11 +9,7 @@ import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
   initParams={
     @WebInitParam(
       name="org.apache.abdera2.common.protocol.ServiceManager",
-      value="org.apache.abdera2.activities.protocol.ActivitiesServiceManager"
-    ),
-    @WebInitParam(
-      name="org.apache.abdera2.common.protocol.Provider", 
-      value="org.apache.abdera2.activities.protocol.basic.BasicProvider"
+      value="org.apache.abdera2.activities.protocol.basic.BasicServiceManager"
     )
   }
 )

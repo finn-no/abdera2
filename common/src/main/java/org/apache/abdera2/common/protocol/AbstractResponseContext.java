@@ -36,8 +36,9 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
+import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
-import org.apache.abdera2.common.misc.Functions;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Iterables;
@@ -81,7 +82,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
 
     public <T extends ResponseContext>T setEncodedHeader(String name, String charset, String... vals) {
         String[] evals = 
-          Functions.<String,String>each(
+          MoreFunctions.<String,String>each(
             vals, Codec.encodeStar(charset), String.class);
         return (T)setHeader(name, (Object[])evals);
     }
@@ -107,7 +108,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T addEncodedHeaders(String name, String charset, String... vals) {
-      String[] evals = Functions.<String,String>each(vals, Codec.encodeStar(charset),String.class);
+      String[] evals = MoreFunctions.<String,String>each(vals, Codec.encodeStar(charset),String.class);
       addHeaders(name,(Object[])evals);
       return (T)this;
     }
@@ -150,10 +151,15 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
         return null;
     }
 
+    private Object getFirst(Iterable<Object> i, Object def) {
+      if (i == null) return def;
+      return Iterables.getFirst(i, def);
+    }
+    
     public String getHeader(String name) {
       Map<String, Iterable<Object>> headers = getHeaders();
       Iterable<Object> values = headers.get(name);
-      Object obj = Iterables.getFirst(values,null);
+      Object obj = getFirst(values,null);
       return obj != null ? obj.toString() : null;
     }
 
@@ -226,6 +232,9 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
 
     public <T extends ResponseContext>T setLocation(String uri) {
         return (T)(uri == null ? removeHeader("Location") : setHeader("Location", uri));
+    }
+    public <T extends ResponseContext>T setLocation(IRI iri) {
+      return setLocation(iri == null ? null : iri.toString());
     }
 
     public int getStatus() {

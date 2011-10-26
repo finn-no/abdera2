@@ -32,8 +32,6 @@ import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.activities.model.objects.NoteObject;
 import org.apache.abdera2.activities.model.objects.PersonObject;
-import org.apache.abdera2.activities.protocol.ActivitiesServiceManager;
-import org.apache.abdera2.activities.protocol.basic.BasicProvider;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.protocol.client.BasicClient;
 import org.apache.abdera2.protocol.client.ClientResponse;
@@ -55,8 +53,7 @@ public class AsyncBasicTest {
         if (server == null) {
             server = new JettyServer();
             server.startAsync(
-              ActivitiesServiceManager.class, 
-              BasicProvider.class,
+              BasicActivitiesServiceManager.class,
               new TestChannelServlet());
         }
     }

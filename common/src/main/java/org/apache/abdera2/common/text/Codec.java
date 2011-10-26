@@ -45,7 +45,7 @@ public enum Codec {
           switch (this) {
               case Q: e = new QCodec(charset); break;
               case B: e = new BCodec(charset); break;
-              case STAR: e = new StarCodec(charset); break;
+              default: e = new StarCodec(charset); break;
           }
           return e.encode(value);
       } catch (Exception e) {
@@ -161,6 +161,7 @@ public enum Codec {
       }
     }
   
+  @SuppressWarnings("synthetic-access")
   public static Function<String,String> decode() {
     return new DecodeFunction();
   }

@@ -3,8 +3,6 @@ package org.apache.abdera2.test.activities.server;
 import java.io.Writer;
 
 import javax.servlet.AsyncContext;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,11 +38,6 @@ public class TestChannelServlet
         } catch (Throwable e) {}
       }
     };
-  }
-
-  @Override
-  protected long getTimeout(ServletConfig config, ServletContext context) {
-    return 60 * 1000;
   }
 
 }

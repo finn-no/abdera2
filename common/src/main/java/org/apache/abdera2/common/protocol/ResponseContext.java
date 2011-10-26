@@ -25,6 +25,7 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
+import org.apache.abdera2.common.iri.IRI;
 import org.joda.time.DateTime;
 
 /**
@@ -171,6 +172,11 @@ public interface ResponseContext extends Response {
      */
     <B extends ResponseContext>B setLocation(String uri);
 
+    /**
+     * Set the value of the Location header
+     */
+    <B extends ResponseContext>B setLocation(IRI iri);
+    
     /**
      * Set the response status code
      */

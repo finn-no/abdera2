@@ -23,8 +23,9 @@ import java.util.Set;
 
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
-import org.apache.abdera2.common.misc.Resolver;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Function;
 
 /**
  * An abstract base Provider implementation that implements the WorkspaceManager interface. This is intended to be used
@@ -34,7 +35,7 @@ public abstract class AbstractWorkspaceProvider
     extends BaseProvider 
       implements WorkspaceManager {
 
-    protected Resolver<Target,RequestContext> targetResolver;
+    protected Function<RequestContext,Target> targetResolver;
     protected TargetBuilder<?> targetBuilder;
     protected final Set<WorkspaceInfo> workspaces = 
       new LinkedHashSet<WorkspaceInfo>();
@@ -43,7 +44,7 @@ public abstract class AbstractWorkspaceProvider
       return this;
     }
 
-    protected Resolver<Target,RequestContext> getTargetResolver(RequestContext request) {
+    protected Function<RequestContext,Target> getTargetResolver(RequestContext request) {
         return targetResolver;
     }
 
@@ -56,7 +57,7 @@ public abstract class AbstractWorkspaceProvider
         this.targetBuilder = targetBuilder;
     }
 
-    protected void setTargetResolver(Resolver<Target,RequestContext> targetResolver) {
+    protected void setTargetResolver(Function<RequestContext,Target> targetResolver) {
         this.targetResolver = targetResolver;
     }
 

@@ -61,7 +61,7 @@ public class CustomProviderTest {
     public static void setUp() throws Exception {
         try {
             server = new JettyServer();
-            server.start(CustomProvider.class);
+            server.start(CustomAtompubServiceManager.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

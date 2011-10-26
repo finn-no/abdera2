@@ -24,7 +24,7 @@ import com.google.common.base.Predicate;
  * {@link org.apache.AtompubRequestProcessor.protocol.server.RequestProcessor} implementation which processes requests for collection
  * documents.
  */
-public abstract class CollectionRequestProcessor
+public class CollectionRequestProcessor
   extends TransactionalRequestProcessor {
 
   public CollectionRequestProcessor(

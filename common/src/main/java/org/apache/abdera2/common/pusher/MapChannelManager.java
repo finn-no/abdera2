@@ -98,5 +98,5 @@ public abstract class MapChannelManager
     return shuttingDown;
   }
   
-  public void init(Map<String,String> properties) {}
+  public void init(Map<String,Object> properties) {}
 }

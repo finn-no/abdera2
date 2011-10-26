@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.security.Principal;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
 import javax.activation.MimeType;
@@ -46,8 +45,8 @@ public class BaseRequestContextWrapper
         this.request = request;
     }
 
-    public Object getAttribute(Scope scope, String name) {
-        return request.getAttribute(scope, name);
+    public <T>T getAttribute(Scope scope, String name) {
+        return request.<T>getAttribute(scope, name);
     }
 
     public Iterable<String> getAttributeNames(Scope scope) {
@@ -78,7 +77,7 @@ public class BaseRequestContextWrapper
         return request.getParameterNames();
     }
 
-    public List<String> getParameters(String name) {
+    public Iterable<String> getParameters(String name) {
         return request.getParameters(name);
     }
 
@@ -95,11 +94,11 @@ public class BaseRequestContextWrapper
     }
 
     public <T>T getProperty(Property property) {
-        return (T)request.getProperty(property);
+        return request.<T>getProperty(property);
     }
 
     public <P extends Provider>P getProvider() {
-        return (P)request.getProvider();
+        return request.<P>getProvider();
     }
 
     public Reader getReader() throws IOException {

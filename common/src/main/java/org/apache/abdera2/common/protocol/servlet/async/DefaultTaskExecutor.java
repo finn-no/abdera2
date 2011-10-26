@@ -38,16 +38,21 @@ public class DefaultTaskExecutor
     exec.execute(task);
   }
 
-  public void init(Map<String, String> properties) {
+  public void init(Map<String, Object> properties) {
     exec = (ThreadPoolExecutor) Executors.newCachedThreadPool();
     if (properties.containsKey(TERMINATION_TIMEOUT)) {
-      String val = properties.get(TERMINATION_TIMEOUT);
+      String val = (String)properties.get(TERMINATION_TIMEOUT);
       terminationTimeout = Math.max(1,Long.parseLong(val));
     }
   }
 
   public void startWorker(Runnable worker) {
     exec.execute(worker);
+  }
+  
+  public void startWorker(int count, Runnable worker) {
+    for (int n = 0; n < count; n++)
+      startWorker(worker);
   }
 
   public void shutdown() {

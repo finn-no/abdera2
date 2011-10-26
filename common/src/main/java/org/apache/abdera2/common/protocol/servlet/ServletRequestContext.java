@@ -20,11 +20,11 @@ package org.apache.abdera2.common.protocol.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
@@ -38,6 +38,8 @@ import org.apache.abdera2.common.protocol.AbstractBaseRequestContext;
 import org.apache.abdera2.common.protocol.Provider;
 import org.joda.time.DateTime;
 
+import com.google.common.collect.Iterators;
+
 @SuppressWarnings({ "unchecked" })
 public class ServletRequestContext 
   extends AbstractBaseRequestContext {
@@ -46,12 +48,19 @@ public class ServletRequestContext
     private final ServletContext servletContext;
     private HttpSession session;
 
-    public ServletRequestContext(Provider provider, HttpServletRequest request, ServletContext servletContext) {
-        super(provider, request.getMethod(), initRequestUri(request), initBaseUri(provider, request));
+    public ServletRequestContext(
+      Provider provider, 
+      HttpServletRequest request, 
+      ServletContext servletContext) {
+        super(
+          provider, 
+          request.getMethod(), 
+          initRequestUri(request), 
+          initBaseUri(provider, request),
+          request.getUserPrincipal());
         this.request = request;
         this.servletContext = servletContext;
         this.session = request.getSession(false);
-        this.principal = request.getUserPrincipal();
         this.subject = provider.resolveSubject(this);
         this.target = initTarget();
     }
@@ -99,15 +108,15 @@ public class ServletRequestContext
         return this;
     }
 
-    public Object getAttribute(Scope scope, String name) {
+    public <T>T getAttribute(Scope scope, String name) {
         switch (scope) {
             case REQUEST:
-                return request.getAttribute(name);
+                return (T)request.getAttribute(name);
             case SESSION:
-                return (session != null) ? session.getAttribute(name) : null;
+                return session != null ? (T)session.getAttribute(name) : null;
             case CONTAINER: {
                 ServletContext scontext = getServletContext();
-                return scontext != null ? scontext.getAttribute(name) : null;
+                return scontext != null ? (T)scontext.getAttribute(name) : null;
             }
         }
         return null;
@@ -135,9 +144,9 @@ public class ServletRequestContext
         return enum2array(request.getParameterNames());
     }
 
-    public List<String> getParameters(String name) {
+    public Iterable<String> getParameters(String name) {
         String[] values = request.getParameterValues(name);
-        return values != null ? java.util.Arrays.asList(values) : null;
+        return values != null ? Arrays.<String>asList(values) : null;
     }
 
     public DateTime getDateHeader(String name) {
@@ -153,16 +162,18 @@ public class ServletRequestContext
         return enum2array(request.getHeaderNames());
     }
 
+    @SuppressWarnings("rawtypes")
     public Iterable<Object> getHeaders(String name) {
-        Enumeration<?> e = request.getHeaders(name);
-        List<Object> list = new ArrayList<Object>();
-        while(e.hasMoreElements())
-          list.add(e.nextElement());
-        return list;
+        final Enumeration e = request.getHeaders(name);
+        return new Iterable<Object>() {
+          public Iterator<Object> iterator() {
+            return Iterators.<Object>forEnumeration(e);
+          }
+        };
     }
 
     private static Iterable<String> enum2array(Enumeration<String> e) {
-        return java.util.Collections.list(e);
+        return Collections.<String>list(e);
     }
 
     private static String getHost(Provider provider, HttpServletRequest request) {

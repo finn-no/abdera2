@@ -214,7 +214,6 @@ public class XmlSignature extends SignatureBase {
                 }
             }
         }
-
         return answer;
     }
 

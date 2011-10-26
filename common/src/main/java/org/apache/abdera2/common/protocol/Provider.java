@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
+import org.apache.abdera2.common.misc.Initializable;
 import org.apache.abdera2.common.misc.Task;
 
 import com.google.common.base.Function;
@@ -32,12 +33,9 @@ import com.google.common.base.Function;
  */
 @SuppressWarnings("rawtypes")
 public interface Provider
-  extends TargetBuilder, Function<RequestContext,ResponseContext> {
-
-    /**`
-     * Initialize the Provider.
-     */
-    void init(Map<String, String> properties);
+  extends TargetBuilder, 
+          Function<RequestContext,ResponseContext>, 
+          Initializable {
 
     /**
      * Get the specified property

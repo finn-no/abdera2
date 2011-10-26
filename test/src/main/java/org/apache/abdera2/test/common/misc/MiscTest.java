@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.abdera2.common.misc.PoolManager;
 import org.junit.Test;
 
 import com.google.common.collect.Iterators;
@@ -37,23 +36,4 @@ public class MiscTest {
     assertFalse(mi.hasNext());
   }
   
-  @Test
-  public void poolManagerTest() {
-    PoolManager<String,String> pm = 
-      new PoolManager<String,String>(2) {
-        private int c = 0;
-        protected String internalNewInstance() {
-          return "A"+(c++);
-        }
-    };
-    assertEquals("A0",pm.get(""));
-    assertEquals("A1",pm.get(""));
-    pm.release("A0");
-    assertEquals("A0",pm.get(""));
-    pm.release("A0");
-    pm.release("A1");
-    pm.release("A2");
-    assertEquals("A1",pm.get(""));
-    assertEquals("A2",pm.get(""));
-  }
 }

@@ -18,8 +18,8 @@
 package org.apache.abdera2.test.security.filter;
 
 import org.apache.abdera2.common.protocol.Provider;
+import org.apache.abdera2.common.protocol.ServiceManager;
 import org.apache.abdera2.common.protocol.servlet.AbderaServlet;
-import org.apache.abdera2.protocol.server.AtompubServiceManager;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -40,13 +40,13 @@ public class JettyServer {
         this.port = port;
     }
 
-    public void start(Class<? extends Provider> _class) throws Exception {
+    public void start(Class<? extends ServiceManager> _class) throws Exception {
         server = new Server(port);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
         ServletHolder servletHolder = new ServletHolder(new AbderaServlet());
-        servletHolder.setInitParameter(AtompubServiceManager.PROVIDER, _class.getName());
+        servletHolder.setInitParameter(ServiceManager.class.getName(), _class.getName());
         context.addServlet(servletHolder, "/*");
         server.start();
     }

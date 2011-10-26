@@ -38,7 +38,6 @@ import org.apache.abdera2.protocol.client.AbderaSession;
 import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
-import org.apache.abdera2.protocol.server.provider.basic.BasicProvider;
 import org.apache.abdera2.test.server.JettyServer;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.http.ResponseType;
@@ -60,7 +59,7 @@ public class BasicTest {
     public static void setUp() throws Exception {
         if (server == null) {
             server = new JettyServer();
-            server.start(BasicProvider.class);
+            server.start(BasicAtompubServiceManager.class);
         }
     }
 

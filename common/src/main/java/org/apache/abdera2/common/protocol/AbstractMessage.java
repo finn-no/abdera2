@@ -35,9 +35,6 @@ import org.apache.abdera2.common.text.UrlEncoding;
  */
 public abstract class AbstractMessage implements Message {
 
-    protected int flags = 0;
-    protected long max_age = -1;
-
     public CacheControl getCacheControl() {
         String cc = getHeader("Cache-Control");
         return cc != null ? CacheControl.parse(cc) : null;

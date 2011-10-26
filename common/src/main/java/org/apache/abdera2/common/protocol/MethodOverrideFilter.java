@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.misc.Task;
 
 /**
@@ -47,28 +48,35 @@ public class MethodOverrideFilter implements Task<RequestContext,ResponseContext
           this.methods.add(method);
     }
 
-    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
-        return chain.next(new MethodOverrideRequestContext(request));
+    public ResponseContext apply(
+      RequestContext request, 
+      Chain<RequestContext,ResponseContext> chain) {
+        return chain.next(
+          new MethodOverrideRequestContext(
+            request,methods));
     }
 
-    private class MethodOverrideRequestContext extends BaseRequestContextWrapper {
-
+    private static class MethodOverrideRequestContext 
+      extends BaseRequestContextWrapper {
         private final String method;
-
-        public MethodOverrideRequestContext(RequestContext request) {
+        public MethodOverrideRequestContext(
+          RequestContext request, 
+          Set<String> methods) {
             super(request);
             String method = super.getMethod();
-            String xheader = getHeader("X-HTTP-Method-Override");
-            if (xheader == null)
-                xheader = getHeader("X-Method-Override");
+            String xheader = 
+              MoreFunctions
+                .<String>firstNonNull(
+                  getHeader("X-HTTP-Method-Override"),
+                  getHeader("X-Method-Override"));
             if (xheader != null)
                 xheader = xheader.toUpperCase().trim();
-            if (method.equals("POST") && xheader != null && methods.contains(method)) {
-                method = xheader;
-            }
+            if (method.equals("POST") && 
+                xheader != null && 
+                methods.contains(method))
+                  method = xheader;
             this.method = method;
         }
-
         public String getMethod() {
             return method;
         }

@@ -13,6 +13,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 
+import static org.apache.abdera2.common.misc.Comparisons.*;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
@@ -66,7 +67,7 @@ public final class DateTimes {
     return dt.toDateTime(DateTimeZone.forID(id));
   }
   
-  public DateTimeBuilder makeDateTime() {
+  public static DateTimeBuilder makeDateTime() {
     return new DateTimeBuilder();
   }
   
@@ -74,6 +75,100 @@ public final class DateTimes {
     private int year, month, day, hour, minute, second, millis;
     private DateTimeZone dtz;
     public DateTimeBuilder() {}
+    private DateTime _now() {
+      return dtz == null ?
+        DateTimes.now() :
+        DateTimes.now(dtz);
+    }
+    public DateTimeBuilder thisYear() {
+      this.year = _now().year().get();
+      return this;
+    }
+    public DateTimeBuilder thisMonth() {
+      this.month = _now().monthOfYear().get();
+      return this;
+    }
+    public DateTimeBuilder thisDay() {
+      this.day = _now().dayOfMonth().get();
+      return this;
+    }
+    public DateTimeBuilder thisHour() {
+      this.hour = _now().hourOfDay().get();
+      return this;
+    }
+    public DateTimeBuilder thisMinute() {
+      this.minute = _now().minuteOfHour().get();
+      return this;
+    }
+    public DateTimeBuilder thisSecond() {
+      this.second = _now().secondOfMinute().get();
+      return this;
+    }
+    public DateTimeBuilder thisMillisecond() {
+      this.millis = _now().millisOfSecond().get();
+      return this;
+    }
+    public DateTimeBuilder thisTimeZone() {
+      this.dtz = _now().getZone();
+      return this;
+    }
+    public DateTimeBuilder thisDate() {
+      DateTime now = _now();
+      this.year = now.year().get();
+      this.month = now.monthOfYear().get();
+      this.day = now.dayOfMonth().get();
+      return this;
+    }
+    public DateTimeBuilder thisDatePlusYears(int years) {
+      thisDate();
+      this.year += years;
+      return this;
+    }
+    public DateTimeBuilder thisDatePlusMonths(int months) {
+      thisDate();
+      this.year += months / 12;
+      this.month += months % 12;
+      return this;
+    }
+    public DateTimeBuilder thisDatePlusDays(int days) {
+      thisDate();
+      this.year += days / 365;
+      int rem = days % 365;
+      this.month += rem / 31;
+      this.day += rem % 31;
+      return this;
+    }
+    public DateTimeBuilder thisTime() {
+      DateTime now = _now();
+      this.hour = now.hourOfDay().get();
+      this.minute = now.minuteOfHour().get();
+      this.second = now.secondOfMinute().get();
+      this.millis = now.millisOfSecond().get();
+      return this;
+    }
+    public DateTimeBuilder nowUtc() {
+      timezoneUTC();
+      DateTime now = _now();
+      this.year = now.year().get();
+      this.month = now.monthOfYear().get();
+      this.day = now.dayOfMonth().get();
+      this.hour = now.hourOfDay().get();
+      this.minute = now.minuteOfHour().get();
+      this.second = now.secondOfMinute().get();
+      this.millis = now.millisOfSecond().get();
+      return this;
+    }
+    public DateTimeBuilder now() {
+      DateTime now = _now();
+      this.year = now.year().get();
+      this.month = now.monthOfYear().get();
+      this.day = now.dayOfMonth().get();
+      this.hour = now.hourOfDay().get();
+      this.minute = now.minuteOfHour().get();
+      this.second = now.secondOfMinute().get();
+      this.millis = now.millisOfSecond().get();
+      return this;
+    }
     public DateTimeBuilder year(int year) {
       this.year = year;
       return this;
@@ -106,6 +201,10 @@ public final class DateTimes {
       this.dtz = DateTimeZone.forTimeZone(tz);
       return this;
     }
+    public DateTimeBuilder timezoneUTC() {
+      this.dtz = DateTimeZone.UTC;
+      return this;
+    }
     public DateTimeBuilder timezone(String id) {
       this.dtz = DateTimeZone.forID(id);
       return this;
@@ -119,15 +218,23 @@ public final class DateTimes {
       return this;
     }
     public DateTime get() {
-      return new DateTime(year,month,day,hour,minute,second,millis,dtz);
+      return new DateTime(
+        year,
+        Math.min(12,Math.max(1,month)),
+        Math.min(31,Math.max(1,day)),
+        hour,
+        minute,
+        second,
+        millis,
+        dtz);
     }
   }
   
   public static abstract class DateTimeComparator<X> implements Comparator<X> {
     public int innerCompare(DateTime d1, DateTime d2) {
-      if (d1 != null && d2 == null) return 1;
-      if (d1 == null && d2 != null) return -1;
-      if (d1 == null && d2 == null) return 0;
+      if (onlySecondIsNull(d1,d2)) return 1;
+      if (onlyFirstIsNull(d1,d2)) return -1;
+      if (bothAreNull(d1,d2)) return 0;
       return d1.compareTo(d2);
     }
   }
@@ -154,6 +261,10 @@ public final class DateTimes {
   
   public static DateTime now(String tz) {
     return DateTime.now(DateTimeZone.forID(tz));
+  }
+  
+  public static DateTime now(DateTimeZone dtz) {
+    return DateTime.now(dtz);
   }
   
   public static DateTime now(TimeZone tz) {

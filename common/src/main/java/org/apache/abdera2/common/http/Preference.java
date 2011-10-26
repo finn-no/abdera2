@@ -30,6 +30,7 @@ public class Preference implements Serializable {
   public static final String RETURN_ACCEPTED = "return-accepted";
   public static final String RETURN_CONTENT = "return-content";
   public static final String RETURN_STATUS = "return-status";
+  public static final String WAIT = "wait";
   
   /** 
    * The "return-no-content" token indicates that the client prefers that
@@ -57,6 +58,14 @@ public class Preference implements Serializable {
   public static final Preference PREF_RETURN_CONTENT =
     new Preference(RETURN_CONTENT);
   
+  public static Preference WAIT(long millis) {
+    return 
+      make()
+        .token(WAIT)
+        .value(millis)
+     .get();
+  }
+  
   public static Builder make() {
     return new Builder();
   }
@@ -79,6 +88,26 @@ public class Preference implements Serializable {
     
     public Builder value(String value) {
       this.value = value;
+      return this;
+    }
+    
+    public Builder value(long value) {
+      this.value = Long.toString(value);
+      return this;
+    }
+    
+    public Builder value(int value) {
+      this.value = Integer.toString(value);
+      return this;
+    }
+    
+    public Builder value(short value) {
+      this.value = Short.toString(value);
+      return this;
+    }
+    
+    public Builder value(boolean value) {
+      this.value = Boolean.toString(value);
       return this;
     }
     
@@ -132,6 +161,22 @@ public class Preference implements Serializable {
   
   public String getValue() {
     return value;
+  }
+  
+  public long getLongValue() {
+    return Long.parseLong(value);
+  }
+  
+  public int getIntValue() {
+    return Integer.parseInt(value);
+  }
+  
+  public short getShortValue() {
+    return Short.parseShort(value);
+  }
+  
+  public boolean getBooleanValue() {
+    return Boolean.parseBoolean(value);
   }
   
   private static final Set<String> reserved = 
@@ -313,5 +358,12 @@ public class Preference implements Serializable {
       return preferences instanceof Collection ?
         ((Collection<Preference>)preferences).contains(preference) :
         contains(preferences,preference.getToken());
+  }
+  
+  public static Preference get(Iterable<Preference> preferences, String token) {
+    for (Preference pref : preferences)
+      if (pref.matches(token))
+        return pref;
+    return null;
   }
 }

@@ -17,7 +17,7 @@
  */
 package org.apache.abdera2.common.pusher;
 
-import java.util.Map;
+import org.apache.abdera2.common.misc.Initializable;
 
 /**
  * A "Channel" is a logical pairing of related Pusher and Receiver interfaces.
@@ -26,13 +26,12 @@ import java.util.Map;
  * generic as possible, allowing channels to be implemented in a broad variety
  * of ways.
  */
-public interface ChannelManager extends Iterable<String> {
+public interface ChannelManager 
+  extends Iterable<String>, Initializable {
 
   <T>Pusher<T> getPusher(String channel);
   
   <T>Receiver<T> getReceiver(String channel);
-  
-  void init(Map<String,String> properties);
   
   void shutdown();
   

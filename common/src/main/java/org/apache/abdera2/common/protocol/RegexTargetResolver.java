@@ -24,10 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.abdera2.common.misc.AbstractResolver;
-import org.apache.abdera2.common.misc.Resolver;
-
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -57,8 +54,7 @@ import static org.apache.abdera2.common.misc.MorePredicates.*;
  * </pre>
  */
 public class RegexTargetResolver<R extends RequestContext>
-  extends AbstractResolver<Target,R>
-  implements Resolver<Target,R> {
+  implements Function<R,Target> {
 
     protected final Map<Pattern, TargetType> patterns;
     protected final Multimap<Pattern,String> fields = 
@@ -87,7 +83,7 @@ public class RegexTargetResolver<R extends RequestContext>
         return this;
     }
 
-    public Target resolve(R request) {
+    public Target apply(R request) {
         String uri = request.getTargetPath();
         for (Pattern pattern : patterns.keySet()) {
             Matcher matcher = pattern.matcher(uri);

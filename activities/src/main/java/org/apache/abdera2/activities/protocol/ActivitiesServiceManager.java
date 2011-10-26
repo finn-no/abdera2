@@ -17,16 +17,14 @@
  */
 package org.apache.abdera2.activities.protocol;
 
+import static org.apache.abdera2.common.misc.MoreFunctions.*;
+
 import java.util.Map;
 
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.TypeAdapter;
-import org.apache.abdera2.common.Discover;
-import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.protocol.AbstractServiceManager;
 import org.apache.abdera2.common.protocol.Provider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * The ServiceManager is used by the AbderaServlet to bootstrap the server 
@@ -34,9 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * to use this class directly.
  */
 public class ActivitiesServiceManager
-  extends AbstractServiceManager<Provider> {
-
-    private final static Log log = LogFactory.getLog(ActivitiesServiceManager.class);
+  extends AbstractServiceManager {
 
     public ActivitiesServiceManager() {}
 
@@ -44,15 +40,13 @@ public class ActivitiesServiceManager
       return IO.get(adapters);
     }
     
-    public Provider newProvider(Map<String, String> properties) {
-        String instance = properties.get(PROVIDER);
-        if (instance == null)
-            instance = DefaultActivitiesProvider.class.getName();
-        log.debug(Localizer.sprintf("CREATING.NEW.INSTANCE", "Provider"));
-        Provider provider = Discover.locate(Provider.class, instance);
-        log.debug(Localizer.sprintf("INITIALIZING.INSTANCE", "Provider"));
-        provider.init(properties);
-        return provider;
+    @SuppressWarnings("unchecked")
+    public <P extends Provider>P newProvider(
+      Map<String, Object> properties) {
+        return (P)discoverInitializable(
+          Provider.class,
+          DefaultActivitiesProvider.class)
+            .apply(properties);
     }
     
 }

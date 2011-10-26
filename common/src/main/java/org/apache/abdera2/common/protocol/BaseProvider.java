@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.security.auth.Subject;
 
 import org.apache.abdera2.common.misc.Chain;
-import org.apache.abdera2.common.misc.Resolver;
 import org.apache.abdera2.common.misc.Task;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,18 +42,18 @@ public abstract class BaseProvider
   implements Provider {
 
     private final static Log log = LogFactory.getLog(BaseProvider.class);
-    protected Map<String, String> properties;
+    protected Map<String, Object> properties;
     protected Set<Task<RequestContext,ResponseContext>> filters = 
       new LinkedHashSet<Task<RequestContext,ResponseContext>>();
     protected Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors = 
       new HashMap<TargetType, Function<CollectionAdapter,? extends RequestProcessor>>();
 
-    public void init(Map<String,String> properties) {
-      this.properties = properties != null ? properties : new HashMap<String,String>();
+    public void init(Map<String,Object> properties) {
+      this.properties = properties != null ? properties : new HashMap<String,Object>();
     }
 
     public String getProperty(String name) {
-        return properties.get(name);
+        return (String)properties.get(name);
     }
 
     public Iterable<String> getPropertyNames() {
@@ -62,13 +61,13 @@ public abstract class BaseProvider
     }
 
     public Subject resolveSubject(RequestContext request) {
-        Resolver<Subject,Request> subjectResolver = getSubjectResolver(request);
-        return subjectResolver != null ? subjectResolver.resolve(request) : null;
+        Function<Request,Subject> subjectResolver = getSubjectResolver(request);
+        return subjectResolver != null ? subjectResolver.apply(request) : null;
     }
 
     public Target resolveTarget(RequestContext request) {
-        Resolver<Target,RequestContext> targetResolver = getTargetResolver(request);
-        return targetResolver != null ? targetResolver.resolve(request) : null;
+        Function<RequestContext,Target> targetResolver = getTargetResolver(request);
+        return targetResolver != null ? targetResolver.apply(request) : null;
     }
 
     public String urlFor(Request request, Object key, Object param) {
@@ -76,13 +75,13 @@ public abstract class BaseProvider
         return tm != null ? tm.urlFor(request, key, param) : null;
     }
 
-    protected Resolver<Subject,Request> getSubjectResolver(RequestContext request) {
+    protected Function<Request,Subject> getSubjectResolver(RequestContext request) {
         return new SimpleSubjectResolver();
     }
 
     protected abstract TargetBuilder getTargetBuilder(Request request);
 
-    protected abstract Resolver<Target, RequestContext> getTargetResolver(RequestContext request);
+    protected abstract Function<RequestContext,Target> getTargetResolver(RequestContext request);
 
     public ResponseContext apply(RequestContext request) {
       Target target = request.getTarget();

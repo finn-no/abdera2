@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.Listener;
 import org.apache.abdera2.common.pusher.Receiver;
@@ -47,7 +48,28 @@ public abstract class AbderaChannelServlet extends HttpServlet {
   
   protected abstract AsyncListener<?> createListener(AsyncContext context);
   
-  protected abstract long getTimeout(ServletConfig config, ServletContext context);
+  protected long getMaxTimeout(ServletConfig config, ServletContext context) {
+    return 30 * 1000;
+  }
+  
+  /**
+   * By default, we look for the Prefer: wait=<n> header to grab the 
+   * wait time, or return -1 to skip setting the timeout
+   */
+  protected long getTimeout(HttpServletRequest req, ServletConfig config, ServletContext context) {
+    return Math.min(getMaxTimeout(config,context),timeout(req));
+  }
+  
+  private static long timeout(HttpServletRequest req) {
+    try {
+      Iterable<Preference> i = Preference.parse(req.getHeader("Prefer"));
+      Preference waitPref = Preference.get(i, Preference.WAIT);
+      long wait = waitPref != null ? waitPref.getLongValue() : -1;
+      return Math.max(0, wait);
+    } catch (Throwable t) {
+      return -1;
+    }
+  }
   
   protected void doGet(
       final HttpServletRequest request, 
@@ -57,7 +79,9 @@ public abstract class AbderaChannelServlet extends HttpServlet {
     final ChannelManager cm = (ChannelManager) sc.getAttribute(AbderaAsyncService.CM);
     if (cm == null || !cm.isShutdown()) {
       final AsyncContext context = request.startAsync(request, response);
-      context.setTimeout(getTimeout(getServletConfig(),sc));
+      long timeout = getTimeout(request,getServletConfig(),sc);
+      if (timeout > -1)
+        context.setTimeout(timeout);
       context.start(
         new Runnable() {
           public void run() {

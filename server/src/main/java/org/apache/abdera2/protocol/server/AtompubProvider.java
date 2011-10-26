@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.protocol.server;
 
-import java.util.Map;
-
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.TargetType;
@@ -29,11 +27,6 @@ import org.apache.abdera2.common.protocol.TargetType;
  * {@link TargetType}.
  */
 public interface AtompubProvider extends Provider {
-
-    /**
-     * Initialize the Provider.
-     */
-    void init(Abdera abdera, Map<String, String> properties);
 
     /**
      * Retrieve the Abdera instance associated with this provider

@@ -160,6 +160,11 @@ public class BaseResponseContextWrapper implements ResponseContext {
         response.setLocation(uri);
         return (T)this;
     }
+    
+    public <T extends ResponseContext>T setLocation(IRI iri) {
+      response.setLocation(iri);
+      return (T)this;
+    }
 
     public <T extends ResponseContext>T setSlug(String slug) {
         response.setSlug(slug);

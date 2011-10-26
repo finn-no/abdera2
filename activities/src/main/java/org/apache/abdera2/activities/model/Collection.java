@@ -132,8 +132,12 @@ public class Collection<T extends ASObject>
   public static class CollectionGenerator<T extends ASObject> 
     extends ASObjectGenerator<Collection<T>> {
     
+    private static <T extends ASObject>Class<? extends Collection<T>> t(Class _class) {
+      return (Class<? extends Collection<T>>) _class;
+    }
+    
     public CollectionGenerator() {
-      super((Class<? extends Collection<T>>) Collection.class);
+      super(CollectionGenerator.<T>t(Collection.class));
     }
     
     public CollectionGenerator(Class<? extends Collection<T>> _class) {

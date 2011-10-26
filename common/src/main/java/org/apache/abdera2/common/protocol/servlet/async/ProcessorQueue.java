@@ -17,7 +17,10 @@
  */
 package org.apache.abdera2.common.protocol.servlet.async;
 
-public interface ProcessorQueue {
+import org.apache.abdera2.common.misc.Initializable;
+
+public interface ProcessorQueue 
+  extends Initializable {
 
   boolean hasNext();
   

@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.common.protocol.servlet.async;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -61,5 +62,7 @@ public class DefaultProcessor
     while(hasNext())
       next().cancel();
   }
+
+  public void init(Map<String, Object> properties) {}
 
 }
