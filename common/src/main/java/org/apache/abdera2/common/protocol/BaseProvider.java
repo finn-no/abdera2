@@ -97,7 +97,7 @@ public abstract class BaseProvider
         getWorkspaceManager()
           .getCollectionAdapter(request);
       if (adapter == null && type != TargetType.TYPE_SERVICE)
-        return ProviderHelper.servererror(request, null);
+        return ProviderHelper.notfound(request);
       RequestProcessor processor = 
         (RequestProcessor) this.requestProcessors
           .get(type)
