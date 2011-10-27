@@ -55,12 +55,13 @@ public class DefaultWorkspaceManager
       return new Predicate<CollectionInfo>() {
         public boolean apply(CollectionInfo input) {
           String href = input.getHref(rc);
-          return (
+          boolean answer = (
             path.equals(href) || 
             (href != null && 
              path.startsWith(href) && 
              URI_GEN_DELIMS.contains(
               path.substring(href.length(), href.length() + 1))));
+          return answer;
         }
       }; 
     }

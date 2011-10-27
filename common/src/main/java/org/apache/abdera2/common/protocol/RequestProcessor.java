@@ -52,8 +52,14 @@ public abstract class RequestProcessor
       this.predicate = predicate;
     }
   
+  private boolean applies(RequestContext request, Predicate<RequestContext> predicate) {
+    return predicate != null && predicate.apply(request);
+  }
+  
   protected ResponseContext actuallyApply(RequestContext request) {
-    if (predicate != null && !predicate.apply(request))
+    boolean adapter_ok = applies(request, adapter.acceptable());
+    boolean pred_ok = applies(request, predicate);
+    if (!adapter_ok && !pred_ok) // fail only if both are false
       return ProviderHelper.notallowed(request);
     Function<RequestContext,ResponseContext> handler = 
       adapter.handlerFor(

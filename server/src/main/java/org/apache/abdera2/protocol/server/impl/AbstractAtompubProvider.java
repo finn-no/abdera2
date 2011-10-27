@@ -33,12 +33,14 @@ import org.apache.abdera2.common.http.QualityHelper;
 import org.apache.abdera2.common.http.QualityHelper.QToken;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.AbstractResponseContext;
 import org.apache.abdera2.common.protocol.BaseProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.MediaRequestProcessor;
 import org.apache.abdera2.common.protocol.RequestContext;
+import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Provider;
@@ -55,10 +57,12 @@ import org.apache.abdera2.model.ExtensibleElement;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Service;
+import org.apache.abdera2.parser.ParseException;
+import org.apache.abdera2.parser.Parser;
+import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.protocol.error.Error;
 import org.apache.abdera2.protocol.server.AtompubProvider;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.context.StreamWriterResponseContext;
 import org.apache.abdera2.protocol.server.model.AtompubWorkspaceInfo;
@@ -324,12 +328,55 @@ public abstract class AbstractAtompubProvider
         }
         return response;
     }
-
-    @Override
-    public ResponseContext apply(RequestContext request) {
-      return super.apply(
-        request instanceof AtompubRequestContext ? 
-          request : 
-          new AtompubRequestContext(request));
+    
+    public static <T extends Element>Document<T> getDocument(
+      RequestContext context)
+        throws ParseException, IOException {
+      return getDocument(null, null, context);
     }
+
+    public static <T extends Element> Document<T> getDocument(
+      Parser parser, RequestContext context) 
+        throws ParseException, IOException {
+      return getDocument(parser,null,context);
+    }
+
+    public static <T extends Element> Document<T> getDocument(
+      ParserOptions options, 
+      RequestContext context) throws ParseException,
+        IOException {
+        return getDocument(null,options,context);
+    }
+
+    public static <T extends Element> Document<T> getDocument(
+      Parser parser, 
+      ParserOptions options, 
+      RequestContext context)
+        throws ParseException, IOException {
+      
+      Document<T> doc = context.getAttribute(Scope.REQUEST, Document.class.getName());
+      if (doc == null) {
+        try {
+          AtompubProvider provider = context.<AtompubProvider>getProvider();
+          Abdera abdera = provider.getAbdera();
+          log.debug(Localizer.get("PARSING.REQUEST.DOCUMENT"));
+          if (parser == null)
+              parser = abdera.getParser();
+          if (parser == null)
+              throw new IllegalArgumentException(
+                "No Parser implementation was provided");
+          if (options == null)
+            options = parser.getDefaultParserOptions();
+          doc = parser.parse(
+            context.getInputStream(), 
+            context.getResolvedUri().toString(), 
+            options);
+          context.setAttribute(Document.class.getName(), doc);
+        } catch (Throwable t) {
+          throw ExceptionHelper.propogate(t);
+        }
+      }
+      return doc;
+    }
+
 }

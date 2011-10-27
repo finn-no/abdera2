@@ -17,13 +17,13 @@
  */
 package org.apache.abdera2.protocol.server.impl;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
+import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
@@ -33,16 +33,16 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.Parser;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Predicate;
+
 /**
  * Base CollectionAdapter implementation that provides a number of helper utility methods for adapter implementations.
  */
-@SuppressWarnings("unchecked")
 public abstract class AbstractAtompubCollectionAdapter 
   extends AbstractCollectionAdapter
   implements AtompubCollectionInfo {
@@ -126,17 +126,13 @@ public abstract class AbstractAtompubCollectionAdapter
 
         Document<Entry> entry_doc;
         try {
-            AtompubRequestContext context = (AtompubRequestContext) request;
-            entry_doc = (Document<Entry>)context.getDocument(parser).clone();
+          entry_doc = AbstractAtompubProvider.getDocument(parser,request);
         } catch (ParseException e) {
-            throw new ResponseContextException(400, e);
-        } catch (IOException e) {
-            throw new ResponseContextException(500, e);
+          throw new ResponseContextException(400, e);
+        } catch (Throwable t) {
+          throw new ResponseContextException(500, t);
         }
-        if (entry_doc == null) {
-            return null;
-        }
-        return entry_doc.getRoot();
+        return entry_doc == null ? null : entry_doc.getRoot();
     }
 
     public Collection asCollectionElement(RequestContext request) {
@@ -148,5 +144,9 @@ public abstract class AbstractAtompubCollectionAdapter
             collection.addCategories(catsinfo.asCategoriesElement(request));
         }
         return collection;
+    }
+    
+    public Predicate<RequestContext> acceptable() {
+      return ProviderHelper.isAtom();
     }
 }

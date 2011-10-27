@@ -34,7 +34,6 @@ import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Person;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.impl.AbstractEntityCollectionAdapter;
 import org.joda.time.DateTime;
 
@@ -91,8 +90,7 @@ public class CustomerAdapter extends AbstractEntityCollectionAdapter<Customer> {
 
     @Override
     public List<Person> getAuthors(Customer entry, RequestContext context) throws ResponseContextException {
-        AtompubRequestContext request = (AtompubRequestContext) context;
-        Person author = request.getAbdera().getFactory().newAuthor();
+        Person author = Abdera.getInstance().getFactory().newAuthor();
         author.setName("Acme Industries");
         return Arrays.asList(author);
     }

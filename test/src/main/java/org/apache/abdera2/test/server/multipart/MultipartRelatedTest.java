@@ -40,16 +40,16 @@ public class MultipartRelatedTest {
             @Override
             protected AtompubProvider createProvider() {
                 DefaultAtompubProvider provider = new DefaultAtompubProvider("/");
-
                 Map<TargetType,Function<CollectionAdapter,? extends RequestProcessor>> map = 
                   new HashMap<TargetType,Function<CollectionAdapter,? extends RequestProcessor>>();
                 map.put(TargetType.TYPE_SERVICE, 
                   RequestProcessor.forClass(
                     MultipartRelatedServiceRequestProcessor.class, 
                     provider.getWorkspaceManager()));
+
                 provider.addRequestProcessors(map);            
-                MultipartRelatedAdapter ca = new MultipartRelatedAdapter("media");
-                
+                MultipartRelatedAdapter ca = 
+                  new MultipartRelatedAdapter("media");  
                 provider
                   .addWorkspace(
                     SimpleWorkspaceInfo
@@ -57,7 +57,6 @@ public class MultipartRelatedTest {
                       .title("multipart/related Workspace")
                       .collection(ca)
                       .get());
-
                 provider.init(null);
                 return provider;
             }

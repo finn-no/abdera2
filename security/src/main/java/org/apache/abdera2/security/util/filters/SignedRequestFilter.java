@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.security.util.filters;
 
+import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.misc.Task;
@@ -25,7 +26,7 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
+import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.Signature;
 
@@ -39,16 +40,12 @@ public class SignedRequestFilter implements Task<RequestContext,ResponseContext>
     public static final String CERTS = "org.apache.abdera.security.util.servlet.SignedRequestFilter.certs";
 
     public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
-        AtompubRequestContext context = 
-          request instanceof AtompubRequestContext ? 
-            (AtompubRequestContext)request : 
-            new AtompubRequestContext(request);
-        Security security = new Security(context.getAbdera());
+        Security security = new Security(Abdera.getInstance());
         Signature sig = security.getSignature();
         String method = request.getMethod();
         if (method.equals("POST") || method.equals("PUT")) {
             try {
-                Document<Element> doc = context.getDocument();
+                Document<Element> doc = AbstractAtompubProvider.getDocument(request);
                 if (security.notVerified(doc))
                     return ProviderHelper.badrequest(
                       request, 
@@ -61,7 +58,7 @@ public class SignedRequestFilter implements Task<RequestContext,ResponseContext>
             } catch (Exception e) {
             }
         }
-        return chain.next(context);
+        return chain.next(request);
     }
 
 }

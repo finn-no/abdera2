@@ -25,12 +25,10 @@ import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.MediaRequestProcessor;
 import org.apache.abdera2.common.protocol.ProviderHelper;
-import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.protocol.server.AtompubProvider;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.model.AtompubWorkspaceManager;
 import org.apache.abdera2.protocol.server.processors.ServiceRequestProcessor;
 
@@ -87,11 +85,4 @@ public abstract class AbstractAtompubWorkspaceProvider
     return AbstractAtompubProvider.createErrorResponse(abdera,code,message,t);
   }
   
-  @Override
-  public ResponseContext apply(RequestContext request) {
-    return super.apply(
-      request instanceof AtompubRequestContext ? 
-        request:
-        new AtompubRequestContext(request));
-  }
 }

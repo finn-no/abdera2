@@ -28,7 +28,6 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.protocol.AbstractActivitiesProvider;
-import org.apache.abdera2.activities.protocol.ActivitiesRequestContext;
 import org.apache.abdera2.activities.protocol.ActivitiesResponseContext;
 import org.apache.abdera2.activities.protocol.ErrorObject;
 import org.apache.abdera2.activities.protocol.managed.FeedConfiguration;
@@ -124,15 +123,14 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
       }
     }
     
-    private ResponseContext createOrUpdateObject(RequestContext context, boolean createFlag) {
+    private ResponseContext createOrUpdateObject(RequestContext request, boolean createFlag) {
         try {
-            ActivitiesRequestContext request = (ActivitiesRequestContext) context;
             MimeType mimeType = request.getContentType();
             String contentType = mimeType == null ? null : mimeType.toString();
             if (contentType != null && !MimeTypeHelper.isJson(contentType))
                 return ProviderHelper.notsupported(request);
-            
-            ASBase base = (ASBase)request.getEntity();
+           
+            ASBase base = getEntryFromRequest(request);
             Target target = request.getTarget();
 
             if (base instanceof Collection && createFlag && target.getType() == TargetType.TYPE_COLLECTION) {
@@ -142,7 +140,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
               int c = 0;
               for (ASObject inputEntry : coll.getItems()) {
                 ASObject newEntry = createItem(inputEntry,c++);
-                push(context,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
+                push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
                 if (newEntry != null) {
                   retl.addItem(newEntry);
                 } else {
@@ -159,7 +157,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
               String entryId = !createFlag ? target.getParameter(BasicProvider.PARAM_ENTRY) : null;
               ASObject inputEntry = (ASObject) base;
               ASObject newEntry = createFlag ? createItem(inputEntry) : updateItem(entryId, inputEntry);
-              push(context,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
+              push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
               if (newEntry != null) {
                   String loc = newEntry.getProperty("editLink");
                   ActivitiesResponseContext<ASObject> rc = 
@@ -175,7 +173,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
             }
             
         } catch (Exception e) {
-            return ProviderHelper.servererror(context, e.getMessage(), e);
+            return ProviderHelper.servererror(request, e.getMessage(), e);
         }
     }
 

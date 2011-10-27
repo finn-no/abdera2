@@ -17,16 +17,22 @@
  */
 package org.apache.abdera2.activities.protocol;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.BaseProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
@@ -35,6 +41,8 @@ import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
+import org.apache.abdera2.common.protocol.RequestContext.Scope;
+import org.joda.time.DateTime;
 
 public abstract class AbstractActivitiesProvider 
   extends BaseProvider
@@ -86,14 +94,6 @@ public abstract class AbstractActivitiesProvider
         .setStatusText(message);
   }
 
-  @Override
-  public ResponseContext apply(RequestContext request) {
-    return super.apply(
-      request instanceof ActivitiesRequestContext?
-        request:
-        new ActivitiesRequestContext(request));
-  }
-
   public static EntityTag calculateEntityTag(ASBase base) {
     String id = null;
     String modified = null;
@@ -118,5 +118,55 @@ public abstract class AbstractActivitiesProvider
   public static String getEditUriFromEntry(ASObject object) {
     String editLink = object.getProperty("editLink");
     return editLink;
+  }
+  
+  
+  
+  public static IO getIO(ActivitiesProvider provider, TypeAdapter<?>... adapters) {
+    Set<TypeAdapter<?>> as = 
+      new HashSet<TypeAdapter<?>>(provider.getTypeAdapters());
+    for (TypeAdapter<?> ta : adapters)
+      as.add(ta);
+    return IO.get(as.toArray(new TypeAdapter[as.size()]));
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static <T extends ASBase>T getASBaseFromRequestContext(RequestContext context) throws IOException {
+    ASBase entity = context.getAttribute(Scope.REQUEST, ASBase.class.getName());
+      try {
+      if (entity == null) {
+        Reader reader = context.getReader();
+        IO io = getIO(context.<ActivitiesProvider>getProvider());
+        if (reader != null)
+          entity = io.read(reader);
+        else // try input stream, but this should've worked
+          entity = io.read(context.getInputStream(), "UTF-8");
+      }
+      } catch (Throwable t) {
+        throw ExceptionHelper.propogate(t);
+      }
+    if (entity != null) {
+      setDocProperties(entity, context);
+      context.setAttribute(ASBase.class.getName(), entity);
+    }
+    return (T)entity;
+  }
+  
+  private static void setDocProperties(ASBase base, RequestContext context) {
+    String etag = context.getHeader("ETag");
+    if (etag != null)
+        base.setEntityTag(etag);
+    DateTime lm = context.getDateHeader("Last-Modified");
+    if (lm != null)
+        base.setLastModified(lm);
+    MimeType mt = context.getContentType();
+    if (mt != null)
+        base.setContentType(mt.toString());
+    String language = context.getContentLanguage();
+    if (language != null)
+        base.setLanguage(language);
+    String slug = context.getSlug();
+    if (slug != null)
+        base.setSlug(slug);
   }
 }

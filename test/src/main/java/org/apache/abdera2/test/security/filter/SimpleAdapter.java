@@ -34,7 +34,6 @@ import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.ParseException;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.context.StreamWriterResponseContext;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubCollectionAdapter;
@@ -141,16 +140,14 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
   
   private Function<RequestContext,ResponseContext> postItem() {
     return new Function<RequestContext,ResponseContext>() {
-      public ResponseContext apply(RequestContext input) {
-        AtompubRequestContext request = (AtompubRequestContext) input;
-        Abdera abdera = request.getAbdera();
+      public ResponseContext apply(RequestContext request) {
         try {
-            Document<Entry> entry_doc = (Document<Entry>)request.getDocument(abdera.getParser()).clone();
+            Document<Entry> entry_doc = (Document<Entry>)AbstractAtompubProvider.getDocument(request).clone();
             if (entry_doc != null) {
                 Entry entry = entry_doc.getRoot();
                 if (!AbstractAtompubProvider.isValidEntry(entry))
                     return ProviderHelper.badrequest(request);
-                setEntryDetails(request, entry, abdera.getFactory().newUuidUri());
+                setEntryDetails(request, entry, Abdera.getInstance().getFactory().newUuidUri());
                 Feed feed = getFeedDocument(request).getRoot();
                 feed.insertEntry(entry);
                 feed.setUpdated(DateTime.now());
@@ -197,13 +194,11 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
 
   private Function<RequestContext,ResponseContext> putItem() {
     return new Function<RequestContext,ResponseContext>() {
-      public ResponseContext apply(RequestContext input) {
-        AtompubRequestContext request = (AtompubRequestContext) input;
-        Abdera abdera = request.getAbdera();
+      public ResponseContext apply(RequestContext request) {
         Entry orig_entry = getAbderaEntry(request);
         if (orig_entry != null) {
             try {
-                Document<Entry> entry_doc = (Document<Entry>)request.getDocument(abdera.getParser()).clone();
+                Document<Entry> entry_doc = (Document<Entry>)AbstractAtompubProvider.getDocument(request).clone();
                 if (entry_doc != null) {
                     Entry entry = entry_doc.getRoot();
                     if (!entry.getId().equals(orig_entry.getId()))
@@ -250,9 +245,8 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
 
   private Function<RequestContext,ResponseContext> getCategories() {
     return new Function<RequestContext,ResponseContext>() {
-      public ResponseContext apply(RequestContext input) {
-        AtompubRequestContext request = (AtompubRequestContext) input;
-        return new StreamWriterResponseContext(request.getAbdera()) {
+      public ResponseContext apply(RequestContext request) {
+        return new StreamWriterResponseContext(Abdera.getInstance()) {
             protected void writeTo(StreamWriter sw) throws IOException {
                 sw.startDocument().startCategories(false).writeCategory("foo").writeCategory("bar")
                     .writeCategory("baz").endCategories().endDocument();

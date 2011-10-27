@@ -25,8 +25,6 @@ import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
-import org.apache.abdera2.parser.Parser;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.protocol.server.provider.managed.FeedConfiguration;
 import org.apache.abdera2.protocol.server.provider.managed.ManagedCollectionAdapter;
@@ -104,16 +102,13 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         return config.getFeedUri() + "/" + entryId;
     }
 
-    private <S extends ResponseContext>S createOrUpdateEntry(RequestContext context, boolean createFlag) {
+    private <S extends ResponseContext>S createOrUpdateEntry(RequestContext request, boolean createFlag) {
         try {
-            AtompubRequestContext request = (AtompubRequestContext) context;
             MimeType mimeType = request.getContentType();
             String contentType = mimeType == null ? null : mimeType.toString();
             if (contentType != null && !MimeTypeHelper.isAtom(contentType) && !MimeTypeHelper.isXml(contentType))
                 return (S)ProviderHelper.notsupported(request);
-            Abdera abdera = request.getAbdera();
-            Parser parser = abdera.getParser();
-            Entry inputEntry = (Entry)request.getDocument(parser).getRoot();
+            Entry inputEntry = AbstractAtompubProvider.<Entry>getDocument(request).getRoot();
             Target target = request.getTarget();
             String entryId = !createFlag ? target.getParameter(BasicProvider.PARAM_ENTRY) : null;
             Entry newEntry = createFlag ? createEntry(inputEntry) : updateEntry(entryId, inputEntry);
@@ -125,7 +120,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                 return (S)ProviderHelper.notfound(request);
             }
         } catch (Exception e) {
-            return (S)ProviderHelper.servererror(context, e.getMessage(), e);
+            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
         }
     }
 

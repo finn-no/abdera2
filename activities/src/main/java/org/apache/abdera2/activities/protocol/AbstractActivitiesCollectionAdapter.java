@@ -25,6 +25,7 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
 import org.apache.abdera2.common.protocol.CollectionAdapter;
 import org.apache.abdera2.common.protocol.CollectionInfo;
@@ -32,6 +33,8 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.joda.time.DateTime;
+
+import com.google.common.base.Predicate;
 
 public abstract class AbstractActivitiesCollectionAdapter
   extends AbstractCollectionAdapter
@@ -101,15 +104,21 @@ public abstract class AbstractActivitiesCollectionAdapter
         .get();
   }
 
-  protected ASObject getEntryFromRequest(RequestContext request) throws ResponseContextException {
+  protected ASObject getEntryFromRequest(
+    RequestContext request) 
+      throws ResponseContextException {
       ASObject object;
       try {
-          ActivitiesRequestContext context = (ActivitiesRequestContext) request;
-          object = context.getEntity();
+        object = 
+          AbstractActivitiesProvider
+            .getASBaseFromRequestContext(request);
       } catch (IOException e) {
-          throw new ResponseContextException(500, e);
+       throw ExceptionHelper.propogate(e);
       }
       return object;
   }
 
+  public Predicate<RequestContext> acceptable() {
+    return AbstractActivitiesWorkspaceProvider.isJson();
+  }
 }

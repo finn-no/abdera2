@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.security.util.filters;
 
-import java.io.IOException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
@@ -25,19 +24,16 @@ import java.util.List;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.misc.Chain;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.Task;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
-import org.apache.abdera2.parser.ParseException;
-import org.apache.abdera2.parser.Parser;
-import org.apache.abdera2.parser.ParserOptions;
-import org.apache.abdera2.protocol.server.context.AtompubRequestContext;
+import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.security.Encryption;
 import org.apache.abdera2.security.EncryptionOptions;
 
-@SuppressWarnings("unchecked")
 public abstract class AbstractEncryptedRequestFilter implements Task<RequestContext,ResponseContext> {
 
     // The methods that allow encrypted bodies
@@ -65,37 +61,40 @@ public abstract class AbstractEncryptedRequestFilter implements Task<RequestCont
         bootstrap(request);
         String method = request.getMethod();
         if (methods.contains(method.toUpperCase())) {
-            return chain.next(new DecryptingRequestContextWrapper(request));
+            return chain.next(setDecryptedDocument(request));
         } else
             return chain.next(request);
     }
 
+    protected RequestContext setDecryptedDocument(RequestContext request) {
+      try {
+        Document<Element> doc = AbstractAtompubProvider.getDocument(request);
+        if (doc != null) {
+          Abdera abdera = Abdera.getInstance();
+          Encryption enc = new org.apache.abdera2.security.Security(abdera).getEncryption();
+          if (enc.isEncrypted(doc)) {
+            Object arg = initArg(request);
+            EncryptionOptions encoptions = 
+              initEncryptionOptions(request, enc, arg);
+            doc = enc.decrypt(doc, encoptions);
+            if (doc != null) 
+              request.setAttribute(
+                Document.class.getName(), doc);
+          }
+        }
+      } catch (Exception e) {
+        throw ExceptionHelper.propogate(e);
+      }
+      return request;
+    }
+    
     protected abstract void bootstrap(RequestContext request);
 
     protected abstract Object initArg(RequestContext request);
 
-    protected abstract EncryptionOptions initEncryptionOptions(RequestContext request, Encryption encryption, Object arg);
+    protected abstract EncryptionOptions initEncryptionOptions(
+      RequestContext request, 
+      Encryption encryption, 
+      Object arg);
 
-    private class DecryptingRequestContextWrapper extends AtompubRequestContext {
-        public DecryptingRequestContextWrapper(RequestContext request) {
-            super(request);
-        }
-        public <T extends Element> Document<T> getDocument(Parser parser, ParserOptions options) throws ParseException,
-            IOException {
-            Document<Element> doc = super.getDocument();
-            try {
-                if (doc != null) {
-                    Abdera abdera = getAbdera();
-                    Encryption enc = new org.apache.abdera2.security.Security(abdera).getEncryption();
-                    if (enc.isEncrypted(doc)) {
-                        Object arg = initArg((AtompubRequestContext)request);
-                        EncryptionOptions encoptions = initEncryptionOptions((AtompubRequestContext)request, enc, arg);
-                        doc = enc.decrypt(doc, encoptions);
-                    }
-                }
-            } catch (Exception e) {
-            }
-            return (Document<T>)doc;
-        }
-    }
 }

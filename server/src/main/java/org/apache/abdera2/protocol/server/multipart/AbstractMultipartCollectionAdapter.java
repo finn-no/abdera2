@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.activation.MimeType;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
@@ -44,6 +45,7 @@ import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 @SuppressWarnings("unchecked")
@@ -63,6 +65,17 @@ public abstract class AbstractMultipartCollectionAdapter
 
     protected Map<String, String> accepts;
 
+    public Predicate<RequestContext> acceptable() {
+      return new Predicate<RequestContext>() {
+        public boolean apply(RequestContext input) {
+          MimeType mt = input.getContentType();
+          if (mt == null) return false;
+          return MimeTypeHelper.isMultipart(mt.toString()) ||
+                 MimeTypeHelper.isAtom(mt.toString());
+        }
+      };
+    }
+    
     public Iterable<String> getAccepts(RequestContext request) {
         Collection<String> acceptKeys = getAlternateAccepts(request).keySet();
         return Iterables.unmodifiableIterable(acceptKeys);

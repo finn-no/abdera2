@@ -18,6 +18,7 @@
 package org.apache.abdera2.common.protocol;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 
 public interface CollectionAdapter {
@@ -26,4 +27,5 @@ public interface CollectionAdapter {
       Target target, 
       String method);
     
+    Predicate<RequestContext> acceptable();
 }

@@ -89,12 +89,4 @@ public abstract class AbstractActivitiesWorkspaceProvider
         .setStatus(code)
         .setStatusText(message);
   }
-
-  @Override
-  public ResponseContext apply(RequestContext request) {
-    return super.apply(
-      request instanceof ActivitiesRequestContext?
-        request:
-        new ActivitiesRequestContext(request));
-  }
 }
