@@ -18,6 +18,7 @@
 package org.apache.abdera2.common.protocol.servlet;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.ServiceManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 
 public abstract class AbstractAbderaServlet
   extends HttpServlet {
@@ -116,6 +118,10 @@ public abstract class AbstractAbderaServlet
                 for (Object value : headers) {
                     if (value instanceof Date)
                         response.addDateHeader(name, ((Date)value).getTime());
+                    else if (value instanceof DateTime)
+                        response.addDateHeader(name, ((DateTime)value).getMillis());
+                    else if (value instanceof Calendar)
+                        response.addDateHeader(name, ((Calendar)value).getTimeInMillis());
                     else
                         response.addHeader(name, value.toString());
                 }

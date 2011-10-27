@@ -35,6 +35,7 @@ import org.apache.abdera2.common.protocol.ResponseContextException;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 public abstract class AbstractActivitiesCollectionAdapter
   extends AbstractCollectionAdapter
@@ -119,6 +120,6 @@ public abstract class AbstractActivitiesCollectionAdapter
   }
 
   public Predicate<RequestContext> acceptable() {
-    return AbstractActivitiesWorkspaceProvider.isJson();
+    return Predicates.or(super.acceptable(),AbstractActivitiesWorkspaceProvider.isJson());
   }
 }

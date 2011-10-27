@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.abdera2.activities.protocol.AbstractActivitiesWorkspaceProvider;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
@@ -211,4 +212,19 @@ public abstract class AbstractCollectionAdapter
           return ProviderHelper.notfound(input);
         }
     };
+    
+    public static Predicate<RequestContext> HAS_NO_ENTITY = 
+      new Predicate<RequestContext>() {
+        public boolean apply(RequestContext input) {
+          String method = input.getMethod();
+          return method.equalsIgnoreCase("GET") ||
+                 method.equalsIgnoreCase("DELETE") ||
+                 method.equalsIgnoreCase("HEAD") ||
+                 method.equalsIgnoreCase("OPTIONS");
+        }
+    };
+    
+    public Predicate<RequestContext> acceptable() {
+      return HAS_NO_ENTITY;
+    }
 }

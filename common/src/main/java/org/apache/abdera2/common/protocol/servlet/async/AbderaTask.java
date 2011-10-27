@@ -18,6 +18,7 @@
 package org.apache.abdera2.common.protocol.servlet.async;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 
 public class AbderaTask {
 
@@ -131,10 +133,14 @@ public class AbderaTask {
                 Iterable<Object> headers = context.getHeaders(name);
                 for (Object value : headers) {
                   log.debug(String.format("Header [%s]: %s", name, value.toString()));
-                    if (value instanceof Date)
-                        response.addDateHeader(name, ((Date)value).getTime());
-                    else
-                        response.addHeader(name, value.toString());
+                  if (value instanceof Date)
+                    response.addDateHeader(name, ((Date)value).getTime());
+                  else if (value instanceof DateTime)
+                    response.addDateHeader(name, ((DateTime)value).getMillis());
+                  else if (value instanceof Calendar)
+                    response.addDateHeader(name, ((Calendar)value).getTimeInMillis());
+                  else
+                    response.addHeader(name, value.toString());
                 }
             }
             if (!request.getMethod().equals("HEAD") && context.hasEntity()) {

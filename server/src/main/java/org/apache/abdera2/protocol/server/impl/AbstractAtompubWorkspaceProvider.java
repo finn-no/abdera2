@@ -30,6 +30,7 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.protocol.server.AtompubProvider;
 import org.apache.abdera2.protocol.server.model.AtompubWorkspaceManager;
+import org.apache.abdera2.protocol.server.processors.CategoriesRequestProcessor;
 import org.apache.abdera2.protocol.server.processors.ServiceRequestProcessor;
 
 public abstract class AbstractAtompubWorkspaceProvider 
@@ -48,7 +49,7 @@ public abstract class AbstractAtompubWorkspaceProvider
     this.requestProcessors.put(
       TargetType.TYPE_CATEGORIES, 
       RequestProcessor.forClass(
-        ServiceRequestProcessor.class, 
+          CategoriesRequestProcessor.class, 
         this));
     this.requestProcessors.put(
       TargetType.TYPE_COLLECTION,

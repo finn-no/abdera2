@@ -39,6 +39,7 @@ import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 /**
  * Base CollectionAdapter implementation that provides a number of helper utility methods for adapter implementations.
@@ -147,6 +148,6 @@ public abstract class AbstractAtompubCollectionAdapter
     }
     
     public Predicate<RequestContext> acceptable() {
-      return ProviderHelper.isAtom();
+      return Predicates.or(super.acceptable(),ProviderHelper.isAtom());
     }
 }

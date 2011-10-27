@@ -42,10 +42,12 @@ import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.io.MultipartInputStream;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.commons.codec.binary.Base64;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 @SuppressWarnings("unchecked")
@@ -66,14 +68,16 @@ public abstract class AbstractMultipartCollectionAdapter
     protected Map<String, String> accepts;
 
     public Predicate<RequestContext> acceptable() {
-      return new Predicate<RequestContext>() {
+      return Predicates.or(
+        AbstractCollectionAdapter.HAS_NO_ENTITY,
+        new Predicate<RequestContext>() {
         public boolean apply(RequestContext input) {
           MimeType mt = input.getContentType();
           if (mt == null) return false;
           return MimeTypeHelper.isMultipart(mt.toString()) ||
                  MimeTypeHelper.isAtom(mt.toString());
         }
-      };
+      });
     }
     
     public Iterable<String> getAccepts(RequestContext request) {
