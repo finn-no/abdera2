@@ -36,7 +36,7 @@ public class JettyUtil {
         return PORT;
     }
 
-    private static void initServer() throws Exception {
+    public static void initServer() throws Exception {
         server = new Server(getPort());      
         handler = 
           new ServletContextHandler(ServletContextHandler.SESSIONS);

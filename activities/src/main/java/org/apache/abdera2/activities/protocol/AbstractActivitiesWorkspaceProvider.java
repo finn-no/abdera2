@@ -20,6 +20,8 @@ package org.apache.abdera2.activities.protocol;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.activation.MimeType;
+
 import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.AbstractWorkspaceProvider;
@@ -45,7 +47,9 @@ public abstract class AbstractActivitiesWorkspaceProvider
   public static Predicate<RequestContext> isJson() {
     return new Predicate<RequestContext>() {
       public boolean apply(RequestContext input) {
-        return MimeTypeHelper.isJson(input.getContentType().toString());
+        MimeType ct = input.getContentType();
+        if (ct == null) return false;
+        return MimeTypeHelper.isJson(ct.toString());
       }
     };
   }

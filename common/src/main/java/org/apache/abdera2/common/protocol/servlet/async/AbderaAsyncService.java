@@ -137,8 +137,7 @@ public class AbderaAsyncService
         createServiceManager(context);      
       checkState(
         manager != null, 
-        "Service Manager is null");
-      
+        "Service Manager is null"); 
       if (DEPLOY_ATOMPUB.apply(properties)) {
         log.debug("Initializing Abdera Atompub Service...");
         queue = manager.newProcessorQueue(properties);

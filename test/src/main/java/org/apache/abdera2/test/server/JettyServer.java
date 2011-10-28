@@ -42,8 +42,15 @@ public class JettyServer {
     public void startAsync(
         Class<? extends ServiceManager> _smclass, 
         AbderaChannelServlet acs) throws Exception {
+
+      JettyUtil.initServer();
+      JettyUtil.getSch().setInitParameter("AbderaAtompubService", "true");
+      JettyUtil.getSch().setInitParameter("AbderaChannelService", "true");
+      JettyUtil.getSch().setInitParameter(ServiceManager.class.getName(), _smclass.getName());
       
-      ServletHolder servletHolder = new ServletHolder(new AsyncAbderaServlet());
+      ServletHolder servletHolder = 
+        new ServletHolder(
+          new AsyncAbderaServlet());
       JettyUtil.addServlet(servletHolder, "/*");
       
       if (acs != null) {
@@ -55,9 +62,6 @@ public class JettyServer {
         new EventListener[] {
           new AbderaAsyncService()
       };
-      JettyUtil.getSch().setInitParameter("AbderaAtompubService", "true");
-      JettyUtil.getSch().setInitParameter("AbderaChannelService", "true");
-      JettyUtil.getSch().setInitParameter(ServiceManager.class.getName(), _smclass.getName());
       JettyUtil.getSch().setEventListeners(listeners);
       JettyUtil.start();
     }

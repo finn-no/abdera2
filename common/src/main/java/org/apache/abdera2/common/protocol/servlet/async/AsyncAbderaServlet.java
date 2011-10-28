@@ -62,7 +62,7 @@ public class AsyncAbderaServlet
       Processor proc = (Processor) sc.getAttribute(Processor.NAME);
       if (proc != null && !proc.isShutdown()) {
         final AsyncContext context = request.startAsync(request, response);
-        ServiceManager sm = (ServiceManager) sc.getAttribute(ServiceManager.class.getName());
+        ServiceManager sm = (ServiceManager) sc.getAttribute(AbderaAsyncService.SERVICEMANAGER);
         Provider provider = sm.newProvider(getProperties(getServletConfig()));
         ServletRequestContext reqcontext = new ServletRequestContext(provider, request, sc);
         long timeout = getTimeout(reqcontext);
