@@ -34,7 +34,6 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.Target;
 import org.apache.abdera2.common.protocol.TargetType;
-import org.joda.time.DateTime;
 
 import com.google.common.base.Function;
 
@@ -42,7 +41,6 @@ import com.google.common.base.Function;
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
  * options/features. The idea of the basic adapter is to make it easy to provide a minimally capable Atompub server
  */
-@SuppressWarnings("unchecked")
 public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
     public static Logger logger = 
@@ -76,22 +74,20 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         Feed feed = abdera.newFeed();
         feed.setId(config.getFeedUri());
         feed.setTitle(config.getFeedTitle());
-        feed.setUpdated(DateTime.now());
+        feed.setUpdatedNow();
         feed.addAuthor(config.getFeedAuthor());
         return feed;
     }
 
     protected void addEditLinkToEntry(Entry entry) throws Exception {
-        if (AbstractAtompubProvider.getEditUriFromEntry(entry) == null) {
-            entry.addLink(entry.getId().toString(), "edit");
-        }
+      if (AbstractAtompubProvider.getEditUriFromEntry(entry) == null)
+        entry.addLink(entry.getId(), "edit");
     }
 
     protected void setEntryIdIfNull(Entry entry) throws Exception {
         // if there is no id in Entry, assign one.
-        if (entry.getId() != null) {
+        if (entry.getId() != null)
             return;
-        }
         String uuidUri = abdera.getFactory().newUuidUri();
         String[] segments = uuidUri.split(":");
         String entryId = segments[segments.length - 1];
@@ -99,15 +95,15 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
     }
 
     protected String createEntryIdUri(String entryId) throws Exception {
-        return config.getFeedUri() + "/" + entryId;
+      return config.getFeedUri() + "/" + entryId;
     }
 
-    private <S extends ResponseContext>S createOrUpdateEntry(RequestContext request, boolean createFlag) {
+    private ResponseContext createOrUpdateEntry(RequestContext request, boolean createFlag) {
         try {
             MimeType mimeType = request.getContentType();
             String contentType = mimeType == null ? null : mimeType.toString();
             if (contentType != null && !MimeTypeHelper.isAtom(contentType) && !MimeTypeHelper.isXml(contentType))
-                return (S)ProviderHelper.notsupported(request);
+                return ProviderHelper.notsupported(request);
             Entry inputEntry = AbstractAtompubProvider.<Entry>getDocument(request).getRoot();
             Target target = request.getTarget();
             String entryId = !createFlag ? target.getParameter(BasicProvider.PARAM_ENTRY) : null;
@@ -115,12 +111,12 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
             if (newEntry != null) {
                 Document<Entry> newEntryDoc = newEntry.getDocument();
                 String loc = newEntry.getEditLinkResolvedHref().toString();
-                return (S)AbstractAtompubProvider.returnBase(newEntryDoc, createFlag ? 201 : 200, null).setLocation(loc);
+                return AbstractAtompubProvider.returnBase(newEntryDoc, createFlag ? 201 : 200, null).setLocation(loc);
             } else {
-                return (S)ProviderHelper.notfound(request);
+                return ProviderHelper.notfound(request);
             }
         } catch (Exception e) {
-            return (S)ProviderHelper.servererror(request, e.getMessage(), e);
+            return ProviderHelper.servererror(request, e.getMessage(), e);
         }
     }
 

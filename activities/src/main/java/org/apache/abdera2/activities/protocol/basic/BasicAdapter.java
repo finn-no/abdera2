@@ -44,6 +44,8 @@ import org.apache.abdera2.common.pusher.Pusher;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Function;
+import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.misc.ExceptionHelper.*;
 
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
@@ -67,13 +69,15 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
     public String getProperty(String key) throws Exception {
         Object val = config.getProperty(key);
-        if (val == null) {
-            logger.warning("Cannot find property " + key + "in Adapter properties file for feed " + config.getFeedId());
-            throw new RuntimeException();
-        }
-        if (val instanceof String)
-            return (String)val;
-        throw new RuntimeException();
+        checkNotNull(
+          val,
+          "Cannot find property in Adapter properties file for feed ", 
+          key, 
+          config.getFeedId());
+        checked(
+          val instanceof String, 
+          RuntimeException.class);
+        return (String)val;
     }
 
     protected Collection<ASObject> createCollection() {
@@ -99,12 +103,12 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
     }
 
     protected void setObjectIdIfNull(ASObject object) throws Exception {
-        if (object.getId() != null)
-            return;
-        String uuidUri = UUID.randomUUID().toString();
-        String[] segments = uuidUri.split(":");
-        String entryId = segments[segments.length - 1];
-        object.setId(createEntryIdUri(entryId));
+      if (object.getId() != null)
+        return;
+      String uuidUri = UUID.randomUUID().toString();
+      String[] segments = uuidUri.split(":");
+      String entryId = segments[segments.length - 1];
+      object.setId(createEntryIdUri(entryId));
     }
 
     protected String createEntryIdUri(String entryId) throws Exception {
@@ -113,68 +117,71 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
     private void push(RequestContext context, String channel, ASObject object) {
       if (context.getAttribute(Scope.CONTAINER, "AbderaChannelManager") != null) {
-        ChannelManager cm = (ChannelManager) context.getAttribute(Scope.CONTAINER, "AbderaChannelManager");
+        ChannelManager cm = (ChannelManager) context.getAttribute(
+          Scope.CONTAINER, "AbderaChannelManager");
         if (cm != null) {
-          Pusher<ASObject> pusher = cm.getPusher(channel);
-          if (pusher != null) {
+          Pusher<ASObject> pusher = 
+            cm.getPusher(channel);
+          if (pusher != null)
             pusher.push(object);
-          }
         }
       }
     }
     
     private ResponseContext createOrUpdateObject(RequestContext request, boolean createFlag) {
-        try {
-            MimeType mimeType = request.getContentType();
-            String contentType = mimeType == null ? null : mimeType.toString();
-            if (contentType != null && !MimeTypeHelper.isJson(contentType))
-                return ProviderHelper.notsupported(request);
+      try {
+        MimeType mimeType = request.getContentType();
+        String contentType = mimeType == null ? null : mimeType.toString();
+        if (contentType != null && !MimeTypeHelper.isJson(contentType))
+          return ProviderHelper.notsupported(request);
            
-            ASBase base = getEntryFromRequest(request);
-            Target target = request.getTarget();
+        ASBase base = getEntryFromRequest(request);
+        Target target = request.getTarget();
 
-            if (base instanceof Collection && createFlag && target.getType() == TargetType.TYPE_COLLECTION) {
-              // only allow multiposts on collections.. these always create, never update
-              Collection<ASObject> coll = (Collection<ASObject>) base;
-              Collection<ASObject> retl = new Collection<ASObject>();
-              int c = 0;
-              for (ASObject inputEntry : coll.getItems()) {
-                ASObject newEntry = createItem(inputEntry,c++);
-                push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
-                if (newEntry != null) {
-                  retl.addItem(newEntry);
-                } else {
-                  ErrorObject err = new ErrorObject();
-                  err.setCode(-100);
-                  err.setDisplayName("Error adding object");
-                  retl.addItem(err);
-                }
-              }
-              return
-                new ActivitiesResponseContext<Collection<ASObject>>(retl)
-                  .setStatus(createFlag?201:200);
-            } else if (base instanceof ASObject){
-              String entryId = !createFlag ? target.getParameter(BasicProvider.PARAM_ENTRY) : null;
-              ASObject inputEntry = (ASObject) base;
-              ASObject newEntry = createFlag ? createItem(inputEntry) : updateItem(entryId, inputEntry);
-              push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
+        if (base instanceof Collection && 
+            createFlag && 
+            target.getType() == TargetType.TYPE_COLLECTION) {
+            // only allow multiposts on collections.. these always create, never update
+            Collection<ASObject> coll = (Collection<ASObject>) base;
+            Collection<ASObject> retl = new Collection<ASObject>();
+            int c = 0;
+            for (ASObject inputEntry : coll.getItems()) {
+              ASObject newEntry = createItem(inputEntry,c++);
               if (newEntry != null) {
-                  String loc = newEntry.getProperty("editLink");
-                  ActivitiesResponseContext<ASObject> rc = 
-                    new ActivitiesResponseContext<ASObject>(newEntry);
-                  rc.setStatus(createFlag?201:200);
-                  rc.setLocation(loc);
-                  return rc;
+                push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
+                retl.addItem(newEntry);
               } else {
-                  return ProviderHelper.notfound(request);
+                ErrorObject err = new ErrorObject();
+                err.setCode(-100);
+                err.setDisplayName("Error adding object");
+                retl.addItem(err);
               }
-            } else {
-              return ProviderHelper.notallowed(request);
             }
-            
-        } catch (Exception e) {
-            return ProviderHelper.servererror(request, e.getMessage(), e);
-        }
+            return
+              new ActivitiesResponseContext<Collection<ASObject>>(retl)
+                .setStatus(createFlag?201:200);
+        } else if (base instanceof ASObject){
+          String entryId = !createFlag ? 
+            target.getParameter(BasicProvider.PARAM_ENTRY) : 
+              null;
+          ASObject inputEntry = (ASObject) base;
+          ASObject newEntry = createFlag ? 
+            createItem(inputEntry) : 
+            updateItem(entryId, inputEntry);
+          if (newEntry != null) {
+            push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
+            String loc = newEntry.getProperty("editLink");
+            return 
+              new ActivitiesResponseContext<ASObject>(newEntry)
+                .setStatus(createFlag?201:200)
+                .setLocation(loc);
+          } else
+            return ProviderHelper.notfound(request);
+        } else
+          return ProviderHelper.notallowed(request);
+      } catch (Exception e) {
+        return ProviderHelper.servererror(request, e.getMessage(), e);
+      }
     }
 
     private Function<RequestContext,ResponseContext> postItem() {
@@ -241,9 +248,9 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                 new ActivitiesResponseContext<Collection<ASObject>>(collection)
                   .setStatus(200);
             } else return ProviderHelper.notfound(input);
-        } catch (Exception e) {
+          } catch (Exception e) {
             return ProviderHelper.servererror(input, e.getMessage(), e);
-        }
+          }
         }
       };
     }

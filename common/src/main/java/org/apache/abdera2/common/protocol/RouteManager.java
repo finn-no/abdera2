@@ -33,6 +33,7 @@ import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.templates.Route;
 
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 
 /**
  * This is a largely experimental implementation of a Target Resolver and Target Builder based on URL patterns similar
@@ -46,98 +47,131 @@ import com.google.common.base.Function;
  * 
  * The RouteManager can be used by Provider implementations as the target resolver and target builder
  */
-public class RouteManager<T,X extends RequestContext> 
+public class RouteManager<T,X extends RequestContext,R> 
   implements Function<X,Target>, 
-             TargetBuilder<T> {
+             TargetBuilder<R> {
 
-    protected class RouteTargetType {
-        protected Route<T> route;
-        protected TargetType targetType;
-
-        RouteTargetType(Route<T> route, TargetType targetType) {
-            this.route = route;
-            this.targetType = targetType;
-        }
-
-        public Route<T> getRoute() {
-            return route;
-        }
-
-        public TargetType getTargetType() {
-            return targetType;
-        }
+    public static <T,X extends RequestContext,R>Generator<T,X,R> make() {
+      return new Generator<T,X,R>();
     }
+  
+    public static class Generator<T, X extends RequestContext,R> 
+      implements Supplier<RouteManager<T,X,R>> {
 
-    protected List<RouteTargetType> targets = new ArrayList<RouteTargetType>();
-
-    protected Map<T, Route<T>> routes = new HashMap<T, Route<T>>();
-
-    protected Map<Route<T>, CollectionAdapter> route2CA = new HashMap<Route<T>, CollectionAdapter>();
-
-    public RouteManager<T,X> addRoute(Route<T> route) {
-        return addRoute(route, null);
-    }
-
-    public RouteManager<T,X> addRoute(T key, String pattern) {
-        return addRoute(key, pattern, null);
-    }
-
-    public RouteManager<T,X> addRoute(Route<T> route, TargetType type) {
+      protected final List<RouteTargetType<R>> targets = 
+        new ArrayList<RouteTargetType<R>>();
+      protected final Map<R, Route<R>> routes = 
+        new HashMap<R, Route<R>>();
+      protected final Map<Route<R>, CollectionAdapter> route2CA = 
+        new HashMap<Route<R>, CollectionAdapter>();
+      public Generator<T,X,R> withAll(RouteManager<T,X,R> other) {
+        this.targets.addAll(other.targets);
+        this.routes.putAll(other.routes);
+        this.route2CA.putAll(other.route2CA);
+        return this;
+      }
+      public Generator<T,X,R> with(Route<R>... routes) {
+        for (Route<R> route : routes)
+          with(route, null);
+        return this;
+      }
+      public Generator<T,X,R> with(R key, String pattern) {
+        return with(key, pattern, null);
+      }
+      public Generator<T,X,R> with(
+        Route<R> route, 
+        TargetType type) {
         routes.put(route.getKey(), route);
         if (type != null)
-            targets.add(new RouteTargetType(route, type));
+          targets.add(new RouteTargetType<R>(route, type));
         return this;
-    }
-
-    public RouteManager<T,X> addRoute(T key, String pattern, TargetType type) {
-        return addRoute(new Route<T>(key, pattern), type);
-    }
-
-    public RouteManager<T,X> addRoute(T key, String pattern, TargetType type, CollectionAdapter collectionAdapter) {
-
-        Route<T> route = new Route<T>(key, pattern);
+      }
+      public Generator<T,X,R> with(
+        R key, 
+        String pattern, 
+        TargetType type) {
+        return with(new Route<R>(key, pattern), type);
+      }
+      public Generator<T,X,R> with(
+        R key, 
+        String pattern, 
+        TargetType type, 
+        CollectionAdapter collectionAdapter) {
+        Route<R> route = new Route<R>(key, pattern);
         route2CA.put(route, collectionAdapter);
-        return addRoute(route, type);
+        return with(route, type);
+      }
+      public RouteManager<T, X, R> get() {
+        return new RouteManager<T,X,R>(this);
+      }
+    }
+  
+    protected static class RouteTargetType<T> {
+      protected Route<T> route;
+      protected TargetType targetType;
+      RouteTargetType(Route<T> route, TargetType targetType) {
+        this.route = route;
+        this.targetType = targetType;
+      }
+      public Route<T> getRoute() {
+        return route;
+      }
+      public TargetType getTargetType() {
+        return targetType;
+      }
     }
 
+    protected final List<RouteTargetType<R>> targets = 
+      new ArrayList<RouteTargetType<R>>();
+    protected final Map<R, Route<R>> routes = 
+      new HashMap<R, Route<R>>();
+    protected final Map<Route<R>, CollectionAdapter> route2CA = 
+      new HashMap<Route<R>, CollectionAdapter>();
+
+    private RouteManager(Generator<T,X,R> gen) {
+      this.targets.addAll(gen.targets);
+      this.routes.putAll(gen.routes);
+      this.route2CA.putAll(gen.route2CA);
+    }
+    
     public Target apply(X request) {
-        String uri = request.getTargetPath();
-        int idx = uri.indexOf('?');
-        if (idx != -1) {
-            uri = uri.substring(0, idx);
-        }
+      String uri = request.getTargetPath();
+      int idx = uri.indexOf('?');
+      if (idx != -1) {
+          uri = uri.substring(0, idx);
+      }
 
-        RouteTargetType target = get(uri);
-        if (target == null) {
-            target = match(uri);
-        }
+      RouteTargetType<R> target = get(uri);
+      if (target == null) {
+          target = match(uri);
+      }
 
-        if (target != null) {
-            return getTarget(request, target, uri);
-        }
+      if (target != null) {
+          return getTarget(request, target, uri);
+      }
 
-        return null;
+      return null;
     }
 
-    private RouteTargetType get(String uri) {
-        for (RouteTargetType target : targets) {
-            if (target.route.getPattern().equals(uri)) {
-                return target;
-            }
+    private RouteTargetType<R> get(String uri) {
+      for (RouteTargetType<R> target : targets) {
+        if (target.route.getPattern().equals(uri)) {
+          return target;
         }
-        return null;
+      }
+      return null;
     }
 
-    private RouteTargetType match(String uri) {
-        for (RouteTargetType target : targets) {
-            if (target.route.match(uri)) {
-                return target;
-            }
+    private RouteTargetType<R> match(String uri) {
+      for (RouteTargetType<R> target : targets) {
+        if (target.route.match(uri)) {
+          return target;
         }
-        return null;
+      }
+      return null;
     }
 
-    private Target getTarget(RequestContext context, RouteTargetType target, String uri) {
+    private Target getTarget(RequestContext context, RouteTargetType<R> target, String uri) {
         CollectionAdapter ca = route2CA.get(target.route);
         if (ca != null) {
             context.setAttribute(AbstractWorkspaceManager.COLLECTION_ADAPTER_ATTRIBUTE, ca);
@@ -145,13 +179,13 @@ public class RouteManager<T,X extends RequestContext>
         return getTarget(context, target.route, uri, target.targetType);
     }
 
-    private Target getTarget(RequestContext context, Route<T> route, String uri, TargetType type) {
+    private Target getTarget(RequestContext context, Route<R> route, String uri, TargetType type) {
         return new RouteTarget(type, context, route, uri);
     }
 
-    public String urlFor(Request context, T key, Object param) {
+    public String urlFor(Request context, R key, Object param) {
         RequestContext rc = (RequestContext) context;
-        Route<T> route = routes.get(key);
+        Route<R> route = routes.get(key);
         return route != null ? rc.getContextPath() + route.expand(getContext(param)) : null;
     }
 
@@ -201,7 +235,10 @@ public class RouteManager<T,X extends RequestContext>
         private final Map<String, String> params;
         private final Route<?> route;
 
-        public RouteTarget(TargetType type, RequestContext context, Route<?> route, String uri) {
+        public RouteTarget(
+          TargetType type, 
+          RequestContext context, 
+          Route<?> route, String uri) {
             super(type, context);
             this.route = route;
             this.params = route.parse(uri);

@@ -621,4 +621,10 @@ public final class IRI implements Serializable, Cloneable {
       };
     }
     
+    public static final Function<String,IRI> parser = 
+      new Function<String,IRI>() {
+        public IRI apply(String input) {
+          return input != null ? new IRI(input) : null;
+        }
+    };
 }

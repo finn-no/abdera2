@@ -28,7 +28,8 @@ import org.apache.abdera2.common.protocol.TargetType;
 /**
  * Provider implementation intended to be used with BasicAdapter implementations
  */
-public class BasicProvider extends ManagedProvider {
+public class BasicProvider 
+  extends ManagedProvider {
 
     public static final String PARAM_FEED = "stream";
     public static final String PARAM_ENTRY = "activity";
@@ -38,18 +39,18 @@ public class BasicProvider extends ManagedProvider {
         init();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void init() {
-        RouteManager routeManager =
-            new RouteManager()
-              .addRoute(
-                "stream",
-                "/:stream",
-                TargetType.TYPE_COLLECTION)
-              .addRoute(
-                "activity", 
-                "/:stream/:activity", 
-                TargetType.TYPE_ENTRY);
+        RouteManager<TargetType,RequestContext,String> routeManager =
+          RouteManager.<TargetType,RequestContext,String>make()
+            .with(
+              "stream",
+              "/:stream",
+              TargetType.TYPE_COLLECTION)
+            .with(
+              "activity", 
+              "/:stream/:activity", 
+              TargetType.TYPE_ENTRY)
+            .get();
         setTargetBuilder(
             routeManager);
         setTargetResolver(
@@ -58,9 +59,9 @@ public class BasicProvider extends ManagedProvider {
 
     public CollectionAdapter getCollectionAdapter(RequestContext request) {
         try {
-            return getCollectionAdapterManager(request)
-              .getAdapter(
-                request.getTarget().getParameter(PARAM_FEED));
+          return getCollectionAdapterManager(request)
+            .getAdapter(
+              request.getTarget().getParameter(PARAM_FEED));
         } catch (Exception e) {
             return null;
         }

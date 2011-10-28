@@ -32,7 +32,8 @@ import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
-import org.joda.time.DateTime;
+
+import static org.apache.abdera2.activities.protocol.AbstractActivitiesProvider.*;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -50,30 +51,37 @@ public abstract class AbstractActivitiesCollectionAdapter
     return Arrays.asList("application/json");
   }
   
-  protected ResponseContext buildCreateEntryResponse(String link, ASBase base) {
+  protected ResponseContext buildCreateEntryResponse(
+    String link, 
+    ASBase base) {
     return
       new ActivitiesResponseContext<ASBase>(base)
         .setLocation(link)
         .setContentLocation(link)
-        .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base))
+        .setEntityTag(calculateEntityTag(base))
         .setStatus(201);
   }
 
-  protected ResponseContext buildGetEntryResponse(RequestContext request, ASObject base)
+  protected ResponseContext buildGetEntryResponse(
+    RequestContext request, 
+    ASObject base)
       throws ResponseContextException {
       base.setSource(createSourceObject(request));
       return 
         new ActivitiesResponseContext<ASObject>(base)
-         .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(base));
+         .setEntityTag(calculateEntityTag(base));
   }
 
-  protected ResponseContext buildGetFeedResponse(Collection<ASObject> collection) {
+  protected ResponseContext buildGetFeedResponse(
+    Collection<ASObject> collection) {
       return 
         new ActivitiesResponseContext<Collection<ASObject>>(collection)
-          .setEntityTag(AbstractActivitiesProvider.calculateEntityTag(collection));
+          .setEntityTag(calculateEntityTag(collection));
   }
 
-  protected ServiceObject createSourceObject(RequestContext request) throws ResponseContextException {
+  protected ServiceObject createSourceObject(
+    RequestContext request) 
+      throws ResponseContextException {
     return 
       ServiceObject
         .makeService()
@@ -90,18 +98,20 @@ public abstract class AbstractActivitiesCollectionAdapter
   /**
    * Create the base feed for the requested collection.
    */
-  protected Collection<ASObject> createCollectionBase(RequestContext request) throws ResponseContextException {
+  protected Collection<ASObject> createCollectionBase(
+    RequestContext request) 
+      throws ResponseContextException {
     return 
       Collection
         .makeCollection()
         .id(getId(request))
-        .set("title", getTitle(request))
-        .set("updated", DateTime.now())
-        .set("author", 
+        .updatedNow()
+        .author( 
           PersonObject
             .makePerson()
             .displayName(getAuthor(request))
-            .get()) 
+            .get())
+        .displayName(getTitle(request))
         .get();
   }
 
@@ -120,6 +130,8 @@ public abstract class AbstractActivitiesCollectionAdapter
   }
 
   public Predicate<RequestContext> acceptable() {
-    return Predicates.or(super.acceptable(),AbstractActivitiesWorkspaceProvider.isJson());
+    return Predicates.or(
+      super.acceptable(),
+      AbstractActivitiesWorkspaceProvider.isJson());
   }
 }

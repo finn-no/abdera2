@@ -480,6 +480,15 @@ public interface Entry extends ExtensibleElement {
      * @return The newly created atom:link
      * @throws IRISyntaxException if the href is malformed
      */
+    Link addLink(IRI href);
+    
+    /**
+     * Add a link to the entry
+     * 
+     * @param href The IRI of the link
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
     Link addLink(String href);
 
     /**
@@ -490,8 +499,31 @@ public interface Entry extends ExtensibleElement {
      * @return The newly created atom:link
      * @throws IRISyntaxException if the href is malformed
      */
+    Link addLink(IRI href, String rel);
+    
+    /**
+     * Add a link to the entry
+     * 
+     * @param href The IRI of the link
+     * @param rel The link rel attribute
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
     Link addLink(String href, String rel);
 
+    /**
+     * Add a link to the entry
+     * 
+     * @param href The IRI of the link
+     * @param rel The link rel attribute
+     * @param type The media type of the link
+     * @param hreflang The language of the target
+     * @param length The length of the resource
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
+    Link addLink(IRI href, String rel, String type, String title, String hreflang, long length);
+    
     /**
      * Add a link to the entry
      * 

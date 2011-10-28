@@ -583,5 +583,16 @@ public class RssFeed extends ExtensibleElementWrapper implements Feed {
     public DateTime setUpdatedNow() {
       throw new UnsupportedOperationException("Modifications are not allowed");
     }
+    public Link addLink(IRI href) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
 
+    public Link addLink(IRI href, String rel) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public Link addLink(IRI href, String rel, String type, String title,
+        String hreflang, long length) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
 }

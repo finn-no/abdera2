@@ -45,7 +45,7 @@ public class XPathExample {
         System.out.println(xpath.selectSingleNode("/a:feed", feed));
         System.out.println(xpath.selectSingleNode("..", feed.getTitleElement()));
         System.out.println(xpath.selectSingleNode("ancestor::*", feed.getEntries().get(0)));
-        System.out.println(xpath.valueOf("concat('The feed is is ',/a:feed/a:id)", feed)); // "The feed is is urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6"
+        System.out.println(xpath.valueOf("concat('The feed id is ',/a:feed/a:id)", feed)); // "The feed id is urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6"
 
     }
 

@@ -33,11 +33,10 @@ import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.misc.ExceptionHelper;
-import org.apache.abdera2.common.protocol.BaseProvider;
+import org.apache.abdera2.common.protocol.AbstractProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.RequestContext;
-import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
@@ -45,26 +44,26 @@ import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.joda.time.DateTime;
 
 public abstract class AbstractActivitiesProvider 
-  extends BaseProvider
+  extends AbstractProvider
   implements ActivitiesProvider {
 
-  protected Set<TypeAdapter<?>> typeAdapters = new HashSet<TypeAdapter<?>>();
+  protected Set<TypeAdapter<?>> typeAdapters = 
+    new HashSet<TypeAdapter<?>>();
   protected final WorkspaceManager workspaceManager;
   
   protected AbstractActivitiesProvider(
     WorkspaceManager workspaceManager) {
     this.workspaceManager = workspaceManager;
-    this.requestProcessors.put(
-      TargetType.TYPE_COLLECTION, 
-      RequestProcessor.forClass(
-        CollectionRequestProcessor.class,
-        workspaceManager,
-        AbstractActivitiesWorkspaceProvider.isJson()));
-    this.requestProcessors.put(
-      TargetType.TYPE_ENTRY, 
-      RequestProcessor.forClass(
-        EntryRequestProcessor.class,
-        workspaceManager));
+    addRequestProcessor(
+      TargetType.TYPE_COLLECTION,
+      CollectionRequestProcessor.class,
+      AbstractActivitiesWorkspaceProvider.isJson(),
+      workspaceManager
+      );
+    addRequestProcessor(
+      TargetType.TYPE_ENTRY,
+      EntryRequestProcessor.class,
+      workspaceManager);
   }
   
   public void addTypeAdapter(TypeAdapter<?> typeAdapter) {
@@ -100,7 +99,10 @@ public abstract class AbstractActivitiesProvider
     if (base instanceof Activity) {
         Activity ac = (Activity)base;
         id = ac.getId();
-        modified = DateTimes.format(ac.getUpdated() != null ? ac.getUpdated() : ac.getPublished());
+        modified = DateTimes.format(
+          ac.getUpdated() != null ? 
+            ac.getUpdated() : 
+            ac.getPublished());
     } else if (base instanceof Collection) {
         Collection<?> col = (Collection<?>)base;
         id = col.getProperty("id");
@@ -109,7 +111,10 @@ public abstract class AbstractActivitiesProvider
     } else if (base instanceof ASObject) {
         ASObject as = (ASObject)base;
         id = as.getId().toString();
-        modified = DateTimes.format(as.getUpdated() != null ? as.getUpdated() : as.getPublished());
+        modified = DateTimes.format(
+          as.getUpdated() != null ? 
+            as.getUpdated() : 
+            as.getPublished());
     }
     if (modified == null) modified = DateTimes.formatNow();
     return EntityTag.generate(id, modified);
@@ -122,7 +127,9 @@ public abstract class AbstractActivitiesProvider
   
   
   
-  public static IO getIO(ActivitiesProvider provider, TypeAdapter<?>... adapters) {
+  public static IO getIO(
+    ActivitiesProvider provider, 
+    TypeAdapter<?>... adapters) {
     Set<TypeAdapter<?>> as = 
       new HashSet<TypeAdapter<?>>(provider.getTypeAdapters());
     for (TypeAdapter<?> ta : adapters)
@@ -131,7 +138,9 @@ public abstract class AbstractActivitiesProvider
   }
   
   @SuppressWarnings("unchecked")
-  public static <T extends ASBase>T getASBaseFromRequestContext(RequestContext context) throws IOException {
+  public static <T extends ASBase>T getASBaseFromRequestContext(
+    RequestContext context) 
+      throws IOException {
     ASBase entity = context.getAttribute(Scope.REQUEST, ASBase.class.getName());
       try {
       if (entity == null) {

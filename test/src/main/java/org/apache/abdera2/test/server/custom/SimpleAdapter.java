@@ -38,6 +38,7 @@ import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.context.StreamWriterResponseContext;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
+import org.apache.abdera2.util.MorePredicates;
 import org.apache.abdera2.writer.StreamWriter;
 import org.joda.time.DateTime;
 
@@ -146,7 +147,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
                 (Document<Entry>) AbstractAtompubProvider.<Entry>getDocument(request).clone();
               if (entry_doc != null) {
                   Entry entry = entry_doc.getRoot();
-                  if (!AbstractAtompubProvider.isValidEntry(entry))
+                  if (!MorePredicates.VALID_ENTRY.apply(entry))
                       return ProviderHelper.badrequest(request);
                   setEntryDetails(request, entry, Abdera.getInstance().getFactory().newUuidUri());
                   Feed feed = getFeedDocument(request).getRoot();
@@ -198,7 +199,7 @@ public class SimpleAdapter extends AbstractAtompubCollectionAdapter {
                       Entry entry = entry_doc.getRoot();
                       if (!entry.getId().equals(orig_entry.getId()))
                           return ProviderHelper.conflict(request);
-                      if (!AbstractAtompubProvider.isValidEntry(entry))
+                      if (!MorePredicates.VALID_ENTRY.apply(entry))
                           return ProviderHelper.badrequest(request);
                       setEntryDetails(request, entry, orig_entry.getId().toString());
                       orig_entry.discard();

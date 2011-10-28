@@ -10,13 +10,21 @@ import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.DelegatingContext;
 
-public class RequestTemplateContext extends DelegatingContext {
+/**
+ * A Template Context implementation based on a RequestContext object.
+ * this allows a URI Template to be expanded using properties and 
+ * attributes from the RequestContext
+ */
+public class RequestTemplateContext 
+  extends DelegatingContext {
 
   private static final long serialVersionUID = 4332356546022014897L;
 
   private final RequestContext request;
 
-  public RequestTemplateContext(RequestContext request, Context subcontext) {
+  public RequestTemplateContext(
+    RequestContext request, 
+    Context subcontext) {
       super(subcontext);
       this.request = request;
   }

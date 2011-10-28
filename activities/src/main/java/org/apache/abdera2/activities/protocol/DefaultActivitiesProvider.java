@@ -39,21 +39,22 @@ public class DefaultActivitiesProvider
   protected Function<RequestContext,Target> targetResolver;
   protected Function<Request,Subject> subjectResolver;
   protected TargetBuilder<?> targetBuilder;
-  protected RouteManager<TargetType,RequestContext> routeManager;
+  protected RouteManager<TargetType,RequestContext,String> routeManager;
   
   public DefaultActivitiesProvider() {
     this("/");
   }
   
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   public DefaultActivitiesProvider(String base) {
     super(new DefaultWorkspaceManager());
     if (base == null) base = "/";
     routeManager =
-        new RouteManager()
-          .addRoute("stream", base + ":stream", TargetType.TYPE_COLLECTION)
-          .addRoute("activity", base + ":stream/:activity", TargetType.TYPE_ENTRY)
-        ;
+      RouteManager.<TargetType,RequestContext,String>make()
+        .with("stream", base + ":stream", TargetType.TYPE_COLLECTION)
+        .with("activity", base + ":stream/:activity", TargetType.TYPE_ENTRY)
+        .get()
+      ;
+    
     targetBuilder = routeManager;
     targetResolver = routeManager;
   }
@@ -105,13 +106,12 @@ public class DefaultActivitiesProvider
   }
 
   public void addWorkspace(WorkspaceInfo workspace) {
-      ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(workspace);
+    ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(workspace);
   }
 
   public void addWorkspaces(Collection<WorkspaceInfo> workspaces) {
-      for (WorkspaceInfo w : workspaces) {
-          ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(w);
-      }
+    for (WorkspaceInfo w : workspaces)
+      ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(w);
   }
 
   @SuppressWarnings("rawtypes")

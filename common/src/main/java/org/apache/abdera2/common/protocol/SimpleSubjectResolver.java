@@ -30,7 +30,8 @@ import com.google.common.base.Function;
 public class SimpleSubjectResolver 
   implements Function<Request,Subject> {
 
-    public static final Principal ANONYMOUS = new AnonymousPrincipal();
+    public static final Principal ANONYMOUS = 
+      new AnonymousPrincipal();
 
     public Subject apply(Request request) {
         RequestContext context = (RequestContext)request;

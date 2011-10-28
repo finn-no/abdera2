@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
@@ -186,6 +187,13 @@ public final class CacheControl implements Serializable {
     }
   
   }
+  
+  public static final Function<String,CacheControl> parser = 
+    new Function<String,CacheControl>() {
+      public CacheControl apply(String input) {
+        return input != null ? parse(input) : null;
+      }
+  };
   
   public static CacheControl parse(String cc) {
     return CacheControlUtil.parseCacheControl(cc, make()).get();

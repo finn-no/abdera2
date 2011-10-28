@@ -29,7 +29,6 @@ import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.RequestContext;
-import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
@@ -42,7 +41,8 @@ public abstract class AbstractActivitiesWorkspaceProvider
              WorkspaceManager,
              ActivitiesProvider {
   
-  protected Set<TypeAdapter<?>> typeAdapters = new HashSet<TypeAdapter<?>>();
+  protected final Set<TypeAdapter<?>> typeAdapters = 
+    new HashSet<TypeAdapter<?>>();
   
   public static Predicate<RequestContext> isJson() {
     return new Predicate<RequestContext>() {
@@ -55,16 +55,15 @@ public abstract class AbstractActivitiesWorkspaceProvider
   }
   
   protected AbstractActivitiesWorkspaceProvider() {
-    this.requestProcessors.put(
+    addRequestProcessor(
       TargetType.TYPE_COLLECTION, 
-      RequestProcessor.forClass(
-        CollectionRequestProcessor.class, 
-        this,isJson()));
-    this.requestProcessors.put(
-      TargetType.TYPE_ENTRY, 
-      RequestProcessor.forClass(
-        EntryRequestProcessor.class,
-        this));
+      CollectionRequestProcessor.class, 
+      isJson(),
+      this);
+    addRequestProcessor(
+      TargetType.TYPE_ENTRY,
+      EntryRequestProcessor.class,
+      this);
   }
   
   public void addTypeAdapter(TypeAdapter<?> typeAdapter) {

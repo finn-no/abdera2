@@ -27,7 +27,8 @@ import org.apache.abdera2.common.misc.Task;
 /**
  * Abdera Filter implementation that supports the use of the X-HTTP-Method-Override header used by GData.
  */
-public class MethodOverrideFilter implements Task<RequestContext,ResponseContext> {
+public class MethodOverrideFilter 
+  implements Task<RequestContext,ResponseContext> {
 
     private Set<String> methods = new HashSet<String>();
 
@@ -73,7 +74,8 @@ public class MethodOverrideFilter implements Task<RequestContext,ResponseContext
                 xheader = xheader.toUpperCase().trim();
             if (method.equals("POST") && 
                 xheader != null && 
-                methods.contains(method))
+                (methods.contains(method) || 
+                 methods.contains("*")))
                   method = xheader;
             this.method = method;
         }

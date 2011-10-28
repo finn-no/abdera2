@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.Date;
-
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.Localizer;
@@ -27,55 +25,76 @@ import org.apache.abdera2.common.text.Slug;
 import org.apache.abdera2.common.http.QualityHelper;
 import org.apache.abdera2.common.http.QualityHelper.QToken;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
+import static org.apache.abdera2.common.misc.MoreFunctions.array;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 public class ProviderHelper {
     public final static Log log = LogFactory.getLog(ProviderHelper.class);
 
-    private ProviderHelper() {
-    }
+    private ProviderHelper() {}
 
-    public static int getPageSize(RequestContext request, String pagesizeparam, int defaultpagesize) {
-        int size = defaultpagesize;
-        try {
-            String _ps = request.getParameter(pagesizeparam);
-            size = (_ps != null) ? Math.min(Math.max(Integer.parseInt(_ps), 0), defaultpagesize) : defaultpagesize;
-        } catch (Exception e) {
+    public static final Function<RequestContext,Integer> getPageSize(
+      final String param, 
+      final int def) {
+      return new Function<RequestContext,Integer>() {
+        public Integer apply(RequestContext input) {
+          int size = def;
+          try {
+              String _ps = input.getParameter(param);
+              size = (_ps != null) ? 
+                Math.min(
+                  Math.max(Integer.parseInt(_ps), 0), def) : 
+                  def;
+          } catch (Exception e) {}
+          log.debug(Localizer.sprintf("PAGE.SIZE", size));
+          return size;
         }
-        log.debug(Localizer.sprintf("PAGE.SIZE", size));
-        return size;
+      };
     }
-
-    public static int getOffset(RequestContext request, String pageparam, int pageSize) {
-        int offset = 0;
-        try {
-            String _page = request.getParameter(pageparam);
-            int page = (_page != null) ? Integer.parseInt(_page) : 1;
-            page = Math.max(page, 1) - 1;
-            offset = pageSize * page;
-        } catch (Exception e) {
-        }
-        log.debug(Localizer.sprintf("OFFSET", offset));
-        return offset;
+    
+    public static final Function<RequestContext,Integer> getOffset(
+      final String param, 
+      final int pagesize) {
+        return new Function<RequestContext,Integer>() {
+          public Integer apply(RequestContext input) {
+            int offset = 0;
+            try {
+              String _page = input.getParameter(param);
+              int page = (_page != null) ? 
+                Integer.parseInt(_page) : 1;
+              page = Math.max(page, 1) - 1;
+              offset = pagesize * page;
+            } catch (Exception e) {}
+            log.debug(Localizer.sprintf("OFFSET", offset));
+            return offset;
+          }
+        };
     }
 
     /**
      * Returns an Error document based on the StreamWriter
      */
-    public static ResponseContext createErrorResponse(Provider provider, final int code, final String message) {
+    public static ResponseContext createErrorResponse(
+      Provider provider, 
+      final int code, 
+      final String message) {
         return createErrorResponse(provider, code, message, null);
     }
 
     /**
      * Returns an Error document based on the StreamWriter
      */
-    public static ResponseContext createErrorResponse(Provider provider,
-                                                              final int code,
-                                                              final String message,
-                                                              final Throwable t) {
+    public static ResponseContext createErrorResponse(
+      Provider provider,
+      final int code,
+      final String message,
+      final Throwable t) {
         return (ResponseContext)provider.createErrorResponse(code, message, t);
     }
 
@@ -248,12 +267,6 @@ public class ProviderHelper {
         return sanitized;
     }
 
-    public static boolean beforeOrEqual(Date d1, Date d2) {
-        long l1 = d1.getTime() / 1000; // drop milliseconds
-        long l2 = d2.getTime() / 1000; // drop milliseconds
-        return l1 <= l2;
-    }
-
     public static IRI resolveBase(RequestContext request) {
         return request.getBaseUri().resolve(request.getUri());
     }
@@ -268,21 +281,20 @@ public class ProviderHelper {
         return buf.toString();
     }
 
+    static private final Function<TargetType,String[]> METHODS_CHOICE = 
+      MoreFunctions.<TargetType,String[]>choice()
+        .of(Predicates.<TargetType>isNull(), MoreFunctions.<String>array())
+        .of(Predicates.<TargetType>equalTo(TargetType.TYPE_COLLECTION), array("GET", "HEAD", "OPTIONS", "POST"))
+        .of(Predicates.<TargetType>equalTo(TargetType.TYPE_CATEGORIES), array("GET", "HEAD", "OPTIONS"))
+        .of(Predicates.<TargetType>equalTo(TargetType.TYPE_ENTRY), array("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT"))
+        .of(Predicates.<TargetType>equalTo(TargetType.TYPE_MEDIA), array("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT"))
+        .of(Predicates.<TargetType>equalTo(TargetType.TYPE_SERVICE), array("GET", "HEAD", "OPTIONS"))
+        .otherwise(array("GET","HEAD","OPTIONS"))
+        .get();
+    
     public static String[] getDefaultMethods(RequestContext request) {
         TargetType type = request.getTarget().getType();
-        if (type == null)
-            return new String[0];
-        if (type == TargetType.TYPE_COLLECTION)
-            return new String[] {"GET", "HEAD", "OPTIONS", "POST"};
-        if (type == TargetType.TYPE_CATEGORIES)
-            return new String[] {"GET", "HEAD", "OPTIONS"};
-        if (type == TargetType.TYPE_ENTRY)
-            return new String[] {"DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT"};
-        if (type == TargetType.TYPE_MEDIA)
-            return new String[] {"DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT"};
-        if (type == TargetType.TYPE_SERVICE)
-            return new String[] {"GET", "HEAD", "OPTIONS"};
-        return new String[] {"GET", "HEAD", "OPTIONS"};
+        return METHODS_CHOICE.apply(type);
     }
 
     public static boolean defaultCheckMethod(RequestContext request, String[] methods) {

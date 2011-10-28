@@ -704,4 +704,17 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
     public DateTime setEditedNow() {
       throw new UnsupportedOperationException("Modifications are not allowed");
     }
+
+    public Link addLink(IRI href) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public Link addLink(IRI href, String rel) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public Link addLink(IRI href, String rel, String type, String title,
+        String hreflang, long length) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
 }

@@ -28,12 +28,13 @@ import org.joda.time.DateTime;
 import com.google.common.base.Function;
 
 /**
- * An abstract base Provider implementation that implements the WorkspaceManager interface. This is intended to be used
- * by Provider's that do not wish to use a separate WorkspaceManager object.
+ * An abstract base Provider implementation that implements the 
+ * WorkspaceManager interface. This is intended to be used by 
+ * Provider's that do not wish to use a separate WorkspaceManager object.
  */
 public abstract class AbstractWorkspaceProvider
-    extends BaseProvider 
-      implements WorkspaceManager {
+  extends AbstractProvider 
+  implements WorkspaceManager {
 
     protected Function<RequestContext,Target> targetResolver;
     protected TargetBuilder<?> targetBuilder;
@@ -44,8 +45,9 @@ public abstract class AbstractWorkspaceProvider
       return this;
     }
 
-    protected Function<RequestContext,Target> getTargetResolver(RequestContext request) {
-        return targetResolver;
+    protected Function<RequestContext,Target> getTargetResolver(
+      RequestContext request) {
+      return targetResolver;
     }
 
     @SuppressWarnings("rawtypes")

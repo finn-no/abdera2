@@ -7,6 +7,44 @@ import org.apache.commons.logging.Log;
 
 public class ExceptionHelper {
 
+  public static <T extends Throwable>void checked(
+      boolean expression, 
+      Class<T> _class) throws T {
+    checked(expression,_class,null);
+  }
+  
+  public static <T extends Throwable>void checked(
+    boolean expression, 
+    Class<T> _class, 
+    String message, 
+    Object... args) throws T {
+      if (!expression) {
+        T t = null;
+        try {
+          if (message != null) {
+            StringBuilder buf = 
+              new StringBuilder(message);
+            if (args.length > 0)
+              buf.append(" ");
+            for (Object arg : args) {
+              buf.append('[')
+                 .append(arg)
+                 .append(']');
+            }
+            t =  _class
+              .getConstructor(String.class)
+              .newInstance(buf.toString());
+          } else
+            t = _class
+              .getConstructor()
+              .newInstance(); 
+        } catch (Throwable e) {
+          throw propogate(e);
+        }
+        throw t;
+      }
+  }
+  
   public static RuntimeException propogate(Throwable t) {
     if (t instanceof RuntimeException)
       throw (RuntimeException)t;

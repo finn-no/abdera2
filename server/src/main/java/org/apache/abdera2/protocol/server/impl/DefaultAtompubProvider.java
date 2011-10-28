@@ -43,23 +43,23 @@ public class DefaultAtompubProvider
     protected Function<RequestContext,Target> targetResolver;
     protected Function<Request,Subject> subjectResolver;
     protected TargetBuilder<?> targetBuilder;
-    protected RouteManager<TargetType,RequestContext> routeManager;
+    protected RouteManager<TargetType,RequestContext,String> routeManager;
 
     public DefaultAtompubProvider() {
         this("/");
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public DefaultAtompubProvider(String base) {
       super(new DefaultWorkspaceManager());
       if (base == null)
         base = "/";
       routeManager =
-          new RouteManager()
-            .addRoute("service", base, TargetType.TYPE_SERVICE)
-            .addRoute("feed", base + ":collection", TargetType.TYPE_COLLECTION)
-            .addRoute("entry", base + ":collection/:entry", TargetType.TYPE_ENTRY)
-            .addRoute("categories", base + ":collection/:entry;categories", TargetType.TYPE_CATEGORIES);
+        RouteManager.<TargetType,RequestContext,String>make()
+          .with("service", base, TargetType.TYPE_SERVICE)
+          .with("feed", base + ":collection", TargetType.TYPE_COLLECTION)
+          .with("entry", base + ":collection/:entry", TargetType.TYPE_ENTRY)
+          .with("categories", base + ":collection/:entry;categories", TargetType.TYPE_CATEGORIES)
+          .get();
       targetBuilder = routeManager;
       targetResolver = routeManager;
     }
@@ -115,9 +115,8 @@ public class DefaultAtompubProvider
     }
 
     public void addWorkspaces(Collection<WorkspaceInfo> workspaces) {
-        for (WorkspaceInfo w : workspaces) {
-            ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(w);
-        }
+      for (WorkspaceInfo w : workspaces)
+        ((DefaultWorkspaceManager)getWorkspaceManager()).addWorkspace(w);
     }
 
     @SuppressWarnings("rawtypes")

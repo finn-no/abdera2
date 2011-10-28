@@ -17,6 +17,8 @@ import org.apache.abdera2.common.http.WebLink;
 import org.apache.abdera2.common.iri.IRI;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 public class ClientResponseWrapper 
   implements ClientResponse {
 
@@ -164,6 +166,14 @@ public class ClientResponseWrapper
 
   public Session getSession() {
     return internal.getSession();
+  }
+
+  public <T> T getHeader(String name, Function<String, T> transform) {
+    return internal.getHeader(name, transform);
+  }
+
+  public <T> Iterable<T> getHeaders(String name, Function<String, T> transform) {
+    return internal.getHeaders(name, transform);
   }
 
 }

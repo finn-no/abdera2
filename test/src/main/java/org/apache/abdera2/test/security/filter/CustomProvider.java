@@ -37,27 +37,23 @@ public class CustomProvider
     private static final String privateKeyPass = "testing";
     private static final String certificateAlias = "James";
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     public CustomProvider(String href) {
-
         this.adapter = new SimpleAdapter(href);
-
-        RouteManager rm =
-            new RouteManager()
-              .addRoute("service", "/", TargetType.TYPE_SERVICE)
-              .addRoute("collection","/:collection",TargetType.TYPE_COLLECTION)
-              .addRoute("entry", "/:collection/:entry", TargetType.TYPE_ENTRY);
-
+        RouteManager<TargetType,RequestContext,String> rm =
+          RouteManager.<TargetType,RequestContext,String>make()
+            .with("service", "/", TargetType.TYPE_SERVICE)
+            .with("collection","/:collection",TargetType.TYPE_COLLECTION)
+            .with("entry", "/:collection/:entry", TargetType.TYPE_ENTRY)
+            .get();
         setTargetBuilder(rm);
         setTargetResolver(rm);
-
         addWorkspace(
           SimpleWorkspaceInfo
             .make()
             .title("A Simple Workspace")
             .collection(adapter)
             .get());
-
         addFilter(
           new SignedRequestFilter());
         addFilter(new SignedResponseFilter(

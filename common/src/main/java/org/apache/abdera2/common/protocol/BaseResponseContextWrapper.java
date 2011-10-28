@@ -33,6 +33,8 @@ import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.http.WebLink;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 @SuppressWarnings("unchecked")
 public class BaseResponseContextWrapper implements ResponseContext {
 
@@ -324,6 +326,14 @@ public class BaseResponseContextWrapper implements ResponseContext {
         Preference... prefs) {
       response.setPreferApplied(pref, prefs);
       return (T)this;
+    }
+
+    public <T> T getHeader(String name, Function<String, T> transform) {
+      return response.getHeader(name,transform);
+    }
+
+    public <T> Iterable<T> getHeaders(String name, Function<String, T> transform) {
+      return response.getHeaders(name, transform);
     }
 
 }

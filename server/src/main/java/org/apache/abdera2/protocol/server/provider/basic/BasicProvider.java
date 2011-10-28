@@ -38,21 +38,22 @@ public class BasicProvider extends ManagedProvider {
         init();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void init() {
-        RouteManager routeManager =
-            new RouteManager().addRoute(
-                "service", 
-                "/", 
-                TargetType.TYPE_SERVICE)
-                  .addRoute(
-                      "feed",
-                      "/:feed",
-                      TargetType.TYPE_COLLECTION)
-                  .addRoute(
-                      "entry", 
-                      "/:feed/:entry", 
-                      TargetType.TYPE_ENTRY);
+        RouteManager<TargetType,RequestContext,String> routeManager =
+          RouteManager.<TargetType,RequestContext,String>make()
+            .with(
+              "service", 
+              "/", 
+              TargetType.TYPE_SERVICE)
+            .with(
+              "feed",
+              "/:feed",
+              TargetType.TYPE_COLLECTION)
+            .with(
+              "entry", 
+              "/:feed/:entry", 
+              TargetType.TYPE_ENTRY)
+            .get();
         setTargetBuilder(
             routeManager);
         setTargetResolver(

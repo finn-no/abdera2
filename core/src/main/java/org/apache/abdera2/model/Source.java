@@ -370,6 +370,39 @@ public interface Source extends ExtensibleElement {
     Link addLink(String href, String rel, String type, String title, String hreflang, long length);
 
     /**
+     * Adds an individual link element
+     * 
+     * @param href The href IRI of the link
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
+    Link addLink(IRI href);
+
+    /**
+     * Adds an individual link element
+     * 
+     * @param href The href IRI of the link
+     * @param rel The link rel attribute
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
+    Link addLink(IRI href, String rel);
+
+    /**
+     * Adds an individual link element
+     * 
+     * @param href The href IRI of the link
+     * @param rel The link rel attribute
+     * @param type The link type attribute
+     * @param hreflang The link hreflang attribute
+     * @param length The length attribute
+     * @return The newly created atom:link
+     * @throws IRISyntaxException if the href is malformed
+     */
+    Link addLink(IRI href, String rel, String type, String title, String hreflang, long length);
+
+    
+    /**
      * RFC4287: The "atom:logo" element's content is an IRI reference [RFC3987] that identifies an image that provides
      * visual identification for a feed. The image SHOULD have an aspect ratio of 2 (horizontal) to 1 (vertical).
      * 

@@ -40,12 +40,11 @@ public abstract class AbstractRequest extends AbstractMessage implements Request
     }
 
     public Iterable<Authentication> getAuthentication() {
-        String auth =  getHeader("Authorization");
-        return auth != null ? Authentication.parse(auth) : null;
+      return getHeader("Authorization", Authentication.parser);
     }
     
     public Iterable<EntityTag> getIfMatch() {
-        return EntityTag.parseTags(getHeader("If-Match"));
+      return getHeader("If-Match", EntityTag.parseMultiple);
     }
 
     public DateTime getIfModifiedSince() {
@@ -53,7 +52,7 @@ public abstract class AbstractRequest extends AbstractMessage implements Request
     }
 
     public Iterable<EntityTag> getIfNoneMatch() {
-        return EntityTag.parseTags(getHeader("If-None-Match"));
+      return getHeader("If-None-Match", EntityTag.parseMultiple);
     }
 
     public DateTime getIfUnmodifiedSince() {

@@ -58,7 +58,7 @@ public class SimpleTarget
     }
 
     public String toString() {
-        return getType() + " - " + getIdentity();
+        return String.format("%s - %s",getType(),getIdentity());
     }
 
     public <T> T getMatcher() {

@@ -18,20 +18,16 @@
 package org.apache.abdera2.common.protocol;
 
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.http.Authentication;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.ResponseType;
 import org.joda.time.DateTime;
 
 public abstract class AbstractResponse extends AbstractMessage implements Response {
-
+  
     public long getAge() {
-        String value = getHeader("Age");
-        try {
-            return (value != null) ? Long.parseLong(value) : -1;
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+      return getHeader("Age", MoreFunctions.parseLong);
     }
 
     public String getAllow() {
@@ -39,17 +35,11 @@ public abstract class AbstractResponse extends AbstractMessage implements Respon
     }
 
     public long getContentLength() {
-        String value = getHeader("Content-Length");
-        try {
-            return (value != null) ? Long.parseLong(value) : -1;
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+      return getHeader("Content-Length", MoreFunctions.parseLong);
     }
 
     public EntityTag getEntityTag() {
-        String etag = getHeader("ETag");
-        return (etag != null) ? EntityTag.parse(getHeader("ETag")) : null;
+      return getHeader("ETag", EntityTag.parser);
     }
 
     public DateTime getExpires() {
@@ -61,16 +51,14 @@ public abstract class AbstractResponse extends AbstractMessage implements Respon
     }
 
     public IRI getLocation() {
-        String l = getHeader("Location");
-        return l != null ? new IRI(l) : null;
+      return getHeader("Location",IRI.parser);
     }
 
     public ResponseType getType() {
-        return ResponseType.select(getStatus());
+      return ResponseType.select(getStatus());
     }
 
     public Iterable<Authentication> getAuthentication() {
-      String auth =  getHeader("WWW-Authenticate");
-      return auth != null ? Authentication.parse(auth) : null;
+      return getHeader("WWW-Authenticate", Authentication.parser);
   }
 }

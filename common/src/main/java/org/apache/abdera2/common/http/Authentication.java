@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +39,7 @@ import static org.apache.abdera2.common.text.CharUtils.quoted;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 
 /**
@@ -80,6 +82,15 @@ public class Authentication implements Iterable<String>, Serializable {
     for (String name : names)
       ALWAYS.add(name);
   }
+  
+  public static final Function<String, Iterable<Authentication>> parser = 
+    new Function<String,Iterable<Authentication>>() {
+      public Iterable<Authentication> apply(String input) {
+        return input != null ? 
+          parse(input) : 
+          Collections.<Authentication>emptySet();
+      }
+  };
   
   public static Iterable<Authentication> parse(String challenge) {
     checkNotNull(challenge);

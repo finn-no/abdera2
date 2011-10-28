@@ -34,13 +34,20 @@ import org.apache.abdera2.common.misc.Task;
  */
 public class CompressionFilter implements Task<RequestContext,ResponseContext> {
 
-    public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
-        String encoding = request.getHeader("Accept-Encoding");
-        QToken[] encodings = encoding != null ? QualityHelper.orderByQ(encoding) : new QToken[0];
+    public ResponseContext apply(
+      RequestContext request, 
+      Chain<RequestContext,ResponseContext> chain) {
+        QToken[] encodings = 
+          request.getHeader(
+            "Accept-Encoding", 
+            QualityHelper.parser);
         for (QToken enc : encodings) {
           try {
-              CompressionCodec codec = CompressionCodec.valueOf(enc.token().toUpperCase());
-              return new CompressingResponseContextWrapper(chain.next(request), codec);
+              CompressionCodec codec = 
+                CompressionCodec.valueOf(
+                  enc.token().toUpperCase());
+              return new CompressingResponseContextWrapper(
+                chain.next(request), codec);
           } catch (Exception e) {}
         }
         return chain.next(request);
@@ -49,36 +56,38 @@ public class CompressionFilter implements Task<RequestContext,ResponseContext> {
     /**
      * A HttpServletResponseWrapper implementation that applies GZip or Deflate compression to response output.
      */
-    public static class CompressingResponseContextWrapper extends BaseResponseContextWrapper {
-
+    public static class CompressingResponseContextWrapper 
+      extends BaseResponseContextWrapper {
         private final CompressionCodec codec;
-
-        public CompressingResponseContextWrapper(ResponseContext response, CompressionCodec codec) {
+        public CompressingResponseContextWrapper(
+          ResponseContext response, 
+          CompressionCodec codec) {
             super(response);
             this.codec = codec;
         }
-
         private OutputStream wrap(OutputStream out) {
-            return new CompressingOutputStream(codec, out);
+          return new CompressingOutputStream(codec, out);
         }
-
         public void writeTo(OutputStream out) throws IOException {
-            super.writeTo(wrap(out));
-            out.flush();
+          super.writeTo(wrap(out));
+          out.flush();
         }
     }
 
-    public static class CompressingOutputStream extends FilterOutputStream {
-
-        public CompressingOutputStream(CompressionCodec codec, OutputStream out) {
+    public static class CompressingOutputStream 
+      extends FilterOutputStream {
+        public CompressingOutputStream(
+          CompressionCodec codec, 
+          OutputStream out) {
             super(initStream(codec, out));
         }
-
-        public CompressingOutputStream(DeflaterOutputStream dout) {
+        public CompressingOutputStream(
+          DeflaterOutputStream dout) {
             super(dout);
         }
-
-        private static OutputStream initStream(CompressionCodec codec, OutputStream out) {
+        private static OutputStream initStream(
+          CompressionCodec codec, 
+          OutputStream out) {
             try {
                 return Compression.wrap(out, new CompressionCodec[] {codec});
             } catch (Exception e) {

@@ -35,6 +35,8 @@ import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 
+import com.google.common.base.Function;
+
 /**
  * Root of the Activity Streams object hierarchy, provides the core property
  * management and can be used to represent simple, untyped objects.
@@ -64,6 +66,10 @@ public class ASBase
   @SuppressWarnings("unchecked")
   public <T>T getProperty(String name) {
     return (T)exts.get(name);
+  }
+  
+  public <T,R>R getProperty(String name, Function<T,R> transform) {
+    return (R)transform.apply(this.<T>getProperty(name));
   }
   
   public void setProperty(String name, Object value) {

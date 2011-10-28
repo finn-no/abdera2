@@ -132,6 +132,7 @@ public class Collection<T extends ASObject>
   public static class CollectionGenerator<T extends ASObject> 
     extends ASObjectGenerator<Collection<T>> {
     
+    @SuppressWarnings("rawtypes")
     private static <T extends ASObject>Class<? extends Collection<T>> t(Class _class) {
       return (Class<? extends Collection<T>>) _class;
     }

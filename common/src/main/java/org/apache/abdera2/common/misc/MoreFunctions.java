@@ -300,4 +300,14 @@ public class MoreFunctions {
     }
   }
   
+  public static final Function<String,Long> parseLong =
+    new Function<String,Long>() {
+      public Long apply(String input) {
+        try {
+          return (input != null) ? Long.valueOf(input) : -1;
+        } catch (NumberFormatException e) {
+          return -1L;
+        }
+      }
+  };
 }

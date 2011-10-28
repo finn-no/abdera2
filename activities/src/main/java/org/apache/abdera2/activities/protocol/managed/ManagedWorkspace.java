@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.WorkspaceInfo;
@@ -33,27 +34,27 @@ public class ManagedWorkspace implements WorkspaceInfo {
     private String title = "Abdera - Activities";
 
     public ManagedWorkspace(ManagedProvider provider) {
-        this.provider = provider;
+      this.provider = provider;
     }
 
     public Collection<CollectionInfo> getCollections(RequestContext request) {
-        CollectionAdapterManager cam = provider.getCollectionAdapterManager(request);
-        List<CollectionInfo> collections = new ArrayList<CollectionInfo>();
-        try {
-            Map<String, FeedConfiguration> map = cam.listAdapters();
-            for (FeedConfiguration config : map.values())
-                collections.add(config);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return collections;
+      CollectionAdapterManager cam = provider.getCollectionAdapterManager(request);
+      List<CollectionInfo> collections = new ArrayList<CollectionInfo>();
+      try {
+        Map<String, FeedConfiguration> map = cam.listAdapters();
+        for (FeedConfiguration config : map.values())
+          collections.add(config);
+      } catch (Throwable e) {
+        throw ExceptionHelper.propogate(e);
+      }
+      return collections;
     }
     
     public String getTitle(RequestContext request) {
-        return title;
+      return title;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+      this.title = title;
     }
 }

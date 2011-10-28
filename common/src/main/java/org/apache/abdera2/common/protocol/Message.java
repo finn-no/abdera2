@@ -26,12 +26,18 @@ import org.apache.abdera2.common.http.WebLink;
 import org.apache.abdera2.common.iri.IRI;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 /**
  * A protocol message. This is used as the basis for both request and response objects in order to provide a consistent
  * interface.
  */
 public interface Message {
 
+    <T>T getHeader(String name, Function<String,T> transform);
+  
+    <T>Iterable<T> getHeaders(String name, Function<String,T> transform);
+    
     /**
      * Get the value of the specified header
      */

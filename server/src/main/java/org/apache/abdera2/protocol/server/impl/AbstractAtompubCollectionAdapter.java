@@ -36,7 +36,6 @@ import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.protocol.server.context.FOMResponseContext;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
-import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -114,7 +113,7 @@ public abstract class AbstractAtompubCollectionAdapter
         feed.addLink("");
         feed.addLink("", "self");
         feed.addAuthor(getAuthor(request));
-        feed.setUpdated(DateTime.now());
+        feed.setUpdatedNow();
         return feed;
     }
 

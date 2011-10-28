@@ -32,16 +32,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 /**
  * Base Provider implementation that provides the core implementation details for all Providers. This class provides the
  * basic request routing logic.
  */
 @SuppressWarnings({"unchecked","rawtypes"})
-public abstract class BaseProvider
+public abstract class AbstractProvider
   implements Provider {
 
-    private final static Log log = LogFactory.getLog(BaseProvider.class);
+    private final static Log log = LogFactory.getLog(AbstractProvider.class);
     protected Map<String, Object> properties;
     protected Set<Task<RequestContext,ResponseContext>> filters = 
       new LinkedHashSet<Task<RequestContext,ResponseContext>>();
@@ -99,7 +100,7 @@ public abstract class BaseProvider
       if (adapter == null && type != TargetType.TYPE_SERVICE)
         return ProviderHelper.notfound(request);
       RequestProcessor processor = 
-        (RequestProcessor) this.requestProcessors
+        this.requestProcessors
           .get(type)
           .apply(adapter);
       if (processor == null)
@@ -143,12 +144,48 @@ public abstract class BaseProvider
         }
     }
 
-    public void setRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors) {
+    public void setRequestProcessors(
+      Map<
+        TargetType, 
+        Function<
+          CollectionAdapter,
+          ? extends RequestProcessor>> 
+            requestProcessors) {
         this.requestProcessors.clear();
         this.requestProcessors.putAll(requestProcessors);
     }
 
-    public void addRequestProcessors(Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> requestProcessors) {
+    public void addRequestProcessor(
+      TargetType type, 
+      Class<? extends RequestProcessor> _class, 
+      Predicate<RequestContext> predicate,
+      WorkspaceManager workspaceManager) {
+        this.requestProcessors.put(
+          type, 
+          RequestProcessor.forClass(
+            _class,
+            workspaceManager,
+            predicate));
+    }
+    
+    public void addRequestProcessor(
+        TargetType type, 
+        Class<? extends RequestProcessor> _class,
+        WorkspaceManager workspaceManager) {
+          this.requestProcessors.put(
+            type, 
+            RequestProcessor.forClass(
+              _class,
+              workspaceManager));
+    }
+    
+    public void addRequestProcessors(
+      Map<
+        TargetType, 
+        Function<
+          CollectionAdapter,
+          ? extends RequestProcessor>> 
+            requestProcessors) {
         this.requestProcessors.putAll(requestProcessors);
     }
 

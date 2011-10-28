@@ -375,6 +375,22 @@ public class EntityTag
       };
     }
     
+    public static Function<String, EntityTag> parser = 
+      new Function<String,EntityTag>() {
+        public EntityTag apply(String input) {
+          return input != null ? parse(input) : null;
+        }
+    };
+    
+    public static Function<String, Iterable<EntityTag>> parseMultiple = 
+      new Function<String,Iterable<EntityTag>>() {
+        public Iterable<EntityTag> apply(String input) {
+          return input != null ? 
+            parseTags(input) : 
+            Collections.<EntityTag>emptySet();
+        }
+    };
+    
     /**
      * Utility method for generating ETags. Works by concatenating the UTF-8 bytes of the provided strings then
      * generating an MD5 hash of the result.

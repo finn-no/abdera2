@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.activation.MimeType;
-import javax.xml.namespace.QName;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.Constants;
@@ -31,17 +30,14 @@ import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.QualityHelper;
 import org.apache.abdera2.common.http.QualityHelper.QToken;
-import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.misc.ExceptionHelper;
-import org.apache.abdera2.common.protocol.AbstractResponseContext;
-import org.apache.abdera2.common.protocol.BaseProvider;
+import org.apache.abdera2.common.protocol.AbstractProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
 import org.apache.abdera2.common.protocol.EntryRequestProcessor;
 import org.apache.abdera2.common.protocol.MediaRequestProcessor;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
-import org.apache.abdera2.common.protocol.RequestProcessor;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.ProviderHelper;
@@ -49,11 +45,9 @@ import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceInfo;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
 import org.apache.abdera2.model.Base;
-import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Entry;
-import org.apache.abdera2.model.ExtensibleElement;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Service;
@@ -82,7 +76,7 @@ import com.google.common.base.Predicate;
  * basic request routing logic.
  */
 public abstract class AbstractAtompubProvider 
-  extends BaseProvider
+  extends AbstractProvider
   implements AtompubProvider {
 
     private final static Log log = LogFactory.getLog(AbstractAtompubProvider.class);
@@ -100,32 +94,27 @@ public abstract class AbstractAtompubProvider
     protected AbstractAtompubProvider(
       WorkspaceManager workspaceManager) {
       this.workspaceManager = workspaceManager;
-        this.requestProcessors.put(
-          TargetType.TYPE_SERVICE, 
-          RequestProcessor.forClass(
-            ServiceRequestProcessor.class, 
-            workspaceManager));
-        this.requestProcessors.put(
-          TargetType.TYPE_CATEGORIES, 
-          RequestProcessor.forClass(
-            CategoriesRequestProcessor.class,
-            workspaceManager));
-        this.requestProcessors.put(
-          TargetType.TYPE_COLLECTION, 
-          RequestProcessor.forClass(
-            CollectionRequestProcessor.class,
-            workspaceManager,
-            ProviderHelper.isAtom()));
-        this.requestProcessors.put(
-          TargetType.TYPE_ENTRY, 
-          RequestProcessor.forClass(
-            EntryRequestProcessor.class,
-            workspaceManager));
-        this.requestProcessors.put(
-          TargetType.TYPE_MEDIA, 
-          RequestProcessor.forClass(
-            MediaRequestProcessor.class, 
-            workspaceManager));
+      addRequestProcessor(
+        TargetType.TYPE_SERVICE, 
+        ServiceRequestProcessor.class, 
+        workspaceManager);
+      addRequestProcessor(
+        TargetType.TYPE_CATEGORIES, 
+        CategoriesRequestProcessor.class,
+        workspaceManager);
+      addRequestProcessor(
+        TargetType.TYPE_COLLECTION, 
+        CollectionRequestProcessor.class,
+        ProviderHelper.isAtom(),        
+        workspaceManager);
+      addRequestProcessor(
+        TargetType.TYPE_ENTRY,
+        EntryRequestProcessor.class,
+        workspaceManager);
+      addRequestProcessor(
+        TargetType.TYPE_MEDIA, 
+        MediaRequestProcessor.class, 
+        workspaceManager);
     }
 
     public void init(Map<String, Object> properties) {
@@ -172,74 +161,15 @@ public abstract class AbstractAtompubProvider
         final int code, 
         final String message,
         final Throwable t) {
-        AbstractResponseContext rc = new StreamWriterResponseContext(abdera) {
-          @Override
-          protected void writeTo(StreamWriter sw) throws IOException {
+        return
+          new StreamWriterResponseContext(abdera) {
+            protected void writeTo(StreamWriter sw) throws IOException {
               Error.create(sw, code, message, t);
+            }
           }
-        };
-        rc.setStatus(code);
-        rc.setStatusText(message);
-        return rc;
+          .setStatus(code)
+          .setStatusText(message);
       }
-
-    /**
-     * Check to see if the entry is minimally valid according to RFC4287. This is not a complete check. It just verifies
-     * that the appropriate elements are present and that their values can be accessed.
-     */
-    public static boolean isValidEntry(Entry entry) {
-        try {
-            IRI id = entry.getId();
-            if (id == null || id.toString().trim().length() == 0 || !id.isAbsolute())
-                return false;
-            if (entry.getTitle() == null)
-                return false;
-            if (entry.getUpdated() == null)
-                return false;
-            if (entry.getAuthor() == null && (entry.getSource() != null && entry.getSource().getAuthor() == null))
-                return false;
-            Content content = entry.getContentElement();
-            if (content == null) {
-                if (entry.getAlternateLink() == null)
-                    return false;
-            } else {
-                if ((content.getSrc() != null || content.getContentType() == Content.Type.MEDIA) && entry
-                    .getSummaryElement() == null) {
-                    ProviderHelper.log.debug(Localizer.sprintf("CHECKING.VALID.ENTRY", false));
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            ProviderHelper.log.debug(Localizer.sprintf("CHECKING.VALID.ENTRY", false));
-            return false;
-        }
-        ProviderHelper.log.debug(Localizer.sprintf("CHECKING.VALID.ENTRY", true));
-        return true;
-    }
-
-    /**
-     * Return false if the element contains any extension elements that are not supported
-     */
-    public static boolean checkElementNamespaces(Element element, List<String> ignore) {
-        List<QName> attrs = element.getExtensionAttributes();
-        for (QName qname : attrs) {
-            String ns = qname.getNamespaceURI();
-            if (!ignore.contains(ns))
-                return false;
-        }
-        if (element instanceof ExtensibleElement) {
-            ExtensibleElement ext = (ExtensibleElement)element;
-            for (Element el : ext.getExtensions()) {
-                QName qname = el.getQName();
-                String ns = qname.getNamespaceURI();
-                if (!ignore.contains(ns))
-                    return false;
-                if (!checkElementNamespaces(el, ignore))
-                    return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Returns an appropriate NamedWriter instance given an appropriately formatted HTTP Accept header. The header will
@@ -250,16 +180,16 @@ public abstract class AbstractAtompubProvider
      * It's always best to be very specific in the Accept headers.
      */
     public static Writer getAcceptableNamedWriter(Abdera abdera, String accept_header) {
-        QToken[] sorted_accepts = QualityHelper.orderByQ(accept_header);
-        WriterFactory factory = abdera.getWriterFactory();
-        if (factory == null)
-            return null;
-        for (QToken accept : sorted_accepts) {
-            Writer writer = factory.getWriterByMediaType(accept.token());
-            if (writer != null)
-                return writer;
-        }
-        return null;
+      QToken[] sorted_accepts = QualityHelper.orderByQ(accept_header);
+      WriterFactory factory = abdera.getWriterFactory();
+      if (factory == null)
+          return null;
+      for (QToken accept : sorted_accepts) {
+          Writer writer = factory.getWriterByMediaType(accept.token());
+          if (writer != null)
+              return writer;
+      }
+      return null;
     }
 
     public static Writer getNamedWriter(Abdera abdera, String mediatype) {
@@ -274,9 +204,13 @@ public abstract class AbstractAtompubProvider
         String id = null;
         String modified = null;
         if (base instanceof Entry) {
-            Entry entry = (Entry)base;
-            id = entry.getId().toString();
-            modified = DateTimes.format(entry.getEdited() != null ? entry.getEdited() : entry.getUpdated());
+          Entry entry = (Entry)base;
+          id = entry.getId().toString();
+          modified = 
+            DateTimes.format(
+              entry.getEdited() != null ? 
+                entry.getEdited() : 
+                entry.getUpdated());
         } else if (base instanceof Feed) {
             Feed feed = (Feed)base;
             id = feed.getId().toString();

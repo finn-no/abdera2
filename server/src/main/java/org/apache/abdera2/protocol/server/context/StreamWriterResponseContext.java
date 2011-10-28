@@ -119,11 +119,11 @@ public abstract class StreamWriterResponseContext
       throw new UnsupportedOperationException();
     }
 
-  public void writeTo(OutputStream out, org.apache.abdera2.writer.Writer writer) throws IOException {
-  throw new UnsupportedOperationException();
-}
+    public void writeTo(OutputStream out, org.apache.abdera2.writer.Writer writer) throws IOException {
+      throw new UnsupportedOperationException();
+    }
 
-public void writeTo(Writer javaWriter, org.apache.abdera2.writer.Writer abderaWriter) throws IOException {
-  throw new UnsupportedOperationException();
-}
+    public void writeTo(Writer javaWriter, org.apache.abdera2.writer.Writer abderaWriter) throws IOException {
+      throw new UnsupportedOperationException();
+    }
 }

@@ -7,8 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import com.google.common.base.Predicate;
 
 public abstract class TransactionalRequestProcessor 
-  extends RequestProcessor
-  implements Transactional {
+  extends RequestProcessor {
 
   private final static Log log = 
     LogFactory.getLog(

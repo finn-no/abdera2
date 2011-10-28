@@ -406,4 +406,16 @@ public class RssSource extends ExtensibleElementWrapper implements Source {
       throw new UnsupportedOperationException("Modifications are not allowed");
     }
 
+    public Link addLink(IRI href) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public Link addLink(IRI href, String rel) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
+
+    public Link addLink(IRI href, String rel, String type, String title,
+        String hreflang, long length) {
+      throw new UnsupportedOperationException("Modifications are not allowed");
+    }
 }

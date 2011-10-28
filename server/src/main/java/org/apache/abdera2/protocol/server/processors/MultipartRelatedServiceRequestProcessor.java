@@ -75,32 +75,37 @@ public class MultipartRelatedServiceRequestProcessor
                             AtompubCollectionInfo ci = (AtompubCollectionInfo) c;
                             sw.startCollection(ci.getHref(request)).writeTitle(ci.getTitle(request));
                             if (ci instanceof MultipartRelatedCollectionInfo) {
-                                MultipartRelatedCollectionInfo multipartCi = (MultipartRelatedCollectionInfo)ci;
-                                for (Map.Entry<String, String> accept : multipartCi.getAlternateAccepts(request)
-                                    .entrySet()) {
-                                    sw.startElement(Constants.ACCEPT);
-                                    if (accept.getValue() != null && accept.getValue().length() > 0) {
-                                        sw.writeAttribute(Constants.LN_ALTERNATE, accept.getValue());
-                                    }
-                                    sw.writeElementText(accept.getKey()).endElement();
-                                }
+                              MultipartRelatedCollectionInfo multipartCi = (MultipartRelatedCollectionInfo)ci;
+                              for (Map.Entry<String, String> accept : multipartCi.getAlternateAccepts(request).entrySet()) {
+                                  sw.startElement(Constants.ACCEPT);
+                                  if (accept.getValue() != null && accept.getValue().length() > 0) {
+                                      sw.writeAttribute(Constants.LN_ALTERNATE, accept.getValue());
+                                  }
+                                  sw.writeElementText(accept.getKey()).endElement();
+                              }
                             } else {
-                                sw.writeAccepts(ci.getAccepts(request));
+                              sw.writeAccepts(ci.getAccepts(request));
                             }
-                            Iterable<AtompubCategoriesInfo> catinfos = ci.getCategoriesInfo(request);
+                            Iterable<AtompubCategoriesInfo> catinfos = 
+                              ci.getCategoriesInfo(request);
                             if (catinfos != null) {
                                 for (AtompubCategoriesInfo catinfo : catinfos) {
                                     String cathref = catinfo.getHref(request);
                                     if (cathref != null) {
-                                        sw.startCategories().writeAttribute("href",
-                                                                            request.getTargetBasePath() + cathref)
-                                            .endCategories();
+                                      sw.startCategories()
+                                        .writeAttribute(
+                                          "href",
+                                          request.getTargetBasePath() + cathref)
+                                        .endCategories();
                                     } else {
-                                        sw.startCategories(catinfo.isFixed(request), catinfo.getScheme(request));
-                                        for (AtompubCategoryInfo cat : catinfo) {
-                                            sw.writeCategory(cat.getTerm(request), cat.getScheme(request), cat
-                                                .getLabel(request));
-                                        }
+                                        sw.startCategories(
+                                          catinfo.isFixed(request), 
+                                          catinfo.getScheme(request));
+                                        for (AtompubCategoryInfo cat : catinfo)
+                                          sw.writeCategory(
+                                            cat.getTerm(request), 
+                                            cat.getScheme(request), 
+                                            cat.getLabel(request));
                                         sw.endCategories();
                                     }
                                 }

@@ -55,6 +55,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+import static com.google.common.base.Preconditions.*;
+
 @SuppressWarnings({"deprecation","rawtypes"})
 public class FOMEntry extends FOMExtensibleElement implements Entry {
 
@@ -1008,5 +1010,21 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
 
     public DateTime setEditedNow() {
       return setEdited(org.joda.time.DateTime.now());
+    }
+
+    public Link addLink(IRI href) {
+      checkNotNull(href);
+      return addLink(href.toString());
+    }
+
+    public Link addLink(IRI href, String rel) {
+      checkNotNull(href);
+      return addLink(href.toString(),rel);
+    }
+
+    public Link addLink(IRI href, String rel, String type, String title,
+        String hreflang, long length) {
+      checkNotNull(href);
+      return addLink(href.toString(),rel,type,title,hreflang,length);
     }
 }

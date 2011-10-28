@@ -71,15 +71,13 @@ public class MultipartRelatedAdapter
 
     @SuppressWarnings("serial")
     public Map<String, String> getAlternateAccepts(RequestContext request) {
-        if (accepts == null) {
-            accepts = new HashMap<String, String>() {
-                {
-                    put("video/*", null); /* doesn't accept multipart related */
-                    put("image/jpg", ""); /* doesn't accept multipart related */
-                    put("image/png", Constants.LN_ALTERNATE_MULTIPART_RELATED /* multipart-related */);
-                }
-            };
-        }
-        return accepts;
+      if (accepts == null) {
+        accepts = new HashMap<String, String>() {{
+          put("video/*", null); /* doesn't accept multipart related */
+          put("image/jpg", ""); /* doesn't accept multipart related */
+          put("image/png", Constants.LN_ALTERNATE_MULTIPART_RELATED /* multipart-related */);
+        }};
+      }
+      return accepts;
     }
 }

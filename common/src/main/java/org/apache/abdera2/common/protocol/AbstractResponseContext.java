@@ -52,7 +52,8 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     protected String status_text = null;
     protected boolean binary = false;
 
-    protected Map<String, Iterable<Object>> headers = null;
+    protected final Map<String, Iterable<Object>> headers = 
+      new HashMap<String,Iterable<Object>>();
 
     public <T extends ResponseContext>T setBinary(boolean binary) {
         this.binary = binary;
@@ -72,7 +73,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
     
     public <T extends ResponseContext>T removeHeader(String name) {
-        getHeaders().remove(name);
+        headers.remove(name);
         return (T)this;
     }
 
@@ -96,7 +97,6 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setHeader(String name, Object... vals) {
-        Map<String, Iterable<Object>> headers = getHeaders();
         Set<Object> values = new HashSet<Object>();
         values.addAll(Arrays.asList(vals));
         headers.put(name, values);
@@ -118,7 +118,6 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T addHeaders(String name, Object... vals) {
-        Map<String, Iterable<Object>> headers = getHeaders();
         Iterable<Object> values = headers.get(name);
         Set<Object> l = 
           values == null ? 
@@ -130,13 +129,10 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public Map<String, Iterable<Object>> getHeaders() {
-        if (headers == null)
-            headers = new HashMap<String, Iterable<Object>>();
         return headers;
     }
 
     public DateTime getDateHeader(String name) {
-        Map<String, Iterable<Object>> headers = getHeaders();
         Iterable<Object> values = headers.get(name);
         if (values != null) {
             for (Object value : values) {
@@ -144,6 +140,10 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
                     return new DateTime(value);
                 else if (value instanceof DateTime)
                     return (DateTime)value;
+                else if (value instanceof Long)
+                    return new DateTime((Long)value);
+                else if (value instanceof String)
+                    return new DateTime(value);
                 else if (value instanceof Calendar)
                     return new DateTime(value);
             }
@@ -157,36 +157,41 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
     
     public String getHeader(String name) {
-      Map<String, Iterable<Object>> headers = getHeaders();
       Iterable<Object> values = headers.get(name);
       Object obj = getFirst(values,null);
       return obj != null ? obj.toString() : null;
     }
 
     public Iterable<Object> getHeaders(String name) {
-        Map<String, Iterable<Object>> headers = getHeaders();
         return headers.get(name);
     }
 
     public Iterable<String> getHeaderNames() {
-        Map<String, Iterable<Object>> headers = getHeaders();
         return headers.keySet();
     }
 
     public <T extends ResponseContext>T setAge(long age) {
-        return (T)(age <= -1 ? removeHeader("Age") : setHeader("Age", String.valueOf(age)));
+        return (T)(age <= -1 ? 
+          removeHeader("Age") : 
+            setHeader("Age", String.valueOf(age)));
     }
 
     public <T extends ResponseContext>T setContentLanguage(String language) {
-        return (T)(language == null ? removeHeader("Content-Language") : setHeader("Content-Language", language));
+        return (T)(language == null ? 
+          removeHeader("Content-Language") : 
+          setHeader("Content-Language", language));
     }
 
     public <T extends ResponseContext>T setContentLength(long length) {
-        return (T)(length <= -1 ? removeHeader("Content-Length") : setHeader("Content-Length", String.valueOf(length)));
+        return (T)(length <= -1 ? 
+          removeHeader("Content-Length") : 
+          setHeader("Content-Length", String.valueOf(length)));
     }
 
     public <T extends ResponseContext>T setContentLocation(String uri) {
-        return (T)(uri == null ? removeHeader("Content-Location") : setHeader("Content-Location", uri));
+        return (T)(uri == null ? 
+          removeHeader("Content-Location") : 
+          setHeader("Content-Location", uri));
     }
 
     public <T extends ResponseContext>T setSlug(String slug) {
@@ -215,23 +220,33 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     }
 
     public <T extends ResponseContext>T setEntityTag(String etag) {
-        return (T)(etag != null ? setEntityTag(new EntityTag(etag)) : removeHeader("ETag"));
+        return (T)(etag != null ? 
+          setEntityTag(new EntityTag(etag)) : 
+          removeHeader("ETag"));
     }
 
     public <T extends ResponseContext>T setEntityTag(EntityTag etag) {
-        return (T)(etag == null ? removeHeader("ETag") : setHeader("ETag", etag.toString()));
+        return (T)(etag == null ? 
+          removeHeader("ETag") : 
+          setHeader("ETag", etag.toString()));
     }
 
     public <T extends ResponseContext>T setExpires(DateTime date) {
-        return (T)(date == null ? removeHeader("Expires") : setHeader("Expires", date));
+        return (T)(date == null ? 
+          removeHeader("Expires") : 
+          setHeader("Expires", date));
     }
 
     public <T extends ResponseContext>T setLastModified(DateTime date) {
-        return (T)(date == null ? removeHeader("Last-Modified") : setHeader("Last-Modified", date));
+        return (T)(date == null ? 
+          removeHeader("Last-Modified") : 
+          setHeader("Last-Modified", date));
     }
 
     public <T extends ResponseContext>T setLocation(String uri) {
-        return (T)(uri == null ? removeHeader("Location") : setHeader("Location", uri));
+        return (T)(uri == null ? 
+          removeHeader("Location") : 
+          setHeader("Location", uri));
     }
     public <T extends ResponseContext>T setLocation(IRI iri) {
       return setLocation(iri == null ? null : iri.toString());

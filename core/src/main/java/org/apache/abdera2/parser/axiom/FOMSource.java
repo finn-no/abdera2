@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.parser.axiom;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -661,4 +663,19 @@ public class FOMSource extends FOMExtensibleElement implements Source {
       return setUpdated(org.joda.time.DateTime.now());
     }
 
+    public Link addLink(IRI href) {
+      checkNotNull(href);
+      return addLink(href.toString());
+    }
+
+    public Link addLink(IRI href, String rel) {
+      checkNotNull(href);
+      return addLink(href.toString(),rel);
+    }
+
+    public Link addLink(IRI href, String rel, String type, String title,
+        String hreflang, long length) {
+      checkNotNull(href);
+      return addLink(href.toString(),rel,type,title,hreflang,length);
+    }
 }

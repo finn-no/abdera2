@@ -35,6 +35,8 @@ import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+
 @SuppressWarnings("unchecked")
 public class BaseRequestContextWrapper
   implements RequestContext{
@@ -245,6 +247,14 @@ public class BaseRequestContextWrapper
     
     public Iterable<Preference> getPreferApplied() {
       return request.getPreferApplied();
+    }
+
+    public <T> T getHeader(String name, Function<String, T> transform) {
+      return request.getHeader(name,transform);
+    }
+
+    public <T> Iterable<T> getHeaders(String name, Function<String, T> transform) {
+      return request.getHeaders(name,transform);
     }
 
 }

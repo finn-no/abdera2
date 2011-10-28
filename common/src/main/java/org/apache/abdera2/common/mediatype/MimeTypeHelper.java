@@ -401,4 +401,12 @@ public final class MimeTypeHelper {
         }        
       };
     }
+    
+    public static final Function<String,MimeType> parser = 
+      new Function<String,MimeType>() {
+        public MimeType apply(String input) {
+          return input != null ? MimeTypeHelper.create(input) : null;
+        }
+      
+    };
 }

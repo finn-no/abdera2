@@ -26,48 +26,64 @@ import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.Preference;
 import org.apache.abdera2.common.http.WebLink;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.text.Codec;
 import org.apache.abdera2.common.text.UrlEncoding;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Iterables;
+
+import static com.google.common.base.Preconditions.*;
 /**
  * Root impl for Message interface impls. This is provided solely as a way of keeping the interface and impl's
  * consistent across the Request and Response objects.
  */
-public abstract class AbstractMessage implements Message {
+public abstract class AbstractMessage 
+  implements Message {
 
+    public <T>T getHeader(String name, Function<String,T> transform) {
+      checkNotNull(transform);
+      return transform.apply(getHeader(name));
+    }
+    
+    public <T>Iterable<T> getHeaders(String name, Function<String,T> transform) {
+      Iterable<Object> objs = this.getHeaders(name);
+      List<T> list = new ArrayList<T>();
+      for (Object obj : objs)
+        list.add(transform.apply(obj.toString()));
+      return Iterables.unmodifiableIterable(list);
+    }
+  
     public CacheControl getCacheControl() {
-        String cc = getHeader("Cache-Control");
-        return cc != null ? CacheControl.parse(cc) : null;
+      return getHeader("Cache-Control", CacheControl.parser);
     }
 
     public String getContentLanguage() {
-        return getHeader("Content-Language");
+      return getHeader("Content-Language");
     }
 
     public IRI getContentLocation() {
-        String value = getHeader("Content-Location");
-        return (value != null) ? new IRI(value) : null;
+      return getHeader("Content-Location", IRI.parser);
     }
 
     public MimeType getContentType() {
-        try {
-            String value = getHeader("Content-Type");
-            return (value != null) ? new MimeType(value) : null;
-        } catch (javax.activation.MimeTypeParseException e) {
-            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-        }
+      return getHeader("Content-Type", MimeTypeHelper.parser);
     }
 
+    private static final Function<String,String> DEC = 
+      Functions.<String,String,String>compose(
+        UrlEncoding.decoder(),
+        Codec.decode());
+    
     public String getDecodedHeader(String header) {
-        return UrlEncoding.decode(Codec.decode(getHeader(header)));
+      return getHeader(
+        header, 
+        DEC);
     }
 
     public Iterable<String> getDecodedHeaders(String header) {
-        Iterable<Object> headers = getHeaders(header);
-        List<String> items = new ArrayList<String>();
-        for (Object h : headers)
-          items.add(UrlEncoding.decode(Codec.decode(h.toString())));
-        return items;
+      return getHeaders(header, DEC);
     }
 
     public String getSlug() {
@@ -76,7 +92,7 @@ public abstract class AbstractMessage implements Message {
 
     public Iterable<WebLink> getWebLinks() {
       List<WebLink> links = new ArrayList<WebLink>();
-      Iterable<Object> headers = this.getHeaders("Link");
+      Iterable<Object> headers = this.getHeaders("Link");      
       for (Object obj : headers) {
         Iterable<WebLink> list = WebLink.parse(obj.toString());
         for (WebLink link : list)

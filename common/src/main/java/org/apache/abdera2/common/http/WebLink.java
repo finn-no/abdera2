@@ -18,6 +18,7 @@ import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.Codec;
 
+import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
@@ -463,6 +464,16 @@ public class WebLink implements Serializable {
     return buf.toString();
   }
 
+  public static final Function<String,Iterable<WebLink>> parser = 
+    new Function<String,Iterable<WebLink>>() {
+      public Iterable<WebLink> apply(String input) {
+        return
+          input != null ?
+          parse(input) :
+          Collections.<WebLink>emptySet();
+      }
+  };
+  
   public static Iterable<WebLink> parse(String text) {
     List<WebLink> links = new ArrayList<WebLink>();
     if (text == null) return Collections.emptyList();

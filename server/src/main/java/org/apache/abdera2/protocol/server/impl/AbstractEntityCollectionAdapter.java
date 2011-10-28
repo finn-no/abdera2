@@ -35,6 +35,7 @@ import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.model.Person;
 import org.apache.abdera2.model.Text;
 import org.apache.abdera2.parser.ParseException;
+import org.apache.abdera2.util.MorePredicates;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
@@ -493,7 +494,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                     if (!entry.getId().equals(orig_entry.getId()))
                         return new EmptyResponseContext(409);
 
-                    if (!AbstractAtompubProvider.isValidEntry(entry))
+                    if (!MorePredicates.VALID_ENTRY.apply(entry))
                         return new EmptyResponseContext(400);
 
                     putEntry(entryObj, entry.getTitle(), DateTime.now(), entry.getAuthors(), entry.getSummary(), entry
@@ -651,7 +652,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
         try {
             Entry entry = getEntryFromRequest(request);
             if (entry != null) {
-                if (!AbstractAtompubProvider.isValidEntry(entry))
+                if (!MorePredicates.VALID_ENTRY.apply(entry))
                     return new EmptyResponseContext(400);
 
                 entry.setUpdated(DateTime.now());

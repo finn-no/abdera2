@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.abdera2.activities.protocol.AbstractActivitiesWorkspaceProvider;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;

@@ -27,7 +27,9 @@ public class CollectionAdapterConfiguration extends Configuration {
     private final String fileLocation;
     private final ServerConfiguration serverConfiguration;
 
-    public CollectionAdapterConfiguration(ServerConfiguration serverConfiguration, String fileLocation) {
+    public CollectionAdapterConfiguration(
+      ServerConfiguration serverConfiguration, 
+      String fileLocation) {
         this.fileLocation = fileLocation;
         this.serverConfiguration = serverConfiguration;
     }

@@ -29,14 +29,14 @@ import org.apache.abdera2.common.protocol.RequestContext;
 public abstract class ManagedProvider 
   extends AbstractActivitiesWorkspaceProvider {
   
-    protected abstract ServerConfiguration getServerConfiguration(RequestContext request);
+  protected abstract ServerConfiguration getServerConfiguration(RequestContext request);
 
-    protected ManagedProvider() {
-        addWorkspace(new ManagedWorkspace(this));
-    }
+  protected ManagedProvider() {
+    addWorkspace(new ManagedWorkspace(this));
+  }
 
-    public CollectionAdapterManager getCollectionAdapterManager(RequestContext request) {
-      return new CollectionAdapterManager(getServerConfiguration(request));
+  public CollectionAdapterManager getCollectionAdapterManager(RequestContext request) {
+    return new CollectionAdapterManager(getServerConfiguration(request));
   }
 
 }

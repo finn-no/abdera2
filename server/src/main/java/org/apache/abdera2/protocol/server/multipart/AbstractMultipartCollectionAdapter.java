@@ -41,14 +41,17 @@ import org.apache.abdera2.protocol.server.impl.AbstractAtompubCollectionAdapter;
 import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.io.MultipartInputStream;
-import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.commons.codec.binary.Base64;
+import static org.apache.abdera2.common.mediatype.MimeTypeHelper.*;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
+
+import static org.apache.abdera2.common.misc.ExceptionHelper.*;
+import static com.google.common.base.Preconditions.*;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractMultipartCollectionAdapter 
@@ -56,8 +59,8 @@ public abstract class AbstractMultipartCollectionAdapter
   implements MultipartRelatedCollectionInfo {
 
     public AbstractMultipartCollectionAdapter(String href) {
-    super(href);
-  }
+      super(href);
+    }
 
     private static final String CONTENT_TYPE_HEADER = "content-type";
     private static final String CONTENT_ID_HEADER = "content-id";
@@ -74,8 +77,8 @@ public abstract class AbstractMultipartCollectionAdapter
         public boolean apply(RequestContext input) {
           MimeType mt = input.getContentType();
           if (mt == null) return false;
-          return MimeTypeHelper.isMultipart(mt.toString()) ||
-                 MimeTypeHelper.isAtom(mt.toString());
+          return isMultipart(mt.toString()) ||
+                 isAtom(mt.toString());
         }
       });
     }
@@ -85,166 +88,183 @@ public abstract class AbstractMultipartCollectionAdapter
         return Iterables.unmodifiableIterable(acceptKeys);
     }
 
-    protected MultipartRelatedPost getMultipartRelatedData(RequestContext request) throws IOException, ParseException,
-        MessagingException {
-
-        MultipartInputStream multipart = getMultipartStream(request);
-        multipart.skipBoundary();
-
-        String start = request.getContentType().getParameter(START_PARAM);
-
-        Document<Entry> entry = null;
-        Map<String, String> entryHeaders = new HashMap<String, String>();
-        InputStream data = null;
-        Map<String, String> dataHeaders = new HashMap<String, String>();
-
-        Map<String, String> headers = getHeaders(multipart);
-
+    protected MultipartRelatedPost getMultipartRelatedData(
+      RequestContext request) 
+        throws IOException, 
+               ParseException,
+               MessagingException {
+      MultipartInputStream multipart = getMultipartStream(request);
+      multipart.skipBoundary();
+      String start = request.getContentType().getParameter(START_PARAM);
+      Document<Entry> entry = null;
+      Map<String, String> entryHeaders = new HashMap<String, String>();
+      InputStream data = null;
+      Map<String, String> dataHeaders = new HashMap<String, String>();
+      Map<String, String> headers = getHeaders(multipart);
         // check if the first boundary is the media link entry
-        if (start == null || start.length() == 0
-            || (headers.containsKey(CONTENT_ID_HEADER) && start.equals(headers.get(CONTENT_ID_HEADER)))
-            || (headers.containsKey(CONTENT_TYPE_HEADER) && MimeTypeHelper.isAtom(headers.get(CONTENT_TYPE_HEADER)))) {
-            entry = getEntry(multipart, request);
-            entryHeaders.putAll(headers);
-        } else {
-            data = getDataInputStream(multipart);
-            dataHeaders.putAll(headers);
-        }
+      if (start == null || start.length() == 0 || 
+         (headers.containsKey(CONTENT_ID_HEADER) && 
+          start.equals(headers.get(CONTENT_ID_HEADER))) || 
+         (headers.containsKey(CONTENT_TYPE_HEADER) && 
+          isAtom(headers.get(CONTENT_TYPE_HEADER)))) {
+        entry = getEntry(multipart, request);
+        entryHeaders.putAll(headers);
+      } else {
+        data = getDataInputStream(multipart);
+        dataHeaders.putAll(headers);
+      }
+      multipart.skipBoundary();
+      headers = getHeaders(multipart);
 
-        multipart.skipBoundary();
-
-        headers = getHeaders(multipart);
-
-        if (start != null && (headers.containsKey(CONTENT_ID_HEADER) && start.equals(headers.get(CONTENT_ID_HEADER)))
-            && (headers.containsKey(CONTENT_TYPE_HEADER) && MimeTypeHelper.isAtom(headers.get(CONTENT_TYPE_HEADER)))) {
-            entry = getEntry(multipart, request);
-            entryHeaders.putAll(headers);
-        } else {
-            data = getDataInputStream(multipart);
-            dataHeaders.putAll(headers);
-        }
-
-        checkMultipartContent(entry, dataHeaders, request);
-
-        return new MultipartRelatedPost(entry, data, entryHeaders, dataHeaders);
+      if (start != null && 
+          (headers.containsKey(CONTENT_ID_HEADER) && 
+           start.equals(headers.get(CONTENT_ID_HEADER))) && 
+          (headers.containsKey(CONTENT_TYPE_HEADER) && 
+           isAtom(headers.get(CONTENT_TYPE_HEADER)))) {
+        entry = getEntry(multipart, request);
+        entryHeaders.putAll(headers);
+      } else {
+        data = getDataInputStream(multipart);
+        dataHeaders.putAll(headers);
+      }
+      checkMultipartContent(entry, dataHeaders, request);
+      return new MultipartRelatedPost(
+        entry, 
+        data, 
+        entryHeaders, 
+        dataHeaders);
     }
 
-    private MultipartInputStream getMultipartStream(RequestContext request) throws IOException, ParseException,
-        IllegalArgumentException {
-        String boundary = request.getContentType().getParameter(BOUNDARY_PARAM);
-
-        if (boundary == null) {
-            throw new IllegalArgumentException("multipart/related stream invalid, boundary parameter is missing.");
-        }
-
-        boundary = "--" + boundary;
-
-        String type = request.getContentType().getParameter(TYPE_PARAM);
-        if (!(type != null && MimeTypeHelper.isAtom(type))) {
-            throw new ParseException(
-                                     "multipart/related stream invalid, type parameter should be " + Constants.ATOM_MEDIA_TYPE);
-        }
-
-        PushbackInputStream pushBackInput = new PushbackInputStream(request.getInputStream(), 2);
-        pushBackInput.unread("\r\n".getBytes());
-
-        return new MultipartInputStream(pushBackInput, boundary.getBytes());
+    private MultipartInputStream getMultipartStream(
+      RequestContext request) 
+        throws IOException, ParseException {
+      String boundary = request.getContentType().getParameter(BOUNDARY_PARAM);
+      checked(
+        boundary != null,
+        ParseException.class,
+        "multipart/related stream invalid, boundary parameter is missing.");
+      boundary = "--" + boundary;
+      String type = request.getContentType().getParameter(TYPE_PARAM);     
+      checked(
+        type != null && isAtom(type),
+        ParseException.class,
+        "multipart/related stream invalid, type parameter should be ",
+        Constants.ATOM_MEDIA_TYPE);
+      PushbackInputStream pushBackInput = 
+        new PushbackInputStream(request.getInputStream(), 2);
+      pushBackInput.unread("\r\n".getBytes());
+      return new MultipartInputStream(pushBackInput, boundary.getBytes());
     }
 
-    private void checkMultipartContent(Document<Entry> entry, Map<String, String> dataHeaders, RequestContext request)
+    private void checkMultipartContent(
+      Document<Entry> entry, 
+      Map<String, String> dataHeaders, 
+      RequestContext request)
         throws ParseException {
-        if (entry == null) {
-            throw new ParseException("multipart/related stream invalid, media link entry is missing");
-        }
-        if (!dataHeaders.containsKey(CONTENT_TYPE_HEADER)) {
-            throw new ParseException("multipart/related stream invalid, data content-type is missing");
-        }
-        if (!isContentTypeAccepted(dataHeaders.get(CONTENT_TYPE_HEADER), request)) {
-            throw new ParseException("multipart/related stream invalid, content-type " + dataHeaders
-                .get(CONTENT_TYPE_HEADER)
-                + " not accepted into this multipart file");
-        }
+      checked(
+        entry != null, 
+        ParseException.class, 
+        "multipart/related stream invalid, media link entry is missing");
+      checked(
+        dataHeaders.containsKey(CONTENT_TYPE_HEADER), 
+        ParseException.class,
+        "multipart/related stream invalid, data content-type is missing");
+      checked(
+        isContentTypeAccepted(dataHeaders.get(CONTENT_TYPE_HEADER),request),
+        ParseException.class,
+        "multipart/related stream invalid, content-type is not acceptable", 
+        dataHeaders.get(CONTENT_TYPE_HEADER));
     }
 
-    private Map<String, String> getHeaders(MultipartInputStream multipart) throws IOException, MessagingException {
+    private Map<String, String> getHeaders(
+      MultipartInputStream multipart) 
+        throws IOException, 
+               MessagingException {
         Map<String, String> mapHeaders = new HashMap<String, String>();
         moveToHeaders(multipart);
         InternetHeaders headers = new InternetHeaders(multipart);
-
         Enumeration<Header> allHeaders = headers.getAllHeaders();
         if (allHeaders != null) {
-            while (allHeaders.hasMoreElements()) {
-                Header header = allHeaders.nextElement();
-                mapHeaders.put(header.getName().toLowerCase(), header.getValue());
-            }
+          while (allHeaders.hasMoreElements()) {
+            Header header = allHeaders.nextElement();
+            mapHeaders.put(header.getName().toLowerCase(), header.getValue());
+          }
         }
-
         return mapHeaders;
     }
 
-    private boolean moveToHeaders(InputStream stream) throws IOException {
-        boolean dash = false;
-        boolean cr = false;
-        int byteReaded;
-
-        while ((byteReaded = stream.read()) != -1) {
-            switch (byteReaded) {
-                case '\r':
-                    cr = true;
-                    dash = false;
-                    break;
-                case '\n':
-                    if (cr == true)
-                        return true;
-                    dash = false;
-                    break;
-                case '-':
-                    if (dash == true) { // two dashes
-                        stream.close();
-                        return false;
-                    }
-                    dash = true;
-                    cr = false;
-                    break;
-                default:
-                    dash = false;
-                    cr = false;
-            }
-        }
-        return false;
+    private boolean moveToHeaders(
+      InputStream stream) 
+        throws IOException {
+      boolean dash = false;
+      boolean cr = false;
+      int byteReaded;
+      while ((byteReaded = stream.read()) != -1) {
+          switch (byteReaded) {
+              case '\r':
+                  cr = true;
+                  dash = false;
+                  break;
+              case '\n':
+                  if (cr == true)
+                      return true;
+                  dash = false;
+                  break;
+              case '-':
+                  if (dash == true) { // two dashes
+                      stream.close();
+                      return false;
+                  }
+                  dash = true;
+                  cr = false;
+                  break;
+              default:
+                  dash = false;
+                  cr = false;
+          }
+      }
+      return false;
     }
 
-    private InputStream getDataInputStream(InputStream stream) throws IOException {
+    private InputStream getDataInputStream(
+      InputStream stream) 
+        throws IOException {
         Base64 base64 = new Base64();
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-
+        ByteArrayOutputStream bo = 
+          new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
-        while (stream.read(buffer) != -1) {
-            bo.write(buffer);
-        }
-        return new ByteArrayInputStream(base64.decode(bo.toByteArray()));
+        while (stream.read(buffer) != -1)
+          bo.write(buffer);
+        return new ByteArrayInputStream(
+          base64.decode(bo.toByteArray()));
     }
 
-    private <T extends Element> Document<T> getEntry(InputStream stream, RequestContext request) throws ParseException,
-        IOException {
+    private <T extends Element> Document<T> getEntry(
+      InputStream stream, 
+      RequestContext request) 
+        throws ParseException,
+               IOException {
         Parser parser = AbstractAtompubProvider.getAbdera(request).getParser();
-        if (parser == null)
-            throw new IllegalArgumentException("No Parser implementation was provided");
+        checkNotNull(parser,"No parser implementation provided");
         Document<?> document =
-            parser.parse(stream, request.getResolvedUri().toString(), parser.getDefaultParserOptions());
+          parser.parse(
+            stream, 
+            request.getResolvedUri().toString(), 
+            parser.getDefaultParserOptions());
         return (Document<T>)document;
     }
 
-    private boolean isContentTypeAccepted(String contentType, RequestContext request) {
-        if (getAlternateAccepts(request) == null) {
-            return false;
-        }
-        for (Map.Entry<String, String> accept : getAlternateAccepts(request).entrySet()) {
-            if (accept.getKey().equalsIgnoreCase(contentType) && accept.getValue() != null
-                && accept.getValue().equalsIgnoreCase(Constants.LN_ALTERNATE_MULTIPART_RELATED)) {
-                return true;
-            }
-        }
+    private boolean isContentTypeAccepted(
+      String contentType, 
+      RequestContext request) {
+        if (getAlternateAccepts(request) == null)
+          return false;
+        for (Map.Entry<String, String> accept : getAlternateAccepts(request).entrySet())
+          if (isMatch(contentType, accept.getKey()) &&
+              accept.getValue() != null && 
+              accept.getValue().equalsIgnoreCase(
+                Constants.LN_ALTERNATE_MULTIPART_RELATED))
+              return true;
         return false;
     }
 
@@ -254,10 +274,11 @@ public abstract class AbstractMultipartCollectionAdapter
         private final Map<String, String> entryHeaders;
         private final Map<String, String> dataHeaders;
 
-        public MultipartRelatedPost(Document<Entry> entry,
-                                    InputStream data,
-                                    Map<String, String> entryHeaders,
-                                    Map<String, String> dataHeaders) {
+        public MultipartRelatedPost(
+          Document<Entry> entry,
+          InputStream data,
+          Map<String, String> entryHeaders,
+          Map<String, String> dataHeaders) {
             this.entry = entry;
             this.data = data;
             this.entryHeaders = entryHeaders;
@@ -265,20 +286,19 @@ public abstract class AbstractMultipartCollectionAdapter
         }
 
         public Document<Entry> getEntry() {
-            return entry;
+          return entry;
         }
 
         public InputStream getData() {
-            return data;
+          return data;
         }
 
         public Map<String, String> getEntryHeaders() {
-            return entryHeaders;
+          return entryHeaders;
         }
 
         public Map<String, String> getDataHeaders() {
-            return dataHeaders;
+          return dataHeaders;
         }
-
     }
 }

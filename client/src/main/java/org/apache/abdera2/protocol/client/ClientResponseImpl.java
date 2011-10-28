@@ -53,6 +53,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+
+import static com.google.common.base.Preconditions.*;
+
 class ClientResponseImpl 
   implements ClientResponse {
 
@@ -304,5 +309,18 @@ class ClientResponseImpl
         links.add(link);
     }
     return links;
+  }
+
+  public <T> T getHeader(String name, Function<String, T> transform) {
+    checkNotNull(transform);
+    return transform.apply(getHeader(name));
+  }
+
+  public <T> Iterable<T> getHeaders(String name, Function<String, T> transform) {
+    Iterable<Object> objs = getHeaders(name);
+    List<T> list = new ArrayList<T>();
+    for (Object obj : objs)
+      list.add(transform.apply(obj.toString()));
+    return Iterables.unmodifiableIterable(list);
   }
 }

@@ -20,6 +20,8 @@ package org.apache.abdera2.common.http;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import com.google.common.base.Function;
+
 public final class QualityHelper {
 
   private QualityHelper() {}
@@ -129,4 +131,10 @@ public final class QualityHelper {
       return qtokens;
   }
   
+  public static final Function<String,QToken[]> parser = 
+    new Function<String,QToken[]>() {
+      public QToken[] apply(String input) {
+        return input != null ? QualityHelper.orderByQ(input) : new QToken[0];
+      }
+    };
 }
