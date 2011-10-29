@@ -27,6 +27,15 @@ public class Json {
 
     public static void main(String... args) throws Exception {
 
+        /**
+         * NOTE: If you need to convert and Atom Feed to JSON, consider
+         * using the Activity Streams "activity" writer as an alternative to this.
+         * The Activity Streams format is a standard and defines a 
+         * mapping between Atom and JSON that is much more efficient and
+         * useful than the generic output the "json" writer used here
+         * does.
+         */
+      
         Abdera abdera =Abdera.getInstance();
         Entry entry = abdera.newEntry();
         entry.newId();

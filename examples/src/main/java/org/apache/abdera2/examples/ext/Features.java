@@ -20,7 +20,7 @@ package org.apache.abdera2.examples.ext;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.ext.features.Feature;
 import org.apache.abdera2.ext.features.FeatureSelector;
-import org.apache.abdera2.ext.features.FeaturesHelper;
+import static org.apache.abdera2.ext.features.FeaturesHelper.*;
 import org.apache.abdera2.model.Collection;
 import org.apache.abdera2.model.Service;
 import org.apache.abdera2.model.Workspace;
@@ -39,28 +39,28 @@ public class Features {
         Collection collection = workspace.addCollection("My collection", "foo");
 
         // Specify which features are supported by the collection
-        org.apache.abdera2.ext.features.Features features = FeaturesHelper.addFeaturesElement(collection);
-        features.addFeature(FeaturesHelper.FEATURE_SUPPORTS_DRAFTS);
-        features.addFeature(FeaturesHelper.FEATURE_REQUIRES_TEXT_TEXT);
-        features.addFeature(FeaturesHelper.FEATURE_IGNORES_SLUG);
-        features.addFeature(FeaturesHelper.FEATURE_SUPPORTS_BIDI);
+        org.apache.abdera2.ext.features.Features features = addFeaturesElement(collection);
+        features.addFeature(FEATURE_SUPPORTS_DRAFTS);
+        features.addFeature(FEATURE_REQUIRES_TEXT_TEXT);
+        features.addFeature(FEATURE_IGNORES_SLUG);
+        features.addFeature(FEATURE_SUPPORTS_BIDI);
 
         // Get the support status of a specific feature
-        System.out.println(FeaturesHelper.getFeatureStatus(collection, FeaturesHelper.FEATURE_SUPPORTS_DRAFTS));
-        System.out.println(FeaturesHelper.getFeatureStatus(collection, FeaturesHelper.FEATURE_REQUIRES_TEXT_TEXT));
-        System.out.println(FeaturesHelper.getFeatureStatus(collection, FeaturesHelper.FEATURE_IGNORES_SLUG));
-        System.out.println(FeaturesHelper.getFeatureStatus(collection, FeaturesHelper.FEATURE_SUPPORTS_BIDI));
-        System.out.println(FeaturesHelper.getFeatureStatus(collection, FeaturesHelper.FEATURE_SUPPORTS_GEO));
+        System.out.println(getFeatureStatus(collection, FEATURE_SUPPORTS_DRAFTS));
+        System.out.println(getFeatureStatus(collection, FEATURE_REQUIRES_TEXT_TEXT));
+        System.out.println(getFeatureStatus(collection, FEATURE_IGNORES_SLUG));
+        System.out.println(getFeatureStatus(collection, FEATURE_SUPPORTS_BIDI));
+        System.out.println(getFeatureStatus(collection, FEATURE_SUPPORTS_GEO));
 
-        Iterable<Feature> fs = FeaturesHelper.getFeatures(collection);
-        for (Feature feature : fs) {
+        Iterable<Feature> fs = getFeatures(collection);
+        for (Feature feature : fs)
             System.out.println("\t" + feature.getRef());
-        }
 
         // Select a collection by feature
         Iterable<Collection> selectedCollections =
-            FeaturesHelper.select(service, new FeatureSelector(FeaturesHelper.FEATURE_SUPPORTS_DRAFTS,
-                                                               FeaturesHelper.FEATURE_SUPPORTS_BIDI));
+            select(service, new FeatureSelector(
+              FEATURE_SUPPORTS_DRAFTS,
+              FEATURE_SUPPORTS_BIDI));
         System.out.println("Selected Collections:");
         for (Collection selected : selectedCollections)
             System.out.println("\t" + selected.getTitle());

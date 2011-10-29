@@ -20,7 +20,7 @@ package org.apache.abdera2.examples.ext;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.templates.MapContext;
 import org.apache.abdera2.common.templates.Template;
-import org.apache.abdera2.ext.history.FeedPagingHelper;
+import static org.apache.abdera2.ext.history.FeedPagingHelper.*;
 import org.apache.abdera2.model.Feed;
 
 public class Paging {
@@ -41,30 +41,30 @@ public class Paging {
         
 
         // Set/Get the paging links
-        FeedPagingHelper.setCurrent(feed, gen(-1));
-        FeedPagingHelper.setNext(feed, gen(3));
-        FeedPagingHelper.setPrevious(feed, gen(1));
-        FeedPagingHelper.setFirst(feed, gen(-1));
-        FeedPagingHelper.setLast(feed, gen(10));
-        FeedPagingHelper.setNextArchive(feed, gen(3));
-        FeedPagingHelper.setPreviousArchive(feed, gen(1));
+        setCurrent(feed, gen(-1));
+        setNext(feed, gen(3));
+        setPrevious(feed, gen(1));
+        setFirst(feed, gen(-1));
+        setLast(feed, gen(10));
+        setNextArchive(feed, gen(3));
+        setPreviousArchive(feed, gen(1));
 
-        System.out.println(FeedPagingHelper.getCurrent(feed));
-        System.out.println(FeedPagingHelper.getNext(feed));
-        System.out.println(FeedPagingHelper.getPrevious(feed));
-        System.out.println(FeedPagingHelper.getFirst(feed));
-        System.out.println(FeedPagingHelper.getLast(feed));
-        System.out.println(FeedPagingHelper.getNextArchive(feed));
-        System.out.println(FeedPagingHelper.getPreviousArchive(feed));
+        System.out.println(getCurrent(feed));
+        System.out.println(getNext(feed));
+        System.out.println(getPrevious(feed));
+        System.out.println(getFirst(feed));
+        System.out.println(getLast(feed));
+        System.out.println(getNextArchive(feed));
+        System.out.println(getPreviousArchive(feed));
 
         // Set/Get the archive flag
-        FeedPagingHelper.setArchive(feed, true);
-        if (FeedPagingHelper.isArchive(feed))
+        setArchive(feed, true);
+        if (isArchive(feed))
             System.out.println("archive feed!");
 
         // Set/Get the complete flag
-        FeedPagingHelper.setComplete(feed, true);
-        if (FeedPagingHelper.isComplete(feed))
+        setComplete(feed, true);
+        if (isComplete(feed))
             System.out.println("complete feed!");
 
     }

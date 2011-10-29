@@ -19,7 +19,7 @@ package org.apache.abdera2.examples.ext;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.ext.thread.InReplyTo;
-import org.apache.abdera2.ext.thread.ThreadHelper;
+import static org.apache.abdera2.ext.thread.ThreadHelper.*;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Link;
 
@@ -39,20 +39,20 @@ public class Thread {
         e2.newId();
 
         // Entry e2 is a reply to Entry e1
-        ThreadHelper.addInReplyTo(e2, e1);
+        addInReplyTo(e2, e1);
 
         // Get the in-reply-to information
-        InReplyTo irt = ThreadHelper.getInReplyTo(e2);
+        InReplyTo irt = getInReplyTo(e2);
         System.out.println(irt.getRef());
 
         // Add a link to a feed containing replies to e1
         Link replies = e1.addLink("replies.xml", Link.REL_REPLIES);
 
         // Set the known number of replies as an attribute on the link
-        ThreadHelper.setCount(replies, 10);
+        setCount(replies, 10);
 
         // alternatively, use the thr:total element to specify the number of replies
-        ThreadHelper.addTotal(e1, 10);
+        addTotal(e1, 10);
 
     }
 

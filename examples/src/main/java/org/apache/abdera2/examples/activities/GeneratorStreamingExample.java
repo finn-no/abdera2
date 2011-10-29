@@ -37,13 +37,16 @@ public class GeneratorStreamingExample {
     writer.writeHeader(header);
     
     // Prepare the Activity template
-    Activity template = new Activity();
-    PersonObject person = new PersonObject();
-    person.setDisplayName("joe");
-    template.setActor(person);
-    template.setVerb(Verb.POST);
-    template.setProvider(
-      new ServiceObject("My Application"));
+    PersonObject person = 
+      new PersonObject();
+    Activity template = 
+      Activity.makeActivity()
+        .actor(person)
+        .verb(Verb.POST)
+        .provider(
+          new ServiceObject("My Application"))
+        .displayName("joe")
+        .get();
     Generator<Activity> gen = 
       template.newGenerator();
     
@@ -75,9 +78,8 @@ public class GeneratorStreamingExample {
     Collection<Activity> col = io.readCollection(in, "UTF-8");
     System.out.println(col.getProperty("title"));
     System.out.println(col.getTotalItems());
-    for (Activity a : col.getItems()) {
+    for (Activity a : col.getItems())
       System.out.println(a.getTitle() + "\t" + a.getVerb());
-    }
   }
   
 }

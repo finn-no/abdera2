@@ -7,7 +7,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 
-public abstract class KeyBase {
+import com.google.common.base.Supplier;
+
+public abstract class KeyBase 
+  implements Supplier<String> {
 
   public static final String DEFAULT_ALG="HmacSHA256";
   public static final int DEFAULT_SIZE=256;
@@ -17,6 +20,10 @@ public abstract class KeyBase {
   protected final int size;
   
   public abstract String generateNext();
+  
+  public String get() {
+    return generateNext();
+  }
   
   public KeyBase(Key key) {
     this(key,DEFAULT_ALG,DEFAULT_SIZE);

@@ -156,6 +156,7 @@ public final class KeyHelper {
         Class<?> provider = Class.forName(className);
         return prepareJceProvider(provider);
       } catch (Exception e) {
+        e.printStackTrace();
         return false;
       }
     }

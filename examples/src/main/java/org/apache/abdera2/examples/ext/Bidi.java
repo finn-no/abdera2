@@ -18,8 +18,7 @@
 package org.apache.abdera2.examples.ext;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.ext.bidi.BidiHelper;
-import org.apache.abdera2.ext.bidi.BidiHelper.Direction;
+import static org.apache.abdera2.ext.bidi.BidiHelper.*;
 import org.apache.abdera2.model.Entry;
 
 /**
@@ -34,27 +33,27 @@ public class Bidi {
 
         Abdera abdera =Abdera.getInstance();
         Entry entry = abdera.newEntry();
-        BidiHelper.setDirection(Direction.RTL, entry);
-
+        setDirection(Direction.RTL, entry);
+        
         entry.setTitle(text);
 
         // non bidi, incorrectly displayed
         System.out.println(entry.getTitle());
 
         // with bidi, correctly displayed
-        System.out.println(BidiHelper.getBidiElementText(entry.getTitleElement()));
+        System.out.println(getBidiElementText(entry.getTitleElement()));
 
         // with bidi, correctly displayed
-        System.out.println(BidiHelper.getBidiText(BidiHelper.getDirection(entry), entry.getTitle()));
+        System.out.println(getBidiText(getDirection(entry), entry.getTitle()));
 
         // there are also direction guessing algorithms available
         entry = abdera.newEntry();
         entry.setTitle(text);
         entry.setLanguage("ar");
 
-        System.out.println(BidiHelper.guessDirectionFromJavaBidi(entry.getTitleElement()));
-        System.out.println(BidiHelper.guessDirectionFromTextProperties(entry.getTitleElement()));
-        System.out.println(BidiHelper.guessDirectionFromLanguage(entry.getTitleElement()));
+        System.out.println(guessDirectionFromJavaBidi(entry.getTitleElement()));
+        System.out.println(guessDirectionFromTextProperties(entry.getTitleElement()));
+        System.out.println(guessDirectionFromLanguage(entry.getTitleElement()));
     }
 
 }

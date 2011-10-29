@@ -71,6 +71,10 @@ public class ApiKey extends KeyBase {
     return Hex.encodeHexString(buf);
   }
   
+  public Supplier<String> asSupplier() {
+    return supplier(this);
+  }
+  
   public static ApiKey WEAK(byte[] key) {
     return new ApiKey(key,"HmacSHA1",20);
   }

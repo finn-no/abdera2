@@ -18,7 +18,7 @@
 package org.apache.abdera2.examples.ext;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.ext.license.LicenseHelper;
+import static org.apache.abdera2.ext.license.LicenseHelper.*;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.model.Link;
@@ -36,29 +36,28 @@ public class License {
         Entry entry = feed.addEntry();
 
         // Add a license to the feed
-        LicenseHelper.addLicense(feed, "http://example.org/foo", "Foo");
+        addLicense(feed, "http://example.org/foo", "Foo");
 
         // does the feed have a license link?
-        System.out.println(LicenseHelper.hasLicense(feed));
+        System.out.println(hasLicense(feed));
 
         // does the feed have a specific license link?
-        System.out.println(LicenseHelper.hasLicense(feed, "http://example.org/foo"));
+        System.out.println(hasLicense(feed, "http://example.org/foo"));
 
         // since the entry does not have a license, it inherits the feeds
-        System.out.println(LicenseHelper.hasLicense(entry));
-        System.out.println(LicenseHelper.hasLicense(entry, "http://example.org/foo"));
+        System.out.println(hasLicense(entry));
+        System.out.println(hasLicense(entry, "http://example.org/foo"));
 
         // list the licenses
-        Iterable<Link> licenses = LicenseHelper.getLicense(entry);
-        for (Link link : licenses) {
+        Iterable<Link> licenses = getLicense(entry);
+        for (Link link : licenses)
             System.out.println(link.getResolvedHref());
-        }
 
         // Add an unspecified license to the entry
-        LicenseHelper.addUnspecifiedLicense(entry);
+        addUnspecifiedLicense(entry);
 
         // now the entry does not inherit the feeds license
-        System.out.println(LicenseHelper.hasLicense(entry, "http://example.org/foo"));
+        System.out.println(hasLicense(entry, "http://example.org/foo"));
 
     }
 
