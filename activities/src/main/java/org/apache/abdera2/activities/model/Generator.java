@@ -26,7 +26,7 @@ public class Generator<T extends ASBase> implements Supplier<T> {
     this.template = template;
   }
   
-  public Generator<T> startNew() {
+  public <X extends Generator<T>>X startNew() {
     if (item != null) 
       throw new IllegalStateException();
     try {
@@ -44,14 +44,14 @@ public class Generator<T extends ASBase> implements Supplier<T> {
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
-    return this;
+    return (X)this;
   }
   
-  public Generator<T> set(String name, Object value) {
+  public <X extends Generator<T>>X set(String name, Object value) {
     if (item == null)
       throw new IllegalStateException();
     item.setProperty(name,value);
-    return this;
+    return (X)this;
   }
   
   public T complete() {

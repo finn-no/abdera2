@@ -20,6 +20,8 @@ package org.apache.abdera2.ext.serializer;
 import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.ext.serializer.annotation.EntityTag;
 import org.apache.abdera2.ext.serializer.annotation.LastModified;
 import org.apache.abdera2.ext.serializer.annotation.MediaType;
@@ -123,19 +125,28 @@ public class ObjectResponseContext extends StreamWriterResponseContext {
 
     @Override
     protected void writeTo(StreamWriter sw) throws IOException {
-        SerializationContext context = newSerializationContext(getAbdera(), conventions, sw);
+        SerializationContext context = 
+          newSerializationContext(getAbdera(), conventions, sw);
         sw.startDocument();
         context.serialize(object, objectContext);
         sw.endDocument();
     }
 
-    private SerializationContext newSerializationContext(Abdera abdera, Conventions conventions, StreamWriter sw) {
+    private SerializationContext newSerializationContext(
+      Abdera abdera, 
+      Conventions conventions, 
+      StreamWriter sw) {
         try {
-            return context.getConstructor(Abdera.class, Conventions.class, StreamWriter.class).newInstance(abdera,
-                                                                                                           conventions,
-                                                                                                           sw);
+          return MoreFunctions
+            .createInstance(
+              context,
+              Abdera.class,
+              Conventions.class,
+              StreamWriter.class)
+                .apply(MoreFunctions
+                  .array(abdera,conventions,sw));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+          throw ExceptionHelper.propogate(e);
         }
     }
 }

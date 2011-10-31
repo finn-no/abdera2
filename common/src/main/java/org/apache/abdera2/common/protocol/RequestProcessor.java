@@ -20,6 +20,7 @@ package org.apache.abdera2.common.protocol;
 import java.lang.reflect.Constructor;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -88,15 +89,20 @@ public abstract class RequestProcessor
       final WorkspaceManager workspaceManager,
       final Predicate<RequestContext> predicate) {
       try {
-        final Constructor<T> c = 
-          _class.getConstructor(
-            WorkspaceManager.class,
-            CollectionAdapter.class,
+        final Function<Object[],T> c =
+          MoreFunctions.<T>createInstance(
+            _class, 
+            WorkspaceManager.class, 
+            CollectionAdapter.class, 
             Predicate.class);
         return new RequestProcessorSupplier<T>(workspaceManager) {
           public T apply(CollectionAdapter adapter) {
             try {
-              return c.newInstance(workspaceManager,adapter,predicate);
+              return c.apply(
+                MoreFunctions.array(
+                  workspaceManager,
+                  adapter,
+                  predicate));
             } catch (Throwable t) {
               throw ExceptionHelper.propogate(t);
             }
@@ -111,14 +117,18 @@ public abstract class RequestProcessor
     final Class<T> _class, 
     final WorkspaceManager workspaceManager) {
     try {
-      final Constructor<T> c = 
-        _class.getConstructor(
-          WorkspaceManager.class,
+      final Function<Object[],T> c =
+        MoreFunctions.<T>createInstance(
+          _class, 
+          WorkspaceManager.class, 
           CollectionAdapter.class);
       return new RequestProcessorSupplier<T>(workspaceManager) {
         public T apply(CollectionAdapter adapter) {
           try {
-            return c.newInstance(workspaceManager,adapter);
+            return c.apply(
+              MoreFunctions.array(
+                workspaceManager,
+                adapter));
           } catch (Throwable t) {
             throw ExceptionHelper.propogate(t);
           }

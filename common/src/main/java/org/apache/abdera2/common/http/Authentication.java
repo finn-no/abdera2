@@ -21,9 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -125,7 +125,7 @@ public class Authentication implements Iterable<String>, Serializable {
     private String scheme;
     private String b64token;
     private Map<String,String> params = 
-      new HashMap<String,String>();
+      new LinkedHashMap<String,String>();
     private Set<String> quoted = 
       new HashSet<String>();
     
@@ -145,7 +145,7 @@ public class Authentication implements Iterable<String>, Serializable {
       return this;
     }
     
-    public Builder isQuoted(String name) {
+    public Builder quoted(String name) {
       quoted.add(name);
       return this;
     }
@@ -170,7 +170,7 @@ public class Authentication implements Iterable<String>, Serializable {
   private final String scheme;
   private final String b64token;
   private final Map<String,String> params = 
-    new HashMap<String,String>();
+    new LinkedHashMap<String,String>();
   private final Set<String> quoted = 
     new HashSet<String>();
     
@@ -234,14 +234,13 @@ public class Authentication implements Iterable<String>, Serializable {
         String val = getParam(param);
         buf.append(param);
         boolean always = is_always_quoted(param) || isquoted(param);
-        if (Profile.TOKEN.check(val) && !always) {
+        if (Profile.TOKEN.check(val) && !always)
           buf.append('*')
              .append('=')
              .append(Codec.encode(val,Codec.STAR));
-        } else {
+        else
           buf.append('=')
              .append(always?quoted(val,true):quotedIfNotToken(val));
-        }
       }
     }
     return buf.toString();

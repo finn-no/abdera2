@@ -30,7 +30,7 @@ public final class AnnoUtil {
   /**
    * Retrieves the value of the Name attribute from the specified 
    * item. If the item is an instance object, the name is pulled from it's
-   * Class.
+   * Class. If item is null, returns null.
    */
   public static String getName(Object item) {
     if (item == null) return null;
@@ -46,6 +46,7 @@ public final class AnnoUtil {
    * Retrieve the default implementation for the specified Class.
    */
   public static String getDefaultImplementation(Class<?> _class) {
+    if (_class == null) return null;
     String _default = null;
     if (_class.isAnnotationPresent(DefaultImplementation.class)) {
       DefaultImplementation di = 
@@ -74,17 +75,15 @@ public final class AnnoUtil {
    * @return A List of Namespace URIs Supported by this Extension
    */
   public static Set<String> getNamespaces(Object obj) {
-    if (obj == null) return Collections.emptySet();
+    if (obj == null) return Collections.<String>emptySet();
     Class<?> _class = 
       obj instanceof Class ? (Class<?>)obj :
       obj.getClass();
     Set<String> ns = new HashSet<String>();
-    if (_class.isAnnotationPresent(Namespace.class)) {
-      Namespace nsa = _class.getAnnotation(Namespace.class);
-      for (String n : nsa.value())
+    if (_class.isAnnotationPresent(Namespace.class))
+      for (String n : _class.getAnnotation(Namespace.class).value())
         ns.add(n);
-    }
-    return ns;
+    return Collections.unmodifiableSet(ns);
   }
 
   /**
@@ -100,17 +99,17 @@ public final class AnnoUtil {
    * Retrieve a javax.xml.namespace.QName from a class using the QName annotation.
    */
   public static QName qNameFromAnno(org.apache.abdera2.common.anno.QName impl) {
+    if (impl == null) return null;
     QName result = null;
     String name = impl.value();
       String ns = impl.ns();
       String pfx = impl.pfx();
-      if (pfx != null && pfx.length() > 0) {
+      if (pfx != null && pfx.length() > 0)
         result = new QName(ns,name,pfx);
-      } else if (ns != null && ns.length() > 0) {
+      else if (ns != null && ns.length() > 0)
         result = new QName(ns,name);
-      } else if (name != null && name.length() > 0) {
+      else if (name != null && name.length() > 0)
         result = new QName(name);
-      };
     return result;
   }
   
@@ -120,10 +119,11 @@ public final class AnnoUtil {
    */
   public static QName getQName(Object obj) {
     if (obj == null) return null;
-    Class<?> _class = obj instanceof Class ? (Class<?>)obj : obj.getClass();
-    if (_class.isAnnotationPresent(org.apache.abdera2.common.anno.QName.class)) {
+    Class<?> _class = 
+      obj instanceof Class ? 
+        (Class<?>)obj : obj.getClass();
+    if (_class.isAnnotationPresent(org.apache.abdera2.common.anno.QName.class))
       return qNameFromAnno(_class.getAnnotation(org.apache.abdera2.common.anno.QName.class));
-    }
     return null;
   }
 }

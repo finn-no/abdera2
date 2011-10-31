@@ -28,9 +28,7 @@ import java.lang.annotation.Target;
 @Target( {TYPE})
 @Inherited
 public @interface Version {
-
   String value(); // Version Number
   String name();  // App Name
   String uri();   // App URI
-  
 }

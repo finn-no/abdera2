@@ -26,9 +26,7 @@ import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.protocol.server.impl.DefaultAtompubProvider;
 
 /**
- * The ServiceManager is used by the AbderaServlet to bootstrap the server 
- * instance. There should be little to no reason why an end user would need 
- * to use this class directly.
+ * The ServiceManager is used by the AbderaServlet to bootstrap the server instance.
  */
 public class AtompubServiceManager 
   extends AbstractServiceManager {

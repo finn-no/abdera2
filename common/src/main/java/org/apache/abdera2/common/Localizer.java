@@ -20,17 +20,19 @@ package org.apache.abdera2.common;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.annotation.Nullable;
+
 /**
  * Wraps ResourceBundle with a couple of additional, useful methods. Used for l10n
  */
 public final class Localizer {
 
-    private static Localizer instance = null;
+    private static Localizer instance;
 
     public static synchronized Localizer getInstance() {
-        if (instance == null)
-            instance = new Localizer();
-        return instance;
+      if (instance == null)
+        instance = new Localizer();
+      return instance;
     }
 
     public static synchronized void setInstance(Localizer localizer) {
@@ -41,7 +43,7 @@ public final class Localizer {
         return getInstance().getValue(key);
     }
 
-    public static String get(String key, String defaultValue) {
+    public static String get(String key, @Nullable String defaultValue) {
         return getInstance().getValue(key, defaultValue);
     }
 
@@ -55,32 +57,58 @@ public final class Localizer {
     private final ResourceBundle bundle;
 
     public Localizer() {
-        this(Locale.getDefault(), Thread.currentThread().getContextClassLoader());
+        this(
+          Locale.getDefault(), 
+          Thread.currentThread().getContextClassLoader());
     }
 
-    public Localizer(Locale locale, ClassLoader loader) {
-        this(initResourceBundle(DEFAULT_BUNDLE, locale, loader), locale);
+    public Localizer(
+      @Nullable Locale locale, 
+      @Nullable ClassLoader loader) {
+        this(initResourceBundle(
+          DEFAULT_BUNDLE, 
+          locale, 
+          loader), 
+          locale);
     }
 
     public Localizer(String bundle) {
-        this(initResourceBundle(bundle, Locale.getDefault(), Thread.currentThread().getContextClassLoader()));
+        this(initResourceBundle(
+          bundle, 
+          Locale.getDefault(), 
+          Thread.currentThread().getContextClassLoader()));
     }
 
-    public Localizer(String bundle, Locale locale) {
-        this(initResourceBundle(bundle, locale, Thread.currentThread().getContextClassLoader()));
+    public Localizer(
+      String bundle, 
+      @Nullable Locale locale) {
+      this(initResourceBundle(
+        bundle, 
+        locale, 
+        Thread.currentThread().getContextClassLoader()));
     }
 
-    public Localizer(ResourceBundle bundle) {
-        this(bundle, bundle.getLocale());
+    public Localizer(
+      ResourceBundle bundle) {
+      this(
+        bundle, 
+        bundle.getLocale());
     }
 
-    public Localizer(ResourceBundle bundle, Locale locale) {
+    public Localizer(
+      ResourceBundle bundle, 
+      Locale locale) {
         this.bundle = bundle;
         this.locale = locale;
     }
 
-    private static ResourceBundle initResourceBundle(String bundle, Locale locale, ClassLoader loader) {
+    private static ResourceBundle initResourceBundle(
+      String bundle, 
+      @Nullable Locale locale, 
+      @Nullable ClassLoader loader) {
         try {
+          if (locale == null) locale = Locale.getDefault();
+          if (loader == null) loader = Thread.currentThread().getContextClassLoader();
             return ResourceBundle.getBundle(bundle, locale, loader);
         } catch (Exception e) {
             return null;

@@ -22,9 +22,9 @@ import org.apache.abdera2.common.protocol.Provider;
 import org.apache.abdera2.common.protocol.TargetType;
 
 /**
- * Providers are responsible for processing all requests to the Atompub server.<br>
- * Actual request processing is delegated to {@link AtompubRequestProcessor} implementations, depending on the request
- * {@link TargetType}.
+ * Providers are responsible for processing all requests to the Atompub 
+ * server. Actual request processing is delegated to {@link RequestProcessor} 
+ * implementations, depending on the request {@link TargetType}.
  */
 public interface AtompubProvider extends Provider {
 

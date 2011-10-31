@@ -30,7 +30,5 @@ import java.lang.annotation.Target;
 @Target( {TYPE,FIELD,METHOD})
 @Inherited
 public @interface Name {
-
   String value();
-  
 }

@@ -28,6 +28,7 @@ import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Element.Helper;
 import org.apache.abdera2.protocol.server.AtompubResponseContext;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.AbstractResponseContext;
 import org.apache.abdera2.writer.Writer;
 
@@ -51,7 +52,8 @@ public class FOMResponseContext<T extends Base>
         this.chunked = chunked;
         try {
             MimeType type = getContentType();
-            String charset = type.getParameter("charset");
+            String charset = 
+              type.getParameter("charset");
             if (charset == null)
                 charset = getCharsetFromBase(base);
             if (charset == null)
@@ -63,82 +65,81 @@ public class FOMResponseContext<T extends Base>
     }
 
     private String getCharsetFromBase(Base base) {
-        if (base == null)
-            return null;
-        if (base instanceof Document) {
-            return ((Document<?>)base).getCharset();
-        } else if (base instanceof Element) {
-            return getCharsetFromBase(((Element)base).getDocument());
-        }
-        return null;
+      return base == null ?
+        null :
+        base instanceof Document ?
+          ((Document<?>)base).getCharset() :
+          base instanceof Element ?
+              getCharsetFromBase(((Element)base).getDocument()) :
+              null;
     }
 
     public T getBase() {
-        return base;
+      return base;
     }
 
     public boolean hasEntity() {
-        return (base != null);
+      return (base != null);
     }
 
     public void writeTo(java.io.Writer javaWriter) throws IOException {
-        if (hasEntity()) {
-            if (writer == null)
-                base.writeTo(javaWriter);
-            else
-                writeTo(javaWriter, writer);
-        }
+      if (hasEntity())
+        if (writer == null)
+          base.writeTo(javaWriter);
+        else
+          writeTo(javaWriter, writer);
     }
 
     public void writeTo(OutputStream out) throws IOException {
-        if (hasEntity()) {
-            if (writer == null)
-                base.writeTo(out);
-            else
-                writeTo(out, writer);
-        }
+      if (hasEntity())
+        if (writer == null)
+          base.writeTo(out);
+        else
+          writeTo(out, writer);
     }
 
     @Override
     public MimeType getContentType() {
-        try {
-            MimeType t = super.getContentType();
-            if (t == null) {
-                String type = Helper.getMimeType(base);
-                if (type != null)
-                    t = new MimeType(type);
-            }
-            return t;
-        } catch (javax.activation.MimeTypeParseException e) {
-            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-        }
+      MimeType t = super.getContentType();
+      if (t == null) {
+        String type = Helper.getMimeType(base);
+        if (type != null)
+          t = MimeTypeHelper.create(type);
+      }
+      return t;
     }
 
     @Override
     public long getContentLength() {
-        long len = super.getContentLength();
-        if (hasEntity() && len == -1 && !chunked) {
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                base.writeTo(out);
-                len = out.size();
-                super.setContentLength(len);
-            } catch (Exception e) {
-            }
-        }
-        return len;
+      long len = super.getContentLength();
+      if (hasEntity() && len == -1 && !chunked) {
+        try {
+          ByteArrayOutputStream out = 
+            new ByteArrayOutputStream();
+          base.writeTo(out);
+          len = out.size();
+          super.setContentLength(len);
+        } catch (Exception e) {}
+      }
+      return len;
     }
 
-    public void writeTo(OutputStream out, Writer writer) throws IOException {
-        writer.writeTo(base, out);
+    public void writeTo(
+      OutputStream out, 
+      Writer writer) 
+        throws IOException {
+      writer.writeTo(base, out);
     }
 
-    public void writeTo(java.io.Writer javaWriter, Writer abderaWriter) throws IOException {
-        abderaWriter.writeTo(base, javaWriter);
+    public void writeTo(
+      java.io.Writer javaWriter, 
+      Writer abderaWriter) 
+        throws IOException {
+      abderaWriter.writeTo(base, javaWriter);
     }
     
     public AtompubResponseContext setWriter(Writer writer) {
       this.writer = writer;
       return this;
-  }
+    }
 }

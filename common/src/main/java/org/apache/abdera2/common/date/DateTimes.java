@@ -15,6 +15,7 @@ import org.joda.time.Interval;
 
 import static org.apache.abdera2.common.misc.Comparisons.*;
 import com.google.common.base.Equivalence;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
@@ -24,29 +25,72 @@ public final class DateTimes {
 
   private DateTimes() {}
   
+  /**
+   * Simple Function that creates a DateTime from an object..
+   * the input can be a string, a long, a java.util.Date, 
+   * a java.util.Calendar or another DateTime. This is 
+   * mainly a convenience wrapper for the default constructor
+   */
+  public static final Function<Object,DateTime> parser = 
+    new Function<Object,DateTime>() {
+      public DateTime apply(Object input) {
+        return new DateTime(input);
+      }
+  };
+  
+  /**
+   * Simple Function that formats a DateTime object to 
+   * ISO8601-compliant string. This is mainly just a 
+   * convenience wrapper.
+   */
+  public static final Function<DateTime,String> formatter = 
+    new Function<DateTime,String>() {
+      public String apply(DateTime input) {
+        return format(input);
+      }
+  };
+  
   private static final DateTimeFormatter DTF =
     ISODateTimeFormat.dateTime();
   
+  /**
+   * Formats the current date/time to string using the default timezone
+   */
   public static String formatNow() {
     return DateTime.now().toString(DTF);
   }
   
+  /**
+   * Formats the given date/time to string
+   */
   public static String format(String dateTime) {
     return DTF.print(new DateTime(dateTime));
   }
   
+  /**
+   * Formats the given date/time to string
+   */
   public static String format(DateTime dateTime) {
     return DTF.print(dateTime);
   }
   
+  /**
+   * Formats the given date/time to string
+   */
   public static String format(Date date) {
     return DTF.print(new DateTime(date));
   }
   
+  /**
+   * Formats the given date/time to string
+   */
   public static String format(Calendar cal) {
     return DTF.print(new DateTime(cal));
   }
   
+  /**
+   * Formats the given date/time to string
+   */
   public static String format(long ms) {
     return DTF.print(ms);
   }
@@ -55,18 +99,30 @@ public final class DateTimes {
     return DateTime.parse(t).toDate();
   }
   
+  /**
+   * Converts the given DateTime to the UTC TimeZone
+   */
   public static DateTime toUTC(DateTime dt) {
     return dt.toDateTime(DateTimeZone.UTC);
   }
   
+  /**
+   * Converts the given DateTime to the given TimeZone
+   */
   public static DateTime toTimeZone(DateTime dt, TimeZone tz) {
     return dt.toDateTime(DateTimeZone.forTimeZone(tz));
   }
   
+  /**
+   * Converts the given DateTime to the given TimeZone
+   */
   public static DateTime toTimeZone(DateTime dt, String id) {
     return dt.toDateTime(DateTimeZone.forID(id));
   }
   
+  /**
+   * Use the DateTimeBuilder to generate a DateTime object
+   */
   public static DateTimeBuilder makeDateTime() {
     return new DateTimeBuilder();
   }
@@ -230,6 +286,9 @@ public final class DateTimes {
     }
   }
   
+  /**
+   * Convenience Utility for Comparing DateTime instances
+   */
   public static abstract class DateTimeComparator<X> implements Comparator<X> {
     public int innerCompare(DateTime d1, DateTime d2) {
       if (onlySecondIsNull(d1,d2)) return 1;

@@ -15,6 +15,7 @@ import javax.activation.MimeType;
 
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.Codec;
 
@@ -155,11 +156,7 @@ public class WebLink implements Serializable {
     }
     
     public Builder mediaType(String type) {
-      try {
-        this.mediaType = new MimeType(type);
-      } catch (javax.activation.MimeTypeParseException e) {
-        throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-      }
+      this.mediaType = MimeTypeHelper.create(type);
       return this;
     }
     
@@ -206,7 +203,7 @@ public class WebLink implements Serializable {
   public WebLink(IRI iri, String rel) {
     checkNotNull(iri);
     this.iri = iri.normalize();
-    if (rel != null) this.rel.add(rel); // verify
+    if (rel != null) this.rel.add(rel);
     this.anchor = null;
     this.lang = null;
     this.title = null;

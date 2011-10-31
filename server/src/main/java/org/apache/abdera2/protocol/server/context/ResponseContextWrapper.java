@@ -24,9 +24,11 @@ import org.apache.abdera2.protocol.server.AtompubResponseContext;
 import org.apache.abdera2.writer.Writer;
 
 public class ResponseContextWrapper 
-  extends BaseResponseContextWrapper implements AtompubResponseContext {
+  extends BaseResponseContextWrapper 
+  implements AtompubResponseContext {
 
-    public ResponseContextWrapper(AtompubResponseContext response) {
+    public ResponseContextWrapper(
+      AtompubResponseContext response) {
         super(response);
     }
 
@@ -34,16 +36,25 @@ public class ResponseContextWrapper
       return (AtompubResponseContext)response;
     }
     
-    public AtompubResponseContext setWriter(Writer writer) {
+    public AtompubResponseContext setWriter(
+      Writer writer) {
         getResponse().setWriter(writer);
         return this;
     }
 
-    public void writeTo(OutputStream out, Writer writer) throws IOException {
-        getResponse().writeTo(out, writer);
+    public void writeTo(
+      OutputStream out, 
+      Writer writer) 
+        throws IOException {
+      getResponse().writeTo(out, writer);
     }
 
-    public void writeTo(java.io.Writer javaWriter, Writer abderaWriter) throws IOException {
-        getResponse().writeTo(javaWriter, abderaWriter);
+    public void writeTo(
+      java.io.Writer javaWriter, 
+      Writer abderaWriter) 
+        throws IOException {
+      getResponse().writeTo(
+        javaWriter, 
+        abderaWriter);
     }
 }

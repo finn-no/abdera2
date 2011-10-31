@@ -20,6 +20,8 @@ package org.apache.abdera2.parser.filter;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Supplier;
 
 @SuppressWarnings("unchecked")
@@ -101,13 +103,10 @@ public abstract class AbstractParseFilter
       QName attribute) {
       if (!answer && _throw != null) {
         try {
-          throw _throw
-            .getConstructor(
-              QName.class,
-              QName.class)
-            .newInstance(
-              element,
-              attribute);
+          throw MoreFunctions
+            .createInstance(_throw)
+            .apply(MoreFunctions
+               .array(element,attribute));
         } catch (Throwable e) {
           throw ExceptionHelper.propogate(e);
         }

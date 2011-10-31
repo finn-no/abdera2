@@ -16,7 +16,53 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 
 public class MoreFunctions {
- 
+
+  public static <T>T createInstance(Class<T> _class, Object... args) {
+    return MoreFunctions.<T>createInstance(_class).apply(args);
+  }
+  
+  public static <T>T createInstance(Class<T> _class, Class<?>[] types, Object... args) {
+    return MoreFunctions.<T>createInstance(_class,types).apply(args);
+  }
+  
+  public static <T>Function<Object[],T> createInstance(
+    final Class<T> _class,
+    final Class<?>... args) {
+    return new Function<Object[],T>() {
+      public T apply(Object[] input) {
+        try {
+          if (input != null) {
+            return _class.getConstructor(args).newInstance(input);
+          } else {
+            return _class.newInstance();
+          }
+        } catch (Throwable t) {
+          throw ExceptionHelper.propogate(t);
+        }
+      }
+    };
+  }
+  
+  public static <T>Function<Object[],T> createInstance(
+    final Class<T> _class) {
+    return new Function<Object[],T>() {
+      public T apply(Object[] input) {
+        try {
+          if (input != null) {
+            Class<?>[] _types = new Class[input.length];
+            for (int n = 0; n < input.length; n++) 
+              _types[n] = input[n].getClass();
+            return _class.getConstructor(_types).newInstance(input);
+          } else {
+            return _class.newInstance();
+          }
+        } catch (Throwable t) {
+          throw ExceptionHelper.propogate(t);
+        }
+      }
+    };
+  }
+  
   public static <R extends Initializable>Function<Map<String,Object>,R> discoverInitializable(
     final Class<R> _class) {
       return discoverInitializable(_class,null);

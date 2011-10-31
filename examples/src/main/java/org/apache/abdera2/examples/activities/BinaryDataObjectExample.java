@@ -13,6 +13,10 @@ import org.apache.abdera2.activities.model.objects.BadgeObject;
 import org.apache.abdera2.common.io.Compression.CompressionCodec;
 import org.apache.abdera2.common.security.HashHelper;
 
+
+import static org.apache.abdera2.activities.extra.BinaryObject.makeBinary;
+import static org.apache.abdera2.activities.model.objects.BadgeObject.makeBadge;
+
 /**
  * Illustrates the extension "binary" objectType... this can be useful, 
  * for instance, when attaching arbitrary base64 encoded data to an 
@@ -28,22 +32,23 @@ public class BinaryDataObjectExample {
     URL url = BinaryDataObjectExample.class.getResource("/info.png");
     DataHandler dataHandler = new DataHandler(url); 
     
-    BinaryObject dataObject = new BinaryObject();
-    // set the content.. md5 hash will be calculated and deflate compression used
-    dataObject.setData(
-      dataHandler, 
-      new HashHelper.Md5(), 
-      CompressionCodec.DEFLATE);
-    
-    BadgeObject badge = new BadgeObject();
-    badge.addAttachment(dataObject);
+    BadgeObject badge = 
+      makeBadge()
+        .attachment(
+          makeBinary()
+            .data(
+              dataHandler, 
+              new HashHelper.Md5(), 
+              CompressionCodec.DEFLATE)
+            .get())
+        .get();
     
     // check the round trip //
     StringReader sr = new StringReader(io.write(badge));
     
     badge = io.readObject(sr);
-    
-    dataObject = (BinaryObject) badge.getAttachments().iterator().next();
+ 
+    BinaryObject dataObject = (BinaryObject) badge.getAttachments().iterator().next();
     
     String md5 = dataObject.getProperty("md5");
     HashHelper.Md5 check = new HashHelper.Md5();

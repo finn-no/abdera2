@@ -36,10 +36,13 @@ import java.util.ListIterator;
  * is consumed as the list is used. The List itself is unmodifiable.
  */
 @SuppressWarnings("unchecked")
-public class ElementList<T extends Element> extends AbstractCollection<T> implements List<T> {
+public class ElementList<T extends Element> 
+  extends AbstractCollection<T> 
+  implements List<T> {
 
     private final Iterator<T> i;
-    private final List<T> buffer = new ArrayList<T>();
+    private final List<T> buffer = 
+      new ArrayList<T>();
 
     public ElementList(Iterator<T> i) {
         this.i = i;

@@ -45,9 +45,9 @@ public final class Chain<T,R>
     }
    
     public R next(T input) {
-        return tasks.hasNext() ? 
-            tasks.next().apply(input, this) : 
-            to.apply(input);
+      return tasks.hasNext() ? 
+        tasks.next().apply(input, this) : 
+        to.apply(input);
     }
 
     public R apply(T input) {

@@ -95,9 +95,8 @@ public class CollectionAdapterManager {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         Class<?> adapterClass = cl.loadClass(config.getAdapterClassName());
         Constructor<?>[] ctors = adapterClass.getConstructors();
-        for (Constructor<?> element : ctors) {
-            logger.finest("Public constructor found: " + element.toString());
-        }
+        for (Constructor<?> element : ctors)
+          logger.finest("Public constructor found: " + element.toString());
         Constructor<?> c = adapterClass.getConstructor(new Class[] {Abdera.class, FeedConfiguration.class});
         c.setAccessible(true);
         CollectionAdapter adapterInstance = (CollectionAdapter)c.newInstance(abdera, config);

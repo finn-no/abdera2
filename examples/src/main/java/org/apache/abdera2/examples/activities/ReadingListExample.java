@@ -1,13 +1,16 @@
 package org.apache.abdera2.examples.activities;
 
-import org.apache.abdera2.activities.extra.BookObject;
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
-import org.apache.abdera2.activities.model.objects.PersonObject;
+
+import static org.apache.abdera2.activities.model.Activity.makeActivity;
+import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
+import static org.apache.abdera2.activities.extra.BookObject.makeBook;
+import static org.apache.abdera2.activities.model.Collection.makeCollection;
 
 /**
  * Example that shows a simple practical use of an activity stream
@@ -24,39 +27,44 @@ public class ReadingListExample {
     IO io = IO.get();
     Extra.initExtras(io);
     
-    Collection<Activity> stream = 
-      new Collection<Activity>();
-    
-    Activity template = 
-      new Activity();
-    PersonObject actor = 
-      new PersonObject("James");
-    template.setActor(actor);
     Generator<Activity> gen = 
-      template.newGenerator();
+      makeActivity()
+        .actor(
+          makePerson()
+            .displayName("James")
+            .get())
+        .get().newGenerator();
+
+    Collection.CollectionGenerator<Activity> builder = 
+      makeCollection();
     
     // Add a book we want to read
-    BookObject book1 = 
-      new BookObject("The Cat in the Hat");
-    stream.addItem(
+    builder.item(
       gen.startNew()
          .set("verb", Verb.SAVE)
-         .set("object", book1)
+         .set("object", 
+           makeBook()
+             .displayName("The Cat in the Hat")
+             .get())
          .set("format", Extra.EBOOK())
          .complete());
     
     // Add a book we just finished
-    BookObject book2 =
-      new BookObject("Meditations on the Method");
-    book2.setAuthor(new PersonObject("Rene Descartes"));
-    stream.addItem(
+    builder.item(
       gen.startNew()
          .set("verb", Extra.READ)
-         .set("object", book2)
+         .set("object", 
+           makeBook()
+             .displayName("Meditations on the Method")
+             .author(
+               makePerson()
+                 .displayName("Rene Descartes")
+                 .get())
+             .get())
          .set("format", Extra.HARDCOVER())
          .complete());
     
-    stream.writeTo(io,System.out);
+    builder.get().writeTo(io,System.out);
     
   }
   

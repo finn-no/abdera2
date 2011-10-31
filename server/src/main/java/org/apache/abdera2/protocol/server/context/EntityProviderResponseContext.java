@@ -26,23 +26,33 @@ import org.apache.abdera2.writer.StreamWriter;
 /**
  * StreamWriterResponseContext implementation based on the EntityProvider interface
  */
-public class EntityProviderResponseContext extends StreamWriterResponseContext {
+public class EntityProviderResponseContext 
+  extends StreamWriterResponseContext {
 
     private final EntityProvider provider;
 
-    public EntityProviderResponseContext(EntityProvider provider, Abdera abdera, String encoding, String sw) {
+    public EntityProviderResponseContext(
+      EntityProvider provider, 
+      Abdera abdera, 
+      String encoding, 
+      String sw) {
         super(abdera, encoding, sw);
         this.provider = provider;
         init();
     }
 
-    public EntityProviderResponseContext(EntityProvider provider, Abdera abdera, String encoding) {
+    public EntityProviderResponseContext(
+      EntityProvider provider, 
+      Abdera abdera, 
+      String encoding) {
         super(abdera, encoding);
         this.provider = provider;
         init();
     }
 
-    public EntityProviderResponseContext(EntityProvider provider, Abdera abdera) {
+    public EntityProviderResponseContext(
+      EntityProvider provider, 
+      Abdera abdera) {
         super(abdera);
         this.provider = provider;
         init();

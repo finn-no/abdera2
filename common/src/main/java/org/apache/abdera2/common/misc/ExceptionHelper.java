@@ -26,18 +26,18 @@ public class ExceptionHelper {
               new StringBuilder(message);
             if (args.length > 0)
               buf.append(" ");
-            for (Object arg : args) {
+            for (Object arg : args)
               buf.append('[')
                  .append(arg)
                  .append(']');
-            }
-            t =  _class
-              .getConstructor(String.class)
-              .newInstance(buf.toString());
+            t = MoreFunctions
+              .<T>createInstance(
+                _class,
+                buf.toString());
           } else
-            t = _class
-              .getConstructor()
-              .newInstance(); 
+            t = MoreFunctions
+              .<T>createInstance(_class)
+                .apply(null);
         } catch (Throwable e) {
           throw propogate(e);
         }

@@ -24,7 +24,8 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.writer.Writer;
 
 /**
- * The ResponseContext encapsulates a server response
+ * Extends the core ResponseContext object with methods used to 
+ * output Atom data using a specific Abdera Writer instance.
  */
 public interface AtompubResponseContext extends ResponseContext {
 

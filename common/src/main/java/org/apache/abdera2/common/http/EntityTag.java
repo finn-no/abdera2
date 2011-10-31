@@ -30,6 +30,7 @@ import org.apache.abdera2.common.text.UrlEncoding;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Implements an EntityTag.
@@ -39,25 +40,22 @@ public class EntityTag
 
     private static final long serialVersionUID = 1559972888659121461L;
 
-    private static final String INVALID_ENTITY_TAG = "Invalid entity tag";
-
     public static final EntityTag WILD = new EntityTag("*");
 
     public static EntityTag parse(String entity_tag) {
-      if (entity_tag == null || entity_tag.length() == 0)
-          throw new IllegalArgumentException("Invalid");
+      checkNotNull(entity_tag);
+      checkArgument(entity_tag.length() > 0, "Invalid");
       int l = entity_tag.length()-1;
-      boolean wild = entity_tag.charAt(0) == '*' && 
-                     l == 0;
+      boolean wild = 
+        entity_tag.charAt(0) == '*' && l == 0;
       if (wild) return EntityTag.WILD;
       boolean weak = (entity_tag.charAt(0) == 'W' || 
                      entity_tag.charAt(0) == 'w');
-      if (weak && entity_tag.charAt(1) != '/')
-        throw new IllegalArgumentException("Invalid");
+      checkArgument(!(weak && entity_tag.charAt(1) !='/'),"Invalid");
       int pos = weak?2:0;
-      if (entity_tag.charAt(pos) != '"' || 
-          entity_tag.charAt(l) != '"')
-        throw new IllegalArgumentException("Invalid");
+      checkArgument(
+        entity_tag.charAt(pos) == '"' && 
+        entity_tag.charAt(l) == '"',"Invalid");
       String tag = entity_tag.substring(pos+1,l);
       return new EntityTag(tag, weak, false);
     }
@@ -65,14 +63,13 @@ public class EntityTag
     public static Iterable<EntityTag> parseTags(String entity_tags) {
         if (entity_tags == null || 
             entity_tags.length() == 0)
-            return Collections.emptyList();
+          return Collections.emptyList();
         String[] tags = 
           entity_tags.split("((?<=\")\\s*,\\s*(?=([wW]/)?\"|\\*))");
         List<EntityTag> etags = 
           new ArrayList<EntityTag>();
-        for (String tag : tags) {
+        for (String tag : tags)
             etags.add(EntityTag.parse(tag.trim()));
-        }
         return etags;
     }
 
@@ -155,10 +152,9 @@ public class EntityTag
             return (tag1 == null) ? true : false;
         if (tag1.isWild() && !empty(tags))
             return true;
-        for (EntityTag tag : tags) {
-            if (tag1.equals(tag,weak) || tag.isWild())
-                return true;
-        }
+        for (EntityTag tag : tags)
+          if (tag1.equals(tag,weak) || tag.isWild())
+            return true;
         return false;
     }
 
@@ -229,7 +225,7 @@ public class EntityTag
         EntityTag tag, 
         String label, 
         String... labels) {
-        if (label == null || tag == null | tag.isWild()) 
+        if (label == null || tag == null || tag.isWild()) 
           throw new IllegalArgumentException();
         StringBuilder buf = 
           new StringBuilder(tag.getTag());
@@ -253,8 +249,7 @@ public class EntityTag
     public EntityTag(String tag, boolean weak) {
         EntityTag etag = attemptParse(tag);
         if (etag == null) {
-            if (tag.indexOf('"') > -1)
-                throw new IllegalArgumentException(INVALID_ENTITY_TAG);
+            checkArgument(tag.indexOf('"') == -1, "Invalid");
             this.tag = tag;
             this.weak = weak;
             this.wild = tag.equals("*");
