@@ -4,10 +4,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
+import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.common.text.CodepointMatcher;
 
-import com.google.common.base.Predicate; 
 import com.google.common.base.Predicates;
 
 import static com.google.common.base.Preconditions.*;
@@ -16,20 +17,22 @@ public final class MorePredicates {
 
   private MorePredicates() {}
   
-  public static Predicate<String> equalsIgnoreCase(final String val) {
-    return new Predicate<String>() {
-      public boolean apply(String input) {
+  public static Selector<String> equalsIgnoreCase(final String val) {
+    return new AbstractSelector<String>() {
+      public boolean select(Object input) {
         checkNotNull(input);
         checkNotNull(val);
-        return input.equalsIgnoreCase(val);
+        return input.toString().equalsIgnoreCase(val);
       }
     };
   }
   
-  public static Predicate<String> notNullOrEmpty() {
-    return new Predicate<String>() {
-      public boolean apply(String input) {
-        return input != null && input.length() > 0;
+  public static Selector<String> notNullOrEmpty() {
+    return new AbstractSelector<String>() {
+      public boolean select(Object input) {
+        checkArgument(input instanceof String);
+        String val = input.toString();
+        return val != null && val.length() > 0;
       }
     };
   }
@@ -40,7 +43,7 @@ public final class MorePredicates {
    * and MUST NOT require any input parameters. The method name is case
    * sensitive. 
    */
-  public static <T>Predicate<T> isNull(Class<T> _class, String method) {
+  public static <T>Selector<T> isNull(Class<T> _class, String method) {
     return PropertySelector.<T>create(_class, method, Predicates.isNull());
   }
   
@@ -50,7 +53,7 @@ public final class MorePredicates {
    * and MUST NOT require any input parameters. The method name is case
    * sensitive. 
    */
-  public static <T>Predicate<T> isNotNull(Class<T> _class, String method) {
+  public static <T>Selector<T> isNotNull(Class<T> _class, String method) {
     return PropertySelector.<T>create(_class, method, Predicates.not(Predicates.isNull()));
   }
   
@@ -58,36 +61,66 @@ public final class MorePredicates {
    * Returns a Predicate that checks if the value of a named property of 
    * instances of the specified class is an instance of the given test class 
    */
-  public static <T>Predicate<T> instanceOf(Class<T> _class, String method, Class<?> _test) {
+  public static <T>Selector<T> instanceOf(Class<T> _class, String method, Class<?> _test) {
     return PropertySelector.<T>create(_class, method, Predicates.instanceOf(_test));
   }
   
-  public static <T>Predicate<T> assignableFrom(Class<T> _class, String method, Class<?> _test) {
+  public static <T>Selector<T> assignableFrom(Class<T> _class, String method, Class<?> _test) {
     return PropertySelector.<T>create(_class, method, Predicates.assignableFrom(_test));
   }
   
-  public static <T>Predicate<T> containsPattern(Class<T> _class, String method, Pattern pattern) {
+  public static <T>Selector<T> containsPattern(Class<T> _class, String method, Pattern pattern) {
     return PropertySelector.<T>create(_class, method, Predicates.contains(pattern));
   }
   
-  public static <T>Predicate<T> containsPattern(Class<T> _class, String method, String pattern) {
+  public static <T>Selector<T> containsPattern(Class<T> _class, String method, String pattern) {
     return containsPattern(_class,method,Pattern.compile(pattern));
   }
   
-  public static <T>Predicate<T> matches(Class<T> _class, String method, CodepointMatcher matcher) {
+  public static <T>Selector<T> matches(Class<T> _class, String method, CodepointMatcher matcher) {
     return PropertySelector.<T>create(_class, method, matcher);
   }
   
-  public static <T>Predicate<T> equalTo(Class<T> _class, String method, Object obj) {
+  public static <T>Selector<T> equalTo(Class<T> _class, String method, Object obj) {
     return PropertySelector.<T>create(_class, method, Predicates.equalTo(obj));
   }
   
-  public static <T>Predicate<T> in(Class<T> _class, String method, Collection<T> items) {
+  public static <T>Selector<T> in(Class<T> _class, String method, Collection<T> items) {
     return PropertySelector.<T>create(_class, method, Predicates.in(items));
   }
   
-  public static <T>Predicate<T> in(Class<T> _class, String method, T... items) {
+  public static <T>Selector<T> in(Class<T> _class, String method, T... items) {
     return in(_class,method,Arrays.asList(items));
   }
+  
+  public static Selector<Long> longNotNegativeOrNull = 
+    new AbstractSelector<Long>() {
+      public boolean select(Object item) {
+        if (item == null) return false;
+        checkArgument(item instanceof Long);
+        Long i = (Long)item;
+        return i >= 0;
+      }
+  };
+  
+  public static Selector<Integer> intNotNegativeOrNull = 
+    new AbstractSelector<Integer>() {
+      public boolean select(Object item) {
+        if (item == null) return false;
+        checkArgument(item instanceof Integer);
+        Integer i = (Integer)item;
+        return i >= 0;
+      }
+  };
+  
+  public static Selector<Short> shortNotNegativeOrNull = 
+    new AbstractSelector<Short>() {
+      public boolean select(Object item) {
+        if (item == null) return false;
+        checkArgument(item instanceof Short);
+        Short i = (Short)item;
+        return i >= 0;
+      }
+  };
   
 }

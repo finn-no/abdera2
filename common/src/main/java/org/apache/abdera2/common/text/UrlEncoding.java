@@ -577,6 +577,7 @@ public final class UrlEncoding {
       return new Function<String,String>() {
         public String apply(String input) {
           try {
+            if (input == null) return null;
             return decode(input,charset);
           } catch (Throwable t) {
             throw ExceptionHelper.propogate(t);

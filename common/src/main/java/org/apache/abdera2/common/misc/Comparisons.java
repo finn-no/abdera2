@@ -78,6 +78,10 @@ public class Comparisons {
     return onlySecondApplies(predicate).apply(t1, t2);
   }
   
+  public static <T>boolean testBoth(T t1, T t2, Predicate<T> p1, Predicate<T> p2) {
+    return testBoth(p1,p2).apply(t1,t2);
+  }
+  
   public static final Comparison<Object> bothAreNull = 
     bothAreNull();
   
@@ -110,6 +114,17 @@ public class Comparisons {
   public static <X extends Predicate<? extends T[]>,T>X asPredicate(
     final Equivalence<T> equivalence) {
       return Comparisons.<X,T>asPredicate(forEquivalence(equivalence));
+  }
+  
+  /**
+   * Returns true if predicate1.apply(r1) && predicate2.apply(r2)
+   */
+  public static <T>Comparison<T> testBoth(final Predicate<T> predicate1, final Predicate<T> predicate2) {
+    return new Comparison<T>() {
+      public boolean apply(T r1, T r2) {
+        return predicate1.apply(r1) && predicate2.apply(r2);
+      }
+    };
   }
   
   /**

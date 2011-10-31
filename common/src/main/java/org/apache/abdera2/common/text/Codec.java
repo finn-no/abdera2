@@ -206,6 +206,7 @@ public enum Codec {
   private static class DecodeFunction
     implements Function<String,String> {
     public String apply(String input) {
+      if (input == null) return null;
       return decode(input);
     }
   }

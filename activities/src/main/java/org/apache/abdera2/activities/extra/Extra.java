@@ -1,19 +1,28 @@
 package org.apache.abdera2.activities.extra;
 
+import java.lang.reflect.Method;
 import java.util.Comparator;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.Audience;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
+import org.apache.abdera2.common.anno.AnnoUtil;
+import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.common.selector.MultiSelector;
 import org.joda.time.DateTime;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -763,5 +772,105 @@ public class Extra {
         DateTime d2 = a2.getPublished();
         return innerCompare(d1,d2);
       }
+  }
+  
+  
+  private static String get_name(Method obj) {   
+    String name = null;
+    if (obj.isAnnotationPresent(Name.class))
+      name = obj.getAnnotation(Name.class).value();
+    else {
+      name = obj.getName();
+      if (name.startsWith("get") || 
+        name.startsWith("set"))
+      name = name.substring(3);
+      name = CaseFormat.UPPER_CAMEL.to(
+          CaseFormat.LOWER_CAMEL, name);
+    }
+    return name;
+  }
+ 
+  /**
+   * Uses cglib to create an extension of the base ASObject type
+   * that implements the given interface. All setter/getter methods
+   * on the supplied interface will be mapped to properties on the
+   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
+   * be mapped to a "foo" property
+   */
+  public static <T>T extend(
+    Class<T> type, 
+    Class<? extends ASObject> base) {
+    checkNotNull(type);
+    Enhancer e = new Enhancer();
+    if (type.isInterface()) {
+      e.setSuperclass(base);
+      e.setInterfaces(MoreFunctions.array(type));
+    } else if (ASObject.class.isAssignableFrom(type)) {
+      e.setSuperclass(type);
+    }
+    e.setCallback(new ExtensionObjectProxy(type,base));
+    ASObject obj = (ASObject) e.create();
+    obj.setObjectType(AnnoUtil.getName(type));
+    return type.cast(obj);
+  }
+  
+  /**
+   * Uses cglib to create an extension of the base ASObject type
+   * that implements the given interface. All setter/getter methods
+   * on the supplied interface will be mapped to properties on the
+   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
+   * be mapped to a "foo" property
+   */
+  public static <T>T extend(Class<T> type) {
+    checkNotNull(type);
+    Enhancer e = new Enhancer();
+    if (type.isInterface()) {
+      e.setSuperclass(ASObject.class);
+      e.setInterfaces(MoreFunctions.array(type));
+    } else if (ASObject.class.isAssignableFrom(type)) {
+      e.setSuperclass(type);
+    }
+    e.setCallback(new ExtensionObjectProxy(type));
+    ASObject obj = (ASObject) e.create();
+    obj.setObjectType(type.getSimpleName().toLowerCase());
+    return type.cast(obj);
+  }
+  
+  private static class ExtensionObjectProxy 
+    implements MethodInterceptor {
+    private final Class<?> type;
+    private final Class<?> base;
+    ExtensionObjectProxy(Class<?> type) {
+      this.type = type;
+      this.base = type;
+    }
+    ExtensionObjectProxy(Class<?> type, Class<?> base) {
+      this.type = type;
+      this.base = base;
+    }
+    public Object intercept(
+      Object obj, 
+      Method method, 
+      Object[] args,
+      MethodProxy proxy) 
+        throws Throwable {
+      ASObject as = (ASObject) obj;
+      if (method.getDeclaringClass().equals(type) ||
+          method.getDeclaringClass().equals(base)) {
+        boolean setter = 
+          method.getName().matches("[Ss]et.+") || 
+          (void.class.isAssignableFrom(method.getReturnType()) && 
+          method.getParameterTypes().length == 1);
+        String name = get_name(method);
+        if (setter) {
+          if (args.length != 1)
+            throw new IllegalArgumentException();
+          as.setProperty(name,args[0]);
+          return null;
+        } else {
+          return method.getReturnType().cast(as.getProperty(name));
+        }
+      } else return proxy.invokeSuper(obj, args);
+    }    
   }
 }
