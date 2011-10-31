@@ -695,6 +695,7 @@
     <module>ext</module>
     <module>security</module>
     <module>test</module>
+    <module>examples</module>
   </modules>
   
   <distributionManagement>
