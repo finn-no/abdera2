@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
 
+import com.google.common.collect.Iterables;
+
 /**
  * Implementation of RFC 4646 Language Tags. Instances are immutable and 
  * safe for use by multiple threads. Iterators returned by calling 
@@ -140,14 +142,14 @@ public final class Lang
       return t_extension;
     }
     
-    public Subtag[] extensions() {
+    public Iterable<Subtag> extensions() {
       List<Subtag> list = new ArrayList<Subtag>();
       Subtag extension = extension();
       while(extension != null) {
         list.add(extension);
         extension = nextExtension(extension);
       }
-      return list.toArray(new Subtag[list.size()]);
+      return Iterables.unmodifiableIterable(list);
     }
     
     public Subtag extension(String name) {

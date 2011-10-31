@@ -28,6 +28,7 @@ import org.apache.abdera2.common.lang.Subtag.Type;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 /**
  * A language range used for matching language tags
@@ -204,45 +205,45 @@ public final class Range
         }
     }
 
-    public Function<Lang[],Lang[]> filter() {
+    public Function<Lang[],Iterable<Lang>> filter() {
       final Range thisRange = this;
-      return new Function<Lang[],Lang[]>() {
-        public Lang[] apply(Lang[] input) {
+      return new Function<Lang[],Iterable<Lang>>() {
+        public Iterable<Lang> apply(Lang[] input) {
           return thisRange.filter(input);
         }
       };
     }
     
-    public Function<String[],String[]> filterString() {
+    public Function<String[],Iterable<String>> filterString() {
       final Range thisRange = this;
-      return new Function<String[],String[]>() {
-        public String[] apply(String[] input) {
+      return new Function<String[],Iterable<String>>() {
+        public Iterable<String> apply(String[] input) {
           return thisRange.filter(input);
         }
       };
     }
     
-    public Lang[] filter(Lang... lang) {
+    public Iterable<Lang> filter(Lang... lang) {
         List<Lang> langs = new LinkedList<Lang>();
         for (Lang l : lang)
             if (matches(l))
                 langs.add(l);
-        return langs.toArray(new Lang[langs.size()]);
+        return Iterables.unmodifiableIterable(langs);
     }
 
-    public String[] filter(String... lang) {
+    public Iterable<String> filter(String... lang) {
         List<String> langs = new LinkedList<String>();
         for (String l : lang)
             if (matches(l))
                 langs.add(l);
-        return langs.toArray(new String[langs.size()]);
+        return Iterables.unmodifiableIterable(langs);
     }
 
-    public static Lang[] filter(String range, Lang... lang) {
+    public static Iterable<Lang> filter(String range, Lang... lang) {
         return new Range(range).filter(lang);
     }
 
-    public static String[] filter(String range, String... lang) {
+    public static Iterable<String> filter(String range, String... lang) {
         return new Range(range).filter(lang);
     }
     
