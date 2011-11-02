@@ -1,4 +1,4 @@
-package org.apache.abdera2.activities.extra;
+package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;

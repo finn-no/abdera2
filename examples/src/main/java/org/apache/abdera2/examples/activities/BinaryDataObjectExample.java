@@ -6,16 +6,14 @@ import java.net.URL;
 
 import javax.activation.DataHandler;
 
-import org.apache.abdera2.activities.extra.BinaryObject;
-import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.objects.BadgeObject;
-import org.apache.abdera2.common.io.Compression.CompressionCodec;
-import org.apache.abdera2.common.security.HashHelper;
+import org.apache.abdera2.activities.model.objects.BinaryObject;
 
-
-import static org.apache.abdera2.activities.extra.BinaryObject.makeBinary;
+import static org.apache.abdera2.common.io.Compression.CompressionCodec.DEFLATE;
+import static org.apache.abdera2.common.security.HashHelper.Md5;
 import static org.apache.abdera2.activities.model.objects.BadgeObject.makeBadge;
+import static org.apache.abdera2.activities.model.objects.BinaryObject.makeBinary;
 
 /**
  * Illustrates the extension "binary" objectType... this can be useful, 
@@ -27,7 +25,6 @@ public class BinaryDataObjectExample {
   public static void main(String... args) throws Exception {
     
     IO io = IO.get();
-    Extra.initExtras(io);
     
     URL url = BinaryDataObjectExample.class.getResource("/info.png");
     DataHandler dataHandler = new DataHandler(url); 
@@ -38,8 +35,8 @@ public class BinaryDataObjectExample {
           makeBinary()
             .data(
               dataHandler, 
-              new HashHelper.Md5(), 
-              CompressionCodec.DEFLATE)
+              new Md5(), 
+              DEFLATE)
             .get())
         .get();
     
@@ -51,7 +48,7 @@ public class BinaryDataObjectExample {
     BinaryObject dataObject = (BinaryObject) badge.getAttachments().iterator().next();
     
     String md5 = dataObject.getProperty("md5");
-    HashHelper.Md5 check = new HashHelper.Md5();
+    Md5 check = new Md5();
     
     // decompression will be applied automatically
     InputStream in = dataObject.getInputStream(); 

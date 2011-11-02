@@ -1,15 +1,17 @@
 package org.apache.abdera2.examples.activities;
 
-import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.activities.model.IO;
-import org.apache.abdera2.activities.model.Verb;
 
+import static org.apache.abdera2.activities.model.Verb.SAVE;
+import static org.apache.abdera2.activities.model.Verb.CONSUME;
+import static org.apache.abdera2.activities.model.objects.Objects.EBOOK;
+import static org.apache.abdera2.activities.model.objects.Objects.HARDCOVER;
 import static org.apache.abdera2.activities.model.Activity.makeActivity;
+import static org.apache.abdera2.activities.model.objects.BookObject.makeBook;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
-import static org.apache.abdera2.activities.extra.BookObject.makeBook;
 import static org.apache.abdera2.activities.model.Collection.makeCollection;
 
 /**
@@ -25,7 +27,6 @@ public class ReadingListExample {
     
     // Building an activity stream for a reading list
     IO io = IO.get();
-    Extra.initExtras(io);
     
     Generator<Activity> gen = 
       makeActivity()
@@ -41,18 +42,18 @@ public class ReadingListExample {
     // Add a book we want to read
     builder.item(
       gen.startNew()
-         .set("verb", Verb.SAVE)
+         .set("verb", SAVE)
          .set("object", 
            makeBook()
              .displayName("The Cat in the Hat")
              .get())
-         .set("format", Extra.EBOOK())
+         .set("format", EBOOK())
          .complete());
     
     // Add a book we just finished
     builder.item(
       gen.startNew()
-         .set("verb", Extra.READ)
+         .set("verb", CONSUME)
          .set("object", 
            makeBook()
              .displayName("Meditations on the Method")
@@ -61,7 +62,7 @@ public class ReadingListExample {
                  .displayName("Rene Descartes")
                  .get())
              .get())
-         .set("format", Extra.HARDCOVER())
+         .set("format", HARDCOVER())
          .complete());
     
     builder.get().writeTo(io,System.out);

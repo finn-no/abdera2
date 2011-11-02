@@ -68,6 +68,18 @@ public abstract class Verb {
  public static final Verb UNSAVE = new Verb("unsave") {};
  public static final Verb UPDATE = new Verb("update") {};
  
+ 
+ public static final Verb PURCHASE = new Verb("purchase") {};  
+ public static final Verb CONSUME = new Verb("consume") {};
+ public static final Verb HOST = new Verb("host") {};
+ public static final Verb READ = new Verb("read") {};
+ public static final Verb APPROVE = new Verb("approve") {};
+ public static final Verb REJECT = new Verb("reject") {};
+ public static final Verb ARCHIVE = new Verb("archive") {};
+ public static final Verb INSTALL = new Verb("install") {};
+ public static final Verb CLOSE = new Verb("close") {};
+ public static final Verb OPEN = new Verb("open") {};
+ public static final Verb RESOLVE = new Verb("resolve") {};
 
  
   private final String name;

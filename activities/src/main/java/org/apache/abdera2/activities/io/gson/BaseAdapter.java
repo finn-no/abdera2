@@ -38,6 +38,8 @@ import org.apache.abdera2.activities.model.objects.Address;
 import org.apache.abdera2.activities.model.objects.ArticleObject;
 import org.apache.abdera2.activities.model.objects.AudioObject;
 import org.apache.abdera2.activities.model.objects.BadgeObject;
+import org.apache.abdera2.activities.model.objects.BinaryObject;
+import org.apache.abdera2.activities.model.objects.BookObject;
 import org.apache.abdera2.activities.model.objects.BookmarkObject;
 import org.apache.abdera2.activities.model.objects.CommentObject;
 import org.apache.abdera2.activities.model.objects.EventObject;
@@ -45,8 +47,10 @@ import org.apache.abdera2.activities.model.objects.FileObject;
 import org.apache.abdera2.activities.model.objects.GroupObject;
 import org.apache.abdera2.activities.model.objects.ImageObject;
 import org.apache.abdera2.activities.model.objects.Mood;
+import org.apache.abdera2.activities.model.objects.MovieObject;
 import org.apache.abdera2.activities.model.objects.NameObject;
 import org.apache.abdera2.activities.model.objects.NoteObject;
+import org.apache.abdera2.activities.model.objects.OfferObject;
 import org.apache.abdera2.activities.model.objects.OrganizationObject;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
@@ -54,6 +58,10 @@ import org.apache.abdera2.activities.model.objects.ProductObject;
 import org.apache.abdera2.activities.model.objects.QuestionObject;
 import org.apache.abdera2.activities.model.objects.ReviewObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
+import org.apache.abdera2.activities.model.objects.TvEpisodeObject;
+import org.apache.abdera2.activities.model.objects.TvSeasonObject;
+import org.apache.abdera2.activities.model.objects.TvSeriesObject;
+import org.apache.abdera2.activities.model.objects.VersionObject;
 import org.apache.abdera2.activities.model.objects.VideoObject;
 import org.apache.abdera2.activities.protocol.ErrorObject;
 import org.joda.time.DateTime;
@@ -147,7 +155,16 @@ public class BaseAdapter
       ErrorObject.class,
       NameObject.class,
       AccountObject.class,
-      OrganizationObject.class);
+      OrganizationObject.class,
+      BookObject.class,
+      MovieObject.class,
+      OfferObject.class,
+      TvEpisodeObject.class,
+      TvSeasonObject.class,
+      TvSeriesObject.class,
+      VersionObject.class,
+      BinaryObject.class
+    );
   }
   
   private static void processType(
@@ -205,19 +222,19 @@ public class BaseAdapter
       throws JsonParseException {
     JsonObject obj = (JsonObject)el;
     ASBase base = null;
-    if (type == Collection.class) {
+    if (type == Collection.class)
       base = new Collection<ASObject>();
-    } else if (type == Activity.class) {
+    else if (type == Activity.class)
       base = new Activity();
-    } else if (type == MediaLink.class) {
+    else if (type == MediaLink.class)
       base = new MediaLink();
-    } else if (type == PlaceObject.class) {
+    else if (type == PlaceObject.class)
       base = new PlaceObject();
-    } else if (type == Mood.class) {
+    else if (type == Mood.class)
       base = new Mood();
-    } else if (type == Address.class) {
+    else if (type == Address.class)
       base = new Address();
-    } else {
+    else {
       JsonPrimitive ot = obj.getAsJsonPrimitive("objectType");
       if (ot != null) {
         String ots = ot.getAsString();
@@ -232,7 +249,7 @@ public class BaseAdapter
       } else {
         if (obj.has("verb") && (obj.has("actor") || obj.has("object") || obj.has("target"))) {
           base = new Activity();
-        } else if (obj.has("items") && obj.has("totalItems")) {
+        } else if (obj.has("items")) {
           base = new Collection<ASObject>();
         } else {
           base = new ASObject(); // anonymous object

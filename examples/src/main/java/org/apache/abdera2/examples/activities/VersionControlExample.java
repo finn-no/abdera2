@@ -1,18 +1,19 @@
 package org.apache.abdera2.examples.activities;
 
-import org.apache.abdera2.activities.extra.Extra;
-import org.apache.abdera2.activities.extra.VersionObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.Generator;
-import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.activities.model.objects.FileObject;
+import org.apache.abdera2.activities.model.objects.VersionObject;
 
+import static org.apache.abdera2.activities.model.Verb.POST;
+import static org.apache.abdera2.activities.model.Verb.REJECT;
+import static org.apache.abdera2.activities.model.Verb.APPROVE;
 import static org.apache.abdera2.activities.model.Collection.makeCollection;
 import static org.apache.abdera2.activities.model.Activity.makeActivity;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
+import static org.apache.abdera2.activities.model.objects.VersionObject.makeVersion;
 import static org.apache.abdera2.activities.model.objects.FileObject.makeFile;
-import static org.apache.abdera2.activities.extra.VersionObject.makeVersion;
 
 public class VersionControlExample {
 
@@ -40,7 +41,7 @@ public class VersionControlExample {
     builder.item(
       gen.startNew()
         .set("object", file)
-        .set("verb", Verb.POST)
+        .set("verb", POST)
         .complete());
     
     // second, indicate that a new version was created
@@ -53,14 +54,14 @@ public class VersionControlExample {
     builder.item(
       gen.startNew() 
          .set("object", version)
-         .set("verb", Verb.POST)
+         .set("verb", POST)
          .complete());
     
     // whoops, the boss rejected the new version
     builder.item(
       gen.startNew()
          .set("object", version)
-         .set("verb", Extra.REJECT)
+         .set("verb", REJECT)
          .set("actor", makePerson().displayName("The Boss").get())
          .set("summary", "This version is missing something")
          .complete());
@@ -76,14 +77,14 @@ public class VersionControlExample {
     builder.item(
         gen.startNew() 
            .set("object", version)
-           .set("verb", Verb.POST)
+           .set("verb", POST)
            .complete());
     
     // the boss approves the new version
     builder.item(
       gen.startNew()
          .set("object", version)
-         .set("verb", Extra.APPROVE)
+         .set("verb", APPROVE)
          .set("actor", makePerson().displayName("The Boss").get())
          .complete());
     

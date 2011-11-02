@@ -29,9 +29,8 @@ public final class ASContext
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public <T> T resolve(String var) {
     Object obj = base.getProperty(var);
-    if (obj instanceof Iterable) {
+    if (obj instanceof Iterable)
       return (T)new IterableWrapper((Iterable)obj);
-    }
     return obj instanceof ASBase ? 
       (T)new ASContext((ASBase)obj) :
       (T)base.getProperty(var);

@@ -184,5 +184,28 @@ public abstract class Otp extends KeyBase {
       String r = Long.toHexString(t);
       return dec(pad(r,16,'0'));
     }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = super.hashCode();
+      result = prime * result + step;
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (!super.equals(obj))
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Totp other = (Totp) obj;
+      if (step != other.step)
+        return false;
+      return true;
+    }
+    
   }
 }

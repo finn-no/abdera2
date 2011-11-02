@@ -1,4 +1,4 @@
-package org.apache.abdera2.activities.extra;
+package org.apache.abdera2.activities.model.objects;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +11,6 @@ import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
-import org.apache.abdera2.activities.model.objects.FileObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.io.Compression;
 import org.apache.abdera2.common.io.Compression.CompressionCodec;

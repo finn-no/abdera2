@@ -1,9 +1,10 @@
 package org.apache.abdera2.examples.activities;
 
-import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.objects.NoteObject;
 import org.apache.abdera2.activities.model.objects.PersonObject;
+import static org.apache.abdera2.activities.model.objects.Objects.FRIENDS;
+import static org.apache.abdera2.activities.model.objects.Objects.NETWORK;
 
 public class RepliesAndTargetingExample {
 
@@ -12,9 +13,9 @@ public class RepliesAndTargetingExample {
     Activity activity = 
       Activity.makeActivity()
         .to(new PersonObject("bob"))
-        .cc(Extra.FRIENDS("Colleagues"))
+        .cc(FRIENDS("Colleagues"))
         .bto(new PersonObject("sally"))
-        .bcc(Extra.NETWORK())
+        .bcc(NETWORK())
         .inReplyTo(
           NoteObject
             .makeNote()

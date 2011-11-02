@@ -97,4 +97,39 @@ public abstract class KeyBase
       s = c + s;
     return s;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((alg == null) ? 0 : alg.hashCode());
+    result = prime * result + ((key == null) ? 0 : key.hashCode());
+    result = prime * result + size;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    KeyBase other = (KeyBase) obj;
+    if (alg == null) {
+      if (other.alg != null)
+        return false;
+    } else if (!alg.equals(other.alg))
+      return false;
+    if (key == null) {
+      if (other.key != null)
+        return false;
+    } else if (!key.equals(other.key))
+      return false;
+    if (size != other.size)
+      return false;
+    return true;
+  }
+  
 }

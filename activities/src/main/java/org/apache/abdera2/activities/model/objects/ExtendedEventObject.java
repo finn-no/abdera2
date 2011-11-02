@@ -1,7 +1,6 @@
-package org.apache.abdera2.activities.extra;
+package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.model.ASObject;
-import org.apache.abdera2.activities.model.objects.EventObject;
 
 /**
  * Abstract extension of the basic event object type that adds

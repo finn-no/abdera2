@@ -1,9 +1,10 @@
-package org.apache.abdera2.activities.extra;
+package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
+import org.apache.abdera2.activities.model.objects.CreativeWork.CreativeWorkGenerator;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.DateTime;
 

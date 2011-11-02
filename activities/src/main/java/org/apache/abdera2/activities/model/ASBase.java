@@ -29,12 +29,14 @@ import java.util.Map;
 
 import javax.activation.MimeType;
 
+import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.Generator.Copyable;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 
+import static com.google.common.base.Preconditions.*;
 import com.google.common.base.Function;
 
 /**
@@ -108,11 +110,13 @@ public class ASBase
     return true;
   }
 
+  /** 
+   * if we already implement the type, just return 
+   * a cast to that type... otherwise, create a 
+   * new instance and copy all the properties over 
+   **/
   public <T extends ASBase>T as(Class<T> type) {
     try {
-      // if we already implement the type, just return 
-      // casted as that type... otherwise, create a 
-      // new instance and copy all the properties over
       if (type.isAssignableFrom(this.getClass()))
         return type.cast(this);
       ASBase t = type.newInstance();
@@ -127,6 +131,20 @@ public class ASBase
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
+  }
+  
+  /**
+   * Returns this object wrapped with the specified interface.
+   * The argument MUST be an interface. This is used as a means
+   * of extending the object in a type-safe manner. Instead of 
+   * calling setProperty("foo","bar"), you can define an 
+   * extension interface with the methods setFoo(String m) and 
+   * getFoo().. so that obj.extend(MyExt.class).setFoo("bar") 
+   * will set the "foo" property.
+   */
+  public <T>T extend(Class<T> as) {
+    checkArgument(as.isInterface(),"Extension is not an interface!");
+    return Extra.extend(this,as);
   }
  
   public String toString() {

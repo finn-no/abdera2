@@ -1,4 +1,4 @@
-package org.apache.abdera2.activities.extra;
+package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
@@ -35,12 +35,20 @@ public class BookObject extends CreativeWork {
     setProperty("edition", edition);
   }
   
-  public String getIsbn() {
-    return getProperty("isbn");
+  public String getIsbn10() {
+    return getProperty("isbn10");
   }
   
-  public void setIsbn(String isbn) {
-    setProperty("isbn", isbn);
+  public void setIsbn10(String isbn) {
+    setProperty("isbn10", isbn);
+  }
+  
+  public String getIsbn13() {
+    return getProperty("isbn13");
+  }
+  
+  public void setIsbn13(String isbn) {
+    setProperty("isbn13", isbn);
   }
   
   public int getPageCount() {
@@ -84,8 +92,8 @@ public class BookObject extends CreativeWork {
       item.setIllustrator(obj);
       return (X)this;
     }
-    public <X extends BookObjectGenerator<T>>X isbn(String val) {
-      item.setIsbn(val);
+    public <X extends BookObjectGenerator<T>>X isbn10(String val) {
+      item.setIsbn10(val);
       return (X)this;
     }
     public <X extends BookObjectGenerator<T>>X pageCount(int count) {

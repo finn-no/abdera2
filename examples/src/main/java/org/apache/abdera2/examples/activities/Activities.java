@@ -6,7 +6,7 @@ import java.io.ByteArrayOutputStream;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
-import org.apache.abdera2.activities.model.Verb;
+import static org.apache.abdera2.activities.model.Verb.FOLLOW;
 import static org.apache.abdera2.activities.model.Activity.makeActivity;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
 
@@ -22,7 +22,7 @@ public class Activities {
           makePerson()
             .displayName("James")
             .get())
-        .verb(Verb.FOLLOW)
+        .verb(FOLLOW)
         .object(
           makePerson()
             .email("john.doe@example.org")

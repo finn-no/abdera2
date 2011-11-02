@@ -7,15 +7,14 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.Audience;
-import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
-import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
@@ -28,7 +27,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+
+import static org.apache.abdera2.activities.model.objects.Objects.*;
+import static org.apache.abdera2.common.misc.Comparisons.*;
 import static com.google.common.base.Preconditions.*;
+
 
 /**
  * Miscellaneous extensions
@@ -36,6 +39,10 @@ import static com.google.common.base.Preconditions.*;
 @SuppressWarnings("unchecked")
 public class Extra {
 
+  /**
+   * Returns a Selector that tests whether the provided 
+   * activity uses the given Verb.
+   */
   public static Selector<Activity> usesVerb(Verb verb) {
     return PropertySelector.<Activity>create(
       Activity.class, 
@@ -43,21 +50,39 @@ public class Extra {
       Predicates.equalTo(verb));
   }
   
-  public static <A extends ASObject>Selector<A> published(Class<A> _class, Predicate<?> predicate) {
+  /**
+   * Returns a selector that tests the given Objects "published" property.
+   * This can typically be used with the various Range predicates provided
+   * by the (@see org.apache.abdera2.common.date.DateTimes) class
+   */
+  public static <A extends ASObject>Selector<A> published(
+    Class<A> _class, 
+    Predicate<?> predicate) {
     return PropertySelector.<A>create(
       _class,
       "getPublished",
       predicate);
   }
   
+  /**
+   * Returns a selector that tests the given Activities "published" property.
+   */
   public static Selector<Activity> activityPublished(Predicate<DateTime> predicate) {
     return published(Activity.class,predicate);
   }
   
+  /**
+   * Returns a selector that tests the given Objects "published" property
+   */
   public static Selector<ASObject> objectPublished(Predicate<DateTime> predicate) {
     return published(ASObject.class,predicate);
   }
   
+  /**
+   * Returns a Selector that tests the given Objects "updated" property.
+   * This can typically be used with the various Range predicates provided
+   * by the (@see org.apache.abder2.common.date.DateTimes) class
+   */
   public static <A extends ASObject>Selector<A> updated(Class<A> _class, Predicate<DateTime> predicate) {
     return PropertySelector.<A>create(
       _class,
@@ -65,71 +90,20 @@ public class Extra {
       predicate);
   }
   
+  /**
+   * Returns a Selector that tests the given Activities "updated" property.
+   */
   public static Selector<Activity> activityUpdated(Predicate<DateTime> predicate) {
     return updated(Activity.class,predicate);
   }
   
+  /**
+   * Returns a Selector that tests the given Objects "updated" property
+   */
   public static Selector<ASObject> objectUpdated(Predicate<DateTime> predicate) {
     return updated(ASObject.class,predicate);
   }
-  
-  // As in "Sally purchased the app"
-  public static final Verb PURCHASE = new Verb("purchase") {};
-  
-  // As in: "Joe is hosting a meeting"
-  public static final Verb HOST = new Verb("host") {};
-  
-  // As in: "Mark read the book" ... this is related to "play", but saying that
-  // someone "played" a book just doesn't make much sense. A user can 
-  // "play" and audio book, but they must "read" the physical or ebook,
-  // also works for "Mark read the note", "Sally read the question", etc
-  public static final Verb READ = new Verb("read") {};
-  
-  // As in "Sally approved the line item"
-  public static final Verb APPROVE = new Verb("approve") {};
-  
-  // As in "Sally rejected the line item"
-  public static final Verb REJECT = new Verb("reject") {};
-  
-  // As in "Sally archived the document"
-  public static final Verb ARCHIVE = new Verb("archive") {};
-  
-  // As in "Mark installed the app"
-  public static final Verb INSTALL = new Verb("install") {};
-  
-  // As in "Mark closed the issue"
-  public static final Verb CLOSE = new Verb("close") {};
-  
-  // As in "Mark opened the issue" .. careful not to confuse this with
-  // creating an issue, for instance. For example, in source code 
-  // management, creating a new issue and "opening" it are two separate
-  // tasks. An item can be opened automatically when it is created,
-  // closed, and then opened again if it is determined to not have been
-  // resolved, etc.
-  public static final Verb OPEN = new Verb("open") {};
-  
-  // As in "Mark resolved the issue" .. careful not to confuse this with
-  // updating the issue or closing it. 
-  public static final Verb RESOLVE = new Verb("resolve") {};
-  
-  
-  /**
-   * Registers the "extra" object types with the IO instance
-   * for serialization/deserialization.
-   */
-  public static void initExtras(IO io) {
-
-    io.addObjectMapping(
-      BookObject.class,
-      MovieObject.class,
-      OfferObject.class,
-      TvEpisodeObject.class,
-      TvSeasonObject.class,
-      TvSeriesObject.class,
-      VersionObject.class,
-      BinaryObject.class);
-  }
-   
+       
   public static Selector<Activity> isTo(ASObject obj) {
     return Extra.audienceHas(Audience.TO, sameIdentity(obj));
   }
@@ -577,123 +551,6 @@ public class Extra {
   }
   
   /**
-   * Special AS Object that represents the authenticated user
-   */
-  public static ASObject SELF() {
-    return new ASObject("@self");
-  }
-  
-  /**
-   * Special AS Object that represents the authenticated user.
-   * synonymous with @self
-   */
-  public static ASObject ME() {
-    return new ASObject("@me");
-  }
-  
-  /**
-   * Special AS Object that represents the authenticated users 
-   * collection of direct contacts
-   */
-  public static ASObject FRIENDS() {
-    return new ASObject("@friends");
-  }
-  
-  /**
-   * Special AS Object that represents a subset of the authenticated users
-   * collection of direct contacts
-   */
-  public static ASObject FRIENDS(String id) {
-    ASObject obj = FRIENDS();
-    obj.setId(id);
-    return obj;
-  }
-  
-  /**
-   * Special AS Object that represents the authenticated users collection
-   * of extended contacts (e.g. friends of friends)
-   */
-  public static ASObject NETWORK() {
-    return new ASObject("@network");
-  }
-  
-  /**
-   * Special AS Object that represents everyone. synonymous with @public
-   */
-  public static ASObject ALL() {
-    return new ASObject("@all");
-  }
-  
-  /**
-   * Special AS Object that represents everyone
-   */
-  public static ASObject PUBLIC() {
-    return new ASObject("@public");
-  }
-  
-  /**
-   * Create an anonymous AS Object (no objectType property)
-   */
-  public static ASObject anonymousObject(String id) {
-    ASObject obj = new ASObject();
-    obj.setObjectType(null);
-    obj.setId(id);
-    return obj;
-  }
-  
-  public static ASObject DISCONTINUED() {
-    return anonymousObject("discontinued");
-  }
-  
-  public static ASObject INSTOCK() {
-    return anonymousObject("in-stock");
-  }
-  
-  public static ASObject INSTOREONLY() {
-    return anonymousObject("in-store-only");
-  }
-  
-  public static ASObject ONLINEONLY() {
-    return anonymousObject("online-only");
-  }
-  
-  public static ASObject OUTOFSTOCK() {
-    return anonymousObject("out-of-stock");
-  }
-  
-  public static ASObject PREORDER() {
-    return anonymousObject("pre-order");
-  }
-  
-  public static ASObject EBOOK() {
-    return anonymousObject("ebook");
-  }
-  
-  public static ASObject HARDCOVER() {
-    return anonymousObject("hardcover");
-  }
-  
-  public static ASObject PAPERBACK() {
-    return anonymousObject("paperback");
-  }
-  
-  public static ASObject DAMAGED() {
-    return anonymousObject("damaged");
-  }
-  
-  public static ASObject NEW() {
-    return anonymousObject("new");
-  }
-  
-  public static ASObject REFURBISHED() {
-    return anonymousObject("refurbished");
-  }
-  
-  public static ASObject USED() {
-    return anonymousObject("used");
-  }
-  
-  /**
    * Returns a Selector that tests if two objects are identity equivalent.
    * ASObjets are identity equivalent if they have the same objectType
    * and id property values.
@@ -722,20 +579,18 @@ public class Extra {
   private static Equivalence<ASObject> identity() {
     return new Equivalence<ASObject>() {
       protected boolean doEquivalent(ASObject a, ASObject b) {
-        if (a != null && b == null) return false;
-        if (a == null && b != null) return false;
+        if (bothAreNull(a,b)) return true;
+        if (onlyOneIsNull(a,b)) return false;
         String aot = a.getObjectType();
         String bot = b.getObjectType();
-        if (aot != null && bot == null) return false;
-        if (aot == null && bot != null) return false; 
-        if (aot != null)
-          if (!aot.equalsIgnoreCase(bot)) return false;
+        if (bothAreNull(aot,bot)) return true;
+        if (onlyOneIsNull(aot,bot)) return false;
+        if (!aot.equalsIgnoreCase(bot)) return false;
         String aid = a.getId();
         String bid = b.getId();
-        if (aid != null && bid == null) return false;
-        if (aid == null && bid != null) return false;
-        if (aid != null)
-          if (!aid.equals(bid)) return false;
+        if (bothAreNull(aid,bid)) return true;
+        if (onlyOneIsNull(aid,bid)) return false;
+        if (!aid.equals(bid)) return false;
         return true;
       }
       protected int doHash(ASObject t) {
@@ -768,12 +623,78 @@ public class Extra {
   private static class PublishedComparator 
     extends DateTimes.DateTimeComparator<ASObject> {
       public int compare(ASObject a1, ASObject a2) {
-        DateTime d1 = a1.getPublished();
-        DateTime d2 = a2.getPublished();
-        return innerCompare(d1,d2);
+        return innerCompare(
+          a1.getPublished(), 
+          a2.getPublished());
       }
   }
   
+  
+  private static Class<?>[] addin(Class<?>[] types, Class<?> type) {
+    Class<?>[] ntypes = new Class<?>[types.length+1];
+    System.arraycopy(types, 0, ntypes, 0, types.length);
+    ntypes[ntypes.length-1] = type;
+    return ntypes;
+  }
+  
+  /**
+   * Uses cglib to create an extension of the base ASObject type
+   * that implements the given interface. All setter/getter methods
+   * on the supplied interface will be mapped to properties on the
+   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
+   * be mapped to a "foo" property
+   */
+  public static <X extends ASBase,M>M extend(
+    X object,
+    Class<?> type) {
+    checkNotNull(type);
+    checkNotNull(object);
+    Enhancer e = new Enhancer();
+    if (type.isInterface()) {
+      e.setSuperclass(type);
+      e.setInterfaces(addin(object.getClass().getInterfaces(),type));
+    } else if (ASObject.class.isAssignableFrom(type)) {
+      e.setSuperclass(type);
+    }
+    e.setCallback(new ExtensionWrapper(type,object));
+    object.setProperty("objectType",AnnoUtil.getName(type));
+    return (M)e.create();
+  }
+  
+  
+  private static class ExtensionWrapper 
+    implements MethodInterceptor {
+    private final Class<?> type;
+    private final ASBase base;
+    ExtensionWrapper(
+      Class<?> type, 
+      ASBase base) {
+      this.type = type;
+      this.base = base;
+    }
+    public Object intercept(
+      Object obj, 
+      Method method, 
+      Object[] args,
+      MethodProxy proxy) 
+        throws Throwable {
+      if (method.getDeclaringClass().equals(type)) {
+        boolean setter = 
+          method.getName().matches("[Ss]et.+") || 
+          (void.class.isAssignableFrom(method.getReturnType()) && 
+          method.getParameterTypes().length == 1);
+        String name = get_name(method);
+        if (setter) {
+          if (args.length != 1)
+            throw new IllegalArgumentException();
+          base.setProperty(name,args[0]);
+          return null;
+        } else {
+          return method.getReturnType().cast(base.getProperty(name));
+        }
+      } else return proxy.invokeSuper(base, args);
+    }    
+  }
   
   private static String get_name(Method obj) {   
     String name = null;
@@ -788,89 +709,5 @@ public class Extra {
           CaseFormat.LOWER_CAMEL, name);
     }
     return name;
-  }
- 
-  /**
-   * Uses cglib to create an extension of the base ASObject type
-   * that implements the given interface. All setter/getter methods
-   * on the supplied interface will be mapped to properties on the
-   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
-   * be mapped to a "foo" property
-   */
-  public static <T>T extend(
-    Class<T> type, 
-    Class<? extends ASObject> base) {
-    checkNotNull(type);
-    Enhancer e = new Enhancer();
-    if (type.isInterface()) {
-      e.setSuperclass(base);
-      e.setInterfaces(MoreFunctions.array(type));
-    } else if (ASObject.class.isAssignableFrom(type)) {
-      e.setSuperclass(type);
-    }
-    e.setCallback(new ExtensionObjectProxy(type,base));
-    ASObject obj = (ASObject) e.create();
-    obj.setObjectType(AnnoUtil.getName(type));
-    return type.cast(obj);
-  }
-  
-  /**
-   * Uses cglib to create an extension of the base ASObject type
-   * that implements the given interface. All setter/getter methods
-   * on the supplied interface will be mapped to properties on the
-   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
-   * be mapped to a "foo" property
-   */
-  public static <T>T extend(Class<T> type) {
-    checkNotNull(type);
-    Enhancer e = new Enhancer();
-    if (type.isInterface()) {
-      e.setSuperclass(ASObject.class);
-      e.setInterfaces(MoreFunctions.array(type));
-    } else if (ASObject.class.isAssignableFrom(type)) {
-      e.setSuperclass(type);
-    }
-    e.setCallback(new ExtensionObjectProxy(type));
-    ASObject obj = (ASObject) e.create();
-    obj.setObjectType(type.getSimpleName().toLowerCase());
-    return type.cast(obj);
-  }
-  
-  private static class ExtensionObjectProxy 
-    implements MethodInterceptor {
-    private final Class<?> type;
-    private final Class<?> base;
-    ExtensionObjectProxy(Class<?> type) {
-      this.type = type;
-      this.base = type;
-    }
-    ExtensionObjectProxy(Class<?> type, Class<?> base) {
-      this.type = type;
-      this.base = base;
-    }
-    public Object intercept(
-      Object obj, 
-      Method method, 
-      Object[] args,
-      MethodProxy proxy) 
-        throws Throwable {
-      ASObject as = (ASObject) obj;
-      if (method.getDeclaringClass().equals(type) ||
-          method.getDeclaringClass().equals(base)) {
-        boolean setter = 
-          method.getName().matches("[Ss]et.+") || 
-          (void.class.isAssignableFrom(method.getReturnType()) && 
-          method.getParameterTypes().length == 1);
-        String name = get_name(method);
-        if (setter) {
-          if (args.length != 1)
-            throw new IllegalArgumentException();
-          as.setProperty(name,args[0]);
-          return null;
-        } else {
-          return method.getReturnType().cast(as.getProperty(name));
-        }
-      } else return proxy.invokeSuper(obj, args);
-    }    
   }
 }
