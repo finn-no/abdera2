@@ -35,8 +35,8 @@ public class BinaryDataObjectExample {
           makeBinary()
             .data(
               dataHandler, 
-              new Md5(), 
-              DEFLATE)
+              new Md5(),   // generate an md5 hash and set an "md5" property
+              DEFLATE)     // apply deflate compression to the data before encoding it
             .get())
         .get();
     
@@ -54,10 +54,9 @@ public class BinaryDataObjectExample {
     InputStream in = dataObject.getInputStream(); 
     byte[] buf = new byte[100];
     int r = -1;
-    while((r = in.read(buf)) > -1) {
+    while((r = in.read(buf)) > -1)
       check.update(buf, 0, r);
-      System.out.write(buf,0,r);
-    }
+    
     String checks = check.get();
     
     System.out.println(checks.equalsIgnoreCase(md5));

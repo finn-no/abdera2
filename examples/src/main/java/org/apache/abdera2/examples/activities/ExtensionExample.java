@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.abdera2.activities.io.gson.AdaptedType;
-import org.apache.abdera2.activities.io.gson.Properties;
-import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.io.gson.SimpleAdapter;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.IO;
@@ -15,33 +13,33 @@ import org.apache.abdera2.common.http.EntityTag;
 
 public class ExtensionExample {
 
-  @SuppressWarnings("unchecked")
   public static void main(String... args) throws Exception {
     
     // create the io with our custom type adapter
     IO io = IO.get(new BarAdapter());
+    io.addPropertyMapping("bar", Bar.class);
+    io.addPropertyMapping("etag", EntityTag.class);
     
-    // tell the serializer about our new object type
-    io.addObjectMapping(FooObject.class);
-    
-    FooObject foo = new FooObject();
+    ASObject as = new ASObject("foo");
+    Foo foo = as.extend(Foo.class);
     foo.setETag(new EntityTag("test",true));
     foo.setBar(new Bar("foobarbaz"));
         
     Map<Bar,String> map = new HashMap<Bar,String>();
     map.put(new Bar("z"),"a");
     map.put(new Bar("y"), "b");
-    foo.setProperty("map",map);
+    as.setProperty("map",map);
     
     // outputs: foo
-    System.out.println(foo.getObjectType());
+    System.out.println(as.getObjectType());
     
     // outputs: {"etag":"W/\"test\"","map":{"y":"b","z":"a"},"bar":"foobarbaz","objectType":"foo"}
-    foo.writeTo(io,System.out);
+    as.writeTo(io,System.out);
     
     // now try reading it
-    StringReader sr = new StringReader(io.write(foo));
-    foo = io.readObject(sr);
+    StringReader sr = new StringReader(io.write(as));
+    as = io.readObject(sr);
+    foo = as.extend(Foo.class);
 
     System.out.println();
     
@@ -51,30 +49,17 @@ public class ExtensionExample {
     System.out.println(foo.getBar().getClass());
     
     // map will deserialize as an asobject
-    System.out.println(foo.getProperty("map").getClass());
+    System.out.println(as.getProperty("map").getClass());
     
   }
   
-  @Name("foo")  // the value of the objectType property
-  @Properties({
-    // tell the deserializer to map the etag property to the EntityTag class
-    @Property(name="etag",to=EntityTag.class),
-    @Property(name="bar",to=Bar.class)
-  })
-  public static class FooObject extends ASObject {
-    private static final long serialVersionUID = 3601006822295281310L;
-    public EntityTag getETag() {
-      return getProperty("etag");
-    }
-    public void setETag(EntityTag etag) {
-      setProperty("etag", etag);
-    }
-    public Bar getBar() {
-      return getProperty("bar");
-    }
-    public void setBar(Bar bar) {
-      setProperty("bar",bar);
-    }
+  // the extension interface... defines the additional properties 
+  // we're going to use on our ASObject... 
+  public static interface Foo {
+    @Name("etag") EntityTag getETag();
+    @Name("etag") void setETag(EntityTag etag);
+    Bar getBar();
+    void setBar(Bar bar);
   }
   
   // Some new class that we want to use as a value.. need to tell 

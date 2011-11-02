@@ -12,7 +12,6 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.Audience;
 import org.apache.abdera2.activities.model.Verb;
-import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.selector.AbstractSelector;
@@ -657,7 +656,6 @@ public class Extra {
       e.setSuperclass(type);
     }
     e.setCallback(new ExtensionWrapper(type,object));
-    object.setProperty("objectType",AnnoUtil.getName(type));
     return (M)e.create();
   }
   
@@ -686,11 +684,13 @@ public class Extra {
         String name = get_name(method);
         if (setter) {
           if (args.length != 1)
-            throw new IllegalArgumentException();
+            throw new UnsupportedOperationException();
           base.setProperty(name,args[0]);
-          return null;
-        } else {
+          return null; 
+        } else if (method.getParameterTypes().length == 0) {
           return method.getReturnType().cast(base.getProperty(name));
+        } else {
+          throw new UnsupportedOperationException();
         }
       } else return proxy.invokeSuper(base, args);
     }    
