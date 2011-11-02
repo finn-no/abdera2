@@ -686,7 +686,8 @@ public class Extra {
           if (args.length != 1)
             throw new UnsupportedOperationException();
           base.setProperty(name,args[0]);
-          return null; 
+          return method.getReturnType().isAssignableFrom(type) ?
+            obj : null; 
         } else if (method.getParameterTypes().length == 0) {
           return method.getReturnType().cast(base.getProperty(name));
         } else {
