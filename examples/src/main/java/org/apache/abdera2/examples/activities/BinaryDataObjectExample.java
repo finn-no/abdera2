@@ -26,16 +26,19 @@ public class BinaryDataObjectExample {
     
     IO io = IO.get();
     
+    // First prepare the data we wish to include
+    // within the object...
     URL url = BinaryDataObjectExample.class.getResource("/info.png");
     DataHandler dataHandler = new DataHandler(url); 
     
+    // Let's create a badge object and attach the data object...
     BadgeObject badge = 
       makeBadge()
         .attachment(
           makeBinary()
             .data(
               dataHandler, 
-              new Md5(),   // generate an md5 hash and set an "md5" property
+              new Md5(),   // generate an md5 hash and set an "md5" property.. we could also do an hmac here
               DEFLATE)     // apply deflate compression to the data before encoding it
             .get())
         .get();
@@ -45,20 +48,22 @@ public class BinaryDataObjectExample {
     
     badge = io.readObject(sr);
  
+    // grab the binary object from the attachments...
     BinaryObject dataObject = (BinaryObject) badge.getAttachments().iterator().next();
     
     String md5 = dataObject.getProperty("md5");
     Md5 check = new Md5();
     
-    // decompression will be applied automatically
+    // decompression and base64 decoding will be applied automatically
+    // when we read the inputstream provided by getInputStream()...
     InputStream in = dataObject.getInputStream(); 
-    byte[] buf = new byte[100];
+    byte[] buf = new byte[1024];
     int r = -1;
     while((r = in.read(buf)) > -1)
       check.update(buf, 0, r);
     
+    // check the md5 hash to show that the input data and output data are the same
     String checks = check.get();
-    
     System.out.println(checks.equalsIgnoreCase(md5));
     
   }

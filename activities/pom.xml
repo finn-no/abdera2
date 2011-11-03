@@ -33,16 +33,14 @@
   <description>JSON Activity Streams Implementation</description>
 
   <properties>
-    <topDir>${basedir}/..</topDir>
-    <!-- 
+    <topDir>${basedir}/..</topDir> 
     <abdera.osgi.default.exports>
-		  org.apache.abdera.activities.*
+		  org.apache.abdera2.activities.*
 	  </abdera.osgi.default.exports>
     <abdera.osgi.default.imports>
       org.apache.commons.codec*;version="[1.5,2)",
       *
     </abdera.osgi.default.imports>
-    -->
   </properties>
 
   <dependencies>

@@ -26,6 +26,7 @@ public class Generator<T extends ASBase> implements Supplier<T> {
     this.template = template;
   }
   
+  @SuppressWarnings("unchecked")
   public <X extends Generator<T>>X startNew() {
     if (item != null) 
       throw new IllegalStateException();
@@ -47,6 +48,7 @@ public class Generator<T extends ASBase> implements Supplier<T> {
     return (X)this;
   }
   
+  @SuppressWarnings("unchecked")
   public <X extends Generator<T>>X set(String name, Object value) {
     if (item == null)
       throw new IllegalStateException();

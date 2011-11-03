@@ -33,8 +33,7 @@
   <description>Atom Specification Implementation Core</description>
   
   <properties>
-    <topDir>${basedir}/..</topDir>
-    <!-- 
+    <topDir>${basedir}/..</topDir> 
     <abdera.osgi.default.exports>
     org.apache.abdera2;
     org.apache.abdera2.extra.*;
@@ -54,7 +53,6 @@
       org.apache.commons.codec*;version="[1.5,2)",
       *
     </abdera.osgi.default.imports>
-    -->
   </properties>
   
   <dependencies>

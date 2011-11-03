@@ -18,6 +18,9 @@ public class ExtendingBaseObjectExample {
     IO io = IO.get();
     EventObject event = new EventObject();
     event.setObjectType("hangout");
+    // the extend method dynamically attaches a new interface
+    // to the object that can be used to specify extension
+    // properties in a typesafe manner
     AdditionalEventProperties ext = 
       event.extend(
         AdditionalEventProperties.class);

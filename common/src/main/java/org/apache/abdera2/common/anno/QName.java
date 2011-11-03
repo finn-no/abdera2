@@ -24,6 +24,9 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Used primarily to associate an XML Qualified name with an interface
+ */
 @Retention(RUNTIME)
 @Target( {TYPE})
 @Inherited

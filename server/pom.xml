@@ -33,16 +33,14 @@
   <description>Atom Publishing Protocol Server Implementation</description>
 
   <properties>
-    <topDir>${basedir}/..</topDir>
-    <!-- 
+    <topDir>${basedir}/..</topDir> 
     <abdera.osgi.default.exports>
-		org.apache.abdera.protocol.client.*
+		org.apache.abdera2.protocol.server.*
 	</abdera.osgi.default.exports>
     <abdera.osgi.default.imports>
       org.apache.commons.codec*;version="[1.3,2)",
       *
     </abdera.osgi.default.imports>
-   -->
   </properties>
   
   <dependencies>

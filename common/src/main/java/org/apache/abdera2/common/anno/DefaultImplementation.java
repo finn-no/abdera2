@@ -23,6 +23,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Used on Interface classes to identify the default implementation
+ * class when using the Abdera Discover mechanism
+ */
 @Retention(RUNTIME)
 @Target( {TYPE})
 public @interface DefaultImplementation {

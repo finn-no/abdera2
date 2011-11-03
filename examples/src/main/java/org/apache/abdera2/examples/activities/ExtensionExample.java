@@ -17,14 +17,20 @@ public class ExtensionExample {
     
     // create the io with our custom type adapter
     IO io = IO.get(new BarAdapter());
+    
+    // tell the serializer how to handle specific property names
     io.addPropertyMapping("bar", Bar.class);
     io.addPropertyMapping("etag", EntityTag.class);
     
+    // create a new object with "objectType":"foo"
     ASObject as = new ASObject("foo");
+    
+    // attach the Foo.class interface to the object to set
+    // extension properties
     Foo foo = as.extend(Foo.class);
     foo.setETag(new EntityTag("test",true));
     foo.setBar(new Bar("foobarbaz"));
-        
+    
     Map<Bar,String> map = new HashMap<Bar,String>();
     map.put(new Bar("z"),"a");
     map.put(new Bar("y"), "b");
@@ -48,7 +54,7 @@ public class ExtensionExample {
     
     System.out.println(foo.getBar().getClass());
     
-    // map will deserialize as an asobject
+    // map will deserialize as an asobject...
     System.out.println(as.getProperty("map").getClass());
     
   }

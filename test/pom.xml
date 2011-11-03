@@ -27,23 +27,10 @@
   </parent>  
 
   <artifactId>abdera2-test</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <name>Abdera2 Tests</name>
   <version>2.0-SNAPSHOT</version>  
   <description>Abdera Tests</description>
-
-  <properties>
-    <topDir>${basedir}/..</topDir>
-    <!-- 
-    <abdera.osgi.default.exports>
-		org.apache.abdera.protocol.client.*
-	</abdera.osgi.default.exports>
-    <abdera.osgi.default.imports>
-      org.apache.commons.codec*;version="[1.5,2)",
-      *
-    </abdera.osgi.default.imports>
-  -->
-  </properties>
 
   <build>
   <testSourceDirectory>src/main/java</testSourceDirectory>

@@ -15,7 +15,17 @@ public class Activities {
   public static void main(String... args) throws Exception {
     
     // Simple Activities Example
+    IO io = IO.get();
     
+    
+    // A simple fluent factory model can be used to create 
+    // activities and their associated objects... several
+    // of the methods here are statically imported so be
+    // sure to take a look at the import statements at 
+    // the top of the class to see where various bits are 
+    // coming from.
+    //
+    // this activity basically says: "James is following John"
     Activity activity = 
       makeActivity()
         .actor(
@@ -30,11 +40,19 @@ public class Activities {
             .get())
         .get();
     
-    activity.writeTo(System.out);
+    // All activities objects can handle their own serialization 
+    // using the writeTo method, or you can use the IO object 
+    // directly... reusing the IO object will be more efficient
+    // if you're doing a lot of serialization of objects
+    activity.writeTo(io,System.out);
     
     System.out.println("\n\n\n");
     
-    // Activity Stream
+    // Now that we have a single activity, let's create the 
+    // "Activity Stream"... a stream is essentially a 
+    // Collection Object whose items are all Activities. 
+    // It's possible to have Collections of other types 
+    // of objects too..
     Collection<Activity> collection = 
       Collection.<Activity>makeCollection()
         .item(activity)
@@ -50,7 +68,7 @@ public class Activities {
     
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
     
-    collection = IO.get().readCollection(in, "UTF-8");
+    collection = io.readCollection(in, "UTF-8");
     
     for (Activity a : collection.getItems()) {
       System.out.println(

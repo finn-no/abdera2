@@ -34,7 +34,6 @@
 
   <properties>
     <topDir>${basedir}/..</topDir>
-    <!-- 
     <abdera.osgi.default.exports>
 	  	org.apache.abdera2.protocol.ext.*
     </abdera.osgi.default.exports>
@@ -42,7 +41,6 @@
       org.apache.commons.codec*;version="[1.3,2)",
       *
     </abdera.osgi.default.imports>
-    -->
   </properties>
 
   <dependencies>

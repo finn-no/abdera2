@@ -22,6 +22,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Used by Extension Factory classes to specify the XML namespaces
+ * handled by the factory
+ */
 @Retention(RUNTIME)
 @Target( {TYPE})
 public @interface Namespace {
