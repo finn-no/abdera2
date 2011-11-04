@@ -21,16 +21,20 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.abdera2.activities.extra.Extra;
+import org.apache.abdera2.activities.model.objects.EmbeddedExperience;
 import org.apache.abdera2.activities.model.objects.Mood;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
+
+import com.google.common.collect.Iterables;
 
 /**
  * Base class for all Activity Streams Objects.
@@ -70,28 +74,48 @@ public class ASObject extends ASBase {
     setObjectType(objectType);
   }
   
+  /**
+   * Returns the value of the "attachments" property
+   */
   public Iterable<ASObject> getAttachments() {
     return checkEmpty((Iterable<ASObject>)getProperty(ATTACHMENTS));
   }
   
-  public void setAttachments(Set<ASObject> attachments) {
-    setProperty(ATTACHMENTS, attachments);
+  /**
+   * Sets the value of the attachments property... note... internally, the
+   * list of attachments does not allow for duplicate entries so the collection
+   * passed in is changed to a LinkedHashSet, maintaining the order of the 
+   * entries but eliminating duplicates. 
+   */
+  public void setAttachments(java.util.Collection<ASObject> attachments) {;
+    setProperty(ATTACHMENTS, new LinkedHashSet<ASObject>(attachments));
   }
   
+  /**
+   * Adds an attachment to the "attachments" property.
+   */
   public void addAttachment(ASObject... attachments) {
     Set<ASObject> list = getProperty(ATTACHMENTS);
     if (list == null) {
-      list = new HashSet<ASObject>();
+      list = new LinkedHashSet<ASObject>();
       setProperty(ATTACHMENTS, list);
     }
     for (ASObject attachment : attachments)
       list.add(attachment); 
   }
   
+  /**
+   * Return the author of this object
+   */
   public <E extends ASObject>E getAuthor() {
     return (E)getProperty(AUTHOR);
   }
   
+  /**
+   * Return the author of this object, if the author has not been
+   * set and create==true, creates a default PersonObject and 
+   * returns that.
+   */
   public <E extends ASObject>E getAuthor(boolean create) {
     ASObject obj = getAuthor();
     if (obj == null && create) {
@@ -101,43 +125,88 @@ public class ASObject extends ASBase {
     return (E)obj;
   }
   
+  /**
+   * Set the author of the object
+   */
   public void setAuthor(ASObject author) {
     setProperty(AUTHOR, author);
   }
   
+  /**
+   * Set the author of the object
+   */
   public <E extends ASObject>E setAuthor(String displayName) {
     ASObject obj = getAuthor(true);
     obj.setDisplayName(displayName);
     return (E)obj;
   }
   
+  /**
+   * Get the content of the object
+   */
   public String getContent() {
     return getProperty(CONTENT);
   }
   
+  /**
+   * Set the content of the object
+   */
   public void setContent(String content) {
     setProperty(CONTENT, content);
     
   }
   
+  /**
+   * Get the displayName of the object
+   */
   public String getDisplayName() {
     return getProperty(DISPLAYNAME);
   }
   
+  /**
+   * Set the displayName of the object
+   */
   public void setDisplayName(String displayName) {
     setProperty(DISPLAYNAME, displayName);
     
   }
   
+  /**
+   * Return the list of downstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public Iterable<String> getDownstreamDuplicates() {
     return checkEmpty((Iterable<String>)getProperty(DOWNSTREAMDUPLICATES));
   }
   
+  /**
+   * Set the list of downstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public void setDownstreamDuplicates(Set<String> downstreamDuplicates) {
     setProperty(DOWNSTREAMDUPLICATES, downstreamDuplicates);
     
   }
   
+  /**
+   * Add an entry to the list of downstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public void addDownstreamDuplicate(String... duplicates) {
     Set<String> downstreamDuplicates = getProperty(DOWNSTREAMDUPLICATES);
     if (downstreamDuplicates == null) {
@@ -148,77 +217,167 @@ public class ASObject extends ASBase {
       downstreamDuplicates.add(downstreamDuplicate);  
   }
   
+  /**
+   * Get the id of this object
+   */
   public String getId() {
     return getProperty(ID);
   }
   
+  /**
+   * Set the id of this object
+   */
   public void setId(String id) {
     setProperty(ID, id);
     
   }
   
+  /**
+   * Get the "image" property
+   */
   public MediaLink getImage() {
     return getProperty(IMAGE);
   }
   
+  /**
+   * Set the "image" property
+   */
   public void setImage(MediaLink image) {
     setProperty(IMAGE, image);
-    
   }
   
+  /**
+   * Set the "image" property
+   */
+  public void setImage(String uri) {
+    if (uri == null) 
+      setImage((MediaLink)null);
+    else {
+      MediaLink link = getImage();
+      if (link == null) {
+        link = new MediaLink();
+        setProperty(IMAGE,link);
+      }
+      link.setUrl(uri);
+    }
+  }
+  
+  /**
+   * Set the "image" property
+   */
+  public void setImage(IRI uri) {
+    setImage(uri != null ? uri.toString() : null);
+  }
+  
+  /**
+   * Get the objectType
+   */
   public String getObjectType() {
     return getProperty(OBJECTTYPE);
   }
   
+  /**
+   * Set the objectType
+   */
   public void setObjectType(String objectType) {
-    if (objectType != null && ASObject.class.getSimpleName().equalsIgnoreCase(objectType))
+    if (objectType != null && 
+        ASObject.class.getSimpleName().equalsIgnoreCase(objectType))
       objectType = null;
     setProperty(OBJECTTYPE, objectType);
-    
   }
   
+  /**
+   * Get the "published" datetime
+   */
   public DateTime getPublished() {
     return getProperty(PUBLISHED);
   }
   
+  /**
+   * Set the "published" datetime
+   */
   public void setPublished(DateTime published) {
     setProperty(PUBLISHED, published);
   }
   
+  /**
+   * Set the "published" property to the current date, time and default timezone
+   */
   public void setPublishedNow() {
     setPublished(DateTime.now());
   }
   
+  /**
+   * Get the "summary" property
+   */
   public String getSummary() {
     return getProperty(SUMMARY);
   }
   
+  /**
+   * Set the "summary" property
+   */
   public void setSummary(String summary) {
     setProperty(SUMMARY, summary);
-    
   }
   
+  /**
+   * Get the "updated" property
+   */
   public DateTime getUpdated() {
     return getProperty(UPDATED);
   }
   
+  /**
+   * Set the "updated" property 
+   */
   public void setUpdated(DateTime updated) {
     setProperty(UPDATED, updated);
   }
   
+  /**
+   * Set the "updated" property to the current date,time and default timezone
+   */
   public void setUpdatedNow() {
     setUpdated(DateTime.now());
   }
   
+  /**
+   * Return the list of upstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public Iterable<String> getUpstreamDuplicates() {
     return checkEmpty((Iterable<String>)getProperty(UPSTREAMDUPLICATES));
   }
   
+  /**
+   * Set the list of upstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public void setUpstreamDuplicates(Set<String> upstreamDuplicates) {
     setProperty(UPSTREAMDUPLICATES, upstreamDuplicates);
     
   }
   
+  /**
+   * Add to the list of upstream duplicate ids for this object. 
+   * When an object is redistributed by third parties, the value of the "id"
+   * property may change. When such changes do occur, it becomes difficult
+   * to track duplicate versions of the same object. The "downstreamDuplicates"
+   * and "upstreamDuplicates" properties on the object can be used to track 
+   * modifications that occur in the "id" of the object in order to make
+   * duplication detection easier
+   */
   public void addUpstreamDuplicate(String... duplicates) {
     Set<String> upstreamDuplicates = getProperty(UPSTREAMDUPLICATES);
     if (upstreamDuplicates == null) {
@@ -229,19 +388,31 @@ public class ASObject extends ASBase {
       upstreamDuplicates.add(upstreamDuplicate);
   }
   
-  
+  /**
+   * Get the url of this object
+   */
   public IRI getUrl() {
     return getProperty(URL);
   }
   
+  /**
+   * Set the url of this object 
+   */
   public void setUrl(IRI url) {
     setProperty(URL,url);
   }
   
+  /**
+   * Get the collection of objects this object is considered a response to
+   */
   public Iterable<ASObject> getInReplyTo() {
     return checkEmpty((Iterable<ASObject>)getProperty(INREPLYTO));
   }
   
+  /**
+   * Get the collection of objects this object is considered a response to
+   * using the specified selector to filter the results
+   */
   public Iterable<ASObject> getInReplyTo(Selector<ASObject> selector) {
     List<ASObject> list= new ArrayList<ASObject>();
     for (ASObject obj : getInReplyTo())
@@ -250,57 +421,92 @@ public class ASObject extends ASBase {
     return list;
   }
   
-  public void setInReplyTo(Set<ASObject> inReplyTo) {
-    setProperty(INREPLYTO, inReplyTo);
+  /**
+   * Set the collection of objects this object is considered a response to.
+   * Note that duplicates are removed
+   */
+  public void setInReplyTo(java.util.Collection<ASObject> inReplyTo) {
+    setProperty(INREPLYTO, new LinkedHashSet<ASObject>(inReplyTo));
   }
   
+  /**
+   * Add a new object this object is considered a response to
+   */
   public void addInReplyTo(ASObject... inReplyTos) {
     Set<ASObject> list = getProperty(INREPLYTO);
     if (list == null) {
-      list = new HashSet<ASObject>();
+      list = new LinkedHashSet<ASObject>();
       setProperty(INREPLYTO, list);
     }
     for (ASObject inReplyTo : inReplyTos)
       list.add(inReplyTo);
   }
   
+  /**
+   * Get the "location" property
+   */
   public PlaceObject getLocation() {
     return getProperty(LOCATION);
   }
   
+  /**
+   * Set the "location" property
+   */
   public void setLocation(PlaceObject location) {
     setProperty(LOCATION, location);
     location.setObjectType(null);
   }
   
+  /**
+   * Get the "mood" property
+   */
   public Mood getMood() {
     return getProperty(MOOD);
   }
   
+  /**
+   * Set the "mood" property
+   */
   public void setMood(Mood mood) {
     setProperty(MOOD, mood);
   }
   
+  /**
+   * Get the "source" property
+   */
   public <E extends ASObject>E getSource() {
     return (E)getProperty(SOURCE);
   }
   
+  /**
+   * Set the "source" property
+   */
   public void setSource(ASObject source) {
     setProperty(SOURCE, source);
   }
 
+  /**
+   * Get the collection of tags for this object
+   */
   public Iterable<ASObject> getTags() {
-    return getProperty(TAGS);
+    return checkEmpty((Iterable<ASObject>)getProperty(TAGS));
   }
   
-  public void setTags(Set<ASObject> tags) {
-    setProperty(TAGS, tags);
+  /**
+   * Set the collection of tags for this object. Duplicates 
+   * will be removed.
+   */
+  public void setTags(java.util.Collection<ASObject> tags) {
+    setProperty(TAGS, new LinkedHashSet<ASObject>(tags));
   }
   
+  /**
+   * Add an object to the collection of tags for this object
+   */
   public void addTag(ASObject... tags) {
     Set<ASObject> list = getProperty(TAGS);
     if (list == null) {
-      list = new HashSet<ASObject>();
+      list = new LinkedHashSet<ASObject>();
       setProperty(TAGS, list);
     }
     for (ASObject tag : tags)
@@ -323,10 +529,16 @@ public class ASObject extends ASBase {
     setProperty(EMBED,embed);
   }
   
+  /**
+   * Get the "rating" property
+   */
   public double getRating() {
     return (Double)getProperty(RATING);
   }
   
+  /**
+   * Set the "rating" property
+   */
   public void setRating(double rating) {
     setProperty(RATING, rating);
   }
@@ -424,6 +636,22 @@ public class ASObject extends ASBase {
     return Extra.sameIdentity(this).apply(obj);
   }
   
+  /**
+   * Returns a union of all known IDs for this object.. specifically,
+   * this is a union of the "id", "downstreamDuplicates" and "upstreamDuplicates"
+   * properties
+   */
+  public Iterable<String> getKnownIds() {
+    Set<String> list = new LinkedHashSet<String>();
+    if (has("id")) list.add(getId());
+    Iterables.addAll(list, checkEmpty(getDownstreamDuplicates()));
+    Iterables.addAll(list, checkEmpty(getUpstreamDuplicates()));
+    return list;
+  }
+  
+  /**
+   * Begins creating a new object using the fluent factory api
+   */
   public static <X extends ASObjectGenerator<T>,T extends ASObject>X make() {
     return (X)new ASObjectGenerator<T>();
   }

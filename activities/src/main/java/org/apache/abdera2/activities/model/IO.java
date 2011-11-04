@@ -24,6 +24,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.abdera2.common.Discover;
 import org.apache.abdera2.common.anno.AnnoUtil;
@@ -169,13 +172,51 @@ public abstract class IO {
   public abstract MediaLink readMediaLink(Reader reader);
   public abstract MediaLink readMediaLink(String json);
   
-  public static IO get(TypeAdapter<?>... adapters) {    
-    String defaultImpl = 
-      AnnoUtil.getDefaultImplementation(IO.class);
-    return Discover.locate(
-        IO.class, 
-        defaultImpl, 
-        (Object)adapters);  
+  private static class CacheKey {
+    private final int hash;
+    CacheKey(TypeAdapter<?>[] adapters) {
+      this.hash = Arrays.hashCode(adapters);
+    }
+    public int hashCode() {
+      return hash;
+    }
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      CacheKey other = (CacheKey) obj;
+      if (hash != other.hash)
+        return false;
+      return true;
+    }
+  }
+  private static final Map<CacheKey,IO> map = 
+    new HashMap<CacheKey,IO>();
+  
+  private static synchronized IO get_cached(TypeAdapter<?>... adapters) {
+    return map.get(new CacheKey(adapters));
+  }
+  
+  private static synchronized void set_cached(IO io, TypeAdapter<?>... adapters) {
+    map.put(new CacheKey(adapters),io);
+  }
+  
+  public static IO get(TypeAdapter<?>... adapters) { 
+    IO io = get_cached(adapters);
+    if (io == null) {
+      String defaultImpl = 
+        AnnoUtil.getDefaultImplementation(IO.class);
+      io = Discover.locate(
+          IO.class, 
+          defaultImpl, 
+          (Object)adapters); 
+      if (io != null)
+        set_cached(io,adapters);
+    } 
+    return io;
   }
   
   public void writeCollection(

@@ -44,32 +44,55 @@ public class Collection<T extends ASObject>
   public static final String ITEMS = "items";
   public static final String OBJECT_TYPES = "objectTypes";
 
+  /**
+   * Return the value of the "totalItems" property... this does not 
+   * necessarily reflect the actual number of items in the "items" 
+   * iterator.
+   */
   public int getTotalItems() {
     return (Integer)getProperty(TOTAL_ITEMS);
   }
   
+  /**
+   * Set the value of the "totalItems" property
+   */
   public Collection<T> setTotalItems(int totalItems) {
     setProperty(TOTAL_ITEMS, totalItems);
     return this;
   }
   
+  /**
+   * Get the url of this collection
+   */
   public IRI getUrl() {
     return getProperty(URL);
   }
   
+  /**
+   * Set the url of this collection
+   */
   public void setUrl(IRI url) {
     setProperty(URL, url);
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Get the list of objectTypes expected to be found in this collection
+   */
   public Iterable<String> getObjectTypes() {
-    return checkEmpty((Iterable<String>)getProperty(OBJECT_TYPES));
+    return checkEmpty(this.<Iterable<String>>getProperty(OBJECT_TYPES));
   }
   
-  public void setObjectTypes(Set<String> types) {
-    setProperty(OBJECT_TYPES,types);
+  /**
+   * Set the list of objectTypes expected to be found in this collection
+   */
+  public void setObjectTypes(java.util.Collection<String> types) {
+    setProperty(OBJECT_TYPES,new LinkedHashSet<String>(types));
   }
   
+  /**
+   * Add a new objectType to the list of objectTypes expected to be found
+   * in this collection
+   */
   public void addObjectType(String... objectTypes) {
     Set<String> list = getProperty(OBJECT_TYPES);
     if (list == null) {
@@ -80,6 +103,9 @@ public class Collection<T extends ASObject>
       list.add(objectType);
   }
   
+  /**
+   * get the items collection using the specified selector as a filter
+   */
   public Iterable<T> getItems(Selector<T> selector) {
     List<T> list = new ArrayList<T>();
     for (T item : getItems()) 
@@ -88,11 +114,19 @@ public class Collection<T extends ASObject>
     return list;
   }
   
+  /**
+   * get the items contained in this collection
+   */
   @SuppressWarnings("unchecked")
   public Iterable<T> getItems() {
     return checkEmpty((Iterable<T>)getProperty(ITEMS));
   }
   
+  /**
+   * Get the items contained in this collection. If no "items" 
+   * property exists, a new LinkedHashSet will be created, set 
+   * and returned if create == true;
+   */
   public Iterable<T> getItems(boolean create) {
     Iterable<T> items = getItems();
     if (items == null && create) {
@@ -102,17 +136,32 @@ public class Collection<T extends ASObject>
     return items;
   }
   
-  public void setItems(Set<T> items) {
+  /**
+   * Set the items in this collection, overwriting the existing value.
+   * setting this will change the value of the "totalItems" property 
+   * to reflect the number of items passed in.
+   */
+  public void setItems(java.util.Collection<T> items) {
     setProperty(ITEMS, new LinkedHashSet<T>(items));
     setTotalItems(items.size());
   }
   
+  /**
+   * Set the items in this collection, overwriting the existing value.
+   * setting this will change the value of the "totalItems" property 
+   * to reflect the number of items passed in.
+   */
   public void setItems(Iterable<T> items) {
     Set<T> set = new LinkedHashSet<T>();
     for (T item : items) set.add(item);
     setItems(set);
   }
   
+  /**
+   * Add an item to this collection
+   * setting this will change the value of the "totalItems" property 
+   * to reflect the number of items passed in.
+   */
   public void addItem(T... items) {
     Set<T> list = getProperty(ITEMS);
     if (list == null) {
@@ -124,6 +173,9 @@ public class Collection<T extends ASObject>
     setTotalItems(list.size());
   }
   
+  /**
+   * Begin making a new collection object using the fluent factory api
+   */
   public static <T extends ASObject>CollectionGenerator<T> makeCollection() {
     return new CollectionGenerator<T>();
   }

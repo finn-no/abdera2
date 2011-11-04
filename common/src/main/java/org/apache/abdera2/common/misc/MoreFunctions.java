@@ -6,6 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.apache.abdera2.common.Discover;
 
@@ -14,6 +18,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.ListenableFutureTask;
 
 public class MoreFunctions {
 
@@ -356,4 +361,62 @@ public class MoreFunctions {
         }
       }
   };
+  
+  public static final Function<String,Integer> parseInt =
+    new Function<String,Integer>() {
+      public Integer apply(String input) {
+        try {
+          return (input != null) ? Integer.valueOf(input) : -1;
+        } catch (NumberFormatException e) {
+          return -1;
+        }
+      }
+  };
+  
+  public static final Function<String,Short> parseShort =
+    new Function<String,Short>() {
+      public Short apply(String input) {
+        try {
+          return (input != null) ? Short.valueOf(input) : -1;
+        } catch (NumberFormatException e) {
+          return -1;
+        }
+      }
+  };
+  
+  public static <I,O>Function<I,Future<O>> futureFunction(
+    Function<I,O> function, 
+    ExecutorService exec) {
+      return new FutureFunction<I,O>(function,exec);
+  }
+  
+  public static <I,O>FutureTask<O> functionTask(
+    final Function<I,O> function, 
+    final I input) {
+    return ListenableFutureTask.<O>create(
+      new Callable<O>() {
+        public O call() throws Exception {
+          return function.apply(input);
+        }            
+      }
+    );
+  }
+  
+  public static class FutureFunction<I,O> 
+    implements Function<I,Future<O>> {
+    final Function<I,O> inner;
+    final ExecutorService exec;
+    public FutureFunction(
+      Function<I,O> inner, 
+      ExecutorService exec) {
+      this.inner = inner;
+      this.exec = exec;
+    }
+    public Future<O> apply(final I input) {
+      FutureTask<O> task = functionTask(inner,input);
+      exec.submit(task);
+      return task;
+    }
+  }
+  
 }

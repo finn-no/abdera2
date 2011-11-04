@@ -1,7 +1,10 @@
-package org.apache.abdera2.activities.model;
+package org.apache.abdera2.activities.model.objects;
 
 import java.util.Map;
 
+import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.activities.model.ASObject;
+import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.common.iri.IRI;
 
 /**

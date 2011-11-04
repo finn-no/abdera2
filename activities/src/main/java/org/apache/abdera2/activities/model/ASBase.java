@@ -38,6 +38,7 @@ import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 
 import static com.google.common.base.Preconditions.*;
 import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 
 /**
  * Root of the Activity Streams object hierarchy, provides the core property
@@ -57,23 +58,41 @@ public class ASBase
       Collections.<T>emptySet() : i;
   }
   
+  /**
+   * Set the value of the "lang" property. This optionally establishes
+   * a language context for the other properties in this object. It 
+   * is not inherited by contained objects.
+   */
   public void setLang(Lang lang) {
     setProperty("lang", lang);
   }
   
+  /**
+   * Gets value of the "lang" property. 
+   */
   public Lang getLang() {
     return getProperty("lang");
   }
   
+  /**
+   * Return the value of the named property
+   */
   @SuppressWarnings("unchecked")
   public <T>T getProperty(String name) {
     return (T)exts.get(name);
   }
   
+  /**
+   * Return the value of the named property, using the specified
+   * Transform Function to translate the properties value
+   */
   public <T,R>R getProperty(String name, Function<T,R> transform) {
     return (R)transform.apply(this.<T>getProperty(name));
   }
   
+  /**
+   * Set the value of the named property
+   */
   public void setProperty(String name, Object value) {
     if (value != null)
       exts.put(name, value);
@@ -81,8 +100,11 @@ public class ASBase
       exts.remove(name);
   }
 
+  /**
+   * Return a listing of all the properties in this object
+   */
   public Iterator<String> iterator() {
-    return exts.keySet().iterator();
+    return Iterators.<String>unmodifiableIterator(exts.keySet().iterator());
   }
 
   @Override

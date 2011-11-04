@@ -2,6 +2,7 @@ package org.apache.abdera2.activities.extra;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -571,9 +572,17 @@ public class Extra {
   public static final Equivalence<ASObject> IDENTITY_EQUIVALENCE = identity();
   
   /**
+   * Equivalence instance that can be used to check the equivalence of two
+   * ASObjects
+   */
+  public static final Equivalence<ASObject> IDENTITY_WITH_DUPLICATES_EQUIVALENCE = identityWithDuplicates();
+  
+  /**
    * Two ASObject's are considered equivalent in identity if 
    * they share the same objectType and id property
-   * values. 
+   * values. Note: This implementation does not yet take 
+   * the downstreamDuplicates and upstreamDuplicates properties
+   * into account when determining equivalence.
    */
   private static Equivalence<ASObject> identity() {
     return new Equivalence<ASObject>() {
@@ -587,10 +596,44 @@ public class Extra {
         if (!aot.equalsIgnoreCase(bot)) return false;
         String aid = a.getId();
         String bid = b.getId();
-        if (bothAreNull(aid,bid)) return true;
         if (onlyOneIsNull(aid,bid)) return false;
-        if (!aid.equals(bid)) return false;
+        if (neitherIsNull(aid,bid)) {
+          if (aid.equals(bid)) return true;
+          else return false;
+        }
+        String adn = a.getDisplayName();
+        String bdn = b.getDisplayName();
+        if (bothAreNull(adn,bdn)) return true;
+        if (onlyOneIsNull(adn,bdn)) return false;
+        if (!adn.equals(bdn)) return false;
         return true;
+      }
+      protected int doHash(ASObject t) {
+        String id = t.getId();
+        String objectType = t.getObjectType();
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result
+            + ((objectType == null) ? 0 : objectType.hashCode());
+        return result;
+      }
+    };
+  }
+  
+  private static Equivalence<ASObject> identityWithDuplicates() {
+    return new Equivalence<ASObject>() {
+      protected boolean doEquivalent(ASObject a, ASObject b) {
+        if (IDENTITY_EQUIVALENCE.equivalent(a, b)) 
+          return true;
+        Iterable<String> aids = a.getKnownIds();
+        Iterable<String> bids = b.getKnownIds();
+        Iterable<String> cids = 
+          Iterables.filter(
+            aids, Predicates.in((Set<String>)bids));
+        // if cids is empty, it's not a duplicate, so return false
+        // if cids isn't empty, they are likely duplicates, return true
+        return !Iterables.isEmpty(cids);
       }
       protected int doHash(ASObject t) {
         String id = t.getId();
