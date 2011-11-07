@@ -30,6 +30,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import static org.apache.abdera2.common.text.CharUtils.*;
+import static com.google.common.base.Preconditions.*;
+
 /**
  * A language range used for matching language tags
  */
@@ -40,37 +43,41 @@ public final class Range
     private final boolean extended;
 
     public Range(String range, boolean extended) {
-        super(parse(range, extended).root);
+        super(parse(checkNotNull(range), extended).root);
         this.extended = extended;
     }
 
     public Range(String range) {
-        this(parse(range).root);
+        this(parse(checkNotNull(range)).root);
     }
 
     public Range(Lang lang) {
-        this(lang.toString());
+        this(checkNotNull(lang).toString());
     }
 
     public Range(Lang lang, boolean extended) {
-        this(lang.toString(), extended);
+        this(checkNotNull(lang).toString(), extended);
     }
 
     Range(Subtag primary) {
-        super(primary);
+        super(checkNotNull(primary));
         this.extended = !checkBasic();
     }
 
     public Range append(Subtag subtag) {
-        Subtag last = null;
-        for (Subtag tag : this)
-            last = tag;
-        last.setNext(subtag);
-        return this;
+      Subtag last = null, first = null;
+      for (Subtag tag : this) {
+        last = new Subtag(tag,last);
+        if (first == null) first = last;
+      }
+      if (last == null)
+        last = subtag;
+      last.setNext(subtag);
+      return new Range(first);
     }
 
     public Range appendWildcard() {
-        return append(Subtag.newWildcard());
+      return append(Subtag.newWildcard());
     }
 
     public Range toBasicRange() {
@@ -317,39 +324,30 @@ public final class Range
      */
     public static Range parse(String range, boolean extended) {
         if (!extended) {
-            Subtag primary = null, current = null;
-            Matcher m = p_range.matcher(range);
-            if (m.find()) {
-                String first = m.group(1);
-                String therest = m.group(2);
-                current = primary =
-                    new Subtag(first.equals("*") ? 
-                        Subtag.Type.WILDCARD : 
-                        Subtag.Type.SIMPLE, first
-                        .toLowerCase(Locale.US));
-                Matcher n = p_range_component.matcher(therest);
-                while (n.find()) {
-                    String name = n.group(1).toLowerCase(Locale.US);
-                    current = new Subtag(
-                        name.equals("*") ? 
-                            Subtag.Type.WILDCARD : 
-                            Subtag.Type.SIMPLE, 
-                        name, 
-                        current);
-                }
+          Subtag primary = null, current = null;
+          Matcher m = p_range.matcher(range);
+          if (m.find()) {
+            String first = m.group(1);
+            String therest = m.group(2);
+            current = primary =
+              Subtag.simple(first.toLowerCase(Locale.US));
+            Matcher n = p_range_component.matcher(therest);
+            while (n.find()) {
+              String name = n.group(1).toLowerCase(Locale.US);
+              current = Subtag.simple(name, current);
             }
-            return new Range(primary);
+          }
+          return new Range(primary);
         } else {
-
             Subtag primary = null;
             Matcher m = p_grandfathered.matcher(range);
             if (m.find()) {
                 String[] tags = range.split(SEP);
                 Subtag current = null;
                 for (String tag : tags)
-                    current = current == null ?
-                        primary = new Subtag(Type.GRANDFATHERED, tag) :
-                        new Subtag(Type.GRANDFATHERED,tag,current);
+                  current = current == null ?
+                    primary = Subtag.grandfathered(tag) :
+                    Subtag.grandfathered(tag,current);
                 return new Range(primary);
             }
             m = p_privateuse.matcher(range);
@@ -363,64 +361,53 @@ public final class Range
                 return new Range(primary);
             }
             m = p_extended_range.matcher(range);
-            if (m.find()) {
-                String langtag = m.group(1);
-                String script = m.group(2);
-                String region = m.group(3);
-                String variant = m.group(4);
-                String extension = m.group(5);
-                String privateuse = m.group(6);
-                Subtag current = null;
-                String[] tags = langtag.split(SEP);
-                for (String tag : tags)
-                    current = current == null ?
-                        primary = new Subtag(tag.equals("*") ? Type.WILDCARD : Type.LANGUAGE, tag) :
-                        new Subtag(tag.equals("*") ? Type.WILDCARD : Type.EXTLANG, tag, current);
-                if (script != null && script.length() > 0)
-                    current =
-                        new Subtag(
-                            script.substring(1).equals("*") ? 
-                                Type.WILDCARD : 
-                                Type.SCRIPT, 
-                            script.substring(1),
-                            current);
-                if (region != null && region.length() > 0)
-                    current =
-                        new Subtag(
-                            region.substring(1).equals("*") ? 
-                                Type.WILDCARD : 
-                                Type.REGION, 
-                            region.substring(1),
-                            current);
-                if (variant != null && variant.length() > 0) {
-                    variant = variant.substring(1);
-                    tags = variant.split(SEP);
-                    for (String tag : tags)
-                        current = new Subtag(tag.equals("*") ? Type.WILDCARD : Type.VARIANT, tag, current);
-                }
-                if (extension != null && extension.length() > 0) {
-                    extension = extension.substring(1);
-                    tags = extension.split(SEP);
-                    current = new Subtag(tags[0].equals("*") ? Type.WILDCARD : Type.SINGLETON, tags[0], current);
-                    for (int i = 1; i < tags.length; i++) {
-                        String tag = tags[i];
-                        current =
-                            new Subtag(tag.equals("*") ? Type.WILDCARD : tag.length() == 1 ? Type.SINGLETON
-                                : Type.EXTENSION, tag, current);
-                    }
-                }
-                if (privateuse != null && privateuse.length() > 0) {
-                    privateuse = privateuse.substring(1);
-                    tags = privateuse.split(SEP);
-                    current = new Subtag(tags[0].equals("*") ? Type.WILDCARD : Type.SINGLETON, tags[0], current);
-                    for (int i = 1; i < tags.length; i++) {
-                        current = new Subtag(tags[i].equals("*") ? Type.WILDCARD : Type.PRIVATEUSE, tags[i], current);
-                    }
-                }
-                return new Range(primary);
+            checkArgument(m.find());
+            String langtag = m.group(1);
+            String script = m.group(2);
+            String region = m.group(3);
+            String variant = m.group(4);
+            String extension = m.group(5);
+            String privateuse = m.group(6);
+            Subtag current = null;
+            String[] tags = langtag.split(SEP);
+            for (String tag : tags)
+              current = current == null ?
+                primary = Subtag.language(tag) :
+                Subtag.extlang(tag, current);
+            if (not_empty(script))
+              current =
+                Subtag.script(
+                  script.substring(1),
+                  current);
+            if (not_empty(region))
+              current =
+                Subtag.region(
+                  region.substring(1),
+                  current);
+            if (not_empty(variant)) {
+              for (String tag : variant.substring(1).split(SEP))
+                current = Subtag.variant(tag, current);
             }
+            if (not_empty(extension)) {
+              tags = extension.substring(1).split(SEP);
+              current = Subtag.singleton(tags[0], current);
+              for (int i = 1; i < tags.length; i++) {
+                String tag = tags[i];
+                current =
+                  tag.length() == 1 ?
+                    Subtag.singleton(tag, current) :
+                    Subtag.extension(tag, current);
+              }
+            }
+            if (not_empty(privateuse)) {
+              tags = privateuse.substring(1).split(SEP);
+              current = Subtag.singleton(tags[0], current);
+              for (int i = 1; i < tags.length; i++)
+                current = Subtag.privateuse(tags[i], current);
+            }
+            return new Range(primary);
         }
-        throw new IllegalArgumentException("Invalid range");
+
     }
 
 }

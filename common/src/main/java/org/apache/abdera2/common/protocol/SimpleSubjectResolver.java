@@ -22,6 +22,8 @@ import java.security.Principal;
 
 import javax.security.auth.Subject;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Function;
 
 /**
@@ -68,10 +70,7 @@ public class SimpleSubjectResolver
 
         @Override
         public int hashCode() {
-            final int PRIME = 31;
-            int result = 1;
-            result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-            return result;
+          return MoreFunctions.genHashCode(1, name);
         }
 
         @Override
@@ -112,10 +111,7 @@ public class SimpleSubjectResolver
         }
 
         public int hashCode() {
-            final int PRIME = 31;
-            int result = 1;
-            result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-            return result;
+          return MoreFunctions.genHashCode(1, name);
         }
     }
 }

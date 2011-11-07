@@ -24,6 +24,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElement;
 import org.apache.abdera2.model.ExtensibleElementWrapper;
@@ -54,12 +55,10 @@ public class RssEnclosure extends ExtensibleElementWrapper implements Link {
     }
 
     public MimeType getMimeType() {
-        try {
-            String type = getAttributeValue("type");
-            return (type != null) ? new MimeType(type) : null;
-        } catch (javax.activation.MimeTypeParseException e) {
-            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-        }
+      String type = getAttributeValue("type");
+      return type != null ? 
+        MimeTypeHelper.unmodifiableMimeType(type) : 
+        null;
     }
 
     public String getRel() {

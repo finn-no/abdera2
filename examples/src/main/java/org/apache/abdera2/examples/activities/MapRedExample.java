@@ -22,7 +22,7 @@ import org.apache.abdera2.common.misc.MapRed;
 import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.misc.MapRed.Collector;
 import org.apache.abdera2.common.misc.MapRed.Mapper;
-import org.apache.abdera2.common.misc.MapRed.Pair;
+import org.apache.abdera2.common.misc.Pair;
 import org.apache.abdera2.common.misc.MapRed.PairBuilder;
 import org.apache.abdera2.common.misc.MapRed.ReducerFunction;
 import org.apache.abdera2.model.Document;
@@ -114,7 +114,7 @@ public class MapRedExample {
     // when it is complete
     for (Pair<Integer,Iterable<String>> entry : ff.apply(gen).get())
       System.out.println(
-        entry.key() + "=" + entry.val());
+        entry.first() + "=" + entry.second());
     
     
   }

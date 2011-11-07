@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.geo;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 public class Point extends Position {
 
     public static Point at(Coordinate coordinate) {
@@ -107,10 +109,7 @@ public class Point extends Position {
     
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = super.hashCode();
-        result = PRIME * result + ((coordinate == null) ? 0 : coordinate.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(super.hashCode(),coordinate);
     }
 
     @Override

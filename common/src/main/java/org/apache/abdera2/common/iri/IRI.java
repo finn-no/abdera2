@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.InvalidCharacterException;
 import org.apache.abdera2.common.text.NormalizationForm;
 import org.apache.abdera2.common.text.UrlEncoding;
@@ -136,17 +137,9 @@ public final class IRI implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((authority == null) ? 0 : authority.hashCode());
-        result = PRIME * result + ((fragment == null) ? 0 : fragment.hashCode());
-        result = PRIME * result + ((host == null) ? 0 : host.hashCode());
-        result = PRIME * result + ((path == null) ? 0 : path.hashCode());
-        result = PRIME * result + port;
-        result = PRIME * result + ((query == null) ? 0 : query.hashCode());
-        result = PRIME * result + ((_scheme == null) ? 0 : _scheme.hashCode());
-        result = PRIME * result + ((userinfo == null) ? 0 : userinfo.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(
+        1, authority, fragment, host, path, 
+        port, query, _scheme, userinfo);
     }
 
     @Override

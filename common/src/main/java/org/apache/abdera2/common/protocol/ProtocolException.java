@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.protocol;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 public class ProtocolException 
   extends RuntimeException {
 
@@ -30,10 +32,7 @@ public class ProtocolException
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + code;
-      return result;
+      return MoreFunctions.genHashCode(1,code);
     }
 
     @Override

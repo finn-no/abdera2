@@ -20,6 +20,8 @@ package org.apache.abdera2.common.lang;
 import java.io.Serializable;
 import java.util.Locale;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 /**
  * A Language Tab Subtag. Instances are immutable and safe to use by
  * multiple threads.
@@ -29,6 +31,86 @@ public final class Subtag
 
     private static final long serialVersionUID = -4496128268514329138L;
 
+    public static Subtag language(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.LANGUAGE, name);
+    }
+    
+    public static Subtag language(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.LANGUAGE, name, prev);
+    }
+    
+    public static Subtag extlang(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTLANG, name);
+    }
+    
+    public static Subtag extlang(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTLANG, name, prev);
+    }
+    
+    public static Subtag script(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SCRIPT, name);
+    }
+    
+    public static Subtag script(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SCRIPT, name, prev);
+    }
+    
+    public static Subtag region(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.REGION, name);
+    }
+    
+    public static Subtag region(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.REGION, name, prev);
+    }
+    
+    public static Subtag variant(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.VARIANT, name);
+    }
+    
+    public static Subtag variant(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.VARIANT, name, prev);
+    }
+    
+    public static Subtag singleton(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SINGLETON, name);
+    }
+    
+    public static Subtag singleton(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SINGLETON, name, prev);
+    }
+    
+    public static Subtag extension(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTENSION, name);
+    }
+    
+    public static Subtag extension(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTENSION, name, prev);
+    }
+    
+    public static Subtag privateuse(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.PRIVATEUSE, name);
+    }
+    
+    public static Subtag privateuse(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.PRIVATEUSE, name, prev);
+    }
+    
+    public static Subtag grandfathered(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.GRANDFATHERED, name);
+    }
+    
+    public static Subtag grandfathered(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.GRANDFATHERED, name, prev);
+    }
+   
+    public static Subtag simple(String name) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SIMPLE, name);
+    }
+    
+    public static Subtag simple(String name, Subtag prev) {
+      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SIMPLE, name, prev);
+    }
+    
     public enum Type {
         LANGUAGE,
         EXTLANG,
@@ -109,22 +191,22 @@ public final class Subtag
         return toString();
     }
 
-    void setPrevious(Subtag prev) {
-        this.prev = prev;
-    }
-
     public Subtag previous() {
-        return prev;
+      return prev;
     }
 
+    void setPrevious(Subtag prev) {
+      this.prev = prev;
+    }
+    
     void setNext(Subtag next) {
-        this.next = next;
-        if (next != null)
-            next.setPrevious(this);
+      this.next = next;
+      if (next != null)
+          next.setPrevious(this);
     }
 
     public Subtag next() {
-        return next;
+      return next;
     }
 
     public String toString() {
@@ -149,13 +231,8 @@ public final class Subtag
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : 
-          name.toLowerCase(Locale.US).hashCode());
-        result = prime * result + ((type == null) ? 0 : 
-          type.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(
+        1, name.toLowerCase(Locale.US), type);
     }
 
     public boolean equals(Object obj) {

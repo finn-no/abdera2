@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.anno.AnnoUtil;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
@@ -219,14 +220,7 @@ public abstract class AbstractExtensionFactory
     
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((impls == null) ? 0 : impls.hashCode());
-      result = prime * result
-          + ((mimetypes == null) ? 0 : mimetypes.hashCode());
-      result = prime * result
-          + ((namespaces == null) ? 0 : namespaces.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(1, impls, mimetypes, namespaces);
     }
 
     @Override

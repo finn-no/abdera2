@@ -17,11 +17,13 @@
  */
 package org.apache.abdera2.common.pusher;
 
+import com.google.common.collect.Iterables;
+
 public abstract class AbstractPusher<T> 
   implements Pusher<T> {
 
   public void pushAll(Iterable<T> t) {
-    for (T i : t)
+    for (T i : Iterables.unmodifiableIterable(t))
       push(i);
   }
 

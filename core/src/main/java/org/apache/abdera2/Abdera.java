@@ -48,7 +48,9 @@ import org.apache.abdera2.xpath.XPath;
  */
 @Version(value="v2.0-SNAPSHOT",
          name="Abdera",
-         uri="http://abdera.apache.org")
+         uri="http://abdera.apache.org",
+         major=2, minor=0, revision=0, 
+         status=Version.Status.DEVELOPMENT)
 public class Abdera {
 
     /** A static instance of Abdera **/

@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Supplier;
 import static com.google.common.base.Preconditions.*;
@@ -227,13 +228,7 @@ public class TemplateManager<T>
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((contextDefaults == null) ? 0 : contextDefaults.hashCode());
-    result = prime * result + (isiri ? 1231 : 1237);
-    result = prime * result + ((templates == null) ? 0 : templates.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1, contextDefaults, isiri, templates);
   }
 
   @Override

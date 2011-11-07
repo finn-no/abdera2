@@ -23,6 +23,7 @@ import javax.activation.MimeTypeParseException;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 
 @Name("file")
 public class FileObject 
@@ -55,15 +56,11 @@ public class FileObject
   }
   
   public void setMimeType(MimeType mimeType) {
-    setProperty("mimeType", mimeType);
+    setProperty("mimeType", MimeTypeHelper.unmodifiableMimeType(mimeType));
   }
   
   public void setMimeType(String mimeType) {
-    try {
-      setProperty("mimeType", new MimeType(mimeType));
-    } catch (MimeTypeParseException e) {
-      throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-    }
+    setProperty("mimeType", MimeTypeHelper.unmodifiableMimeType(mimeType));
   }
   
   public static <T extends FileObject>FileObjectGenerator<T> makeFile() {

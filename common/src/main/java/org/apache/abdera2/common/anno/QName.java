@@ -20,6 +20,7 @@ package org.apache.abdera2.common.anno;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -27,6 +28,7 @@ import java.lang.annotation.Target;
 /**
  * Used primarily to associate an XML Qualified name with an interface
  */
+@Documented
 @Retention(RUNTIME)
 @Target( {TYPE})
 @Inherited

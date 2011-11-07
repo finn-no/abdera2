@@ -20,6 +20,8 @@ package org.apache.abdera2.common.http;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Function;
 
 public final class QualityHelper {
@@ -59,13 +61,8 @@ public final class QualityHelper {
       }
       @Override
       public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        long temp;
-        temp = Double.doubleToLongBits(qvalue);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((token == null) ? 0 : token.hashCode());
-        return result;
+        return MoreFunctions.genHashCode(
+          1, qvalue, token);
       }
       @Override
       public boolean equals(Object obj) {

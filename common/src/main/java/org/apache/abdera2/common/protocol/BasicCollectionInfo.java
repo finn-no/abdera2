@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Supplier;
 
 public class BasicCollectionInfo 
@@ -79,12 +81,7 @@ public class BasicCollectionInfo
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((accepts == null) ? 0 : accepts.hashCode());
-      result = prime * result + ((href == null) ? 0 : href.hashCode());
-      result = prime * result + ((title == null) ? 0 : title.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(1, accepts,href,title);
     }
 
     @Override

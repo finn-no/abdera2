@@ -1,5 +1,7 @@
 package org.apache.abdera2.common.misc;
 
+import org.apache.abdera2.common.text.CharUtils;
+
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
 import static com.google.common.base.Preconditions.*;
@@ -48,6 +50,18 @@ public class Comparisons {
   
   public static <T>boolean onlySecondIsNull(T t1, T t2) {
     return onlySecondIsNull().apply(t1,t2);
+  }
+  
+  public static boolean bothAreTrue(boolean t1, boolean t2) {
+    return t1 && t2;
+  }
+  
+  public static boolean onlyOneIsTrue(boolean t1, boolean t2) {
+    return t1 |= t2;
+  }
+  
+  public static boolean bothAreEmpty(String t1, String t2) {
+    return !CharUtils.not_empty(t1) && !CharUtils.not_empty(t2);
   }
   
   public static <T>boolean onlyOneIsNull(T t1, T t2) {

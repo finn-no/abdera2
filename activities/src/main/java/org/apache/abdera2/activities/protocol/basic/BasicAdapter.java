@@ -35,7 +35,6 @@ import org.apache.abdera2.activities.protocol.managed.ManagedCollectionAdapter;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
-import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.common.protocol.Target;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
@@ -46,6 +45,7 @@ import org.joda.time.DateTime;
 import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.ExceptionHelper.*;
+import static org.apache.abdera2.common.protocol.ProviderHelper.*;
 
 /**
  * The BasicAdapter provides a simplistic interface for working with Atompub collections with a restricted set of
@@ -133,7 +133,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         MimeType mimeType = request.getContentType();
         String contentType = mimeType == null ? null : mimeType.toString();
         if (contentType != null && !MimeTypeHelper.isJson(contentType))
-          return ProviderHelper.notsupported(request);
+          return notsupported(request);
            
         ASBase base = getEntryFromRequest(request);
         Target target = request.getTarget();
@@ -176,11 +176,11 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                 .setStatus(createFlag?201:200)
                 .setLocation(loc);
           } else
-            return ProviderHelper.notfound(request);
+            return notfound(request);
         } else
-          return ProviderHelper.notallowed(request);
+          return notallowed(request);
       } catch (Exception e) {
-        return ProviderHelper.servererror(request, e.getMessage(), e);
+        return servererror(request, e.getMessage(), e);
       }
     }
 
@@ -199,10 +199,10 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
           String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
           try {
               return deleteItem(entryId) ? 
-                ProviderHelper.nocontent() : 
-                ProviderHelper.notfound(input);
+                nocontent() : 
+                notfound(input);
           } catch (Exception e) {
-              return ProviderHelper.servererror(
+              return servererror(
                 input, e.getMessage(), e);
           }
         }
@@ -228,9 +228,9 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
                 return 
                   new ActivitiesResponseContext<ASObject>(object)
                     .setStatus(200);
-              } else return ProviderHelper.notfound(input);       
+              } else return notfound(input);       
           } catch (Exception e) {
-              return ProviderHelper.servererror(input, e.getMessage(), e);
+              return servererror(input, e.getMessage(), e);
           }
         }
       };
@@ -247,9 +247,9 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
               return 
                 new ActivitiesResponseContext<Collection<ASObject>>(collection)
                   .setStatus(200);
-            } else return ProviderHelper.notfound(input);
+            } else return notfound(input);
           } catch (Exception e) {
-            return ProviderHelper.servererror(input, e.getMessage(), e);
+            return servererror(input, e.getMessage(), e);
           }
         }
       };

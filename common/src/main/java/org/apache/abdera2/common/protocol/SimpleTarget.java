@@ -19,6 +19,8 @@ package org.apache.abdera2.common.protocol;
 
 import java.util.Iterator;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 
 
 @SuppressWarnings("unchecked")
@@ -67,11 +69,7 @@ public class SimpleTarget
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((context == null) ? 0 : context.hashCode());
-        result = PRIME * result + ((type == null) ? 0 : type.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, context, type);
     }
 
     @Override

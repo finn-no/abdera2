@@ -100,7 +100,7 @@ public final class MapRed {
     private final List<Pair<K,V>> list = 
       new ArrayList<Pair<K,V>>();
     public PairBuilder<K,V> pair(K k, V v) {
-      list.add(MapRed.<K,V>pair(k,v));
+      list.add(Pair.<K,V>of(k,v));
       return this;
     }
     public Iterable<Pair<K, V>> get() {
@@ -114,27 +114,8 @@ public final class MapRed {
   public static <K,V>Iterable<Pair<K,V>> pairs(Map<K,V> map) {
     List<Pair<K,V>> list = new ArrayList<Pair<K,V>>();
     for (Map.Entry<K,V> entry : map.entrySet())
-      list.add(pair(entry.getKey(),entry.getValue()));
+      list.add(Pair.of(entry.getKey(),entry.getValue()));
     return list;
-  }
-  
-  public static <K,V>Pair<K,V> pair(K k, V v) {
-    return new Pair<K,V>(k,v);
-  }
-  
-  public static class Pair<K,V> {
-    private K key;
-    private V val;
-    public Pair(K key, V val) {
-      this.key = key;
-      this.val = val;
-    }
-    public K key() {
-      return key;
-    }
-    public V val() {
-      return val;
-    }
   }
   
   public static interface Reducer<K2,V2,K3,V3> {
@@ -261,9 +242,9 @@ public final class MapRed {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls);
         List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
         for (Pair<K1, V1> entry : input)
-          mapper.map(entry.key(), entry.val(), context);
+          mapper.map(entry.first(), entry.second(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
-          list.add(pair(entry.getKey(), entry.getValue()));
+          list.add(Pair.of(entry.getKey(), entry.getValue()));
         return list;
       }      
     };
@@ -278,9 +259,9 @@ public final class MapRed {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls,comparator);
         List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
         for (Pair<K1, V1> entry : input)
-          mapper.map(entry.key(), entry.val(), context);
+          mapper.map(entry.first(), entry.second(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
-          list.add(pair(entry.getKey(), entry.getValue()));
+          list.add(Pair.of(entry.getKey(), entry.getValue()));
         return list;
       }      
     };
@@ -306,9 +287,9 @@ public final class MapRed {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls, comparator);
         List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
         for (Pair<K1, Iterable<V1>> entry : input)
-          reducer.reduce(entry.key(), entry.val().iterator(), context);
+          reducer.reduce(entry.first(), entry.second().iterator(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
-          list.add(pair(entry.getKey(), entry.getValue()));
+          list.add(Pair.of(entry.getKey(), entry.getValue()));
         return list;
       }      
     };
@@ -322,9 +303,9 @@ public final class MapRed {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls);
         List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
         for (Pair<K1, Iterable<V1>> entry : input)
-          reducer.reduce(entry.key(), entry.val().iterator(), context);
+          reducer.reduce(entry.first(), entry.second().iterator(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
-          list.add(pair(entry.getKey(), entry.getValue()));
+          list.add(Pair.of(entry.getKey(), entry.getValue()));
         return list;
       }      
     };

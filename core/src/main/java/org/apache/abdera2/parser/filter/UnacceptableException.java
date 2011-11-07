@@ -2,6 +2,8 @@ package org.apache.abdera2.parser.filter;
 
 import javax.xml.namespace.QName;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 public class UnacceptableException extends RuntimeException {
 
   private static final long serialVersionUID = -6923049484196141770L;
@@ -39,11 +41,7 @@ public class UnacceptableException extends RuntimeException {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
-    result = prime * result + ((element == null) ? 0 : element.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1, attribute.hashCode(), element.hashCode());
   }
 
   @Override

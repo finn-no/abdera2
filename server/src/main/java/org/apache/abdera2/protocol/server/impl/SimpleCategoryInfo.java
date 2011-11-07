@@ -19,6 +19,7 @@ package org.apache.abdera2.protocol.server.impl;
 
 import java.io.Serializable;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.model.Category;
 import org.apache.abdera2.protocol.server.model.AtompubCategoryInfo;
@@ -78,12 +79,7 @@ public class SimpleCategoryInfo implements AtompubCategoryInfo, Serializable {
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
-        result = prime * result + ((scheme == null) ? 0 : scheme.hashCode());
-        result = prime * result + ((term == null) ? 0 : term.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, label, scheme, term);
     }
 
     public boolean equals(Object obj) {

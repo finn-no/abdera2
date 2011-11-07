@@ -17,7 +17,12 @@
  */
 package org.apache.abdera2.common.text;
 
+import static java.lang.String.format;
+
 import org.apache.abdera2.common.xml.XMLVersion;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 
 /**
  * General utilities for dealing with Unicode characters
@@ -135,6 +140,10 @@ public final class CharUtils {
     public static String quotedIfNotToken(String value) {
       return CodepointMatchers.isToken().all(value)?value:quoted(value,true);
     }
+    
+    public static String quotedIfNotToken(String value, boolean wrap) {
+      return CodepointMatchers.isToken().all(value)?value:quoted(value,false);
+    }
 
     public static String quoted(String val, boolean wrap) {
       StringBuilder buf = new StringBuilder();
@@ -168,4 +177,32 @@ public final class CharUtils {
       return -1;
     }
     
+    public static boolean appendcomma(boolean exp, StringBuilder buf) {
+      if (!exp) buf.append(", ");
+      return exp ? !exp : exp;
+    }
+    
+    public static void append(StringBuilder buf, String value) {
+      if (buf.length() > 0)
+          buf.append(", ");
+      buf.append(value);
+  }
+  
+  public static void appendif(boolean exp, StringBuilder buf, String value, Object... args) {
+    if (exp) append(buf, format(value,args));
+  }
+
+  public static void appendif(boolean exp, StringBuilder buf, Iterable<String> items) {
+    if (exp && !Iterables.isEmpty(items)) {
+      buf.append("=\"");
+      joiner.appendTo(buf,items);
+      buf.append('"');
+    } 
+  }
+  
+  public static boolean not_empty(String val) {
+    return val != null && val.length() > 0;
+  }
+  
+  public static final Joiner joiner = Joiner.on(',').skipNulls();
 }

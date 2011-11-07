@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.model.Categories;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
@@ -95,13 +96,7 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (fixed ? 1231 : 1237);
-        result = prime * result + ((href == null) ? 0 : href.hashCode());
-        result = prime * result + ((list == null) ? 0 : list.hashCode());
-        result = prime * result + ((scheme == null) ? 0 : scheme.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, fixed, href, list, scheme);
     }
 
     public boolean equals(Object obj) {

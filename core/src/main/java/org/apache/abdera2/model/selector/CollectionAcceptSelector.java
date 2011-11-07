@@ -17,11 +17,12 @@
  */
 package org.apache.abdera2.model.selector;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.activation.MimeType;
 
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Collection;
@@ -37,20 +38,16 @@ extends AbstractSelector<Collection>
 
   private static final long serialVersionUID = 1821941024155067263L;
   private final Set<MimeType> types = 
-    new HashSet<MimeType>();
+    new LinkedHashSet<MimeType>();
   
   public CollectionAcceptSelector(String... types) {
-    try {
-      for (String type:types)
-        this.types.add(new MimeType(type));
-    } catch (Throwable t) {
-      throw new RuntimeException(t);
-    }
+    for (String type:types)
+      this.types.add(MimeTypeHelper.unmodifiableMimeType(type));
   }
   
   public CollectionAcceptSelector(MimeType... types) {
     for (MimeType type : types)
-      this.types.add(type);
+      this.types.add(MimeTypeHelper.unmodifiableMimeType(type));
   }
   
   public boolean select(Object item) {

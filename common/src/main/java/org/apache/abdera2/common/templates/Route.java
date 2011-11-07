@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.anno.URIRoute;
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 /**
  * A type of URI Template loosely based on Ruby on Rails style Routes. Example: Route feed_route = new
@@ -246,11 +247,7 @@ public class Route<T> implements Iterable<String>, Cloneable, Serializable {
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((key == null) ? 0 : key.hashCode());
-        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, key, pattern);
     }
 
     public boolean equals(Object obj) {

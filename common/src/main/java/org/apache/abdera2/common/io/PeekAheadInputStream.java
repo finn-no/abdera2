@@ -28,20 +28,20 @@ import java.io.InputStream;
 public class PeekAheadInputStream extends RewindableInputStream {
 
     public PeekAheadInputStream(InputStream in) {
-        super(in);
+      super(in);
     }
 
     public PeekAheadInputStream(InputStream in, int initialSize) {
-        super(in, initialSize);
+      super(in, initialSize);
     }
 
     /**
      * Peek the next byte in the stream
      */
     public int peek() throws IOException {
-        int m = read();
-        unread(m);
-        return m;
+      int m = read();
+      unread(m);
+      return m;
     }
 
     /**
@@ -49,7 +49,7 @@ public class PeekAheadInputStream extends RewindableInputStream {
      * reached
      */
     public int peek(byte[] buf) throws IOException {
-        return peek(buf, 0, buf.length);
+      return peek(buf, 0, buf.length);
     }
 
     /**
@@ -57,9 +57,9 @@ public class PeekAheadInputStream extends RewindableInputStream {
      * reached
      */
     public int peek(byte[] buf, int off, int len) throws IOException {
-        int r = read(buf, off, len);
-        if (r > -1) unread(buf, off, r);
-        return r;
+      int r = read(buf, off, len);
+      if (r > -1) unread(buf, off, r);
+      return r;
     }
 
 }

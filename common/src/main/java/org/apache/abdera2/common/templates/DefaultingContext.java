@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 @SuppressWarnings("unchecked")
 public class DefaultingContext 
   extends DelegatingContext {
@@ -63,10 +65,7 @@ public class DefaultingContext
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((defaults == null) ? 0 : defaults.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1, defaults);
   }
 
   @Override

@@ -20,6 +20,8 @@ package org.apache.abdera2.common.http;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 public final class Method {
   
   private static final Map<String, Method> methods = 
@@ -120,12 +122,8 @@ public final class Method {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + (idempotent ? 1231 : 1237);
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + (safe ? 1231 : 1237);
-    return result;
+    return MoreFunctions.genHashCode(
+      1, idempotent, name, safe);
   }
 
   @Override

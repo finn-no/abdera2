@@ -18,7 +18,6 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -33,6 +32,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import static java.util.Collections.unmodifiableMap;
+import static com.google.common.collect.Iterables.*;
+import static org.apache.abdera2.common.protocol.ProviderHelper.*;
 
 /**
  * Base Provider implementation that provides the core implementation details for all Providers. This class provides the
@@ -87,7 +89,7 @@ public abstract class AbstractProvider
     public ResponseContext apply(RequestContext request) {
       Target target = request.getTarget();
       if (Target.NOT_FOUND.apply(target))
-          return ProviderHelper.notfound(request);
+          return notfound(request);
       TargetType type = target.getType();
       log.debug(String.format(
         "Processing [%s] request for Target [%s] of Type [%s]",
@@ -98,13 +100,13 @@ public abstract class AbstractProvider
         getWorkspaceManager()
           .getCollectionAdapter(request);
       if (adapter == null && type != TargetType.TYPE_SERVICE)
-        return ProviderHelper.notfound(request);
+        return notfound(request);
       RequestProcessor processor = 
-        this.requestProcessors
+        requestProcessors
           .get(type)
           .apply(adapter);
       if (processor == null)
-          return ProviderHelper.notfound(request);
+        return notfound(request);
       Chain<RequestContext,ResponseContext> chain = 
         Chain.<RequestContext,ResponseContext>make()
         .to(processor)
@@ -118,30 +120,29 @@ public abstract class AbstractProvider
       }
       return response != null ? 
         response : 
-        ProviderHelper.badrequest(request);
+        badrequest(request);
     }
 
     /**
      * Subclass to customize the kind of error response to return
      */
     protected ResponseContext createErrorResponse(RequestContext request, Throwable e) {
-        return ProviderHelper.servererror(request, e);
+      return servererror(request, e);
     }
 
     protected abstract WorkspaceManager getWorkspaceManager();
 
     public void setFilters(Collection<Task<RequestContext,ResponseContext>> filters) {
-        this.filters = new LinkedHashSet<Task<RequestContext,ResponseContext>>(filters);
+      this.filters = new LinkedHashSet<Task<RequestContext,ResponseContext>>(filters);
     }
 
     public Iterable<Task<RequestContext,ResponseContext>> getFilters(RequestContext request) {
-        return filters;
+      return unmodifiableIterable(filters);
     }
 
     public void addFilter(Task<RequestContext,ResponseContext>... filters) {
-        for (Task<RequestContext,ResponseContext> filter : filters) {
-            this.filters.add(filter);
-        }
+      for (Task<RequestContext,ResponseContext> filter : filters)
+        this.filters.add(filter);
     }
 
     public void setRequestProcessors(
@@ -151,8 +152,8 @@ public abstract class AbstractProvider
           CollectionAdapter,
           ? extends RequestProcessor>> 
             requestProcessors) {
-        this.requestProcessors.clear();
-        this.requestProcessors.putAll(requestProcessors);
+        requestProcessors.clear();
+        requestProcessors.putAll(requestProcessors);
     }
 
     public void addRequestProcessor(
@@ -160,7 +161,7 @@ public abstract class AbstractProvider
       Class<? extends RequestProcessor> _class, 
       Predicate<RequestContext> predicate,
       WorkspaceManager workspaceManager) {
-        this.requestProcessors.put(
+        requestProcessors.put(
           type, 
           RequestProcessor.forClass(
             _class,
@@ -172,7 +173,7 @@ public abstract class AbstractProvider
         TargetType type, 
         Class<? extends RequestProcessor> _class,
         WorkspaceManager workspaceManager) {
-          this.requestProcessors.put(
+          requestProcessors.put(
             type, 
             RequestProcessor.forClass(
               _class,
@@ -186,11 +187,11 @@ public abstract class AbstractProvider
           CollectionAdapter,
           ? extends RequestProcessor>> 
             requestProcessors) {
-        this.requestProcessors.putAll(requestProcessors);
+        requestProcessors.putAll(requestProcessors);
     }
 
     public Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> getRequestProcessors() {
-        return Collections.unmodifiableMap(this.requestProcessors);
+        return unmodifiableMap(this.requestProcessors);
     }
     
 }

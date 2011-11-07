@@ -18,7 +18,11 @@
 package org.apache.abdera2.common.geo;
 
 import java.io.Serializable;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import static com.google.common.base.Preconditions.*;
+import static java.lang.Double.compare;
 
 public class Coordinate 
   implements Serializable, 
@@ -46,11 +50,30 @@ public class Coordinate
       this(pos.getLatitude(),pos.getLongitude());
     }
 
+    private static final String LAT = "Latitude %s %s90.0 degrees";
+    private static final String LONG = "Longitude %s= %s180.0 degrees";
+    
+    private void checkLatitude(double latitude) {
+      checkArgument(
+        !(compare(latitude, 90.0d) > 0), 
+        String.format(LAT,'>','+'));
+      checkArgument(
+        !(compare(latitude, -90.0d) < 0), 
+        String.format(LAT,'<','-'));
+    }
+    
+    private void checkLongitude(double longitude) {
+      checkArgument(
+        !(compare(longitude, 180.0d) >= 0), 
+        String.format(LONG,'>','+'));
+      checkArgument(
+        !(compare(longitude, -180.0d) <= 0), 
+        String.format(LONG,'<','-'));
+    }
+    
     public Coordinate(double latitude, double longitude) {
-      checkArgument(!(Double.compare(latitude, 90.0d) > 0), "Latitude > 90.0 degrees");
-      checkArgument(!(Double.compare(latitude, -90.0d) < 0), "Latitude < -90.0 degrees");
-      checkArgument(!(Double.compare(longitude, 180.0d) >= 0), "Longitude >= 180.0 degrees");
-      checkArgument(!(Double.compare(longitude, -180.0d) <= 0), "Longitude <= -180.0 degrees");
+      checkLatitude(latitude);
+      checkLongitude(longitude);
       this.latitude = latitude;
       this.longitude = longitude;
     }
@@ -59,10 +82,8 @@ public class Coordinate
       Coordinate c = parse(value);
       this.latitude = c.latitude;
       this.longitude = c.longitude;
-      checkArgument(!(Double.compare(latitude, 90.0d) > 0), "Latitude > 90.0 degrees");
-      checkArgument(!(Double.compare(latitude, -90.0d) < 0), "Latitude < -90.0 degrees");
-      checkArgument(!(Double.compare(longitude, 180.0d) >= 0), "Longitude >= 180.0 degrees");
-      checkArgument(!(Double.compare(longitude, -180.0d) <= 0), "Longitude <= -180.0 degrees");
+      checkLatitude(latitude);
+      checkLongitude(longitude);
     }
 
     public double getLatitude() {
@@ -95,14 +116,9 @@ public class Coordinate
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        long temp;
-        temp = Double.doubleToLongBits(latitude);
-        result = PRIME * result + (int)(temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(longitude);
-        result = PRIME * result + (int)(temp ^ (temp >>> 32));
-        return result;
+      return MoreFunctions.genHashCode(1,
+        latitude,
+        longitude);
     }
 
     @Override

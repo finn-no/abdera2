@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 public abstract class SubtagSet 
   implements Serializable, 
@@ -124,11 +125,7 @@ public abstract class SubtagSet
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        for (Subtag tag : this)
-            result = prime * result + tag.hashCode();
-        return result;
+      return MoreFunctions.genHashCode(1, this);
     }
 
     public boolean equals(Object obj) {

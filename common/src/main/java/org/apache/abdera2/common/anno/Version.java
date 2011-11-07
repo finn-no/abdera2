@@ -20,15 +20,26 @@ package org.apache.abdera2.common.anno;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+@Documented
 @Retention(RUNTIME)
 @Target( {TYPE})
 @Inherited
 public @interface Version {
+  public static enum Status {
+    STABLE, 
+    DEVELOPMENT, 
+    DEPRECATED
+  }
   String value(); // Version Number
   String name();  // App Name
   String uri();   // App URI
+  int major() default 0; // major code
+  int minor() default 0; // minor code
+  int revision() default 0; // revision code
+  Status status() default Status.DEVELOPMENT;
 }

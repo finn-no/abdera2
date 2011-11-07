@@ -25,7 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
+import static org.apache.abdera2.common.misc.MoreFunctions.*;
+import static org.apache.abdera2.common.text.CharUtils.*;
+import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
 /**
@@ -273,55 +277,46 @@ public final class Lang
             return new Lang(primary);
         }
         m = p_langtag.matcher(lang);
-        if (m.find()) {
-            String langtag = m.group(1);
-            String script = m.group(2);
-            String region = m.group(3);
-            String variant = m.group(4);
-            String extension = m.group(5);
-            String privateuse = m.group(6);
-            Subtag current = null;
-            String[] tags = langtag.split(SEP);
-            for (String tag : tags)
-                current = current == null ? 
-                    primary = new Subtag(Type.LANGUAGE, tag) :
-                    new Subtag(Type.EXTLANG, tag, current);
-            if (script != null && script.length() > 0)
-                current = new Subtag(Type.SCRIPT, script.substring(1), current);
-            if (region != null && region.length() > 0)
-                current = new Subtag(Type.REGION, region.substring(1), current);
-            if (variant != null && variant.length() > 0) {
-                variant = variant.substring(1);
-                tags = variant.split(SEP);
-                for (String tag : tags)
-                    current = new Subtag(Type.VARIANT, tag, current);
-            }
-            if (extension != null && extension.length() > 0) {
-                extension = extension.substring(1);
-                tags = extension.split(SEP);
-                current = new Subtag(Type.SINGLETON, tags[0], current);
-                for (int i = 1; i < tags.length; i++) {
-                    String tag = tags[i];
-                    current = new Subtag(
-                        tag.length() == 1 ? 
-                            Type.SINGLETON : 
-                            Type.EXTENSION, 
-                        tag, 
-                        current);
-                }
-            }
-            if (privateuse != null && privateuse.length() > 0) {
-                privateuse = privateuse.substring(1);
-                tags = privateuse.split(SEP);
-                current = new Subtag(Type.SINGLETON, tags[0], current);
-                for (int i = 1; i < tags.length; i++)
-                    current = new Subtag(Type.PRIVATEUSE, tags[i], current);
-            }
-            return new Lang(primary);
+        checkArgument(m.find());
+        String langtag = m.group(1);
+        String script = m.group(2);
+        String region = m.group(3);
+        String variant = m.group(4);
+        String extension = m.group(5);
+        String privateuse = m.group(6);
+        Subtag current = null;
+        String[] tags = langtag.split(SEP);
+        for (String tag : tags)
+          current = current == null ? 
+            primary = Subtag.language(tag) :
+            Subtag.extlang(tag, current);
+        if (not_empty(script))
+          current = Subtag.script(script.substring(1), current);
+        if (not_empty(region))
+          current = Subtag.region(region.substring(1), current);
+        if (not_empty(variant))
+          for (String tag : variant.substring(1).split(SEP))
+            current = Subtag.variant(tag, current);
+        if (not_empty(extension)) {
+          tags = extension.substring(1).split(SEP);
+          current = Subtag.singleton(tags[0], current);
+          for (int i = 1; i < tags.length; i++) {
+            String tag = tags[i];
+            current = tag.length() == 1?
+              Subtag.singleton(tag, current) :
+              Subtag.extension(tag, current);
+          }
         }
-        throw new IllegalArgumentException();
-    }
+        if (not_empty(privateuse)) {
+          tags = privateuse.substring(1).split(SEP);
+          current = Subtag.singleton(tags[0], current);
+          for (int i = 1; i < tags.length; i++)
+            current = Subtag.privateuse(tags[i], current);
+        }
+        return new Lang(primary);
 
+    }
+    
     public static String fromLocale(Locale locale) {
         return new Lang(locale).toString();
     }
@@ -330,15 +325,15 @@ public final class Lang
       return new Lang(Locale.getDefault());
     }
     
-    private static Lang[] available_langs;
-    static {
-      try {
-         Locale[] available_locales = Locale.getAvailableLocales();
-         available_langs = new Lang[available_locales.length];
-         for (int n = 0; n < available_locales.length; n++) 
-           available_langs[n] = new Lang(available_locales[n]);
-      } catch (Throwable t) {}
-    }
+    private static Lang[] available_langs = 
+      each(
+        Locale.getAvailableLocales(), 
+        new Function<Locale,Lang>() {
+          public Lang apply(Locale input) {
+            return new Lang(input);
+          }
+        },
+        Lang.class);
     
     public static Lang[] getAvailableLangs() {
       return available_langs;

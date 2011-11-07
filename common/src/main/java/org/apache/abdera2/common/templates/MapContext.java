@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.MapContext;
 
@@ -77,10 +78,7 @@ public class MapContext extends HashMap<String, Object> implements Context {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + (isiri ? 1231 : 1237);
-        return result;
+      return MoreFunctions.genHashCode(super.hashCode(), isiri);
     }
 
     @Override

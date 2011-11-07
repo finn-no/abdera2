@@ -1,6 +1,8 @@
 package org.apache.abdera2.common.security;
 import java.security.Key;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Supplier;
 
 /**
@@ -187,10 +189,7 @@ public abstract class Otp extends KeyBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + step;
-      return result;
+      return MoreFunctions.genHashCode(super.hashCode(), step);
     }
 
     @Override

@@ -17,16 +17,17 @@
  */
 package org.apache.abdera2.common.http;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.abdera2.common.text.CharUtils;
+import com.google.common.collect.Iterators;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
+import static java.lang.String.format;
+import static org.apache.abdera2.common.text.CharUtils.*;
 
 /**
  * Provides parsing and properly handling of the HTTP Cache-Control header.
@@ -38,73 +39,39 @@ public final class CacheControlUtil {
     private static long value(String val) {
         return (val != null) ? Long.parseLong(val) : -1;
     }
-
-    private static void append(StringBuilder buf, String value) {
-        if (buf.length() > 0)
-            buf.append(", ");
-        buf.append(value);
-    }
-
-    private static final Joiner joiner = Joiner.on(',').skipNulls();
     
     /**
      * Construct the Cache-Control header from info in the request object
      */
-    public static String buildCacheControl(CacheControl cacheControl) {
+    public static String buildCacheControl(CacheControl cc) {
         StringBuilder buf = new StringBuilder();
-        if (cacheControl.isPrivate()) {
-            append(buf, "private");
-            Iterable<String> headers = cacheControl.getPrivateHeaders();
-            if (!Iterables.isEmpty(headers)) {
-              buf.append("=\"");
-              joiner.appendTo(buf, headers);
-              buf.append("\"");
-            }
-        }
-        if (cacheControl.isPublic())
-            append(buf, "public");
-        if (cacheControl.isNoCache()) {
-            append(buf, "no-cache");
-            Iterable<String> headers = cacheControl.getNoCacheHeaders();
-            if (!Iterables.isEmpty(headers)) {
-              buf.append("=\"");
-              joiner.appendTo(buf,headers);
-              buf.append("\"");
-            }   
-        }
-        if (cacheControl.isNoStore())
-            append(buf, "no-store");
-        if (cacheControl.isNoTransform())
-            append(buf, "no-transform");
-        if (cacheControl.isOnlyIfCached())
-            append(buf, "only-if-cached");
-        if (cacheControl.isMustRevalidate())
-            append(buf, "must-revalidate");
-        if (cacheControl.isProxyRevalidate())
-            append(buf, "proxy-revalidate");
-        if (cacheControl.getMaxAge() != -1)
-            append(buf, String.format("max-age=%d", cacheControl.getMaxAge()));
-        if (cacheControl.getMaxStale() != -1)
-            append(buf, String.format("max-stale=%d", cacheControl.getMaxStale()));
-        if (cacheControl.getMinFresh() != -1)
-            append(buf, String.format("min-fresh=%d", cacheControl.getMinFresh()));
-        if (cacheControl.getStaleIfError() != -1)
-            append(buf, String.format("stale-if-error=%d", cacheControl.getStaleIfError()));
-        if (cacheControl.getStaleWhileRevalidate() != -1)
-            append(buf, String.format("stale-while-revalidate=%d", cacheControl.getStaleWhileRevalidate()));
-        for (String ext : cacheControl.listExtensions()) {
+        appendif(cc.isPrivate(), buf, "private");
+        appendif(cc.isPrivate(), buf, cc.getPrivateHeaders());
+        appendif(cc.isPublic(), buf, "public");
+        appendif(cc.isNoCache(), buf, "no-cache");
+        appendif(cc.isNoCache(), buf, cc.getNoCacheHeaders());  
+        appendif(cc.isNoStore(), buf, "no-store");
+        appendif(cc.isNoTransform(), buf, "no-transform");
+        appendif(cc.isOnlyIfCached(), buf, "only-if-cached");
+        appendif(cc.isMustRevalidate(), buf, "must-revalidate");
+        appendif(cc.isProxyRevalidate(), buf, "proxy-revalidate");
+        appendif(cc.getMaxAge() != -1, buf, "max-age=%d", cc.getMaxAge());
+        appendif (cc.getMaxStale() != -1, buf, "max-stale=%d", cc.getMaxStale());
+        appendif (cc.getMinFresh() != -1, buf, "min-fresh=%d", cc.getMinFresh());
+        appendif (cc.getStaleIfError() != -1, buf, "stale-if-error=%d", cc.getStaleIfError());
+        appendif (cc.getStaleWhileRevalidate() != -1, buf, "stale-while-revalidate=%d", cc.getStaleWhileRevalidate());
+        for (String ext : cc.listExtensions()) {
           append(buf, ext);
-          Object val = cacheControl.getExtension(ext);
-          if (val instanceof Long || val instanceof Integer || val instanceof Short || val instanceof Byte) {
-            buf.append('=')
-               .append(val);            
-          } else {
-            String v = val.toString();
-            if (val != null && v.length() > 0)
-              buf.append('=')
-                 .append('"')
-                 .append(val)
-                 .append('"');
+          Object val = cc.getExtension(ext); 
+          if (val != null) {
+            if (Number.class.isAssignableFrom(val.getClass()))
+              buf.append('=').append(val);            
+            else {
+              String v = val.toString();
+              if (v.length() > 0)
+                buf.append(
+                  format("=%s",quotedIfNotToken(v)));
+            }
           }
         }
         return buf.toString();
@@ -154,17 +121,17 @@ public final class CacheControlUtil {
         public void set(CacheControl.Builder builder, CacheControlParser parser) {
           switch (this) {
           case NOCACHE:
-              builder.noCache(true);
+              builder.noCache();
               builder.noCacheHeaders(parser.getValues(this));
               break;
           case NOSTORE:
-              builder.noStore(true);
+              builder.noStore();
               break;
           case NOTRANSFORM:
-              builder.noTransform(true);
+              builder.noTransform();
               break;
           case ONLYIFCACHED:
-              builder.onlyIfCached(true);
+              builder.onlyIfCached();
               break;
           case MAXAGE:
               builder.maxAge(value(parser.getValue(this)));
@@ -179,16 +146,16 @@ public final class CacheControlUtil {
               builder.staleIfError(value(parser.getValue(this)));
               break;
           case MUSTREVALIDATE:
-              builder.mustRevalidate(true);
+              builder.mustRevalidate();
               break;
           case PROXYREVALIDATE:
-              builder.proxyRevalidate(true);
+              builder.proxyRevalidate();
               break;
           case PUBLIC:
-              builder.isPublic(true);
+              builder.isPublic();
               break;
           case PRIVATE:
-              builder.isPrivate(true);
+              builder.isPrivate();
               builder.privateHeaders(parser.getValues(this));
             break;
           case STALEWHILEREVALIDATE:
@@ -209,8 +176,10 @@ public final class CacheControlUtil {
 
         private static final Pattern pattern = Pattern.compile(REGEX);
 
-        private final HashMap<Directive, String> values = new HashMap<Directive, String>();
-        private final HashMap<String,Object> exts = new HashMap<String,Object>();
+        private final Map<Directive, String> values = 
+          new LinkedHashMap<Directive, String>();
+        private final Map<String,Object> exts = 
+          new LinkedHashMap<String,Object>();
 
         public CacheControlParser(String value) {
             Matcher matcher = pattern.matcher(value);
@@ -225,33 +194,33 @@ public final class CacheControlUtil {
                     Long l = Long.parseLong(val);
                     exts.put(d, l);
                   } catch (Throwable t) {
-                    exts.put(d, val != null ? CharUtils.unquote(val) : "");
+                    exts.put(d, unquote(val!=null?val:""));
                   }
                 }
             }
         }
 
         public Map<String,Object> getExtensions() {
-          return exts;
+          return Collections.unmodifiableMap(exts);
         }
         
         public Map<Directive, String> getValues() {
-            return values;
+          return Collections.unmodifiableMap(values);
         }
 
         public String getValue(Directive directive) {
-            return values.get(directive);
+          return values.get(directive);
         }
 
         public Iterator<Directive> iterator() {
-            return values.keySet().iterator();
+          return Iterators.unmodifiableIterator(values.keySet().iterator());
         }
 
         public String[] getValues(Directive directive) {
-            String value = getValue(directive);
-            return value == null ?
-                null :
-                CharUtils.splitAndTrim(value);
+          String value = getValue(directive);
+          return value == null ?
+            null :
+            splitAndTrim(value);
         }
 
     }

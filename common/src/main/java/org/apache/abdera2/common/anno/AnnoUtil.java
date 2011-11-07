@@ -17,11 +17,18 @@
  */
 package org.apache.abdera2.common.anno;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
+
+import com.google.common.base.Equivalence;
+import com.google.common.base.Predicate;
 
 public final class AnnoUtil {
 
@@ -125,5 +132,188 @@ public final class AnnoUtil {
     if (_class.isAnnotationPresent(org.apache.abdera2.common.anno.QName.class))
       return qNameFromAnno(_class.getAnnotation(org.apache.abdera2.common.anno.QName.class));
     return null;
+  }
+  
+  public static Equivalence<Version> versionEquivalence() {
+    return versionEquivalence(true);
+  }
+  
+  public static Equivalence<Version> versionEquivalence(final boolean ignoreStatus) {
+    return new Equivalence<Version>() {
+      protected boolean doEquivalent(Version a, Version b) {
+        if (!a.name().equalsIgnoreCase(b.name())) return false;
+        if (!a.uri().equals(b.uri())) return false;
+        if (!a.value().equals(b.value())) return false;
+        if (!ignoreStatus && !a.status().equals(b.status())) return false;
+        int cmp = a.major() - b.major();
+        if(cmp == 0 && a.minor() > -1 && b.minor() > -1)
+          cmp = a.minor() - b.minor();
+        if(cmp == 0 && a.revision() > -1 && b.revision() > -1)
+          cmp = a.revision() - b.revision();
+        return cmp == 0;
+      }
+      protected int doHash(Version t) {
+        return t.hashCode();
+      }
+    };
+  }
+  
+  public static final Predicate<Version> equalOrGreater(
+    final Version version) {
+    return new Predicate<Version>() {
+      public boolean apply(Version input) {
+        int cmp = input.major() - version.major();
+        if(cmp == 0)
+          if(input.minor() > -1 && version.minor() > -1)
+            cmp = input.minor() - version.minor();
+          else
+            cmp = input.minor();
+        if(cmp == 0)
+          if(input.revision() > -1 && version.revision() > -1)
+            cmp = input.revision() - version.revision();
+          else
+            cmp = input.revision();
+        return cmp <= 0;
+      }
+    };
+  }
+  
+  public static final Comparator<Version> VERSION_COMPARATOR =
+    new Comparator<Version>() {
+      public int compare(Version v1, Version v2) {
+        int cmp = v1.major() - v2.major();
+        if(cmp == 0)
+          cmp = v1.minor() - v2.minor();
+        if(cmp == 0)
+          cmp = v1.revision() - v2.revision();
+        return cmp;
+      }
+  };
+
+  
+  public static final Version version(String value, String name, String uri) {
+    return new VersionImpl(value,name,uri,0,0,0,Version.Status.STABLE);
+  }
+  
+  public static final Version version(
+    String value, 
+    String name, 
+    String uri, 
+    int major, 
+    int minor, 
+    int revision,
+    Version.Status status) {
+    return new VersionImpl(
+      value,
+      name,
+      uri,
+      major,
+      minor,
+      revision,
+      status);
+  }
+  
+  private static class VersionImpl 
+    implements Version {
+
+      @Override
+    public int hashCode() {
+      return MoreFunctions.genHashCode(1,
+        major,minor,name,revision,uri,value,status);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      VersionImpl other = (VersionImpl) obj;
+      if (major != other.major)
+        return false;
+      if (minor != other.minor)
+        return false;
+      if (name == null) {
+        if (other.name != null)
+          return false;
+      } else if (!name.equals(other.name))
+        return false;
+      if (revision != other.revision)
+        return false;
+      if (uri == null) {
+        if (other.uri != null)
+          return false;
+      } else if (!uri.equals(other.uri))
+        return false;
+      if (value == null) {
+        if (other.value != null)
+          return false;
+      } else if (!value.equals(other.value))
+        return false;
+      if (status == null) {
+        if (other.status != null)
+          return false;
+      } else if (!status.equals(other.status))
+        return false;
+      return true;
+    }
+
+      private final String value;
+      private final String name;
+      private final String uri;
+      private final int major,minor,revision;
+      private final Version.Status status;
+      
+      VersionImpl(
+        String value, 
+        String name, 
+        String uri, 
+        int major, 
+        int minor, 
+        int revision,
+        Version.Status status) {
+        this.value = value;
+        this.name = name;
+        this.uri = uri;
+        this.major = major;
+        this.minor = minor;
+        this.revision = revision;
+        this.status = status;
+      }
+      
+      public Class<? extends Annotation> annotationType() {
+        return Version.class;
+      }
+
+      public String value() {
+        return value;
+      }
+
+      public String name() {
+        return name;
+      }
+
+      public String uri() {
+        return uri;
+      }
+
+      public int major() {
+        return major;
+      }
+
+      public int minor() {
+        return minor;
+      }
+
+      public int revision() {
+        return revision;
+      }
+
+      public Status status() {
+        return status;
+      }
+      
   }
 }

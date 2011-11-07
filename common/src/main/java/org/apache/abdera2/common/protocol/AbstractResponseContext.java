@@ -213,7 +213,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     public <T extends ResponseContext>T setContentType(String type, String charset) {
         if (type == null)
             return (T)removeHeader("Content-Type");
-        MimeType mimeType = MimeTypeHelper.create(type);
+        MimeType mimeType = MimeTypeHelper.unmodifiableMimeType(type);
         if (charset != null)
             mimeType.setParameter("charset", charset);
         return (T)setHeader("Content-Type", mimeType.toString());

@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import static com.google.common.base.Preconditions.*;
@@ -41,33 +43,37 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
       return (P)this;
     }
     
+    private static void checkMaxPoints(int points, int max) {
+      checkState(points <= max, "Maximum coordinates exceeded", max);
+    }
+    
     public <P extends Builder<X>>P maximumCoordinates(int max) {
       checkArgument(max > -1, "Maximum must not be negative");
       this.maxpoints = max;
-      checkState(coordinates.size() <= max, "Maximum coordinates exceeded", maxpoints);
+      checkMaxPoints(coordinates.size(),max);
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(Coordinate coordinate) {
-      checkState(maxpoints < 0 || coordinates.size()+1 <= maxpoints, "Maximum coordinates exceeded", maxpoints);
+      checkMaxPoints(coordinates.size()+1,maxpoints);
       this.coordinates.add(coordinate);
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(double latitude, double longitude) {
-      checkState(maxpoints < 0 || coordinates.size()+1 <= maxpoints, "Maximum coordinates exceeded", maxpoints);
+      checkMaxPoints(coordinates.size()+1,maxpoints);
       this.coordinates.add(Coordinate.at(latitude,longitude));
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(String position) {
-      checkState(maxpoints < 0 || coordinates.size()+1 <= maxpoints, "Maximum coordinates exceeded", maxpoints);
+      checkMaxPoints(coordinates.size()+1,maxpoints);
       this.coordinates.add(Coordinate.at(position));
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(IsoPosition position) {
-      checkState(maxpoints < 0 || coordinates.size()+1 <= maxpoints, "Maximum coordinates [%d] exceeded", maxpoints);
+      checkMaxPoints(coordinates.size()+1,maxpoints);
       this.coordinates.add(Coordinate.at(position));
       return (P)this;
     }
@@ -95,10 +101,7 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = super.hashCode();
-        result = PRIME * result + ((coordinates == null) ? 0 : coordinates.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(super.hashCode(),coordinates);
     }
 
     @Override
@@ -148,7 +151,7 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
             }
             return list;
         } catch (Throwable t) {
-            throw new RuntimeException("Error parsing coordinate pairs", t);
+          throw new RuntimeException("Error parsing coordinate pairs", t);
         }
     }
 }

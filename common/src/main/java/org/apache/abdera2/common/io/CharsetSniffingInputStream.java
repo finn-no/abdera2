@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Will attempt to autodetect the character encoding from the stream By default, this will preserve the BOM if it exists
+ * Will attempt to autodetect the character encoding from the stream by 
+ * looking for the Byte Order Mark. This is at most a best guess.
+ * By default, this will preserve the BOM if it exists
  */
 public class CharsetSniffingInputStream extends FilterInputStream {
 

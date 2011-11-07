@@ -19,6 +19,7 @@ package org.apache.abdera2.parser.axiom;
 
 import javax.xml.namespace.QName;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.model.Attribute;
 import org.apache.axiom.om.OMAttribute;
@@ -50,10 +51,7 @@ public class FOMAttribute implements Attribute {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((attr == null) ? 0 : attr.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, attr);
     }
 
     @Override

@@ -28,6 +28,8 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.MorePreconditions.*;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.templates.CachingContext;
 import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.anno.Name;
@@ -128,10 +130,7 @@ public final class ObjectContext extends CachingContext {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((target == null) ? 0 : target.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, target);
     }
 
     @Override

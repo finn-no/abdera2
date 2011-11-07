@@ -3,8 +3,8 @@ package org.apache.abdera2.common.http;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,15 +16,15 @@ import javax.activation.MimeType;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
-import org.apache.abdera2.common.text.CharUtils;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.Codec;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
-import static org.apache.abdera2.common.text.CharUtils.scanFor;
-import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
+import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.base.Preconditions.*;
 /**
  * Implements the HTTP Link Header
@@ -65,7 +65,7 @@ public class WebLink implements Serializable {
     private String title;
     private MimeType mediaType;
     private final Map<String,String> params = 
-      new HashMap<String,String>();
+      new LinkedHashMap<String,String>();
 
     public Builder () {}
     
@@ -144,7 +144,7 @@ public class WebLink implements Serializable {
     }
     
     public Builder param(String name, String value) {
-      checkNotNull(null);
+      checkNotNull(name);
       checkArgument(!reserved(name));
       this.params.put(name,value);
       return this;
@@ -156,37 +156,40 @@ public class WebLink implements Serializable {
     }
     
     public Builder mediaType(String type) {
-      this.mediaType = MimeTypeHelper.create(type);
+      this.mediaType = MimeTypeHelper.unmodifiableMimeType(type);
       return this;
     }
     
     public Builder mediaType(MimeType type) {
-      this.mediaType = type;
+      this.mediaType = MimeTypeHelper.unmodifiableMimeType(type);
       return this;
     }
   }
   
   private final IRI iri;
-  private final Set<String> rel = 
-    new LinkedHashSet<String>();
+  private final Set<String> rel;
   private IRI anchor;
-  private final Set<String> rev =
-    new LinkedHashSet<String>();
+  private final Set<String> rev;
   private Lang lang;
-  private final Set<String> media = 
-    new LinkedHashSet<String>();
+  private final Set<String> media;
   private String title;
   private MimeType mediaType;
   private final Map<String,String> params = 
-    new HashMap<String,String>();
+    new LinkedHashMap<String,String>();
   
   private WebLink(Builder builder) {
     this.iri = builder.iri;
-    this.rel.addAll(builder.rel);
+    this.rel = builder.rel != null ?
+      ImmutableSet.copyOf(builder.rel) :
+      ImmutableSet.<String>of();
+    this.rev = builder.rev != null ?
+      ImmutableSet.copyOf(builder.rev) :
+      ImmutableSet.<String>of();
+    this.media = builder.media != null ?
+      ImmutableSet.copyOf(builder.media) :
+      ImmutableSet.<String>of();
     this.anchor = builder.anchor;
-    this.rev.addAll(builder.rev);
     this.lang = builder.lang;
-    this.media.addAll(builder.media);
     this.title = builder.title;
     this.mediaType = builder.mediaType;
     this.params.putAll(builder.params);
@@ -203,7 +206,11 @@ public class WebLink implements Serializable {
   public WebLink(IRI iri, String rel) {
     checkNotNull(iri);
     this.iri = iri.normalize();
-    if (rel != null) this.rel.add(rel);
+    this.rel = rel != null ?
+      ImmutableSet.of(rel) :
+      ImmutableSet.<String>of();
+    this.rev = ImmutableSet.<String>of();
+    this.media = ImmutableSet.<String>of();
     this.anchor = null;
     this.lang = null;
     this.title = null;
@@ -217,6 +224,9 @@ public class WebLink implements Serializable {
     this.lang = null;
     this.title = null;
     this.mediaType = null;
+    this.rel = ImmutableSet.<String>of();
+    this.rev = ImmutableSet.<String>of();
+    this.media = ImmutableSet.<String>of();
   }
   
   public IRI getResolvedIri(IRI base) {
@@ -236,7 +246,7 @@ public class WebLink implements Serializable {
   }
   
   public Iterable<String> getRel() {
-    return Iterables.unmodifiableIterable(this.rel);
+    return this.rel;
   }
   
   public IRI getAnchor() {
@@ -244,7 +254,7 @@ public class WebLink implements Serializable {
   }
   
   public Iterable<String> getRev() {
-    return Iterables.unmodifiableIterable(this.rev);
+    return this.rev;
   }
   
   public Lang getHrefLang() {
@@ -252,7 +262,7 @@ public class WebLink implements Serializable {
   }
   
   public Iterable<String> getMedia() {
-    return Iterables.unmodifiableIterable(this.media);
+    return this.media;
   }
   
   public String getTitle() {
@@ -265,18 +275,10 @@ public class WebLink implements Serializable {
   
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((anchor == null) ? 0 : anchor.hashCode());
-    result = prime * result + ((iri == null) ? 0 : iri.hashCode());
-    result = prime * result + ((lang == null) ? 0 : lang.hashCode());
-    result = prime * result + ((media == null) ? 0 : media.hashCode());
-    result = prime * result + ((mediaType == null) ? 0 : mediaType.toString().hashCode());
-    result = prime * result + ((params == null) ? 0 : params.hashCode());
-    result = prime * result + ((rel == null) ? 0 : rel.hashCode());
-    result = prime * result + ((rev == null) ? 0 : rev.hashCode());
-    result = prime * result + ((title == null) ? 0 : title.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(
+      1, anchor,iri,lang,media,
+      mediaType,
+      params,rel,rev,title);
   }
 
   @Override
@@ -339,17 +341,10 @@ public class WebLink implements Serializable {
 
 
   private static final Set<String> reserved = 
-    new HashSet<String>();
-  static {
-    reserved.add("rel");
-    reserved.add("anchor");
-    reserved.add("rev");
-    reserved.add("hreflang");
-    reserved.add("media");
-    reserved.add("title");
-    reserved.add("type");
-    reserved.add("type");
-  }
+    new HashSet<String>(
+      ImmutableSet.of(
+        "rel","anchor","rev","hreflang",
+        "media","title","type"));
   private static boolean reserved(String name) {
     return reserved.contains(name);
   }
@@ -360,104 +355,45 @@ public class WebLink implements Serializable {
     return params.get(name);
   }
   
+  private void append(Set<String> set, String name, StringBuilder buf) {
+    if (set.size() > 0) {
+      buf.append(String.format(";%s=\"",name));
+      boolean first = true;
+      for (String r : set) {
+        first = appendcomma(first,buf);
+        buf.append(quotedIfNotToken(r,false));
+      }
+      buf.append('"');
+    }
+  }
+  
   public String toString() {
     StringBuilder buf = new StringBuilder();
     buf.append('<')
        .append(iri.toASCIIString())
        .append('>');
-    
-    if (rel.size() > 0) {
-      buf.append(';')
-         .append("rel=");
-      boolean first = true;
-      if (rel.size() > 1)
-        buf.append('"');
-      for (String r : rel) {
-        if (!first) buf.append(' ');
-        else first = false;
-        buf.append(quotedIfNotToken(r));
-      }
-      if (rel.size() > 1)
-        buf.append('"');
-    }
-    
-    if (anchor != null) {
-      buf.append(';')
-         .append("anchor=<")
-         .append(anchor.toASCIIString())
-         .append('>');
-    }
-    
-    if (rev.size() > 0) {
-      buf.append(';')
-         .append("rev=");
-      boolean first = true;
-      if (rev.size() > 1)
-        buf.append('"');
-      for (String r : rev) {
-        if (!first) buf.append(' ');
-        else first = false;
-        buf.append(quotedIfNotToken(r));
-      }
-      if (rev.size() > 1)
-        buf.append('"');
-    }
-    
-    if (lang != null) {
-      buf.append(';')
-         .append("hreflang=")
-         .append(lang.toString());
-    }
-    
-    if (media.size() > 0) {
-      buf.append(';')
-         .append("media=");
-      boolean first = true;
-      if (media.size() > 1)
-        buf.append('"');
-      for (String r : media) {
-        if (!first) buf.append(' ');
-        else first = false;
-        buf.append(quotedIfNotToken(r));
-      }
-      if (media.size() > 1)
-        buf.append('"');
-    }
-    
+    appendif(anchor != null,buf,";anchor=<%s>",anchor.toASCIIString());
+    appendif(lang != null,buf,";hreflang=%s",lang.toString());
+    appendif(mediaType != null,buf,";type=%s",quotedIfNotToken(mediaType.toString()));
+    append(rel,"rel",buf);
+    append(rev,"rev",buf);
+    append(media,"media",buf);
     if (title != null) {
       String enctitle = Codec.encode(title,Codec.STAR);
-      buf.append(';')
-         .append("title");
-      if (!title.equals(enctitle))
-        buf.append('*')
-           .append('=')
-           .append(enctitle);
-      else
-        buf.append('=')
-           .append(quotedIfNotToken(title));
+      boolean test = title.equals(enctitle);
+      buf.append(";title");
+      appendif(!test,buf,"*=%s",enctitle);
+      appendif(test,buf,"=%s",quotedIfNotToken(title));
     }
-    
-   if (mediaType != null) {
-     buf.append(';')
-        .append("type=")
-        .append(quotedIfNotToken(mediaType.toString()));
-   }
-   
-   for (Map.Entry<String, String> entry : params.entrySet()) {
-     String val = entry.getValue();
-     String encval = Codec.encode(val,Codec.STAR);
-     buf.append(';')
-        .append(entry.getKey());
-     if (!val.equals(encval)) {
-       buf.append('*')
-          .append('=')
-          .append(encval);
-     } else {
-       buf.append('=')
-          .append(quotedIfNotToken(entry.getValue()));
-     }
-   }
-    
+    for (Map.Entry<String, String> entry : params.entrySet()) {
+      String val = entry.getValue();
+      String encval = Codec.encode(val,Codec.STAR);
+      boolean test = val.equals(encval);
+      buf.append(';')
+         .append(entry.getKey());
+      appendif(!test,buf,"*=%s", encval);
+      appendif(test,buf,"=%s", quotedIfNotToken(entry.getValue()));
+    }
     return buf.toString();
   }
 
@@ -473,55 +409,46 @@ public class WebLink implements Serializable {
   
   public static Iterable<WebLink> parse(String text) {
     List<WebLink> links = new ArrayList<WebLink>();
-    if (text == null) return Collections.emptyList();
-    
+    if (text == null) return ImmutableList.<WebLink>of();
     int z = scanFor('<', text, 0, true);
-
     while(z != -1) {
       int s = z;
       int e = scanFor('>', text, s, false);
-      if (e == -1)
-        throw new IllegalArgumentException();
-      
+      checkArgument(e != -1);
       String uri = text.substring(s+1,e).trim();
       WebLink.Builder maker = WebLink.make().iri(uri);
-      
       s = scanFor(';', text,e+1,false);
       while(s != -1 && text.charAt(s) != ',') {
         e = scanFor('=', text,s+1,false);
         String name = text.substring(s+1,text.charAt(e-1)=='*'?e-1:e).trim();
         s = scanFor(';', text,e+1,false);
         String val = s!=-1?text.substring(e+1,s).trim():text.substring(e+1).trim();
-        val = Codec.decode(val);
-        if (name.equalsIgnoreCase("rel")) {
-          String[] vals = CharUtils.unquote(val).split("\\s+");
-          for (String v : vals)
+        val = Codec.decode(val).toLowerCase(Locale.US);
+        if (name.equals("rel"))
+          for (String v : unquote(val).split("\\s+"))
             maker.rel(v);
-        } else if (name.equalsIgnoreCase("anchor")) {
-          maker.anchor(CharUtils.unwrap(val, '<', '>'));
-        } else if (name.equalsIgnoreCase("rev")) {
-          String[] vals = CharUtils.unquote(val).split("\\s+");
-          for (String v : vals)
+        else if (name.equals("anchor"))
+          maker.anchor(unwrap(val, '<', '>'));
+        else if (name.equals("rev"))
+          for (String v : unquote(val).split("\\s+"))
             maker.rev(v);
-        } else if (name.equalsIgnoreCase("hreflang")) {
-          maker.lang(CharUtils.unquote(val));
-        } else if (name.equalsIgnoreCase("media")) {
-          String[] vals = CharUtils.unquote(val).split("\\s+");
-          for (String v : vals)
+        else if (name.equals("hreflang"))
+          maker.lang(unquote(val));
+        else if (name.equals("media"))
+          for (String v : unquote(val).split("\\s+"))
             maker.media(v);
-        } else if (name.equalsIgnoreCase("title")) {
-          maker.title(CharUtils.unquote(val));
-        } else if (name.equalsIgnoreCase("type")) {
-          maker.mediaType(CharUtils.unquote(val));
-        } else {
-          maker.param(name,CharUtils.unquote(val));
-        }
+        else if (name.equals("title"))
+          maker.title(unquote(val));
+        else if (name.equals("type"))
+          maker.mediaType(unquote(val));
+        else
+          maker.param(name,unquote(val));
       }
       links.add(maker.get());
       if (s == -1) break;
       z = scanFor('<', text, s+1, false);
     }
-    return links;
+    return ImmutableList.copyOf(links);
   }
     
   public static String toString(WebLink link, WebLink... links) {
@@ -537,8 +464,7 @@ public class WebLink implements Serializable {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (WebLink link : links) {
-      if (!first) buf.append(", ");
-      else first = !first;
+      first = appendcomma(first,buf);
       buf.append(link.toString());
     }
     return buf.toString();

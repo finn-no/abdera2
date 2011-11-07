@@ -20,6 +20,8 @@ package org.apache.abdera2.common.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 /**
  * Identifies the type of resource being requests.
  */
@@ -119,10 +121,7 @@ public final class TargetType {
     }
 
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, name);
     }
 
     public boolean equals(Object obj) {

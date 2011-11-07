@@ -18,17 +18,28 @@
 package org.apache.abdera2.common.http;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public final class CacheControl implements Serializable {
 
+  private static final Set<String> reserved = 
+    ImmutableSet.of(
+      "private","public","no-cache","no-store","no-transform","only-if-cached",
+      "must-revalidate", "proxy-revalidate", "max-age", "max-stale", "min-fresh",
+      "stale-if-error", "stale-while-revalidate");
+  
   public static Builder make() {
     return new Builder();
   }
@@ -40,16 +51,17 @@ public final class CacheControl implements Serializable {
   public static class Builder implements Supplier<CacheControl> {
 
     protected int flags = 0;
-    protected String[] nocache_headers = {},
-                       private_headers = {};
+    protected Iterable<String>
+      nocache_headers,
+      private_headers;
     protected long max_age = -1,
                    max_stale = -1,
                    min_fresh = -1,
                    smax_age = -1,
                    staleiferror = -1,
                    stalewhilerevalidate = -1;
-    protected final HashMap<String,Object> exts =
-      new HashMap<String,Object>();
+    protected final Map<String,Object> exts =
+      new LinkedHashMap<String,Object>();
     
     public Builder() {
       defaults();
@@ -94,13 +106,31 @@ public final class CacheControl implements Serializable {
       return new CacheControl(this);
     }
     
+    private void checkReserved(String name) {
+      checkNotNull(name);
+      checkArgument(!reserved.contains(name.toLowerCase()), "Reserved directive", name);
+    }
+    
     public Builder extensions(Map<String,Object> exts) {
-      this.exts.putAll(exts);
+      for (Map.Entry<String, Object> entry : exts.entrySet()) {
+        String name = entry.getKey().toLowerCase(Locale.US);
+        checkReserved(name);
+        exts.put(
+          name, 
+          entry.getValue());
+      }
       return this;
     }
     
     public Builder extension(String name, Object value) {
-      exts.put(name,value);
+      checkReserved(name);
+      exts.put(name.toLowerCase(Locale.US),value);
+      return this;
+    }
+    
+    public Builder extension(String name) {
+      checkReserved(name);
+      exts.put(name.toLowerCase(Locale.US),null);
       return this;
     }
     
@@ -119,28 +149,58 @@ public final class CacheControl implements Serializable {
       return this;
     }
 
+    public Builder mustRevalidate() {
+      toggle(true,REVALIDATE);
+      return this;
+    }
+    
     public Builder mustRevalidate(boolean val) {
       toggle(val,REVALIDATE);
       return this;
     }
 
+    public Builder proxyRevalidate() {
+      toggle(true,PROXYREVALIDATE);
+      return this;
+    }
+    
     public Builder proxyRevalidate(boolean val) {
       toggle(val,PROXYREVALIDATE);
       return this;
     }
 
+    public Builder noCache() {
+      toggle(true,NOCACHE);
+      return this;
+    }
+    
     public Builder noCache(boolean val) {
       toggle(val,NOCACHE);
       return this;
     }
 
+    public Builder noStore() {
+      toggle(true,NOSTORE);
+      return this;
+    }
+    
     public Builder noStore(boolean val) {
       toggle(val,NOSTORE);
       return this;
     }
 
+    public Builder noTransform() {
+      toggle(true,NOTRANSFORM);
+      return this;
+    }
+    
     public Builder noTransform(boolean val) {
       toggle(val,NOTRANSFORM);
+      return this;
+    }
+    
+    public Builder isPublic() {
+      toggle(true,PUBLIC);
       return this;
     }
     
@@ -149,18 +209,25 @@ public final class CacheControl implements Serializable {
       return this;
     }
 
+    public Builder isPrivate() {
+      toggle(true,PRIVATE);
+      return this;
+    }
+    
     public Builder isPrivate(boolean val) {
       toggle(val,PRIVATE);
       return this;
     }
 
     public Builder privateHeaders(String... headers) {
-      this.private_headers = headers;
+      this.private_headers = ImmutableSet.copyOf(headers);
+      if (headers.length > 0) isPrivate();
       return this;
     }
 
     public Builder noCacheHeaders(String... headers) {
-      this.nocache_headers = headers;
+      this.nocache_headers = ImmutableSet.copyOf(headers);
+      if (headers.length > 0) noCache();
       return this;
     }
 
@@ -174,16 +241,19 @@ public final class CacheControl implements Serializable {
       return this;
     }
     
+    public Builder onlyIfCached() {
+      toggle(true,ONLYIFCACHED);
+      return this;
+    }
+    
     public Builder onlyIfCached(boolean val) {
       toggle(val,ONLYIFCACHED);
       return this;
     }
     
     private void toggle(boolean val, int flag) {
-      if (val)
-          flags |= flag;
-      else
-          flags &= ~flag;
+      if (val) flags |= flag;
+      else flags &= ~flag;
     }
   
   }
@@ -209,21 +279,28 @@ public final class CacheControl implements Serializable {
                           PROXYREVALIDATE = 64,
                           ONLYIFCACHED = 128;
   protected final int flags;
-  protected final String[] nocache_headers,
-                     private_headers;
+  protected final Iterable<String> 
+    nocache_headers,
+    private_headers;
   protected final long max_age,
                  max_stale,
                  min_fresh,
                  smax_age,
                  staleiferror,
                  stalewhilerevalidate;
-  protected HashMap<String,Object> exts =
-    new HashMap<String,Object>();
+  protected final Map<String,Object> exts =
+    new LinkedHashMap<String,Object>();
   
   private CacheControl(Builder builder) {
     this.flags = builder.flags;
-    this.nocache_headers = builder.nocache_headers;
-    this.private_headers = builder.private_headers;
+    this.nocache_headers = 
+      builder.nocache_headers != null ?
+        builder.nocache_headers : 
+        ImmutableSet.<String>of();
+    this.private_headers = 
+      builder.private_headers != null ?
+        builder.private_headers : 
+        ImmutableSet.<String>of();
     this.max_age = builder.max_age;
     this.max_stale = builder.max_stale;
     this.min_fresh = builder.min_fresh;
@@ -262,11 +339,15 @@ public final class CacheControl implements Serializable {
   }
   
   public Iterable<String> getNoCacheHeaders() {
-    return isNoCache() ? Arrays.asList(nocache_headers) : Collections.<String>emptySet();
+    return isNoCache() ? 
+      nocache_headers : 
+      ImmutableSet.<String>of();
   }
 
   public Iterable<String> getPrivateHeaders() {
-    return isPrivate() ? Arrays.asList(private_headers) : Collections.<String>emptySet();
+    return isPrivate() ? 
+      private_headers : 
+      ImmutableSet.<String>of();
   }
 
   public long getSMaxAge() {
@@ -315,19 +396,16 @@ public final class CacheControl implements Serializable {
   
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + flags;
-    result = prime * result + (int) (max_age ^ (max_age >>> 32));
-    result = prime * result + (int) (max_stale ^ (max_stale >>> 32));
-    result = prime * result + (int) (min_fresh ^ (min_fresh >>> 32));
-    result = prime * result + Arrays.hashCode(nocache_headers);
-    result = prime * result + Arrays.hashCode(private_headers);
-    result = prime * result + (int) (smax_age ^ (smax_age >>> 32));
-    result = prime * result + (int) (staleiferror ^ (staleiferror >>> 32));
-    result = prime * result
-        + (int) (stalewhilerevalidate ^ (stalewhilerevalidate >>> 32));
-    return result;
+    return MoreFunctions.genHashCode(
+      1, flags, 
+      max_age,
+      max_stale,
+      min_fresh,
+      nocache_headers,
+      private_headers,
+      smax_age,
+      staleiferror,
+      stalewhilerevalidate);
   }
 
   @Override
@@ -347,9 +425,9 @@ public final class CacheControl implements Serializable {
       return false;
     if (min_fresh != other.min_fresh)
       return false;
-    if (!Arrays.equals(nocache_headers, other.nocache_headers))
+    if (!Iterables.elementsEqual(nocache_headers, other.nocache_headers))
       return false;
-    if (!Arrays.equals(private_headers, other.private_headers))
+    if (!Iterables.elementsEqual(private_headers, other.private_headers))
       return false;
     if (smax_age != other.smax_age)
       return false;

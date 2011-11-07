@@ -20,6 +20,7 @@ package org.apache.abdera2.ext.features;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.ext.features.FeaturesHelper.Status;
@@ -59,10 +60,7 @@ implements Selector<Collection> {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((features == null) ? 0 : features.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, features);
     }
 
     @Override

@@ -19,6 +19,8 @@ package org.apache.abdera2.common.geo;
 
 import java.io.Serializable;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Supplier;
 
 public abstract class Position 
@@ -102,19 +104,13 @@ public abstract class Position
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        // int result = super.hashCode();
-        int result = this.getClass().hashCode();
-        result = PRIME * result + ((elevation == null) ? 0 : elevation.hashCode());
-        result =
-            PRIME * result
-                + ((featureTypeTag == null) ? DEFAULT_FEATURE_TYPE_TAG.hashCode() : featureTypeTag.hashCode());
-        result = PRIME * result + ((floor == null) ? 0 : floor.hashCode());
-        result = PRIME * result + ((radius == null) ? 0 : radius.hashCode());
-        result =
-            PRIME * result
-                + ((relationshipTag == null) ? DEFAULT_RELATIONSHIP_TAG.hashCode() : relationshipTag.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(
+        getClass().hashCode(),
+        elevation,
+        featureTypeTag == null ? DEFAULT_FEATURE_TYPE_TAG : featureTypeTag,
+        floor, radius, 
+        relationshipTag == null ? DEFAULT_RELATIONSHIP_TAG : relationshipTag
+        );
     }
 
     @Override

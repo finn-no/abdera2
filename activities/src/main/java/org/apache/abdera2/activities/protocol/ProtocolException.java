@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.activities.protocol;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 public class ProtocolException extends RuntimeException {
 
     private static final long serialVersionUID = 1017447143200419489L;
@@ -40,13 +42,9 @@ public class ProtocolException extends RuntimeException {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        String message = error != null ? error.getDisplayName() : null;
-        int code = error != null ? error.getCode() : 0;
-        result = prime * result + ((message == null) ? 0 : message.hashCode());
-        result = prime * result + code;
-        return result;
+      String message = error != null ? error.getDisplayName() : null;
+      int code = error != null ? error.getCode() : 0;
+      return MoreFunctions.genHashCode(1,message,code);
     }
 
     @Override

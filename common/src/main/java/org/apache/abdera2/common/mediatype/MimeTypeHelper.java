@@ -27,10 +27,14 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 
 import org.apache.abdera2.common.Constants;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 
 import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+
+import static org.apache.abdera2.common.misc.Comparisons.*;
+import static org.apache.abdera2.common.text.CharUtils.not_empty;
 
 /**
  * Utilities for working with MIME Media Types
@@ -39,7 +43,10 @@ public final class MimeTypeHelper {
 
     private MimeTypeHelper() {}
   
-    private static final MimeType WILDCARD = createWildcard();
+    public static final MimeType WILDCARD = createWildcard();
+    public static final MimeType ATOM = unmodifiableMimeType(Constants.ATOM_MEDIA_TYPE);
+    public static final MimeType ENTRY = unmodifiableMimeType(Constants.ENTRY_MEDIA_TYPE);
+    public static final MimeType FEED = unmodifiableMimeType(Constants.FEED_MEDIA_TYPE);
 
     public static String getCharset(String mediatype) {
         try {
@@ -59,11 +66,7 @@ public final class MimeTypeHelper {
     }
 
     private static MimeType createWildcard() {
-        try {
-            return new MimeType("*/*");
-        } catch (Exception e) {
-            return null; // Won't happen
-        }
+      return unmodifiableMimeType("*/*");
     }
 
     public static Predicate<String> isMatch(final String a) {
@@ -94,16 +97,11 @@ public final class MimeTypeHelper {
      * Returns true if media type a matches media type b
      */
     public static boolean isMatch(String a, String b) {
-        if ((a == null || a.length() == 0) && (b == null || b.length() == 0))
-            return true;
-        boolean answer = false;
-        try {
-            MimeType mta = new MimeType(a.toLowerCase());
-            MimeType mtb = new MimeType(b.toLowerCase());
-            return isMatch(mta, mtb);
-        } catch (Exception e) {
-        }
-        return answer;
+        if (bothAreEmpty(a, b)) return true;
+        if (onlyOneIsNull(a, b)) return false;
+        return isMatch(
+          unmodifiableMimeType(a.toLowerCase()), 
+          unmodifiableMimeType(b.toLowerCase()));
     }
 
     public static boolean isMatch(MimeType a, MimeType b) {
@@ -114,48 +112,34 @@ public final class MimeTypeHelper {
      * Returns true if media type a matches media type b
      */
     public static boolean isMatch(MimeType a, MimeType b, boolean includeparams) {
-        try {
-            if (a == null || b == null)
-                return true;
-            if (a.match(b)) {
-                if (includeparams) {
-                    MimeTypeParameterList aparams = a.getParameters();
-                    MimeTypeParameterList bparams = b.getParameters();
-                    if (aparams.isEmpty() && bparams.isEmpty())
-                        return true;
-                    if (aparams.isEmpty() && !bparams.isEmpty())
-                        return false;
-                    if (!aparams.isEmpty() && bparams.isEmpty())
-                        return false;
-                    boolean answer = true;
-                    for (Enumeration<?> e = aparams.getNames(); e.hasMoreElements();) {
-                        String aname = (String)e.nextElement();
-                        String avalue = aparams.get(aname);
-                        String bvalue = bparams.get(aname);
-                        if (avalue.equals(bvalue))
-                            answer = true;
-                        else {
-                            answer = false;
-                            break;
-                        }
-                    }
-                    return answer;
-                } else
-                    return true;
-            }
-            if (a.equals(WILDCARD))
-                return true;
-            if (a.getPrimaryType().equals("*")) {
-                MimeType c = new MimeType(b.getPrimaryType(), a.getSubType());
-                return isMatch(c, b);
-            }
-            if (b.getPrimaryType().equals("*")) {
-                MimeType c = new MimeType(a.getPrimaryType(), b.getSubType());
-                return isMatch(a, c);
-            }
-        } catch (Exception e) {
-        }
-        return false;
+      if (bothAreNull(a,b))
+          return true;
+      if (a.match(b))
+        if (includeparams) {
+          MimeTypeParameterList aparams = a.getParameters();
+          MimeTypeParameterList bparams = b.getParameters();
+          if (bothAreTrue(aparams.isEmpty(),bparams.isEmpty()))
+              return true;
+          if (onlyOneIsTrue(aparams.isEmpty(),bparams.isEmpty()))
+              return false;
+          for (Enumeration<?> e = aparams.getNames(); e.hasMoreElements();) {
+            String aname = (String)e.nextElement();
+            String avalue = aparams.get(aname);
+            String bvalue = bparams.get(aname);
+            if (!avalue.equals(bvalue))
+              return false;
+          }
+          return true;
+        } else
+            return true;
+      if (a.equals(WILDCARD))
+          return true;
+      if (a.getPrimaryType().equals("*"))
+        return isMatch(unmodifiableMimeType(b.getPrimaryType() + "/" + a.getSubType()), b);
+      if (b.getPrimaryType().equals("*"))
+        return isMatch(a, unmodifiableMimeType(a.getPrimaryType() + "/" + b.getSubType()));
+
+      return false;
     }
 
     private static boolean isMatchType(String actual, String expected) {
@@ -240,9 +224,9 @@ public final class MimeTypeHelper {
     public static boolean isEntry(String a) {
         try {
             MimeType mta = new MimeType(a.toLowerCase());
-            MimeType mtb = new MimeType(Constants.ATOM_MEDIA_TYPE);
-            MimeType mtc = new MimeType(Constants.ENTRY_MEDIA_TYPE);
-            return isMatch(mta, mtc) || (isMatch(mta, mtb) && isMatchType(mta.getParameter("type"), "entry"));
+            return isMatch(mta, ENTRY) || 
+                  (isMatch(mta, ATOM) && 
+                   isMatchType(mta.getParameter("type"), "entry"));
         } catch (Exception e) {
         }
         return false;
@@ -254,9 +238,9 @@ public final class MimeTypeHelper {
     public static boolean isFeed(String a) {
         try {
             MimeType mta = new MimeType(a.toLowerCase());
-            MimeType mtb = new MimeType(Constants.ATOM_MEDIA_TYPE);
-            MimeType mtc = new MimeType(Constants.FEED_MEDIA_TYPE);
-            return isMatch(mta, mtc) || (isMatch(mta, mtb) && isMatchType(mta.getParameter("type"), "feed"));
+            return isMatch(mta, FEED) || 
+                  (isMatch(mta, ATOM) && 
+                   isMatchType(mta.getParameter("type"), "feed"));
         } catch (Exception e) {
         }
         return false;
@@ -271,8 +255,10 @@ public final class MimeTypeHelper {
             try {
                 MimeType mta = new MimeType(a);
                 answer =
-                    (("application".equalsIgnoreCase(mta.getPrimaryType()) || "text".equalsIgnoreCase(mta
-                        .getPrimaryType())) && mta.getSubType().equals("xml") || mta.getSubType().endsWith("+xml"));
+                    (("application".equalsIgnoreCase(mta.getPrimaryType()) ||
+                      "text".equalsIgnoreCase(mta.getPrimaryType())) && 
+                      mta.getSubType().equals("xml") || 
+                      mta.getSubType().endsWith("+xml"));
             } catch (Exception e) {
             }
         }
@@ -405,8 +391,56 @@ public final class MimeTypeHelper {
     public static final Function<String,MimeType> parser = 
       new Function<String,MimeType>() {
         public MimeType apply(String input) {
-          return input != null ? MimeTypeHelper.create(input) : null;
+          return input != null ? unmodifiableMimeType(input) : null;
         }
       
     };
+    
+  public static MimeType unmodifiableMimeType(String mimeType) {
+    try {
+      return new UnmodifiableMimeType(mimeType);
+    } catch (javax.activation.MimeTypeParseException t) {
+      throw ExceptionHelper.propogate(t);
+    }
+  }
+
+  public static MimeType unmodifiableMimeType(MimeType mimeType) {
+    try {
+      return mimeType instanceof UnmodifiableMimeType ?
+        mimeType :
+        new UnmodifiableMimeType(mimeType.toString());
+    } catch (javax.activation.MimeTypeParseException t) {
+      throw ExceptionHelper.propogate(t);
+    }
+  }
+  
+    
+  public static class UnmodifiableMimeType extends MimeType {
+    public UnmodifiableMimeType() {
+      super();
+    }
+    public UnmodifiableMimeType(String primary, String sub)
+        throws javax.activation.MimeTypeParseException {
+      super(primary, sub);
+    }
+    public UnmodifiableMimeType(String rawdata)
+        throws javax.activation.MimeTypeParseException {
+      super(rawdata);
+    }
+    public void setPrimaryType(String primary)
+        throws javax.activation.MimeTypeParseException {
+      throw new UnsupportedOperationException();
+    }
+    public void setSubType(String sub)
+        throws javax.activation.MimeTypeParseException {
+      throw new UnsupportedOperationException();
+    }
+    public void setParameter(String name, String value) {
+      throw new UnsupportedOperationException();
+    }
+    public void removeParameter(String name) {
+      throw new UnsupportedOperationException();
+    }
+    
+  }
 }

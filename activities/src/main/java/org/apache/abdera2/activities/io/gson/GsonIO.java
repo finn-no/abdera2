@@ -85,6 +85,7 @@ public class GsonIO extends IO {
     gb.registerTypeHierarchyAdapter(Lang.class, new LangAdapter());
     gb.registerTypeHierarchyAdapter(ASBase.class,  asbs);  
     gb.registerTypeHierarchyAdapter(Multimap.class, new MultimapAdapter());
+    gb.registerTypeHierarchyAdapter(MimeType.class, new MimeTypeAdapter());
     gb.registerTypeAdapter(ASBase.class, asbs);
     gb.registerTypeAdapter(Date.class, new DateAdapter());
     gb.registerTypeAdapter(DateTime.class, new DateTimeAdapter());

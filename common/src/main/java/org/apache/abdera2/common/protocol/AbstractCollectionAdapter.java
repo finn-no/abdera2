@@ -25,6 +25,7 @@ import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
@@ -59,11 +60,7 @@ public abstract class AbstractCollectionAdapter
         this.method = method.toUpperCase();
       }
       public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
-        result = prime * result + ((type == null) ? 0 : type.hashCode());
-        return result;
+        return MoreFunctions.genHashCode(1, method,type);
       }
       public boolean equals(Object obj) {
         if (this == obj)

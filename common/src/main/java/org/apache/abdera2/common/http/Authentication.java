@@ -31,8 +31,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.CharUtils.Profile;
 import org.apache.abdera2.common.text.Codec;
+
+import static org.apache.abdera2.common.text.CharUtils.appendcomma;
 import static org.apache.abdera2.common.text.CharUtils.unquote;
 import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
 import static org.apache.abdera2.common.text.CharUtils.quoted;
@@ -41,6 +44,8 @@ import org.apache.commons.codec.binary.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
 
 /**
  * Implementation of the HTTP Challenge/Credentials Construct. This is helpful when 
@@ -66,15 +71,13 @@ public class Authentication implements Iterable<String>, Serializable {
     Pattern.compile("("+PARAM+")");
   
   private final static Set<String> ALWAYS = 
-    new HashSet<String>();
-  static {
-      alwaysQuote(
+    new HashSet<String>(
+      ImmutableSet.of(
         "domain",
         "nonce",
         "opaque",
         "qop",
-        "realm");
-  }
+        "realm"));
   
   public static synchronized void alwaysQuote(String... names) {
     checkNotNull(names);
@@ -124,9 +127,9 @@ public class Authentication implements Iterable<String>, Serializable {
     implements Supplier<Authentication> {
     private String scheme;
     private String b64token;
-    private Map<String,String> params = 
+    private final Map<String,String> params = 
       new LinkedHashMap<String,String>();
-    private Set<String> quoted = 
+    private final Set<String> quoted = 
       new HashSet<String>();
     
     public Authentication get() {
@@ -171,8 +174,7 @@ public class Authentication implements Iterable<String>, Serializable {
   private final String b64token;
   private final Map<String,String> params = 
     new LinkedHashMap<String,String>();
-  private final Set<String> quoted = 
-    new HashSet<String>();
+  private final Set<String> quoted;
     
   public Authentication(String scheme) {
     this(scheme,null);
@@ -182,13 +184,14 @@ public class Authentication implements Iterable<String>, Serializable {
     checkNotNull(scheme);
     this.scheme = scheme.toLowerCase(Locale.US);
     this.b64token = b64token;
+    this.quoted = ImmutableSet.<String>of();
   }
   
   private Authentication(Builder builder) {
     this.scheme = builder.scheme;
     this.b64token = builder.b64token;
     this.params.putAll(builder.params);
-    this.quoted.addAll(builder.quoted);
+    this.quoted = ImmutableSet.copyOf(builder.quoted);
   }
   
   public String getScheme() {
@@ -212,7 +215,7 @@ public class Authentication implements Iterable<String>, Serializable {
   }
   
   public Iterator<String> iterator() {
-    return params.keySet().iterator();
+    return Iterators.unmodifiableIterator(params.keySet().iterator());
   }
   
   private boolean isquoted(String param) {
@@ -228,9 +231,7 @@ public class Authentication implements Iterable<String>, Serializable {
     else {
       boolean first = true;
       for (String param : this) {
-        if (!first) {
-          buf.append(',').append(' ');
-        } else first = false;
+        first = appendcomma(first,buf);
         String val = getParam(param);
         buf.append(param);
         boolean always = is_always_quoted(param) || isquoted(param);
@@ -248,12 +249,7 @@ public class Authentication implements Iterable<String>, Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((b64token == null) ? 0 : b64token.hashCode());
-    result = prime * result + ((params == null) ? 0 : params.hashCode());
-    result = prime * result + ((scheme == null) ? 0 : scheme.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1,b64token,params,scheme);
   }
 
   @Override
@@ -284,11 +280,11 @@ public class Authentication implements Iterable<String>, Serializable {
   }
   
   public static Authentication basic(String userid, String password) {
-    String b64token = 
+    return new Authentication(
+      BASIC, 
       StringUtils.newStringUsAscii(
         Base64.encodeBase64(
-          bytes(userid,":",password)));
-    return new Authentication(BASIC, b64token);
+          bytes(userid,":",password))));
   }
   
   private static byte[] bytes(String val, String... vals) {
@@ -316,8 +312,7 @@ public class Authentication implements Iterable<String>, Serializable {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Authentication auth : auths) {
-      if (!first) buf.append(", ");
-      else first = !first;
+      first = appendcomma(first,buf);
       buf.append(auth.toString());
     }
     return buf.toString();

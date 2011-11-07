@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
@@ -112,11 +115,7 @@ public class RegexTargetResolver<R extends RequestContext>
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((fields == null) ? 0 : fields.hashCode());
-        result = prime * result + ((patterns == null) ? 0 : patterns.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, fields,patterns);
     }
 
     @SuppressWarnings("unchecked")
@@ -185,15 +184,9 @@ public class RegexTargetResolver<R extends RequestContext>
 
         @Override
         public int hashCode() {
-            final int PRIME = 31;
-            int result = 1;
-            String m = matcher.group(0);
-            String p = matcher.pattern().pattern();
-            result = PRIME * result + super.hashCode();
-            result = PRIME * result + ((m == null) ? 0 : m.hashCode());
-            result = PRIME * result + ((p == null) ? 0 : p.hashCode());
-            result = PRIME * result + ((type == null) ? 0 : type.hashCode());
-            return result;
+          String m = matcher.group(0);
+          String p = matcher.pattern().pattern();
+          return MoreFunctions.genHashCode(1, m,p,type);
         }
 
         @Override

@@ -34,9 +34,13 @@ import org.apache.abdera2.activities.model.Generator.Copyable;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.mediatype.MimeTypeParseException;
+import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 
 import static com.google.common.base.Preconditions.*;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 
@@ -109,16 +113,13 @@ public class ASBase
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((exts == null) ? 0 : exts.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1,exts);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
-      return true;
+      return true;    
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
@@ -151,7 +152,7 @@ public class ASBase
       t.base = base;      
       return type.cast(t);
     } catch (Throwable t) {
-      throw new RuntimeException(t);
+      throw ExceptionHelper.propogate(t);
     }
   }
   
@@ -233,15 +234,11 @@ public class ASBase
   }
   
   public void setContentType(String mimeType) {
-    try {
-      this.contentType = new MimeType(mimeType);
-    } catch (javax.activation.MimeTypeParseException t) {
-      throw new MimeTypeParseException(t);
-    }
+    this.contentType = MimeTypeHelper.unmodifiableMimeType(mimeType);
   }
   
   public void setContentType(MimeType mimeType) {
-    this.contentType = mimeType;
+    this.contentType = MimeTypeHelper.unmodifiableMimeType(mimeType);
   }
   
   public DateTime getLastModified() {

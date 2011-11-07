@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.BasicCollectionInfo;
@@ -69,10 +70,7 @@ public class SimpleCollectionInfo
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((catinfos == null) ? 0 : catinfos.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(super.hashCode(), catinfos);
     }
 
     @Override
@@ -93,14 +91,13 @@ public class SimpleCollectionInfo
     }
 
     public Collection asCollectionElement(RequestContext request) {
-        Collection collection = AbstractAtompubProvider.getAbdera(request).getFactory().newCollection();
-        collection.setHref(getHref(request));
-        collection.setTitle(getTitle(request));
-        collection.setAccept(getAccepts(request));
-        for (AtompubCategoriesInfo catsinfo : this.catinfos) {
-            collection.addCategories(catsinfo.asCategoriesElement(request));
-        }
-        return collection;
+      Collection collection = AbstractAtompubProvider.getAbdera(request).getFactory().newCollection();
+      collection.setHref(getHref(request));
+      collection.setTitle(getTitle(request));
+      collection.setAccept(getAccepts(request));
+      for (AtompubCategoriesInfo catsinfo : this.catinfos)
+        collection.addCategories(catsinfo.asCategoriesElement(request));
+      return collection;
     }
 
 }

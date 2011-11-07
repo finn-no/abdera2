@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.AbstractResponseContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,11 +80,7 @@ public class ActivitiesResponseContext<T extends ASBase>
   }
 
   public MimeType getContentType() {
-    try {
-      return new MimeType("application/json");
-    } catch (Throwable t) {
-      throw new RuntimeException(t); // won't happen
-    }
+    return MimeTypeHelper.unmodifiableMimeType("application/json");
   }
 
   public long getContentLength() {

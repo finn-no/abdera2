@@ -20,6 +20,8 @@ package org.apache.abdera2.activities.model;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 /**
  * Activity Verbs... contains the core set of verbs and allows the creation
  * of new verbs on the fly.
@@ -99,10 +101,7 @@ public abstract class Verb {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1,name);
   }
 
   @Override

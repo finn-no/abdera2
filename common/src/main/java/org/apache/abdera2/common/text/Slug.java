@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.common.text;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.CharUtils.Profile;
 
 import com.google.common.base.Function;
@@ -109,10 +110,7 @@ public class Slug {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((slug == null) ? 0 : slug.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(1, slug);
     }
 
     @Override

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.ext.serializer.annotation.Convention;
 
 public abstract class AbstractConventions implements Conventions, Cloneable, Serializable {
@@ -80,11 +81,7 @@ public abstract class AbstractConventions implements Conventions, Cloneable, Ser
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((conventions == null) ? 0 : conventions.hashCode());
-        result = PRIME * result + (isCaseSensitive ? 1231 : 1237);
-        return result;
+      return MoreFunctions.genHashCode(1, conventions, isCaseSensitive);
     }
 
     @Override

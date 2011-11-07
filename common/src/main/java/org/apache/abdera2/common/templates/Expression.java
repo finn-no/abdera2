@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.Expression;
 import org.apache.abdera2.common.templates.Operation;
@@ -55,12 +56,7 @@ public class Expression
   
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((EXP == null) ? 0 : EXP.hashCode());
-    result = prime * result + ((op == null) ? 0 : op.hashCode());
-    result = prime * result + ((varspecs == null) ? 0 : varspecs.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(1, EXP,op,varspecs);
   }
 
   @Override
@@ -160,12 +156,7 @@ public class Expression
     }
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (explode ? 1231 : 1237);
-      result = prime * result + length;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(1, explode, length, name);
     }
     @Override
     public boolean equals(Object obj) {

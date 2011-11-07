@@ -187,16 +187,12 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
 
     public Collection addAccepts(String... mediaRanges) {
         complete();
-        if (mediaRanges != null) {
-            for (String type : mediaRanges) {
-                if (!accepts(type)) {
-                    try {
-                        addSimpleExtension(ACCEPT, new MimeType(type).toString());
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        }
+        if (mediaRanges != null) 
+          for (String type : mediaRanges)
+            if (!accepts(type))
+              addSimpleExtension(
+                ACCEPT, 
+                MimeTypeHelper.unmodifiableMimeType(type).toString());
         return this;
     }
 

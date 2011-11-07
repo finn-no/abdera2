@@ -20,6 +20,7 @@ package org.apache.abdera2.common.anno;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -29,6 +30,7 @@ import java.lang.annotation.Target;
  * be automatically mapped to URI Template variable names. Alternative varnames can be specified for each field/getter
  * using the VarName annotation
  */
+@Documented
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface URIRoute {

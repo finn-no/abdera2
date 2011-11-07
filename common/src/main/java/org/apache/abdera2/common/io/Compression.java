@@ -25,9 +25,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import org.apache.abdera2.common.text.CharUtils;
-
+import static org.apache.abdera2.common.text.CharUtils.splitAndTrim;
 import static com.google.common.base.Preconditions.*;
+
 public class Compression {
 
     public enum CompressionCodec {
@@ -73,12 +73,16 @@ public class Compression {
         return codec;
     }
 
+    private static void checkCodecs(boolean exp) {
+      checkArgument(exp, "At least one codec must be specified");
+    }
+    
     public static OutputStream wrap(
         OutputStream out, 
         CompressionCodec... codecs)
         throws IOException {
       checkNotNull(out);
-      checkArgument(codecs.length > 0, "At least one codec must be specified");
+      checkCodecs(codecs.length > 0);
       for (int n = codecs.length - 1; n >= 0; n--)
         out = codecs[n].wrap(out);
       return out;      
@@ -90,19 +94,16 @@ public class Compression {
         CompressionCodec... codecs)
         throws IOException {
         checkNotNull(out);
-        checkArgument(codec != null, "At least one codec must be specified");
-        for (int n = codecs.length - 1; n >= 0; n--)
-          out = codecs[n].wrap(out);
-        out = codec.wrap(out);
-        return out;
+        checkCodecs(codec != null);
+        return codec.wrap(wrap(out,codecs));
     }
 
     public static InputStream wrap(
       InputStream in, 
       CompressionCodec... codecs)
-    throws IOException {
+      throws IOException {
       checkNotNull(in);
-      checkArgument(codecs.length > 0, "At least one codec must be specified");
+      checkCodecs(codecs.length > 0);
       for (int n = codecs.length - 1; n >= 0; n--)
         in = codecs[n].wrap(in);
       return in;
@@ -114,11 +115,8 @@ public class Compression {
         CompressionCodec... codecs) 
           throws IOException {  
         checkNotNull(in);
-        checkArgument(codec != null, "At least one codec must be specified");
-        for (int n = codecs.length - 1; n >= 0; n--)
-          in = codecs[n].wrap(in);
-        in = codec.wrap(in);
-        return in;
+        checkCodecs(codec != null);
+        return codec.wrap(wrap(in,codecs));
     }
 
     public static InputStream wrap(
@@ -126,13 +124,13 @@ public class Compression {
         String ce) 
           throws IOException {
         checkNotNull(in);
-        String[] encodings = CharUtils.splitAndTrim(ce);
-        checkArgument(encodings.length > 0, "At least one codec must be specified");
+        String[] encodings = splitAndTrim(ce);
+        checkCodecs(encodings.length > 0);
         for (int n = encodings.length - 1; n >= 0; n--) {
-            CompressionCodec encoding = 
-              getCodec(encodings[n]);
-            checkNotNull(encoding,"Invalid Compression Codec");
-            in = encoding.wrap(in);
+          CompressionCodec encoding = 
+            getCodec(encodings[n]);
+          checkNotNull(encoding,"Invalid Compression Codec");
+          in = encoding.wrap(in);
         }
         return in;
     }
@@ -140,7 +138,7 @@ public class Compression {
     public static String describe(
         CompressionCodec codec, 
         CompressionCodec... codecs) {
-        checkArgument(codec != null || codecs.length > 0, "At least one codec must be specified");
+        checkCodecs(codec != null || codecs.length > 0);
         int i = 0;
         if (codec == null) {
           codec = codecs[0];

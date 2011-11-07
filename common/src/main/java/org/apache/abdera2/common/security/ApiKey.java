@@ -2,6 +2,7 @@ package org.apache.abdera2.common.security;
 
 import java.security.Key;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
@@ -208,11 +209,7 @@ public class ApiKey extends KeyBase {
     }
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (hex ? 1231 : 1237);
-      result = prime * result + ((key == null) ? 0 : key.hashCode());
-      return result;
+      return MoreFunctions.genHashCode(1, hex, key);
     }
     @Override
     public boolean equals(Object obj) {

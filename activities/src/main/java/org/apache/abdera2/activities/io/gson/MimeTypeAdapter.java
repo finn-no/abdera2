@@ -19,16 +19,14 @@ package org.apache.abdera2.activities.io.gson;
 
 import javax.activation.MimeType;
 
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+
 @AdaptedType(MimeType.class)
 public class MimeTypeAdapter
   extends SimpleAdapter<MimeType> {
 
   protected MimeType deserialize(String v) {
-    try {
-      return new MimeType(v);
-    } catch (Throwable t) {
-      throw new RuntimeException(t);
-    }
+    return MimeTypeHelper.unmodifiableMimeType(v);
   }
 
 }

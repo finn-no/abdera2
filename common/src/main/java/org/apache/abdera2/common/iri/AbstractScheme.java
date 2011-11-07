@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.iri;
 import static com.google.common.base.Preconditions.*;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
 /**
  * Base implementation for IRI scheme providers
  */
@@ -56,11 +58,7 @@ public abstract class AbstractScheme implements Scheme {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + port;
-      return result;
+      return MoreFunctions.genHashCode(1, name,port);
     }
 
     @Override

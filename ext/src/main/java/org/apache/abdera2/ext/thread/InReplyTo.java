@@ -24,6 +24,8 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ElementWrapper;
 import org.apache.abdera2.common.anno.QName;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+
 import static org.apache.abdera2.ext.thread.ThreadConstants.*;
 
 @QName(value=LN_INREPLYTO,ns=THR_NS,pfx=THR_PREFIX)
@@ -43,12 +45,8 @@ public class InReplyTo extends ElementWrapper {
     }
 
     public MimeType getMimeType() {
-        try {
-            String type = getAttributeValue("type");
-            return (type != null) ? new MimeType(type) : null;
-        } catch (javax.activation.MimeTypeParseException e) {
-            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-        }
+      String type = getAttributeValue("type");
+      return (type != null) ? MimeTypeHelper.unmodifiableMimeType(type) : null;
     }
 
     public IRI getRef() {

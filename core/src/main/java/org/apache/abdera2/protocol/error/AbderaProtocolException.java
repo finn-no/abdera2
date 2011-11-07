@@ -18,6 +18,7 @@
 package org.apache.abdera2.protocol.error;
 
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.ProtocolException;
 
 public class AbderaProtocolException extends ProtocolException {
@@ -41,13 +42,9 @@ public class AbderaProtocolException extends ProtocolException {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        String message = error != null ? error.getMessage() : null;
-        int code = error != null ? error.getCode() : 0;
-        result = prime * result + ((message == null) ? 0 : message.hashCode());
-        result = prime * result + code;
-        return result;
+      String message = error != null ? error.getMessage() : null;
+      int code = error != null ? error.getCode() : 0;
+      return MoreFunctions.genHashCode(1, message, code);
     }
 
     @Override

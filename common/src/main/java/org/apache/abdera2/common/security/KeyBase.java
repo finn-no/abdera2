@@ -5,6 +5,7 @@ import java.security.SecureRandom;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.commons.codec.binary.Hex;
 
 import com.google.common.base.Supplier;
@@ -100,12 +101,7 @@ public abstract class KeyBase
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((alg == null) ? 0 : alg.hashCode());
-    result = prime * result + ((key == null) ? 0 : key.hashCode());
-    result = prime * result + size;
-    return result;
+    return MoreFunctions.genHashCode(1, alg, key);
   }
 
   @Override

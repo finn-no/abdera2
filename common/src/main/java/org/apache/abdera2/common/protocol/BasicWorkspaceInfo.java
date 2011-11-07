@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
@@ -79,11 +81,7 @@ public class BasicWorkspaceInfo
     }
 
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((collections == null) ? 0 : collections.hashCode());
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        return result;
+      return MoreFunctions.genHashCode(1, collections,title);
     }
 
     public boolean equals(Object obj) {

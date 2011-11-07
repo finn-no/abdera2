@@ -24,6 +24,8 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElementWrapper;
 import org.apache.abdera2.common.anno.QName;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+
 import static org.apache.abdera2.ext.media.MediaConstants.*;
 
 @QName(value=LN_CONTENT, 
@@ -64,19 +66,17 @@ public class MediaContent extends ExtensibleElementWrapper {
     }
 
     public MimeType getType() {
-        try {
-            String type = getAttributeValue("type");
-            return (type != null) ? new MimeType(type) : null;
-        } catch (javax.activation.MimeTypeParseException e) {
-            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-        }
+      String type = getAttributeValue("type");
+      return type != null ? 
+        MimeTypeHelper.unmodifiableMimeType(type) : 
+        null;
     }
 
     public void setType(String type) {
-        if (type != null)
-            setAttributeValue("type", type);
-        else
-            removeAttribute("type");
+      if (type != null)
+        setAttributeValue("type", type);
+      else
+        removeAttribute("type");
     }
 
     public Medium getMedium() {

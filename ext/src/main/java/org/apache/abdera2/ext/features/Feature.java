@@ -84,25 +84,18 @@ public class Feature extends ExtensibleElementWrapper {
 
     public void addType(String... mediaRanges) {
         mediaRanges = MimeTypeHelper.condense(mediaRanges);
-        for (String mediaRange : mediaRanges) {
-            try {
-                addSimpleExtension(FeaturesHelper.TYPE, new MimeType(mediaRange).toString());
-            } catch (MimeTypeParseException e) {
-            }
-        }
+        for (String mediaRange : mediaRanges)
+          addSimpleExtension(
+            FeaturesHelper.TYPE, 
+            MimeTypeHelper.unmodifiableMimeType(mediaRange).toString());
     }
 
     public Iterable<String> getTypes() {
         Set<String> list = new HashSet<String>();
         for (Element type : getExtensions(FeaturesHelper.TYPE)) {
-            String value = type.getText();
-            if (value != null) {
-                value = value.trim();
-                try {
-                    list.add(new MimeType(value).toString());
-                } catch (MimeTypeParseException e) {
-                }
-            }
+          String value = type.getText();
+          if (value != null)
+            list.add(MimeTypeHelper.unmodifiableMimeType(value.trim()).toString());
         }
         return list;
     }

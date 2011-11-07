@@ -6,18 +6,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.CharUtils;
+
+import static org.apache.abdera2.common.text.CharUtils.appendcomma;
 import static org.apache.abdera2.common.text.CharUtils.quotedIfNotToken;
 import org.apache.abdera2.common.text.Codec;
 import org.apache.abdera2.common.text.CharUtils.Profile;
+import static com.google.common.base.Preconditions.*;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
 
 /**
  * Implementation of the Prefer HTTP Header, e.g.
@@ -75,7 +82,7 @@ public class Preference implements Serializable {
     private String token;
     private String value;
     private final Map<String,String> params = 
-      new HashMap<String,String>();
+      new LinkedHashMap<String,String>();
     
     public Preference get() {
       return new Preference(this);
@@ -112,14 +119,20 @@ public class Preference implements Serializable {
     }
     
     public Builder param(String key, String val) {
-      if (key == null || reserved(key)) 
-        throw new IllegalArgumentException();
+      checkNotNull(key);
+      key = key.toLowerCase(Locale.US);
+      checkArgument(!reserved(key));
       this.params.put(key,val);
       return this;
     }
     
     public Builder params(Map<String,String> params) {
-      this.params.putAll(params);
+      checkNotNull(params);
+      for (Map.Entry<String,String> entry : params.entrySet()) {
+        String name = entry.getKey().toLowerCase(Locale.US);
+        checkArgument(!reserved(name));
+        this.params.put(name,entry.getValue());
+      }
       return this;
     }
     
@@ -151,7 +164,7 @@ public class Preference implements Serializable {
   
   public Preference(String token, String value) {
     Profile.TOKEN.verify(token);
-    this.token = token.toLowerCase();
+    this.token = token.toLowerCase(Locale.US);
     this.value = value;
   }
   
@@ -180,10 +193,8 @@ public class Preference implements Serializable {
   }
   
   private static final Set<String> reserved = 
-    new HashSet<String>();
-  static {
-    // no reserved yet
-  }
+    new HashSet<String>(); // no reserved yet
+  
   private static boolean reserved(String name) {
     return reserved.contains(name);
   }
@@ -195,12 +206,8 @@ public class Preference implements Serializable {
   
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((params == null) ? 0 : params.hashCode());
-    result = prime * result + ((token == null) ? 0 : token.hashCode());
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
-    return result;
+    return MoreFunctions.genHashCode(
+      1, params, token, value);
   }
 
   @Override
@@ -231,8 +238,9 @@ public class Preference implements Serializable {
   }
 
   public String getParam(String name) {
-    if (name == null || reserved(name))
-      throw new IllegalArgumentException();
+    checkNotNull(name);
+    name = name.toLowerCase(Locale.US);
+    checkArgument(!reserved(name));
     return params.get(name);
   }
   
@@ -308,7 +316,7 @@ public class Preference implements Serializable {
       }
       prefs.add(maker.get());
     }
-    return prefs;
+    return Iterables.unmodifiableIterable(prefs);
   }
   
   public static String toString(
@@ -328,8 +336,7 @@ public class Preference implements Serializable {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Preference pref : preferences) {
-      if (!first) buf.append(',');
-      else first = !first;
+      first = appendcomma(first,buf);
       buf.append(pref.toString());
     }
     return buf.toString();

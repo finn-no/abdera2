@@ -26,11 +26,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.text.UrlEncoding;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+
 import static com.google.common.base.Preconditions.*;
+import static org.apache.abdera2.common.text.CharUtils.*;
 
 /**
  * Implements an EntityTag.
@@ -49,9 +54,8 @@ public class EntityTag
       boolean wild = 
         entity_tag.charAt(0) == '*' && l == 0;
       if (wild) return EntityTag.WILD;
-      boolean weak = (entity_tag.charAt(0) == 'W' || 
-                     entity_tag.charAt(0) == 'w');
-      checkArgument(!(weak && entity_tag.charAt(1) !='/'),"Invalid");
+      boolean weak = Character.toUpperCase(entity_tag.charAt(0)) == 'W';
+      checkArgument(!weak || entity_tag.charAt(1) =='/',"Invalid");
       int pos = weak?2:0;
       checkArgument(
         entity_tag.charAt(pos) == '"' && 
@@ -63,14 +67,14 @@ public class EntityTag
     public static Iterable<EntityTag> parseTags(String entity_tags) {
         if (entity_tags == null || 
             entity_tags.length() == 0)
-          return Collections.emptyList();
+          return ImmutableSet.<EntityTag>of();
         String[] tags = 
           entity_tags.split("((?<=\")\\s*,\\s*(?=([wW]/)?\"|\\*))");
         List<EntityTag> etags = 
           new ArrayList<EntityTag>();
         for (String tag : tags)
             etags.add(EntityTag.parse(tag.trim()));
-        return etags;
+        return ImmutableSet.<EntityTag>copyOf(etags);
     }
 
     public static Predicate<String> matchesAny(final EntityTag tag) {
@@ -296,26 +300,19 @@ public class EntityTag
 
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        if (wild) {
+        if (wild)
             buf.append("*");
-        } else {
-            if (weak)
-                buf.append("W/");
-            buf.append('"')
-               .append(tag)
-               .append('"');
+        else {
+          appendif(weak,buf,"W/");
+          buf.append(quoted(tag,true));
         }
         return buf.toString();
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((tag == null) ? 0 : tag.hashCode());
-        result = prime * result + (weak ? 1231 : 1237);
-        result = prime * result + (wild ? 1231 : 1237);
-        return result;
+      return MoreFunctions.genHashCode(
+        1,tag,weak,wild);
     }
 
     @Override
@@ -450,28 +447,19 @@ public class EntityTag
       StringBuilder buf = new StringBuilder();
       boolean first = true;
       for (EntityTag tag : tags) {
-        if (!first) buf.append(", ");
-        else first = !first;
+        first = appendcomma(first,buf);
         buf.append(tag.toString());
       }
       return buf.toString();
     }
     
     public int compareTo(EntityTag o) {
-        if (o.isWild() && !isWild())
-            return 1;
-        if (isWild() && !o.isWild())
-            return -1;
-        if (o.isWeak() && !isWeak())
-            return -1;
-        if (isWeak() && !o.isWeak())
-            return 1;
-        return tag.compareTo(o.tag);
+      return o.wild && !wild || weak && !o.weak ?
+        1 : wild && !o.wild || o.weak && !weak ? 
+       -1 : tag.compareTo(o.tag);
     }
     
-    public static interface EntityTagGenerator<T> {
-      EntityTag generateFor(T t);
-    }
+    public static interface EntityTagGenerator<T> extends Function<T,EntityTag> {}
     
     @Retention(RUNTIME)
     @Target( {TYPE})
@@ -483,27 +471,23 @@ public class EntityTag
     public static <T>EntityTag generate(T t) {
       EntityTag etag = null;
       try {
-        if (t == null)
-          throw new IllegalArgumentException();
-        Class<?> _class = t.getClass();
+        Class<?> _class = checkNotNull(t).getClass();
         if (_class.isAnnotationPresent(ETagGenerator.class)) {
           ETagGenerator g = _class.getAnnotation(ETagGenerator.class);
           Class<? extends EntityTagGenerator<T>> gen = 
             (Class<? extends EntityTagGenerator<T>>) g.value();
           EntityTagGenerator<T> etg = 
             gen.newInstance();
-          etag = etg.generateFor(t);
+          etag = etg.apply(t);
         } else etag = generate(new String[] {t.toString()});
       } catch (Throwable e) {
-        throw new RuntimeException(e);
+        throw ExceptionHelper.propogate(e);
       }
       return etag;
     }
     
-    public static <T>EntityTag generator(T t, EntityTagGenerator<T> gen) {
-      if (t == null)
-        throw new IllegalArgumentException();
-      return gen.generateFor(t);
+    public static <T>EntityTag generate(T t, EntityTagGenerator<T> gen) {
+      return gen.apply(checkNotNull(t));
     }
     
 }
