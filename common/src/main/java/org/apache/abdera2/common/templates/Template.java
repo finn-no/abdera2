@@ -18,10 +18,10 @@
 package org.apache.abdera2.common.templates;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,10 +36,15 @@ import org.apache.abdera2.common.templates.Expression.VarSpec;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 import static com.google.common.base.Preconditions.*;
 
 @SuppressWarnings("unchecked")
-public final class Template implements Iterable<Expression>, Serializable {
+public final class Template 
+  implements Iterable<Expression>, 
+             Serializable {
 
     private static final long serialVersionUID = -613907262632631896L;
 
@@ -48,8 +53,8 @@ public final class Template implements Iterable<Expression>, Serializable {
     private static final String EXP_STOP = "\\}";
 
     private final String pattern;
-    private final Set<Expression> expressions = new HashSet<Expression>();
-    private final Set<String> variables = new HashSet<String>();
+    private final Iterable<Expression> expressions;
+    private final Iterable<String> variables;
 
     /**
      * @param pattern A URI Template
@@ -57,7 +62,17 @@ public final class Template implements Iterable<Expression>, Serializable {
     public Template(String pattern) {
       checkNotNull(pattern, "Template pattern must not be null");
       this.pattern = pattern;
-      initExpressions();
+      this.expressions = initExpressions();
+      this.variables = initVariables(expressions);
+    }
+    
+    private static Iterable<String> initVariables(Iterable<Expression> expressions) {
+      ImmutableSet.Builder<String> builder = 
+        ImmutableSet.builder();
+      for (Expression exp : expressions)
+        for (VarSpec spec : exp)
+          builder.add(spec.getName());
+      return builder.build();
     }
     
     public Template(Object object) {
@@ -93,16 +108,16 @@ public final class Template implements Iterable<Expression>, Serializable {
     /**
      * Return the array of template variables
      */
-    private void initExpressions() {
-        Matcher matcher = EXPRESSION.matcher(pattern);
-        while (matcher.find()) {
-            String token = matcher.group();
-            token = token.substring(1, token.length() - 1);
-            Expression exp = new Expression(token);
-            for (VarSpec varspec : exp)
-              variables.add(varspec.getName());
-            expressions.add(exp);
-        }
+    private Iterable<Expression> initExpressions() {
+      List<Expression> expressions = new ArrayList<Expression>();
+      Matcher matcher = EXPRESSION.matcher(pattern);
+      while (matcher.find()) {
+        String token = matcher.group();
+        token = token.substring(1, token.length() - 1);
+        Expression exp = new Expression(token);
+        expressions.add(exp);
+      }
+      return Iterables.unmodifiableIterable(expressions);
     }
 
     /**

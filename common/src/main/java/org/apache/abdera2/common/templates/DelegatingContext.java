@@ -26,8 +26,9 @@ public abstract class DelegatingContext extends AbstractContext {
     protected final Context subcontext;
 
     protected DelegatingContext(Context subcontext) {
-        checkNotNull(subcontext);
-        this.subcontext = subcontext;
+      super(subcontext.isIri());
+      checkNotNull(subcontext);
+      this.subcontext = subcontext;
     }
 
     protected <T> T resolveActual(String var) {
@@ -42,10 +43,6 @@ public abstract class DelegatingContext extends AbstractContext {
       return this.subcontext.isIri();
     }
     
-    public void setIri(boolean isiri) {
-      this.subcontext.setIri(isiri);
-    }
-    
     public boolean contains(String var) {
       return this.subcontext.contains(var);
     }
@@ -54,7 +51,4 @@ public abstract class DelegatingContext extends AbstractContext {
       return (T)this.subcontext.resolve(var);
     }
 
-    public void clear() {
-      this.subcontext.clear();
-    }
 }

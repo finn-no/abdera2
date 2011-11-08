@@ -34,15 +34,5 @@ public interface Context extends Serializable, Iterable<String> {
      */
     boolean isIri();
 
-    /**
-     * True if IRI expansion is to be enabled
-     */
-    void setIri(boolean isiri);
-
-    /**
-     * Clear this context
-     */
-    void clear();
-
     boolean contains(String var);
 }

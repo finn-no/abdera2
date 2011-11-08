@@ -19,7 +19,7 @@ public abstract class AbstractSelector<X>
   }
 
   public Function<X,Boolean> asFunction() {
-    return Utils.asFunction(this);
+    return Selectors.asFunction(this);
   }
   
   public Predicate<X> asPredicate() {
@@ -30,27 +30,27 @@ public abstract class AbstractSelector<X>
   }
   
   public Selector<X> limit(int limit) {
-    return (Selector<X>)and(Utils.<X>counting(limit));
+    return (Selector<X>)and(Selectors.<X>limit(limit));
   }
   
   public <Y>Selector<Y> compose(Function<Y,X> transform) {
-    return Utils.compose(this, transform);
+    return Selectors.compose(this, transform);
   }
   
   public Selector<X> negate() {
-    return Utils.negate(this);
+    return Selectors.negate(this);
   }
   
   public Selector<X> and(Selector<X> selector) {
-    return MultiSelector.<X>and(this,selector);
+    return Selectors.<X>and(this,selector);
   }
   public Selector<X> or(Selector<X> selector) {
-    return MultiSelector.<X>or(this,selector);
+    return Selectors.<X>or(this,selector);
   }
   public Selector<X> andNot(Selector<X> selector) {
-    return MultiSelector.<X>and(this, selector.negate());
+    return Selectors.<X>and(this, selector.negate());
   }
   public Selector<X> orNot(Selector<X> selector) {
-    return MultiSelector.<X>or(this, selector.negate());
+    return Selectors.<X>or(this, selector.negate());
   }
 }

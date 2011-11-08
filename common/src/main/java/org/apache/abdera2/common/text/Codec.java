@@ -18,6 +18,7 @@
 package org.apache.abdera2.common.text;
 
 import java.io.ByteArrayInputStream;
+import java.util.Set;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
@@ -27,6 +28,7 @@ import org.apache.commons.codec.net.BCodec;
 import org.apache.commons.codec.net.QCodec;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 
 public enum Codec {
     B, 
@@ -71,18 +73,19 @@ public enum Codec {
       return STAR._encode(value, charset);
     }
     
+    private static final Set<StringDecoder> codecs =
+      ImmutableSet.<StringDecoder>of(
+        new StarCodec(),
+        new BCodec(),
+        new QCodec());
+    
     public static String decode(String value) {
         if (value == null)
           return null;
-        Class<?>[] _classes = 
-          {StarCodec.class,BCodec.class,QCodec.class};
-        for (Class<?> _class : _classes) {
+        for (StringDecoder dec : codecs) {
           try {
-            StringDecoder dec = 
-              (StringDecoder) _class.newInstance();
             return dec.decode(value);
           } catch (DecoderException de) {
-            // try next
           } catch (Exception e) {
             break;
           }

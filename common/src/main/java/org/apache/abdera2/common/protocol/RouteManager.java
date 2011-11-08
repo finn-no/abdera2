@@ -34,6 +34,7 @@ import org.apache.abdera2.common.templates.Route;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
 
 /**
  * This is a largely experimental implementation of a Target Resolver and Target Builder based on URL patterns similar
@@ -214,21 +215,21 @@ public class RouteManager<T,X extends RequestContext,R>
         return (Map<String, Object>)param;
     }
 
-    private static class EmptyContext extends CachingContext {
-        private static final long serialVersionUID = 4681906592987534451L;
-
-        public boolean contains(String var) {
-          return false;
-        }
-        
-        protected <T> T resolveActual(String var) {
-            return null;
-        }
-
-        public Iterator<String> iterator() {
-            List<String> list = Arrays.asList(new String[0]);
-            return list.iterator();
-        }
+    private static class EmptyContext 
+      extends CachingContext {
+      private static final long serialVersionUID = 4681906592987534451L;
+      public EmptyContext() {
+        super(false);
+      }
+      public boolean contains(String var) {
+        return false;
+      }  
+      protected <T> T resolveActual(String var) {
+        return null;
+      }
+      public Iterator<String> iterator() {
+        return Iterators.<String>empty();
+      }
     }
 
     public static class RouteTarget extends SimpleTarget {

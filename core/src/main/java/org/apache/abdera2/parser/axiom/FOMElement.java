@@ -51,8 +51,6 @@ import org.apache.abdera2.model.ElementWrapper;
 import org.apache.abdera2.model.ElementList;
 import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Text;
-import org.apache.abdera2.model.selector.CategorySchemeSelector;
-import org.apache.abdera2.model.selector.LinkRelSelector;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
@@ -74,6 +72,8 @@ import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
+
+import static org.apache.abdera2.model.selector.Selectors.*;
 
 @SuppressWarnings({"unchecked","rawtypes"})
 public class FOMElement extends OMElementImpl implements Element, OMElement, Constants {
@@ -812,21 +812,15 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
     }
 
     public static List<Link> getLinks(Element element, String... rels) {
-      LinkRelSelector sel =
-        new LinkRelSelector(rels);
-      return element.getElements(sel);
+      return element.getElements(withRel(rels));
     }
 
     public static List<Link> getLinks(Element element, String rel) {
-        LinkRelSelector sel =
-          new LinkRelSelector(rel);
-        return element.getElements(sel);
+        return element.getElements(withRel(rel));
     }
 
     public static List<Category> getCategories(Element element, String scheme) {
-      CategorySchemeSelector sel =
-        new CategorySchemeSelector(scheme);
-      return element.getElements(sel);
+      return element.getElements(withCategoryScheme(scheme));
     }
     
     /**

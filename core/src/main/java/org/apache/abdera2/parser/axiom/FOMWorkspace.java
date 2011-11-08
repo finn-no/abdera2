@@ -35,6 +35,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+import static org.apache.abdera2.model.selector.Selectors.*;
+
 @SuppressWarnings({"deprecation","rawtypes"})
 public class FOMWorkspace extends FOMExtensibleElement implements Workspace {
 
@@ -145,29 +147,21 @@ public class FOMWorkspace extends FOMExtensibleElement implements Workspace {
     }
 
     public Collection getCollectionThatAccepts(MimeType... types) {
-      CollectionAcceptSelector sel =
-        new CollectionAcceptSelector(types);
-      List<Collection> list = getCollections(sel);
+      List<Collection> list = getCollections(accepts(types));
       return list.size() > 0 ? list.get(0) : null;
     }
 
     public Collection getCollectionThatAccepts(String... types) {
-      CollectionAcceptSelector sel =
-        new CollectionAcceptSelector(types);
-      List<Collection> list = getCollections(sel);
+      List<Collection> list = getCollections(accepts(types));
       return list.size() > 0 ? list.get(0) : null;
     }
 
     public List<Collection> getCollectionsThatAccept(MimeType... types) {
-      CollectionAcceptSelector sel =
-        new CollectionAcceptSelector(types);
-      return getCollections(sel);
+      return getCollections(accepts(types));
     }
 
     public List<Collection> getCollectionsThatAccept(String... types) {
-      CollectionAcceptSelector sel =
-        new CollectionAcceptSelector(types);
-      return getCollections(sel);
+      return getCollections(accepts(types));
     }
 
     public List<Collection> getCollections(Selector selector) {

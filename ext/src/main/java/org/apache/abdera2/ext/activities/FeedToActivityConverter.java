@@ -27,7 +27,7 @@ import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Person;
 import org.apache.abdera2.model.Generator;
 import org.apache.abdera2.model.Text;
-import org.apache.abdera2.model.selector.LinkRelSelector;
+import static org.apache.abdera2.model.selector.Selectors.withRel;
 
 /**
  * A default Atom Feed to Activity Stream Conversion implementation. 
@@ -155,9 +155,8 @@ public class FeedToActivityConverter {
       obj.setSummary(text.getValue());
     }
     obj.setObjectType(objectType(ext));
-    LinkRelSelector sel = 
-      new LinkRelSelector("alternate","preview");
-    List<Link> links = ext.getExtensions(Constants.LINK, sel);
+    List<Link> links = ext.getExtensions(
+      Constants.LINK, withRel("preview"));
     for (Link link : links) {
       String rel = link.getCanonicalRel();
       if (Link.REL_ALTERNATE.equalsIgnoreCase(rel)) {

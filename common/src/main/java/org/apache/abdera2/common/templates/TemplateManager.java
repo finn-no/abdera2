@@ -41,8 +41,8 @@ public class TemplateManager<T>
       new HashMap<T,Template>();
     protected boolean isiri;
     protected IRI base;
-    protected final MultiContext contextDefaults = 
-      new MultiContext();
+    protected final MultiContext.Builder defaultContexts = 
+      MultiContext.make();
        
     public Builder() {}
     
@@ -86,25 +86,25 @@ public class TemplateManager<T>
     
     public <M extends Builder<T>>M withDefaults(Context context) {
       checkNotNull(context);
-      this.contextDefaults.add(context);
+      this.defaultContexts.with(context);
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(MapContext context) {
       checkNotNull(context);
-      this.contextDefaults.add(context);
+      this.defaultContexts.with(context);
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(Map<String,Object> map) {
       checkNotNull(map);
-      this.contextDefaults.add(new MapContext(map));
+      this.defaultContexts.with(new MapContext(map));
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(Object context) {
       checkNotNull(context);
-      this.contextDefaults.add(new ObjectContext(context));
+      this.defaultContexts.with(new ObjectContext(context));
       return (M)this;
     }
     
@@ -121,7 +121,7 @@ public class TemplateManager<T>
     
     public TemplateManager<T> get() {
       return new TemplateManager<T>(
-        templates,isiri,base,contextDefaults);
+        templates,isiri,base,defaultContexts.get());
     }
   }
   

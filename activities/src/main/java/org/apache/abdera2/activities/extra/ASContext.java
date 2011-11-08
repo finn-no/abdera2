@@ -23,6 +23,12 @@ public final class ASContext
   private final ASBase base;
   
   public ASContext(ASBase base) {
+    super(false);
+    this.base = base;
+  }
+  
+  public ASContext(ASBase base, boolean isiri) {
+    super(isiri);
     this.base = base;
   }
   

@@ -27,14 +27,14 @@ import org.apache.abdera2.ext.features.Feature;
 import org.apache.abdera2.ext.features.FeatureSelector;
 import org.apache.abdera2.ext.features.Features;
 import org.apache.abdera2.ext.features.FeaturesHelper;
-import org.apache.abdera2.model.selector.CollectionAcceptSelector;
-import org.apache.abdera2.model.selector.XPathSelector;
 import org.apache.abdera2.ext.features.FeaturesHelper.Status;
 import org.apache.abdera2.model.Collection;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Service;
 import org.apache.abdera2.model.Workspace;
 import org.junit.Test;
+
+import static org.apache.abdera2.model.selector.Selectors.*;
 
 public class FeatureTest {
 
@@ -83,16 +83,19 @@ public class FeatureTest {
 
         assertEquals(collections.iterator().next(), collection1);
 
-        Selector s2 = new CollectionAcceptSelector("image/png");
-
-        collections = FeaturesHelper.select(service, s2);
+        collections = FeaturesHelper.select(service, accepts("image/png"));
 
         assertEquals(collections.iterator().next(), collection2);
-
-        XPathSelector s3 = new XPathSelector("f:features/f:feature[@ref='" + FeaturesHelper.FEATURE_SUPPORTS_DRAFTS + "']");
-        s3.addNamespace("f", FeaturesHelper.FNS);
         
-        collections = FeaturesHelper.select(service, s3);
+        collections = 
+          FeaturesHelper
+            .select(
+              service, 
+              xpath()
+                .path(String.format("f:features/f:feature[@ref='%s']",
+                  FeaturesHelper.FEATURE_SUPPORTS_DRAFTS))
+                .with("f",FeaturesHelper.FNS)
+                .get());
 
         assertEquals(collections.iterator().next(), collection1);
     }

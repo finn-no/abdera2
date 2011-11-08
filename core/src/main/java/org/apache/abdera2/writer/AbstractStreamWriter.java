@@ -146,9 +146,13 @@ public abstract class AbstractStreamWriter implements StreamWriter {
     }
 
     public StreamWriter startLink(String iri, String rel, String type, String title, String hreflang, long length) {
-        return startElement(Constants.LINK).writeAttribute("href", iri).writeAttribute("rel", rel)
-            .writeAttribute("type", type).writeAttribute("title", title).writeAttribute("hreflang", hreflang)
-            .writeAttribute("length", length > -1 ? String.valueOf(length) : null);
+        return startElement(Constants.LINK)
+          .writeAttribute("href", iri)
+          .writeAttribute("rel", rel)
+          .writeAttribute("type", type)
+          .writeAttribute("title", title)
+          .writeAttribute("hreflang", hreflang)
+          .writeAttribute("length", length > -1 ? String.valueOf(length) : null);
     }
 
     public StreamWriter startPerson(QName qname) {
@@ -160,7 +164,8 @@ public abstract class AbstractStreamWriter implements StreamWriter {
     }
 
     public StreamWriter startText(QName qname, Text.Type type) {
-        return startElement(qname).writeAttribute("type", type != null ? type.name().toLowerCase() : "text");
+        return startElement(qname)
+          .writeAttribute("type", type != null ? type.name().toLowerCase() : "text");
     }
 
     public StreamWriter writeDate(QName qname, String date) {
@@ -194,7 +199,8 @@ public abstract class AbstractStreamWriter implements StreamWriter {
     }
 
     public StreamWriter startContent(String type, String src) {
-        return startElement(Constants.CONTENT).writeAttribute("type", type).writeAttribute("src", src);
+        return startElement(Constants.CONTENT)
+          .writeAttribute("type", type).writeAttribute("src", src);
     }
 
     public StreamWriter startContent(Content.Type type) {
@@ -226,8 +232,10 @@ public abstract class AbstractStreamWriter implements StreamWriter {
     }
 
     public StreamWriter writeCategory(String term, String scheme, String label) {
-        return startElement(Constants.CATEGORY).writeAttribute("term", term).writeAttribute("scheme", scheme)
-            .writeAttribute("label", label).endElement();
+        return startElement(Constants.CATEGORY)
+          .writeAttribute("term", term)
+          .writeAttribute("scheme", scheme)
+          .writeAttribute("label", label).endElement();
     }
 
     public StreamWriter writeContent(Content.Type type, String value) {
@@ -280,7 +288,11 @@ public abstract class AbstractStreamWriter implements StreamWriter {
     }
 
     public StreamWriter writePerson(QName qname, String name, String email, String uri) {
-        return startPerson(qname).writePersonName(name).writePersonEmail(email).writePersonUri(uri).endPerson();
+        return startPerson(qname)
+          .writePersonName(name)
+          .writePersonEmail(email)
+          .writePersonUri(uri)
+          .endPerson();
     }
 
     public StreamWriter writePublished(DateTime date) {

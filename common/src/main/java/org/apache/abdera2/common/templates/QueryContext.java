@@ -17,13 +17,18 @@
  */
 package org.apache.abdera2.common.templates;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.misc.Pair;
+
+import static java.util.Collections.addAll;
+import static org.apache.abdera2.common.text.CharUtils.*;
+import static com.google.common.collect.Lists.newArrayList;
+
 import static com.google.common.base.Preconditions.*;
 
 /**
@@ -80,33 +85,22 @@ public class QueryContext extends MapContext  {
   }
   
   private static Map<String,Object> parse(IRI iri) {
-    checkNotNull(iri);
     Map<String,Object> map = new HashMap<String,Object>();
-    if (iri != null) {
-      String query = iri.getQuery();
-      if (query != null) {
-        String[] params = query.split("\\s*&\\s*");
-        for (String param : params) {
-          String[] pair = param.split("\\s*=\\s*",2);
-          setval(map,pair[0],pair.length==1?null:pair[1]);
-        }
-      }
-    }
+    String query = checkNotNull(iri).getQuery();
+    if (query != null)
+      for (Pair<String,String> pair : Pair.from(query,"&"))
+        setval(map,pair.first(),pair.second());
     return map;
   }
   
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private static void setval(Map<String,Object> map, String key, String val) {
-    if (map.containsKey(key)) {
+    if (checkNotNull(map).containsKey(key)) {
       Object value = map.get(key);
-      if (value instanceof Collection) {
-        ((Collection)value).add(val);
-      } else {
-        List<Object> l = new ArrayList<Object>();
-        l.add(value);
-        l.add(val);
-        map.put(key, l);
-      }
+      if (value instanceof Collection)
+        addAll((Collection)value, val);
+      else
+        map.put(key, newArrayList(value,val));
     } else map.put(key,val);
   }
   
@@ -116,32 +110,26 @@ public class QueryContext extends MapContext  {
     buf.append('{').append(fragment?'&':'?');
     boolean first = true;
     for (String name : context) {
-      if (!first) buf.append(',');
-      else first = false;
+      first = appendcomma(first,buf);
       buf.append(name);
       Object val = context.resolve(name);
-      if (val == null)
-        buf.append('^');
-      else if (val instanceof List)
-        buf.append('*');
+      appendif(val == null, buf, "^");
+      appendif(val instanceof List, buf, "*");
     }
     buf.append('}');
     return new Template(buf.toString());
   }
   
   public static Template templateFromIri(IRI iri) {
-    checkNotNull(iri);
-    return templateFromQuery(iri.toString(), false, null);
+    return templateFromQuery(checkNotNull(iri).toString(), false, null);
   }
   
   public static Template templateFromIri(IRI iri, Context additionalParams) {
-    checkNotNull(iri);
-    return templateFromQuery(iri.toString(), false, additionalParams);
+    return templateFromQuery(checkNotNull(iri).toString(), false, additionalParams);
   }
   
   public static Template templateFromQuery(String query, boolean fragment, Context additionalParams) {
-    checkNotNull(query);
-    Context context = new QueryContext(query);
+    Context context = new QueryContext(checkNotNull(query));
     if (additionalParams != null)
       context = new DefaultingContext(context,additionalParams);
     StringBuilder buf = new StringBuilder(baseFromQuery(query));
@@ -150,34 +138,29 @@ public class QueryContext extends MapContext  {
   }
   
   public static String baseFromQuery(String query) {
-    checkNotNull(query);
-    IRI iri = new IRI(query);
+    IRI iri = new IRI(checkNotNull(query));
     String s = iri.resolve(iri.getPath()).toString();
     return s;
   }
   
   public static String expandQuery(String query, Context context) {
-    checkNotNull(query);
-    checkNotNull(context);
-    return expandQuery(query,context,(Template)null);
+    return expandQuery(
+      checkNotNull(query),
+      checkNotNull(context),
+      (Template)null);
   }
   
   public static String expandQuery(String query, Context context, String extender) {
-    checkNotNull(query);
-    checkNotNull(context);
-    checkNotNull(extender);
-    return expandQuery(query,context,new Template(extender));
+    return expandQuery(
+      checkNotNull(query),
+      checkNotNull(context),
+      new Template(checkNotNull(extender)));
   }
   
   public static String expandQuery(String query, Context context, Template extender) {
-    checkNotNull(query);
-    checkNotNull(context);
-    checkNotNull(extender);
-    QueryContext qc = new QueryContext(query);
-    DefaultingContext dc = new DefaultingContext(context,qc);
+    QueryContext qc = new QueryContext(checkNotNull(query));
+    DefaultingContext dc = new DefaultingContext(checkNotNull(context),qc);
     Template temp = QueryContext.templateFromQuery(query, false, qc);
-    if (extender != null)
-      temp = temp.extend(extender);
-    return temp.expand(dc);  
+    return temp.extend(checkNotNull(extender)).expand(dc);
   }
 }

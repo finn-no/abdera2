@@ -17,15 +17,17 @@
  */
 package org.apache.abdera2.model.selector;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Collection;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Selector implementation that selects Collections elements that contain
@@ -36,18 +38,23 @@ public class CollectionAcceptSelector
 extends AbstractSelector<Collection>
   implements Selector<Collection> {
 
-  private static final long serialVersionUID = 1821941024155067263L;
-  private final Set<MimeType> types = 
-    new LinkedHashSet<MimeType>();
-  
-  public CollectionAcceptSelector(String... types) {
-    for (String type:types)
-      this.types.add(MimeTypeHelper.unmodifiableMimeType(type));
+  public static Selector<Collection> of(String... types) {
+    return new CollectionAcceptSelector(types);
   }
   
-  public CollectionAcceptSelector(MimeType... types) {
-    for (MimeType type : types)
-      this.types.add(MimeTypeHelper.unmodifiableMimeType(type));
+  public static Selector<Collection> of(MimeType... types) {
+    return new CollectionAcceptSelector(types);
+  }
+  
+  private static final long serialVersionUID = 1821941024155067263L;
+  private final Set<MimeType> types;
+  
+  CollectionAcceptSelector(String... types) {
+    this.types = MoreFunctions.immutableSetOf(types, MimeTypeHelper.parser, MimeType.class);
+  }
+  
+  CollectionAcceptSelector(MimeType... types) {
+    this.types = ImmutableSet.copyOf(types);
   }
   
   public boolean select(Object item) {

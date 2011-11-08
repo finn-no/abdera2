@@ -26,26 +26,31 @@ import org.apache.abdera2.common.templates.AbstractContext;
  * Abstract Context implementation that caches resolved values so that do not have to be resolved again
  */
 @SuppressWarnings("unchecked")
-public abstract class CachingContext extends AbstractContext {
+public abstract class CachingContext 
+  extends AbstractContext {
 
-    private static final long serialVersionUID = 8912954163958644811L;
+  private static final long serialVersionUID = 8912954163958644811L;
     
-    private Map<String, Object> cache = 
-      new HashMap<String, Object>();
+  private Map<String, Object> cache = 
+    new HashMap<String, Object>();
 
-    public <T> T resolve(String var) {
-        T t = (T)cache.get(var);
-        if (t == null) {
-            t = (T)resolveActual(var);
-            if (t != null)
-                cache.put(var, t);
-        }
-        return t;
+  protected CachingContext(boolean iri) {
+    super(iri);
+  }
+  
+  public <T> T resolve(String var) {
+    T t = (T)cache.get(var);
+    if (t == null) {
+      t = (T)resolveActual(var);
+      if (t != null)
+          cache.put(var, t);
     }
+    return t;
+  }
 
-    protected abstract <T> T resolveActual(String var);
+  protected abstract <T> T resolveActual(String var);
 
-    public void clear() {
-        cache.clear();
-    }
+  public void clear() {
+    cache.clear();
+  }
 }

@@ -46,7 +46,7 @@ public class TemplateManagerTargetBuilder<T>
   public static class Builder<T> extends TemplateManager.Builder<T> {
     public TemplateManager<T> get() {
       return new TemplateManagerTargetBuilder<T>(
-        templates,isiri,base,contextDefaults);
+        templates,isiri,base,defaultContexts.get());
     }
     public TemplateManagerTargetBuilder<T> getTargetBuilder() {
       return (TemplateManagerTargetBuilder<T>) get();

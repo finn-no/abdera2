@@ -19,8 +19,10 @@ import org.joda.time.DateTime;
 
 import com.google.common.base.Predicate;
 
-public class Selectors {
+public final class Selectors {
 
+  private Selectors() {}
+  
   public static Selector<Entry> updated(Predicate<DateTime> predicate) {
     return 
       PropertySelector.<Entry>create(
@@ -46,53 +48,54 @@ public class Selectors {
   }
   
   public static Selector<Category> withCategoryScheme(String... schemes) {
-    return new CategorySchemeSelector(schemes);
+    return CategorySchemeSelector.of(schemes);
   }
   
   public static Selector<Category> withCategoryScheme(IRI... schemes) {
-    return new CategorySchemeSelector(schemes);
+    return CategorySchemeSelector.of(schemes);
   }
   
   public static Selector<Collection> accepts(String... types) {
-    return new CollectionAcceptSelector(types);
+    return CollectionAcceptSelector.of(types);
   }
   
   public static Selector<Collection> accepts(MimeType... types) {
-    return new CollectionAcceptSelector(types);
+    return CollectionAcceptSelector.of(types);
   }
   
   public static Selector<Link> withHrefLang(Range range) {
-    return new LinkHrefLangSelector(range);
+    return LinkHrefLangSelector.of(range);
   }
   
   public static Selector<Link> withHrefLang(String... langs) {
-    return new LinkHrefLangSelector(langs);
+    return LinkHrefLangSelector.of(langs);
   }
   
   public static Selector<Link> withHrefLang(Lang... langs) {
-    return new LinkHrefLangSelector(langs);
+    return LinkHrefLangSelector.of(langs);
   }
   
   public static Selector<Link> withHrefLang(Locale locale) {
-    return new LinkHrefLangSelector(Lang.fromLocale(locale));
+    return LinkHrefLangSelector.of(Lang.fromLocale(locale));
   }
   
   public static Selector<Link> withRel(String... rels) {
-    return new LinkRelSelector(rels);
+    return LinkRelSelector.of(rels);
   }
   
-  @SuppressWarnings("rawtypes")
-  public static Selector xpath(String path) {
-    return new XPathSelector(path);
+  public static Selector<Object> xpath(String path) {
+    return XPathSelector.make().path(path).get();
   }
   
-  @SuppressWarnings("rawtypes")
-  public static Selector xpath(String path, XPath xpath) {
-    return new XPathSelector(path,xpath);
+  public static Selector<Object> xpath(String path, XPath xpath) {
+    return XPathSelector.make(xpath).path(path).get();
   }
   
-  @SuppressWarnings("rawtypes")
-  public static Selector xpath(String path, XPath xpath, Map<String, String> namespaces) {
-    return new XPathSelector(path,xpath,namespaces);
+  public static Selector<Object> xpath(String path, XPath xpath, Map<String, String> namespaces) {
+    return XPathSelector.make(xpath).path(path).with(namespaces).get();
+  }
+  
+  public static XPathSelector.Builder xpath() {
+    return XPathSelector.make();
   }
 }

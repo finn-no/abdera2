@@ -39,6 +39,8 @@ import org.apache.abdera2.model.ElementWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * <p>
  * Provides a base implementation for ExtensionFactory instances. By extending this, specific extension factories need
@@ -136,10 +138,8 @@ public abstract class AbstractExtensionFactory
      * with an IllegalArgumentException.
      */
     protected AbstractExtensionFactory addImpl(Class<? extends ElementWrapper> impl) {
-      QName qname = AnnoUtil.getQName(impl);
-      if (qname == null)
-        throw new IllegalArgumentException();
-      addImpl(qname,impl);
+      QName qname = AnnoUtil.getQName(checkNotNull(impl));
+      addImpl(checkNotNull(qname),impl);
       return this;
     }
     
@@ -148,15 +148,12 @@ public abstract class AbstractExtensionFactory
      * method ignores the QName annotation and uses the provided qname
      */
     protected AbstractExtensionFactory addImpl(QName qname, Class<? extends ElementWrapper> impl) {
-        if (qname == null || impl == null)
-          throw new IllegalArgumentException();
+        checkNotNull(qname);
+        checkNotNull(impl);
         log.debug(String.format("Adding implementation for [%s] : %s",qname.toString(),impl));
-        Constructor<? extends ElementWrapper> con = constructor(impl);
-        if (con == null) {
-          log.debug("An appropriate ElementWrapper constructor could not be found");
-          throw new IllegalArgumentException("Missing Element Wrapper Constructor.");
-        }
-        impls.put(qname, con);
+        impls.put(qname, 
+          checkNotNull(constructor(impl), 
+            "Missing Element Wrapper Constructor"));
         return this;
     }
    

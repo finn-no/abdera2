@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.google.common.collect.ImmutableList;
+
 
 /**
  * Implements the List interface around an internal buffered iterator. Here's the rationale: Axiom parses incrementally.
@@ -49,33 +51,33 @@ public class ElementList<T extends Element>
     }
     
     public List<T> getAsList() {
-        buffer(-1);
-        return java.util.Collections.unmodifiableList(buffer);
+      buffer(-1);
+      return ImmutableList.<T>copyOf(buffer);
     }
 
     private boolean finished() {
-        return !i.hasNext();
+      return !i.hasNext();
     }
 
     private int buffered() {
-        return buffer.size() - 1;
+      return buffer.size() - 1;
     }
 
     private int buffer(int n) {
-        if (i.hasNext()) {
-            int read = 0;
-            while (i.hasNext() && (read++ < n || n == -1)) {
-                buffer.add(i.next());
-            }
+      if (i.hasNext()) {
+        int read = 0;
+        while (i.hasNext() && (read++ < n || n == -1)) {
+          buffer.add(i.next());
         }
-        return buffered();
+      }
+      return buffered();
     }
 
     public T get(int index) {
-        int n = buffered();
-        if (index > n && (index > buffer(index - n)))
-            throw new ArrayIndexOutOfBoundsException(index);
-        return (T)buffer.get(index);
+      int n = buffered();
+      if (index > n && (index > buffer(index - n)))
+          throw new ArrayIndexOutOfBoundsException(index);
+      return (T)buffer.get(index);
     }
 
     public int size() {
@@ -169,8 +171,8 @@ public class ElementList<T extends Element>
     }
 
     public List<T> subList(int fromIndex, int toIndex) {
-        buffer(-1);
-        return Collections.unmodifiableList(buffer.subList(fromIndex, toIndex));
+      buffer(-1);
+      return ImmutableList.copyOf(buffer.subList(fromIndex, toIndex));
     }
 
     public Object[] toArray() {

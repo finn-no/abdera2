@@ -41,6 +41,13 @@ import com.google.common.collect.Iterables;
 public final class Lang 
   extends SubtagSet {
 
+    public static final Function<String,Lang> parser = 
+      new Function<String,Lang>() {
+        public Lang apply(String input) {
+          return new Lang(input);
+        }
+    };
+  
     private static final long serialVersionUID = -7095560018906537331L;
     private final Locale locale;
 

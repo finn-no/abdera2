@@ -38,6 +38,8 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Content.Type;
 import org.apache.abdera2.writer.AbstractStreamWriter;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * StreamBuilder is a special implementation of the StreamWriter interface that can be used to create Feed Object Model
  * instances using the StreamWriter interface. StreamBuilder provides an additional method (getBase) for returning the
@@ -74,8 +76,7 @@ public class StreamBuilder extends AbstractStreamWriter {
     }
 
     public StreamBuilder startDocument(String xmlversion, String charset) {
-        if (root != null)
-            throw new IllegalStateException("Document already started");
+        checkState(root == null, "Document already started");
         root = abdera.getFactory().newDocument();
         ((Document<?>)root).setCharset(charset);
         current = root;
@@ -87,19 +88,19 @@ public class StreamBuilder extends AbstractStreamWriter {
     }
 
     private static QName getQName(String name, String namespace, String prefix) {
-        if (prefix != null)
-            return new QName(namespace, name, prefix);
-        else if (namespace != null)
-            return new QName(namespace, name);
-        else
-            return new QName(name);
+      if (prefix != null)
+        return new QName(namespace, name, prefix);
+      else if (namespace != null)
+        return new QName(namespace, name);
+      else
+        return new QName(name);
     }
 
     public StreamBuilder startElement(String name, String namespace, String prefix) {
-        current = abdera.getFactory().newElement(getQName(name, namespace, prefix), current);
-        if (root == null)
-            root = current;
-        return this;
+      current = abdera.getFactory().newElement(getQName(name, namespace, prefix), current);
+      if (root == null)
+        root = current;
+      return this;
     }
 
     public StreamBuilder endElement() {
@@ -108,10 +109,9 @@ public class StreamBuilder extends AbstractStreamWriter {
     }
 
     public StreamBuilder writeAttribute(String name, String namespace, String prefix, String value) {
-        if (!(current instanceof Element))
-            throw new IllegalStateException("Not currently an element");
-        ((Element)current).setAttributeValue(getQName(name, namespace, prefix), value);
-        return this;
+      checkIsElement(current);
+      ((Element)current).setAttributeValue(getQName(name, namespace, prefix), value);
+      return this;
     }
 
     public StreamBuilder writeComment(String value) {
@@ -119,28 +119,30 @@ public class StreamBuilder extends AbstractStreamWriter {
         return this;
     }
 
+    private void checkIsElement(Base current) {
+      checkState(current instanceof Element, "Not currently an element");
+    }
+    
     public StreamBuilder writeElementText(String value) {
-        if (!(current instanceof Element))
-            throw new IllegalStateException("Not currently an element");
-        Element element = (Element)current;
-        String text = element.getText();
-        element.setText(text + value);
-        return this;
+      checkIsElement(current);
+      Element element = (Element)current;
+      String text = element.getText();
+      element.setText(text + value);
+      return this;
     }
 
     public StreamBuilder writeId() {
-        return writeId(abdera.getFactory().newUuidUri());
+      return writeId(abdera.getFactory().newUuidUri());
     }
 
     public StreamBuilder writePI(String value) {
-        return writePI(value, null);
+      return writePI(value, null);
     }
 
     public StreamBuilder writePI(String value, String target) {
-        if (!(current instanceof Document))
-            throw new IllegalStateException("Not currently a document");
-        ((Document<?>)current).addProcessingInstruction(target != null ? target : "", value);
-        return this;
+      checkState(current instanceof Document, "Not currently a document");
+      ((Document<?>)current).addProcessingInstruction(target != null ? target : "", value);
+      return this;
     }
 
     public void close() throws IOException {
@@ -805,8 +807,7 @@ public class StreamBuilder extends AbstractStreamWriter {
     }
 
     public StreamBuilder setPrefix(String prefix, String uri) {
-        if (!(current instanceof Element))
-            throw new IllegalStateException("Not currently an element");
+        checkIsElement(current);
         ((Element)current).declareNS(uri, prefix);
         return this;
     }

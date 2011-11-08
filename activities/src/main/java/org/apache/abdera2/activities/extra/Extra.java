@@ -18,7 +18,7 @@ import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
-import org.apache.abdera2.common.selector.MultiSelector;
+import org.apache.abdera2.common.selector.Selectors;
 import org.joda.time.DateTime;
 
 import com.google.common.base.CaseFormat;
@@ -511,43 +511,43 @@ public class Extra {
   public static <X extends ASObject>Selector<X> isMeOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(ME());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isSelfOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(SELF());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isFriendsOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(FRIENDS());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isFriendsOr(String id, ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(FRIENDS(id));
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isNetworkOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(NETWORK());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isAllOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(ALL());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isPublicOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
     Selector<X> s2 = sameIdentity(PUBLIC());
-    return MultiSelector.<X>or(s1,s2);
+    return Selectors.<X>or(s1,s2);
   }
   
   /**

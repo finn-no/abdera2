@@ -43,14 +43,14 @@ public final class ObjectContext extends CachingContext {
       new HashMap<String, AccessibleObject>();
 
     public ObjectContext(Object object) {
-        this(object, false);
+      this(object, false);
     }
 
     public ObjectContext(Object object, boolean isiri) {
-        checkNotNull(object);
-        this.target = object;
-        setIri(isiri);
-        initMethods();
+      super(isiri);
+      checkNotNull(object);
+      this.target = object;
+      initMethods();
     }
     
     private void initMethods() {

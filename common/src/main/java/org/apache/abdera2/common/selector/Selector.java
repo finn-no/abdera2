@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.common.selector;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Constraint;
@@ -69,86 +67,6 @@ public interface Selector<X>
      * Returns a Selector that matches this or the inverse of the specified selector
      */
     public Selector<X> orNot(Selector<X> selector);
-    
-    public static class Utils {
-      
-      /**
-       * Creates a selector that will select at most the given number 
-       * of items. Once the threshold has been met, the selector will
-       * return false;
-       */
-      public static <X>Selector<X> counting(int limit) {
-        return new CountingSelector<X>(limit);
-      }
-      
-      private static class CountingSelector<X> 
-        extends AbstractSelector<X> {
-          private final AtomicInteger counter = new AtomicInteger();
-          private final int limit;
-          private boolean done = false;
-          public CountingSelector(int limit) {
-            this.limit = limit;
-          }
-          public boolean select(Object object) {
-            if (done) return false;
-            if (counter.incrementAndGet() <= limit)
-              return true;
-            else done = true;
-            return false;
-          }
-      }
-      
-      /**
-       * Creates a new Selector A using Selector B and Function C such that
-       * X = C(Y),
-       * B(X),
-       * A(Y) = B(C(Y)). 
-       * That is, for instance, supposing we have a 
-       * Selector<Long> B and Function<String,Long> C, this creates a 
-       * Selector<String> that will first pass the input string to the 
-       * Function, which returns a Long, and in turn passes that to selector
-       * B.
-       */
-      public static <X,Y>Selector<Y> compose(Selector<X> b, Function<Y,X> c) {
-        return new TransformSelector<Y,X>(b,c);
-      }
-      
-      /**
-       * Returns the Selector<X> as a Function<X,Boolean>
-       */
-      public static <X>Function<X,Boolean> asFunction(final Selector<X> selector) {
-        return new Function<X,Boolean>() {
-          public Boolean apply(X input) {
-            return selector.apply(input);
-          }
-        };
-      }
-      
-      /**
-       * Returns a Selector<X> that selects the inverse of the provided
-       * Selector<X>
-       */
-      public static <X>Selector<X> negate(Selector<X> selector) {
-        return new InvertedSelector<X>(selector);
-      }
-      
-      /**
-       * Returns a Selector<X> that wraps the specified Predicate<X>
-       */
-      public static <X>Selector<X> forPredicate(
-        Predicate<X> predicate) {
-          return new PredicateSelector<X>(predicate);
-      }
-      
-      /**
-       * Returns a Selector<X> that wraps a Constraint<X>
-       */
-      public static <X>Selector<X> forConstraint(
-        Constraint<X> constraint) {
-          return new ConstraintSelector<X>(constraint);
-      }
-      
-    }
     
     public static class ConstraintSelector<X>
       extends AbstractSelector<X> {

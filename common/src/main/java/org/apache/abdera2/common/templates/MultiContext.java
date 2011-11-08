@@ -17,62 +17,73 @@
  */
 package org.apache.abdera2.common.templates;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
+
 import static com.google.common.base.Preconditions.*;
 
-public class MultiContext 
+public final class MultiContext 
   extends CachingContext {
 
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static final class Builder implements Supplier<Context> {
+
+    private final Set<Context> contexts = 
+      new LinkedHashSet<Context>();
+    private boolean isiri;
+    
+    public Builder iri() {
+      this.isiri = false;
+      return this;
+    }
+    
+    public Builder with(Context context) {
+      checkNotNull(context);
+      this.contexts.add(context);
+      return this;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Builder with(Object object) {
+      checkNotNull(object);
+      this.contexts.add(
+        object instanceof Context ? 
+          (Context)object :
+          object instanceof Map ?
+            new MapContext((Map<String,Object>)object) :
+            new ObjectContext(object)
+      );
+      return this;
+    }
+    
+    public Context get() {
+      return new MultiContext(this);
+    }
+    
+  }
+  
   private static final long serialVersionUID = 1691294411780004133L;
-  private final Set<Context> contexts = 
-    new HashSet<Context>();
+  private final Set<Context> contexts;
   
-  public MultiContext(Context... contexts) {
-    for (Context context : contexts)
-      this.contexts.add(context);
-  }
-  
-  public MultiContext(Iterable<Context> contexts) {
-    checkNotNull(contexts);
-    for (Context context : contexts)
-      this.contexts.add(context);
-  }
-  
-  public MultiContext(Collection<Context> contexts) {
-    checkNotNull(contexts);
-    if (contexts == null)
-      throw new IllegalArgumentException();
-    this.contexts.addAll(contexts);
-  }
-  
-  public void add(Context context) {
-    checkNotNull(context);
-    this.contexts.add(context);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public void add(Object object) {
-    checkNotNull(object);
-    this.contexts.add(
-      object instanceof Context ? 
-        (Context)object :
-        object instanceof Map ?
-          new MapContext((Map<String,Object>)object) :
-          new ObjectContext(object)
-    );
-  }
-  
+  MultiContext(Builder builder) {
+    super(builder.isiri);
+    this.contexts = ImmutableSet.copyOf(builder.contexts);
+  } 
   public boolean contains(String var) {
     for (Context context : contexts)
       if (context.contains(var))
         return true;
     return false;
   }
-
   public Iterator<String> iterator() {
     Set<String> names = new HashSet<String>();
     for (Context context : contexts) 
@@ -80,15 +91,10 @@ public class MultiContext
         names.add(name);
     return names.iterator();
   }
-
-  @SuppressWarnings("unchecked")
-  @Override
   protected <T> T resolveActual(String var) {
     for (Context context : contexts)
       if (context.contains(var))
-        return (T)context.resolve(var);
+        return context.<T>resolve(var);
     return null;
   }
-
-
 }

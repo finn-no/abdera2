@@ -17,18 +17,15 @@
  */
 package org.apache.abdera2.common.templates;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.nio.CharBuffer;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
@@ -41,10 +38,11 @@ import org.apache.abdera2.common.text.UrlEncoding;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.ibm.icu.text.Normalizer2;
 import static com.google.common.base.Preconditions.*;
-import static org.apache.abdera2.common.misc.MorePreconditions.*;
+import static org.apache.abdera2.common.text.CharUtils.*;
 
 @SuppressWarnings("unchecked")
 public abstract class Operation implements Serializable {
@@ -52,38 +50,23 @@ public abstract class Operation implements Serializable {
     private static final long serialVersionUID = -1734350302144527120L;
     public abstract String evaluate(Expression exp, Context context);
 
-    private static Map<String, Operation> operations = getOperations();
-
-    private static Map<String, Operation> getOperations() {
-        Map<String, Operation> ops = new HashMap<String, Operation>();
-        ops.put("", new DefaultOperation());
-        ops.put("+", new ReservedExpansionOperation());
-        ops.put("#", new FragmentExpansionOperation());
-        ops.put(".", new DotExpansionOperation());
-        ops.put("/", new PathExpansionOperation());
-        ops.put(";", new PathParamExpansionOperation());
-        ops.put("?", new FormExpansionOperation());
-        ops.put("&", new QueryExpansionOperation());
-        return ops;
-    }
-
-    /**
-     * Register a new operation. The built in operations cannot be 
-     * overridden. Key should be a single character. This method
-     * is not synchronized; it is not recommended that registrations 
-     * be allowed from multiple threads or while multiple threads are
-     * expanding templates. Perform all registrations <i>before</i>
-     * any template expansion occurs.
-     */
-    public static void register(String key, Operation operation) {
-      checkArgument("+#./;?&".contains(key), "Cannot override reserved operators");
-      operations.put(key, operation);
-    }
+    private static Map<String, Operation> operations = 
+      ImmutableMap
+        .<String,Operation>builder()
+          .put("", new DefaultOperation())
+          .put("+", new ReservedExpansionOperation())
+          .put("#", new FragmentExpansionOperation())
+          .put(".", new DotExpansionOperation())
+          .put("/", new PathExpansionOperation())
+          .put(";", new PathParamExpansionOperation())
+          .put("?", new FormExpansionOperation())
+          .put("&", new QueryExpansionOperation())
+        .build();
 
     public static Operation get(String name) {
-      Operation op = operations.get(name!=null?name:"");
-      if (op != null) return op;
-      throw new UnsupportedOperationException(name);
+      name = name != null ? name : "";
+      checkArgument(operations.containsKey(name));
+      return operations.get(name);
     }
 
     protected static String eval(
@@ -92,10 +75,9 @@ public abstract class Operation implements Serializable {
         boolean reserved, 
         String explodeDelim, 
         String explodePfx) {
+        String name = checkNotNull(varspec).getName();
+        Object rep = checkNotNull(context).resolve(name);
         checkNotNull(varspec);
-        checkNotNull(context);
-        String name = varspec.getName();
-        Object rep = context.resolve(name);
         String val = toString(
             rep, 
             context, 
@@ -120,7 +102,19 @@ public abstract class Operation implements Serializable {
         Normalizer2.Mode.COMPOSE)
           .normalize(s);
     }
-
+    
+    private static <T>void appendPrim(
+      T obj, 
+      int len, 
+      StringBuilder buf, 
+      boolean explode, 
+      String exp, 
+      String explodePfx) {
+      appendif(buf.length()>0,buf,exp);
+      appendif(explode && explodePfx != null, buf, explodePfx);
+      buf.append(trim(String.valueOf(obj),len));
+    }
+    
     private static String toString(
         Object val, 
         Context context, 
@@ -131,6 +125,7 @@ public abstract class Operation implements Serializable {
         int len) {
         if (val == null)
             return null;
+        String exp = explode && explodeDelim != null ? explodeDelim : ",";
         if (val.getClass().isArray()) {
             if (val instanceof byte[]) {
                 return UrlEncoding.encode((byte[])val);
@@ -149,119 +144,79 @@ public abstract class Operation implements Serializable {
                           CharUtils.Profile.RESERVEDANDUNRESERVED);                
             } else if (val instanceof short[]) {
                 StringBuilder buf = new StringBuilder();
-                short[] array = (short[])val;
-                for (short obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (short obj : (short[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else if (val instanceof int[]) {
                 StringBuilder buf = new StringBuilder();
-                int[] array = (int[])val;
-                for (int obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (int obj : (int[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else if (val instanceof long[]) {
                 StringBuilder buf = new StringBuilder();
-                long[] array = (long[])val;
-                for (long obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (long obj : (long[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else if (val instanceof double[]) {
                 StringBuilder buf = new StringBuilder();
-                double[] array = (double[])val;
-                for (double obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (double obj : (double[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else if (val instanceof float[]) {
                 StringBuilder buf = new StringBuilder();
-                float[] array = (float[])val;
-                for (float obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (float obj : (float[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else if (val instanceof boolean[]) {
                 StringBuilder buf = new StringBuilder();
-                boolean[] array = (boolean[])val;
-                for (boolean obj : array) {
-                    if (buf.length() > 0)
-                        buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                    if (explode && explodePfx != null) 
-                      buf.append(explodePfx);
-                    buf.append(trim(String.valueOf(obj),len));
-                }
+                for (boolean obj : (boolean[])val)
+                  appendPrim(obj,len,buf,explode,exp,explodePfx);
                 return buf.toString();
             } else {
                 StringBuilder buf = new StringBuilder();
-                Object[] array = (Object[])val;
-                for (Object obj : array) {
-                  if (buf.length() > 0)
-                    buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                  if (explode && explodePfx != null) 
-                    buf.append(explodePfx);
+                for (Object obj : (Object[])val) {
+                  appendif(buf.length()>0,buf,exp);
+                  appendif(explode && explodePfx != null, buf, explodePfx);
                   buf.append(toString(obj, context, reserved, false, null, null, len));
                 }
                 return buf.toString();
             }
         } else if (val instanceof InputStream) {
             try {
-                if (len > -1) {
-                  byte[] buf = new byte[len];
-                  int r = ((InputStream)val).read(buf);
-                  byte[] dat = new byte[r];
-                  System.arraycopy(buf, 0, dat, 0, r);
-                  val = new ByteArrayInputStream(dat);
-                }
+              if (len > -1) {
+                byte[] buf = new byte[len];
+                int r = ((InputStream)val).read(buf);
+                return r > 0 ?
+                  UrlEncoding.encode(buf,0,r) : "";
+              } else
                 return UrlEncoding.encode((InputStream)val);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+              throw ExceptionHelper.propogate(e);
             }
         } else if (val instanceof Readable) {
             try { 
-                if (len > -1) {
-                  CharBuffer buf = CharBuffer.allocate(len);
-                  int r = ((Readable)val).read(buf);
-                  buf.limit(r);
-                  buf.position(0);
-                  val = buf;
-                }
-                return !reserved ?
-                    UrlEncoding.encode(
-                      (Readable)val, 
-                      "UTF-8", 
-                      context.isIri() ? 
-                          CharUtils.Profile.IUNRESERVED : 
-                          CharUtils.Profile.UNRESERVED) :
+              if (len > -1) {
+                CharBuffer buf = CharBuffer.allocate(len);
+                int r = ((Readable)val).read(buf);
+                buf.limit(r);
+                buf.position(0);
+                val = buf;
+              }
+              return !reserved ?
+                UrlEncoding.encode(
+                  (Readable)val, 
+                  "UTF-8", 
+                  context.isIri() ? 
+                    CharUtils.Profile.IUNRESERVED : 
+                    CharUtils.Profile.UNRESERVED) :
                     UrlEncoding.encode(
                       (Readable)val,
                       "UTF-8",
                       context.isIri() ?
-                          CharUtils.Profile.RESERVEDANDIUNRESERVED :
-                          CharUtils.Profile.RESERVEDANDUNRESERVED);
+                        CharUtils.Profile.RESERVEDANDIUNRESERVED :
+                        CharUtils.Profile.RESERVEDANDUNRESERVED);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+              throw new RuntimeException(e);
             }
         } else if (val instanceof CharSequence) {
             val = trim(normalize((CharSequence)val),len);
@@ -273,8 +228,7 @@ public abstract class Operation implements Serializable {
           Context ctx = (Context) val;
           for (String name : ctx) {
             String _val = toString(ctx.resolve(name), context, reserved, false, null, null, len);
-            if (buf.length() > 0)
-              buf.append(explode && explodeDelim != null ? explodeDelim : ",");
+            appendif(buf.length()>0,buf,exp);
             buf.append(name)
                .append(explode ? '=' : ',')
                .append(_val);
@@ -282,13 +236,10 @@ public abstract class Operation implements Serializable {
           return buf.toString();
         } else if (val instanceof Iterable) {
             StringBuilder buf = new StringBuilder();
-            Iterable<Object> i = (Iterable<Object>)val;
-            for (Object obj : i) {
-                if (buf.length() > 0)
-                  buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-                if (explode && explodePfx != null) 
-                  buf.append(explodePfx);
-                buf.append(toString(obj, context, reserved, false, null, null, len));
+            for (Object obj : (Iterable<Object>)val) {
+              appendif(buf.length()>0,buf,exp);
+              appendif(explode && explodePfx != null,buf,explodePfx);
+              buf.append(toString(obj, context, reserved, false, null, null, len));
             }
             return buf.toString();
         } else if (val instanceof Iterator) {
@@ -296,10 +247,8 @@ public abstract class Operation implements Serializable {
           Iterator<Object> i = (Iterator<Object>)val;
           while (i.hasNext()) {
               Object obj = i.next();
-              if (buf.length() > 0)
-                buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-              if (explode && explodePfx != null) 
-                buf.append(explodePfx);
+              appendif(buf.length()>0,buf,exp);
+              appendif(explode && explodePfx != null,buf,explodePfx);
               buf.append(toString(obj, context, reserved, false, null, null, len));
           }
           return buf.toString();
@@ -308,10 +257,8 @@ public abstract class Operation implements Serializable {
           Enumeration<Object> i = (Enumeration<Object>)val;
           while (i.hasMoreElements()) {
               Object obj = i.nextElement();
-              if (buf.length() > 0)
-                buf.append(explode && explodeDelim != null ? explodeDelim : ",");
-              if (explode && explodePfx != null) 
-                buf.append(explodePfx);
+              appendif(buf.length()>0,buf,exp);
+              appendif(explode && explodePfx != null,buf,explodePfx);
               buf.append(toString(obj, context, reserved, false, null, null, len));
           }
           return buf.toString();
@@ -321,8 +268,7 @@ public abstract class Operation implements Serializable {
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
               String _key = toString(entry.getKey(), context, reserved, false, null, null, len);
               String _val = toString(entry.getValue(), context, reserved, false, null, null, len);
-              if (buf.length() > 0)
-                buf.append(explode && explodeDelim != null ? explodeDelim : ",");
+              appendif(buf.length()>0,buf,exp);
               buf.append(_key)
                  .append(explode ? '=' : ',')
                  .append(_val);
@@ -350,9 +296,7 @@ public abstract class Operation implements Serializable {
           try {
             Future<Object> future = (Future<Object>) val;
             return toString(future.get(), context, reserved, explode, explodeDelim, explodePfx, len);
-          } catch (InterruptedException e) {
-            throw ExceptionHelper.propogate(e);
-          } catch (ExecutionException e) {
+          } catch (Throwable e) {
             throw ExceptionHelper.propogate(e);
           }
         } else {
@@ -378,7 +322,7 @@ public abstract class Operation implements Serializable {
     /**
      * Simple String Expansion ({VAR})
      */
-    private static final class DefaultOperation extends Operation {
+    static final class DefaultOperation extends Operation {
       private static final long serialVersionUID = 8676696520810767327L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -396,7 +340,7 @@ public abstract class Operation implements Serializable {
     /**
      * Reserved Expansion Operation ({+VAR})
      */
-    private static final class ReservedExpansionOperation extends Operation {
+    static final class ReservedExpansionOperation extends Operation {
         private static final long serialVersionUID = 1736980072492867748L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -414,7 +358,7 @@ public abstract class Operation implements Serializable {
     /**
      * Fragment Expansion Operation ({#VAR})
      */
-    private static final class FragmentExpansionOperation extends Operation {
+    static final class FragmentExpansionOperation extends Operation {
         private static final long serialVersionUID = -2207953454022197435L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -434,7 +378,7 @@ public abstract class Operation implements Serializable {
     /**
      * Dot Expansion Operation ({.VAR})
      */
-    private static final class DotExpansionOperation extends Operation {
+    static final class DotExpansionOperation extends Operation {
         private static final long serialVersionUID = -4357734926260213270L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -452,7 +396,7 @@ public abstract class Operation implements Serializable {
     /**
      * Path Expansion Operation ({/VAR})
      */
-    private static final class PathExpansionOperation extends Operation {
+    static final class PathExpansionOperation extends Operation {
         private static final long serialVersionUID = 5578346646541533713L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -469,7 +413,7 @@ public abstract class Operation implements Serializable {
     /**
      * Path Param Expansion Operation ({;VAR})
      */
-    private static final class PathParamExpansionOperation extends Operation {
+    static final class PathParamExpansionOperation extends Operation {
         private static final long serialVersionUID = 4556090632293646419L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
@@ -492,14 +436,13 @@ public abstract class Operation implements Serializable {
     /**
      * Form Expansion Operation ({?VAR})
      */
-    private static final class FormExpansionOperation extends Operation {  
+    static final class FormExpansionOperation extends Operation {  
         private static final long serialVersionUID = -2166695868296435715L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
             boolean first = true;
             buf.append("?");
             for (VarSpec varspec : exp) {
-              //String val = eval(varspec, context, false, "&", varspec.getName() + "=");
               String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
                 if (!first) buf.append('&');
@@ -520,12 +463,11 @@ public abstract class Operation implements Serializable {
     /**
      * Query Expansion Operation ({&VAR})
      */
-    private static final class QueryExpansionOperation extends Operation {
+    static final class QueryExpansionOperation extends Operation {
         private static final long serialVersionUID = 4029538625501399067L;
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
             for (VarSpec varspec : exp) {
-              //String val = eval(varspec, context, false, "&", varspec.getName() + "=");
               String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
                 if (varspec.isExplode()) buf.append('&');

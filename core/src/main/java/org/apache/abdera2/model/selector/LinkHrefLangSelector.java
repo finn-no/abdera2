@@ -17,14 +17,16 @@
  */
 package org.apache.abdera2.model.selector;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.lang.Range;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Link;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Selector implementation that selects Link elements specifying
@@ -35,24 +37,35 @@ public class LinkHrefLangSelector
 extends AbstractSelector<Link>
 implements Selector<Link> {
 
+  public static Selector<Link> of(Range range) {
+    return new LinkHrefLangSelector(range);
+  }
+  
+  public static Selector<Link> of(String... langs) {
+    return new LinkHrefLangSelector(langs);
+  }
+  
+  public static Selector<Link> of(Lang... langs) {
+    return new LinkHrefLangSelector(langs);
+  }
+  
   private static final long serialVersionUID = 7008363856043465676L;
-  private final Set<Lang> langs = new HashSet<Lang>();
+  private final Set<Lang> langs;
   private final Range range;
   
-  public LinkHrefLangSelector(Range range) {
+  LinkHrefLangSelector(Range range) {
     this.range = range;
+    this.langs = ImmutableSet.<Lang>of();
   }
   
-  public LinkHrefLangSelector(String... langs) {
+  LinkHrefLangSelector(String... langs) {
     this.range = null;
-    for (String lang : langs)
-      this.langs.add(new Lang(lang));
+    this.langs = MoreFunctions.immutableSetOf(langs, Lang.parser, Lang.class);
   }
   
-  public LinkHrefLangSelector(Lang... langs) {
+  LinkHrefLangSelector(Lang... langs) {
     this.range = null;
-    for (Lang lang : langs)
-      this.langs.add(lang);
+    this.langs = ImmutableSet.copyOf(langs);
   }
 
   public boolean select(Object item) {

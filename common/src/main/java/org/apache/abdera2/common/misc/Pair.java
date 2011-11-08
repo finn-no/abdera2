@@ -1,5 +1,10 @@
 package org.apache.abdera2.common.misc;
 
+import java.util.List;
+
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 public class Pair<K,V> {
 
   private final K k;
@@ -20,6 +25,22 @@ public class Pair<K,V> {
 
   public static <K,V>Pair<K,V> of(K k, V v) {
     return new Pair<K,V>(k,v);
+  }
+  
+  public static Pair<String,String> from(String pair) {
+    String[] split = pair.split("\\s*=\\s*",2);
+    return new Pair<String,String>(split[0],split.length>1?split[1]:null);
+  }
+  
+  public static Iterable<Pair<String,String>> from(String[] pairs) {
+    List<Pair<String,String>> list = Lists.newArrayList();
+    for (String pair : pairs)
+      list.add(from(pair));
+    return Iterables.unmodifiableIterable(list);
+  }
+  
+  public static Iterable<Pair<String,String>> from(String pairs, String delim) {
+    return from(pairs.split(String.format("\\s*%s\\s*",delim)));
   }
   
   @Override

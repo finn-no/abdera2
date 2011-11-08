@@ -17,11 +17,24 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
 public class MoreFunctions {
   
+  public static <T,S>Set<S> immutableSetOf(T[] items, Function<T,S> transform, Class<S> _class) {
+    S[] set = each(items, transform, _class);
+    return ImmutableSet.<S>copyOf(set);
+  }
+  
+  public static <T,S>List<S> immutableListOf(T[] items, Function<T,S> transform, Class<S> _class) {
+    S[] set = each(items, transform, _class);
+    return ImmutableList.<S>copyOf(set);
+  }
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private static int _hash(Object obj ) {
     if (obj != null) {
       Class<?> type = obj.getClass();

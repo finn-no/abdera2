@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.abdera2.common.selector.Selector;
+import org.apache.abdera2.common.selector.Selectors;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.joda.time.DateTime;
@@ -335,7 +336,7 @@ public final class DateTimes {
   }
   
   public static Selector<DateTime> selectorForRange(Range<DateTime> range) {
-    return Selector.Utils.forPredicate(range);
+    return Selectors.forPredicate(range);
   }
   
   public static Range<DateTime> all() {

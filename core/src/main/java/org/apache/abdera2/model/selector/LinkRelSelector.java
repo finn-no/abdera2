@@ -17,12 +17,13 @@
  */
 package org.apache.abdera2.model.selector;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Link;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Selector implementation that selects Link elements 
@@ -33,12 +34,15 @@ public class LinkRelSelector
 extends AbstractSelector<Link>
 implements Selector<Link> {
 
-  private static final long serialVersionUID = 7008363856043465676L;
-  private final Set<String> rels = new HashSet<String>();
+  public static Selector<Link> of(String... rels) {
+    return new LinkRelSelector(rels);
+  }
   
-  public LinkRelSelector(String... rels) {
-    for (String rel : rels)
-      this.rels.add(rel);
+  private static final long serialVersionUID = 7008363856043465676L;
+  private final Set<String> rels;
+  
+  LinkRelSelector(String... rels) {
+    this.rels = ImmutableSet.copyOf(rels);
   }
 
   public boolean select(Object item) {

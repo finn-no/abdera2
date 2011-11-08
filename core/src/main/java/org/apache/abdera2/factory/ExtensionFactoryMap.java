@@ -41,9 +41,8 @@ public class ExtensionFactoryMap
       new HashSet<String>();
     
     public ExtensionFactoryMap(Iterable<ExtensionFactory> factories) {
-      for (ExtensionFactory factory : factories) {
+      for (ExtensionFactory factory : factories)
         addFactory(factory);
-      }
     }
 
     @SuppressWarnings("unchecked")
@@ -81,10 +80,9 @@ public class ExtensionFactoryMap
     public <T extends Base> String getMimeType(T base) {
         Element element = base instanceof Element ? (Element)base : ((Document<?>)base).getRoot();
         String namespace = element.getQName().getNamespaceURI();
-        for (ExtensionFactory factory : factories) {
+        for (ExtensionFactory factory : factories)
             if (factory.handlesNamespace(namespace))
                 return factory.getMimeType(base);
-        }
         return null;
     }
 

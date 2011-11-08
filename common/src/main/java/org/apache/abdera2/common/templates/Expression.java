@@ -25,14 +25,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
+import org.apache.abdera2.common.misc.Pair;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.Expression;
 import org.apache.abdera2.common.templates.Operation;
 
+import com.google.common.collect.Iterables;
+
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.MorePreconditions.*;
 
-public class Expression 
+public final class Expression 
   implements Iterable<Expression.VarSpec>, Serializable {
   
   private static final long serialVersionUID = 1457650843240079628L;
@@ -41,13 +44,14 @@ public class Expression
   private static final Pattern LENGTH = Pattern.compile("\\:(\\d+)");
   
   private final String EXP;
-  private Operation op;
-  private List<VarSpec> varspecs = 
-    new ArrayList<VarSpec>();
+  private final Operation op;
+  private final Iterable<VarSpec> varspecs;
   
   public Expression(String exp) {
     this.EXP = exp;
-    parse();
+    Pair<Operation,Iterable<VarSpec>> parsed = parse();
+    this.op = parsed.first();
+    this.varspecs = parsed.second();
   }
   
   public String toString() {
@@ -98,31 +102,37 @@ public class Expression
     return varspecs.iterator();
   }
 
-  private void parse() {
+  private Pair<Operation,Iterable<VarSpec>> parse() {
+    List<VarSpec> varspecs = new ArrayList<VarSpec>();
+    Operation op = null;
     Matcher mt = EXPRESSION.matcher(EXP);
     if (checkArgument(mt.find(),"Invalid Expression")) {
-      this.op = Operation.get(mt.group(1)); // grab the operation
+      op = Operation.get(mt.group(1));
       String varlist = mt.group(2);
-      checkNotNull(varlist, "No variables");
       String[] vars = 
-        varlist.split("\\s*,\\s*");
+        checkNotNull(varlist).split("\\s*,\\s*");
       for (String var : vars) {
         Matcher vt = VARSPEC.matcher(var);
-        if (vt.find()) {
-          VarSpec spec = new VarSpec(vt.group(1),vt.group(2));
-          varspecs.add(spec);
-        }
+        if (vt.find())
+          varspecs.add(
+            VarSpec.create(
+              vt.group(1),
+              vt.group(2)));
       }
     }
+    return Pair.of(op,Iterables.unmodifiableIterable(varspecs));
   }
   
   
-  public static class VarSpec {
+  public static final class VarSpec {
     private final String name;
     private final int length;
     private final boolean explode;
     private final boolean noval;
-    public VarSpec(String name, String modifier) {
+    public static VarSpec create(String name, String modifier) {
+      return new VarSpec(name, modifier);
+    }
+    VarSpec(String name, String modifier) {
       this.name = name;
       this.length = getLength(modifier);
       this.explode = isExplode(modifier);

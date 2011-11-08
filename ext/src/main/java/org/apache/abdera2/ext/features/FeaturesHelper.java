@@ -23,8 +23,8 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.Abdera;
-import org.apache.abdera2.common.selector.MultiSelector;
 import org.apache.abdera2.common.selector.Selector;
+import org.apache.abdera2.common.selector.Selectors;
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.model.Collection;
 import org.apache.abdera2.model.Document;
@@ -336,8 +336,7 @@ public final class FeaturesHelper {
      * Select a Collection from the Workspace
      */
     public static Iterable<Collection> select(Workspace workspace, Selector... selectors) {
-        Selector<Collection> selector = MultiSelector.and(selectors);
-        return workspace.getCollections(selector);
+        return workspace.getCollections(Selectors.and(selectors));
     }
 
 }

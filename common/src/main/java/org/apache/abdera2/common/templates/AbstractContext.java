@@ -24,16 +24,12 @@ import org.apache.abdera2.common.templates.Context;
  */
 public abstract class AbstractContext implements Context {
 
-    private static final long serialVersionUID = -2511167897930514261L;
-
-    protected boolean iri = false;
-
-    public boolean isIri() {
-        return iri;
-    }
-
-    public void setIri(boolean isiri) {
-        this.iri = isiri;
-    }
-
+  private static final long serialVersionUID = -2511167897930514261L;
+  private final boolean iri;
+  protected AbstractContext(boolean iri) {
+    this.iri = iri;
+  }
+  public boolean isIri() {
+      return iri;
+  }
 }
