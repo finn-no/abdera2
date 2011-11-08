@@ -125,7 +125,11 @@ public abstract class SubtagSet
     }
 
     public int hashCode() {
-      return MoreFunctions.genHashCode(1, this);
+        final int prime = 31;
+        int result = 1;
+        for (Subtag tag : this)
+            result = prime * result + tag.hashCode();
+        return result;
     }
 
     public boolean equals(Object obj) {
