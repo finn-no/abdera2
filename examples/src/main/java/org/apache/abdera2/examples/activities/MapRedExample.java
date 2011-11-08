@@ -23,7 +23,7 @@ import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.misc.MapRed.Collector;
 import org.apache.abdera2.common.misc.MapRed.Mapper;
 import org.apache.abdera2.common.misc.Pair;
-import org.apache.abdera2.common.misc.MapRed.PairBuilder;
+import org.apache.abdera2.common.misc.Pair.PairBuilder;
 import org.apache.abdera2.common.misc.MapRed.ReducerFunction;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Feed;
@@ -103,10 +103,8 @@ public class MapRedExample {
     
     // Prepare the input data
     PairBuilder<Void,Activity> gen = 
-      MapRed
-      .<Void,Activity>make();
-    for (Activity activity : col.getItems())
-      gen.pair(null, activity);
+      Pair.<Void,Activity>make()
+        .index(MoreFunctions.<Activity,Void>alwaysNull(), col.getItems());
         
     // The Function ff is asynchronous... we apply it, then call get on
     // the returned Future to wait the result. The mapreduce operation

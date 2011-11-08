@@ -16,7 +16,6 @@ import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
@@ -40,83 +39,41 @@ import com.google.common.collect.Iterators;
  * an application.
  * 
  * A number of common basic Mapper and Reducer objects are also provided.
+ * 
+ * <pre>
+ * Function&lt;Iterable&lt;Pair&lt;Void,String>>,Iterable&lt;Pair&lt;String,Iterable&lt;Integer>>>> f1 = ...
+ * Iterable&lt;Pair&lt;String,Iterable&lt;Integer>>> res = f1.apply(gen.get());
+ * </pre>
+ * 
+ * By default, the Function, and the wrapped MapReduce operation, executes 
+ * within the current thread and blocks until completion. If you need async
+ * operation.. first, you should consider whether you need a full MapReduce 
+ * implementation like Hadoop, or, you can use wrap the Function in a 
+ * MoreFunctions.FutureFunction... e.g. 
+ * 
+ * <pre>
+ * ExecutorService exec = 
+ *   MoreExecutors.getExitingExecutorService(
+ *     (ThreadPoolExecutor) Executors.newCachedThreadPool());
+ *
+ * Function&lt;
+ *   Iterable&lt;MapRed.Pair&lt;Void, Activity>>, 
+ *   Future&lt;Iterable&lt;MapRed.Pair&lt;Integer,Iterable&lt;String>>>>> ff = 
+ *   MoreFunctions.&lt;
+ *     Iterable&lt;MapRed.Pair&lt;Void, Activity>>, 
+ *     Iterable&lt;MapRed.Pair&lt;Integer,Iterable&lt;String>>>>futureFunction(f3,exec);
+ * </pre>
+ * 
+ * Note, again, the tricky use of generics but defining things in this way
+ * ensures type-safety throughout the operation. The FutureFunction.apply() 
+ * will submit the operation to the provided Executor and return a Future 
+ * whose value will be set once the operation completes. For greater control 
+ * over the execution, you can call MoreFunctions.functionTask(...) to get
+ * a FutureTask instance that you can submit the ExecutorService yourself.
  */
 public final class MapRed {
   
   private MapRed() {}
-  
-  /**
-   * Begin constructing the input to a MapReduce Function using a 
-   * fluent factory API.. e.g.
-   * <pre>
-   * MapRed.PairBuilder&lt;Void,Activity> gen = 
-   *   MapRed
-   *    .&lt;Void,String>make()
-   *    .pair(null, "a")
-   *    .pair(null, "b")
-   *    .pair(null, "c");
-   * </pre>
-   * 
-   * The PairBuilder.get() method return an Iterable of MapRed.Pair
-   * objects. That Iterable is used as the input to the MapReduce Function.. 
-   * e.g.
-   * 
-   * <pre>
-   * Function&lt;Iterable&lt;Pair&lt;Void,String>>,Iterable&lt;Pair&lt;String,Iterable&lt;Integer>>>> f1 = ...
-   * Iterable&lt;Pair&lt;String,Iterable&lt;Integer>>> res = f1.apply(gen.get());
-   * </pre>
-   * 
-   * By default, the Function, and the wrapped MapReduce operation, executes 
-   * within the current thread and blocks until completion. If you need async
-   * operation.. first, you should consider whether you need a full MapReduce 
-   * implementation like Hadoop, or, you can use wrap the Function in a 
-   * MoreFunctions.FutureFunction... e.g. 
-   * 
-   * <pre>
-   * ExecutorService exec = 
-   *   MoreExecutors.getExitingExecutorService(
-   *     (ThreadPoolExecutor) Executors.newCachedThreadPool());
-   *
-   * Function&lt;
-   *   Iterable&lt;MapRed.Pair&lt;Void, Activity>>, 
-   *   Future&lt;Iterable&lt;MapRed.Pair&lt;Integer,Iterable&lt;String>>>>> ff = 
-   *   MoreFunctions.&lt;
-   *     Iterable&lt;MapRed.Pair&lt;Void, Activity>>, 
-   *     Iterable&lt;MapRed.Pair&lt;Integer,Iterable&lt;String>>>>futureFunction(f3,exec);
-   * </pre>
-   * 
-   * Note, again, the tricky use of generics but defining things in this way
-   * ensures type-safety throughout the operation. The FutureFunction.apply() 
-   * will submit the operation to the provided Executor and return a Future 
-   * whose value will be set once the operation completes. For greater control 
-   * over the execution, you can call MoreFunctions.functionTask(...) to get
-   * a FutureTask instance that you can submit the ExecutorService yourself.
-   */
-  public static <K,V>PairBuilder<K,V> make() {
-    return new PairBuilder<K,V>();
-  }
-  
-  public static class PairBuilder<K,V> implements Supplier<Iterable<Pair<K,V>>>, PairReader<K,V> {
-    private final List<Pair<K,V>> list = 
-      new ArrayList<Pair<K,V>>();
-    public PairBuilder<K,V> pair(K k, V v) {
-      list.add(Pair.<K,V>of(k,v));
-      return this;
-    }
-    public Iterable<Pair<K, V>> get() {
-      return list;
-    }
-    public Iterator<Pair<K, V>> iterator() {
-      return get().iterator();
-    }
-  }
-  
-  public static <K,V>Iterable<Pair<K,V>> pairs(Map<K,V> map) {
-    List<Pair<K,V>> list = new ArrayList<Pair<K,V>>();
-    for (Map.Entry<K,V> entry : map.entrySet())
-      list.add(Pair.of(entry.getKey(),entry.getValue()));
-    return list;
-  }
   
   public static interface Reducer<K2,V2,K3,V3> {
     void reduce(
@@ -132,8 +89,6 @@ public final class MapRed {
   public static interface Collector<K,V> {
     void collect(K key, V val);
   }
-  
-  public static interface PairReader<K,V> extends Iterable<Pair<K,V>> {}
   
   public static interface MapperFunction<K1,V1,K2,V2>
     extends Function<Iterable<Pair<K1,V1>>,Iterable<Pair<K2,Iterable<V2>>>> {}

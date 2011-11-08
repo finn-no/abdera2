@@ -24,6 +24,14 @@ import com.google.common.util.concurrent.ListenableFutureTask;
 
 public class MoreFunctions {
   
+  public static <K,V>Function<K,V> alwaysNull() {
+    return new Function<K,V>() {
+      public V apply(K input) {
+        return null;
+      }
+    };
+  }
+  
   public static <T,S>Set<S> immutableSetOf(T[] items, Function<T,S> transform, Class<S> _class) {
     S[] set = each(items, transform, _class);
     return ImmutableSet.<S>copyOf(set);

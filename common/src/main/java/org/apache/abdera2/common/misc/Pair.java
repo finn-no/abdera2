@@ -1,9 +1,13 @@
 package org.apache.abdera2.common.misc;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Pair<K,V> {
 
@@ -22,7 +26,7 @@ public class Pair<K,V> {
   public V second() {
     return v;
   }
-
+  
   public static <K,V>Pair<K,V> of(K k, V v) {
     return new Pair<K,V>(k,v);
   }
@@ -32,11 +36,18 @@ public class Pair<K,V> {
     return new Pair<String,String>(split[0],split.length>1?split[1]:null);
   }
   
+  public static <K,V>Iterable<Pair<K,V>> from(Map<K,V> map) {
+    PairBuilder<K,V> pb = make();
+    for (Map.Entry<K,V> entry : map.entrySet())
+      pb.pair(entry);
+    return pb.get();
+  }
+  
   public static Iterable<Pair<String,String>> from(String[] pairs) {
-    List<Pair<String,String>> list = Lists.newArrayList();
+    PairBuilder<String,String> pb = make();
     for (String pair : pairs)
-      list.add(from(pair));
-    return Iterables.unmodifiableIterable(list);
+      pb.pair(from(pair));
+    return pb.get();
   }
   
   public static Iterable<Pair<String,String>> from(String pairs, String delim) {
@@ -71,4 +82,48 @@ public class Pair<K,V> {
     return true;
   }
   
+  public static <K,V>PairBuilder<K,V> make() {
+    return new PairBuilder<K,V>();
+  }
+  
+  public static class PairBuilder<K,V> 
+    implements Supplier<Iterable<Pair<K,V>>>, PairReader<K,V> {
+    private final ImmutableSet.Builder<Pair<K,V>> builder =
+      ImmutableSet.builder();
+    public PairBuilder<K,V> index(
+      Function<V,K> keyFunction,
+      V... vals) {
+      checkNotNull(keyFunction);
+      for (V v : vals)
+        pair(keyFunction.apply(v),v);
+      return this;      
+    }
+    public PairBuilder<K,V> index(
+      Function<V,K> keyFunction, 
+      Iterable<V> vals) {
+      checkNotNull(keyFunction);
+      for (V v : checkNotNull(vals))
+        pair(keyFunction.apply(v),v);
+      return this;
+    }
+    public PairBuilder<K,V> pair(K k, V v) {
+      builder.add(Pair.<K,V>of(k,v));
+      return this;
+    }
+    public PairBuilder<K,V> pair(Pair<K,V> pair) {
+      builder.add(pair);
+      return this;
+    }
+    public PairBuilder<K,V> pair(Map.Entry<K,V> entry) {
+      return pair(entry.getKey(),entry.getValue());
+    }
+    public Iterable<Pair<K, V>> get() {
+      return builder.build();
+    }
+    public Iterator<Pair<K, V>> iterator() {
+      return get().iterator();
+    }
+  }
+  
+  public static interface PairReader<K,V> extends Iterable<Pair<K,V>> {}
 }

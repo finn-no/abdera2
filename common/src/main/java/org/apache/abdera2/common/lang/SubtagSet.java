@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
-import org.apache.abdera2.common.misc.MoreFunctions;
 
 public abstract class SubtagSet 
   implements Serializable, 
