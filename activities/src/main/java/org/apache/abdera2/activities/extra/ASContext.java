@@ -22,6 +22,10 @@ public final class ASContext
   private static final long serialVersionUID = 4445623432125049535L;
   private final ASBase base;
   
+  public static ASContext create(ASBase base) {
+    return new ASContext(base);
+  }
+  
   public ASContext(ASBase base) {
     super(false);
     this.base = base;

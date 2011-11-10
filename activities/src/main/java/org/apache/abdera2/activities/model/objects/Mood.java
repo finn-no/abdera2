@@ -17,61 +17,63 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASBase;
-import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.activities.model.MediaLink;
+import org.apache.abdera2.common.iri.IRI;
 
-public class Mood extends ASBase {
+public final class Mood extends ASBase {
 
-  private static final long serialVersionUID = -3361108212621494744L;
   public static final String IMAGE = "image";
   public static final String DISPLAYNAME = "displayName";
   
-  public Mood() {}
-  
-  public Mood(String displayName) {
-    setDisplayName(displayName);
+  protected Mood(Map<String,Object> map) {
+    super(map,Builder.class,Mood.class);
   }
   
   public String getDisplayName() {
     return getProperty(DISPLAYNAME);
   }
   
-  public void setDisplayName(String displayName) {
-    setProperty(DISPLAYNAME, displayName);
-  }
-  
   public MediaLink getImage() {
     return getProperty(IMAGE);
-  }
-  
-  public void setImage(MediaLink image) {
-    setProperty(IMAGE, image);
   }
   
   public String toString() {
     return getDisplayName();
   }
   
-  public static <T extends Mood>MoodGenerator<T> makeMood() {
-    return new MoodGenerator<T>();
+  public static Builder makeMood() {
+    return new Builder();
   }
   
-  @SuppressWarnings("unchecked")
-  public static class MoodGenerator<T extends Mood> extends Generator<T> {
-    public MoodGenerator() {
-      super((Class<? extends T>) Mood.class);
+  public static Mood makeMood(String name, MediaLink image) {
+    return makeMood().displayName(name).image(image).get();
+  }
+  
+  public static Mood makeMood(String name, String image) {
+    return makeMood().displayName(name).image(MediaLink.makeMediaLink(image)).get();
+  }
+  
+  public static Mood makeMood(String name, IRI image) {
+    return makeMood().displayName(name).image(MediaLink.makeMediaLink(image)).get();
+  }
+
+  public static final class Builder extends ASBase.Builder<Mood,Builder> {
+    public Builder() {
+      super(Mood.class,Builder.class);
     }
-    public MoodGenerator(Class<T> _class) {
-      super(_class);
+    protected Builder(Map<String,Object> map) {
+      super(map,Mood.class,Builder.class);
     }
-    public <X extends MoodGenerator<T>>X displayName(String dn) {
-      item.setDisplayName(dn);
-      return (X)this;
+    public Builder displayName(String dn) {
+      set(DISPLAYNAME,dn);
+      return this;
     }
-    public <X extends MoodGenerator<T>>X image(MediaLink link) {
-      item.setImage(link);
-      return (X)this;
+    public Builder image(MediaLink link) {
+      set(IMAGE, link);
+      return this;
     }
   }
 }

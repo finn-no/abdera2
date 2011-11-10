@@ -17,50 +17,73 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 
-@Name("bookmark")
 public class BookmarkObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -2753772783838463022L;
   public static final String TARGETURL = "targetUrl";
   
-  public BookmarkObject() {}
-  
-  public BookmarkObject(String displayName) {
-    setDisplayName(displayName);
+  public BookmarkObject(Map<String,Object> map) {
+    super(map,BookmarkBuilder.class,BookmarkObject.class);
   }
   
+  public <X extends BookmarkObject, M extends Builder<X,M>>BookmarkObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+
   public String getTargetUrl() {
     return getProperty(TARGETURL);
   }
   
-  public void setTargetUrl(String targetUrl) {
-    setProperty(TARGETURL, targetUrl);
+  public static BookmarkBuilder makeBookmark() {
+    return new BookmarkBuilder("bookmark");
   }
 
-  public static <T extends BookmarkObject>BookmarkObjectGenerator<T> makeBookmark() {
-    return new BookmarkObjectGenerator<T>();
+  public static BookmarkBuilder makeBookmark(String targetUrl) {
+    return makeBookmark().targetUrl(targetUrl);
+  }
+  
+  public static BookmarkBuilder makeBookmark(IRI targetUrl) {
+    return makeBookmark().targetUrl(targetUrl);
+  }
+  
+  @Name("bookmark")
+  public static final class BookmarkBuilder 
+    extends Builder<BookmarkObject,BookmarkBuilder> {
+    public BookmarkBuilder() {
+      super(BookmarkObject.class,BookmarkBuilder.class);
+    }
+    public BookmarkBuilder(Map<String, Object> map) {
+      super(map, BookmarkObject.class,BookmarkBuilder.class);
+    }
+    public BookmarkBuilder(String objectType) {
+      super(objectType, BookmarkObject.class,BookmarkBuilder.class);
+    }
   }
   
   @SuppressWarnings("unchecked")
-  public static class BookmarkObjectGenerator<T extends BookmarkObject> extends ASObjectGenerator<T> {
-    public BookmarkObjectGenerator() {
-      super((Class<? extends T>) BookmarkObject.class);
+  public static abstract class Builder<X extends BookmarkObject, M extends Builder<X,M>> 
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X> _class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public BookmarkObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X> _class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends BookmarkObjectGenerator<T>>X targetUrl(String uri) {
-      item.setTargetUrl(uri);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X> _class,Class<M>_builder) {
+      super(map,_class,_builder);
     }
-    public <X extends BookmarkObjectGenerator<T>>X targetUrl(IRI uri) {
-      item.setTargetUrl(uri != null ? uri.toString() : null);
-      return (X)this;
+    public M targetUrl(String uri) {
+      return targetUrl(new IRI(uri));
     }
+    public M targetUrl(IRI uri) {
+      set(TARGETURL,uri);
+      return (M)this;
+    }    
   }
 }

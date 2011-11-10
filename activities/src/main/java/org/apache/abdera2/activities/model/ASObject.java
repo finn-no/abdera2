@@ -20,20 +20,20 @@ package org.apache.abdera2.activities.model;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.objects.EmbeddedExperience;
 import org.apache.abdera2.activities.model.objects.Mood;
-import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
-import org.apache.abdera2.common.anno.AnnoUtil;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 /**
@@ -42,7 +42,6 @@ import com.google.common.collect.Iterables;
 @SuppressWarnings("unchecked")
 public class ASObject extends ASBase {
 
-  private static final long serialVersionUID = -6969558559101109831L;
   public static final String ATTACHMENTS = "attachments";
   public static final String AUTHOR = "author";
   public static final String CONTENT = "content";
@@ -66,12 +65,195 @@ public class ASObject extends ASBase {
   
   public static final String EMBED = "embed";
   
-  public ASObject() {
-    setObjectType(AnnoUtil.getName(this));
+  public static ASObjectBuilder makeObject() {
+    return new ASObjectBuilder();
   }
   
-  public ASObject(String objectType) {
-    setObjectType(objectType);
+  public static ASObjectBuilder makeObject(String objectType) {
+    return new ASObjectBuilder(objectType);
+  }
+  
+  public static class ASObjectBuilder extends Builder<ASObject,ASObjectBuilder> {
+    public ASObjectBuilder() {
+      super(ASObject.class, ASObjectBuilder.class);
+    }
+    public ASObjectBuilder(Map<String, Object> map) {
+      super(map, ASObject.class, ASObjectBuilder.class);
+    }
+    public ASObjectBuilder(String objectType) {
+      super(objectType, ASObject.class, ASObjectBuilder.class);
+    }
+  }
+  
+  public static abstract class Builder<X extends ASObject, M extends Builder<X,M>>
+    extends ASBase.Builder<X,M> {
+
+    private ImmutableSet.Builder<ASObject> attachments = ImmutableSet.builder();
+    private ImmutableSet.Builder<ASObject> tags = ImmutableSet.builder();
+    private ImmutableSet.Builder<ASObject> replies = ImmutableSet.builder();
+    private ImmutableSet.Builder<String> downdups = ImmutableSet.builder();
+    private ImmutableSet.Builder<String> updups = ImmutableSet.builder();
+    private boolean a,t,r,d,u;
+    
+    public Builder(String objectType, Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
+      set(OBJECTTYPE,objectType);
+    }
+    public Builder(Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
+    }
+    public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      super(map,_class,_builder);
+    }
+    public M attachment(ASObject object) {
+      if (object == null) return (M)this;
+      if (!a)a=true;
+      attachments.add(object);
+      return (M)this;
+    }
+    
+    public M downstreamDuplicate(String id) {
+      if (id == null) return (M)this;
+      if (!d)d=true;
+      downdups.add(id);
+      return (M)this;
+    }
+    
+    public M inReplyTo(ASObject object) {
+      if (object == null) return (M)this;
+      if (!r)r=true;
+      replies.add(object);
+      return (M)this;
+    }
+    
+    public M tag(ASObject object) {
+      if (object == null) return (M)this;
+      if (!t)t=true;
+      tags.add(object);
+      return (M)this;
+    }
+    
+    public M upstreamDuplicate(String id) {
+      if (id == null) return (M)this;
+      if (!u)u=true;
+      updups.add(id);
+      return (M)this;
+    }
+    
+    public M author(ASObject object) {
+      set(AUTHOR,object);
+      return (M)this;
+    }
+    
+    public M content(String content) {
+      set(CONTENT,content);
+      return (M)this;
+    }
+    
+    public M displayName(String displayName) {
+      set(DISPLAYNAME,displayName);
+      return (M)this;
+    }
+    
+    public M embed(ASObject object) {
+      set(EMBED,object);
+      return (M)this;
+    }
+    
+    public M embeddedExperience(EmbeddedExperience ee) {
+      set(
+        "openSocial",
+        ASBase
+          .make()
+            .set("embed",ee)
+          .get()
+      );
+      return (M)this;
+    }
+    
+    public M id(String id) {
+      set(ID,id);
+      return (M)this;
+    }
+    
+    public M image(MediaLink link) {
+      set(IMAGE,link);
+      return (M)this;
+    }
+    
+    public M location(PlaceObject object) {
+      set(LOCATION,object);
+      return (M)this;
+    }
+    
+    public M mood(Mood mood) {
+      set(MOOD,mood);
+      return (M)this;
+    }
+    
+    public M objectType(String type) {
+      set(OBJECTTYPE,type);
+      return (M)this;
+    }
+    
+    public M published(DateTime dt) {
+      set(PUBLISHED,dt);
+      return (M)this;
+    }
+    
+    public M publishedNow() {
+      return published(DateTimes.now());
+    }
+    
+    public M rating(double rating) {
+      set(RATING,rating);
+      return (M)this;
+    }
+    
+    public M source(ASObject object) {
+      set(SOURCE,object);
+      return (M)this;
+    }
+    
+    public M summary(String summary) {
+      set(SUMMARY,summary);
+      return (M)this;
+    }
+    
+    public M updated(DateTime dt) {
+      set(UPDATED,dt);
+      return (M)this;
+    }
+    
+    public M updatedNow() {
+      return updated(DateTimes.now());
+    }
+    
+    public M url(IRI url) {
+      set(URL,url);
+      return (M)this;
+    }
+    
+    public M url(String url) {
+      return url(url != null ? new IRI(url) : null);
+    }
+    
+    public void preGet() {
+      if (a) set(ATTACHMENTS, attachments.build());
+      if (t) set(TAGS, tags.build());
+      if (r) set(INREPLYTO, replies.build());
+      if (d) set(DOWNSTREAMDUPLICATES, downdups.build());
+      if (u) set(UPSTREAMDUPLICATES, updups.build());
+    }
+    
+  }
+    
+  public ASObject(Map<String,Object> map) {
+    super(map,ASObjectBuilder.class,ASObject.class);
+  }
+  
+  public <X extends ASObject, M extends Builder<X,M>>ASObject(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    super(map,_class,_obj);
   }
   
   /**
@@ -82,63 +264,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Sets the value of the attachments property... note... internally, the
-   * list of attachments does not allow for duplicate entries so the collection
-   * passed in is changed to a LinkedHashSet, maintaining the order of the 
-   * entries but eliminating duplicates. 
-   */
-  public void setAttachments(java.util.Collection<ASObject> attachments) {;
-    setProperty(ATTACHMENTS, new LinkedHashSet<ASObject>(attachments));
-  }
-  
-  /**
-   * Adds an attachment to the "attachments" property.
-   */
-  public void addAttachment(ASObject... attachments) {
-    Set<ASObject> list = getProperty(ATTACHMENTS);
-    if (list == null) {
-      list = new LinkedHashSet<ASObject>();
-      setProperty(ATTACHMENTS, list);
-    }
-    for (ASObject attachment : attachments)
-      list.add(attachment); 
-  }
-  
-  /**
    * Return the author of this object
    */
   public <E extends ASObject>E getAuthor() {
     return (E)getProperty(AUTHOR);
-  }
-  
-  /**
-   * Return the author of this object, if the author has not been
-   * set and create==true, creates a default PersonObject and 
-   * returns that.
-   */
-  public <E extends ASObject>E getAuthor(boolean create) {
-    ASObject obj = getAuthor();
-    if (obj == null && create) {
-      obj = new PersonObject();
-      setAuthor(obj);
-    }
-    return (E)obj;
-  }
-  
-  /**
-   * Set the author of the object
-   */
-  public void setAuthor(ASObject author) {
-    setProperty(AUTHOR, author);
-  }
-  
-  /**
-   * Set the author of the object
-   */
-  public <E extends ASObject>E setAuthor(String displayName) {
-    ASObject obj = getAuthor(true);
-    obj.setDisplayName(displayName);
-    return (E)obj;
   }
   
   /**
@@ -149,26 +278,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the content of the object
-   */
-  public void setContent(String content) {
-    setProperty(CONTENT, content);
-    
-  }
-  
-  /**
    * Get the displayName of the object
    */
   public String getDisplayName() {
     return getProperty(DISPLAYNAME);
-  }
-  
-  /**
-   * Set the displayName of the object
-   */
-  public void setDisplayName(String displayName) {
-    setProperty(DISPLAYNAME, displayName);
-    
   }
   
   /**
@@ -185,51 +298,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the list of downstream duplicate ids for this object. 
-   * When an object is redistributed by third parties, the value of the "id"
-   * property may change. When such changes do occur, it becomes difficult
-   * to track duplicate versions of the same object. The "downstreamDuplicates"
-   * and "upstreamDuplicates" properties on the object can be used to track 
-   * modifications that occur in the "id" of the object in order to make
-   * duplication detection easier
-   */
-  public void setDownstreamDuplicates(Set<String> downstreamDuplicates) {
-    setProperty(DOWNSTREAMDUPLICATES, downstreamDuplicates);
-    
-  }
-  
-  /**
-   * Add an entry to the list of downstream duplicate ids for this object. 
-   * When an object is redistributed by third parties, the value of the "id"
-   * property may change. When such changes do occur, it becomes difficult
-   * to track duplicate versions of the same object. The "downstreamDuplicates"
-   * and "upstreamDuplicates" properties on the object can be used to track 
-   * modifications that occur in the "id" of the object in order to make
-   * duplication detection easier
-   */
-  public void addDownstreamDuplicate(String... duplicates) {
-    Set<String> downstreamDuplicates = getProperty(DOWNSTREAMDUPLICATES);
-    if (downstreamDuplicates == null) {
-      downstreamDuplicates = new HashSet<String>();
-      setProperty(DOWNSTREAMDUPLICATES, downstreamDuplicates);
-    }
-    for (String downstreamDuplicate : duplicates)
-      downstreamDuplicates.add(downstreamDuplicate);  
-  }
-  
-  /**
    * Get the id of this object
    */
   public String getId() {
     return getProperty(ID);
-  }
-  
-  /**
-   * Set the id of this object
-   */
-  public void setId(String id) {
-    setProperty(ID, id);
-    
   }
   
   /**
@@ -240,71 +312,17 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the "image" property
-   */
-  public void setImage(MediaLink image) {
-    setProperty(IMAGE, image);
-  }
-  
-  /**
-   * Set the "image" property
-   */
-  public void setImage(String uri) {
-    if (uri == null) 
-      setImage((MediaLink)null);
-    else {
-      MediaLink link = getImage();
-      if (link == null) {
-        link = new MediaLink();
-        setProperty(IMAGE,link);
-      }
-      link.setUrl(uri);
-    }
-  }
-  
-  /**
-   * Set the "image" property
-   */
-  public void setImage(IRI uri) {
-    setImage(uri != null ? uri.toString() : null);
-  }
-  
-  /**
    * Get the objectType
    */
   public String getObjectType() {
     return getProperty(OBJECTTYPE);
   }
-  
-  /**
-   * Set the objectType
-   */
-  public void setObjectType(String objectType) {
-    if (objectType != null && 
-        ASObject.class.getSimpleName().equalsIgnoreCase(objectType))
-      objectType = null;
-    setProperty(OBJECTTYPE, objectType);
-  }
-  
+    
   /**
    * Get the "published" datetime
    */
   public DateTime getPublished() {
     return getProperty(PUBLISHED);
-  }
-  
-  /**
-   * Set the "published" datetime
-   */
-  public void setPublished(DateTime published) {
-    setProperty(PUBLISHED, published);
-  }
-  
-  /**
-   * Set the "published" property to the current date, time and default timezone
-   */
-  public void setPublishedNow() {
-    setPublished(DateTime.now());
   }
   
   /**
@@ -315,31 +333,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the "summary" property
-   */
-  public void setSummary(String summary) {
-    setProperty(SUMMARY, summary);
-  }
-  
-  /**
    * Get the "updated" property
    */
   public DateTime getUpdated() {
     return getProperty(UPDATED);
-  }
-  
-  /**
-   * Set the "updated" property 
-   */
-  public void setUpdated(DateTime updated) {
-    setProperty(UPDATED, updated);
-  }
-  
-  /**
-   * Set the "updated" property to the current date,time and default timezone
-   */
-  public void setUpdatedNow() {
-    setUpdated(DateTime.now());
   }
   
   /**
@@ -356,50 +353,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the list of upstream duplicate ids for this object. 
-   * When an object is redistributed by third parties, the value of the "id"
-   * property may change. When such changes do occur, it becomes difficult
-   * to track duplicate versions of the same object. The "downstreamDuplicates"
-   * and "upstreamDuplicates" properties on the object can be used to track 
-   * modifications that occur in the "id" of the object in order to make
-   * duplication detection easier
-   */
-  public void setUpstreamDuplicates(Set<String> upstreamDuplicates) {
-    setProperty(UPSTREAMDUPLICATES, upstreamDuplicates);
-    
-  }
-  
-  /**
-   * Add to the list of upstream duplicate ids for this object. 
-   * When an object is redistributed by third parties, the value of the "id"
-   * property may change. When such changes do occur, it becomes difficult
-   * to track duplicate versions of the same object. The "downstreamDuplicates"
-   * and "upstreamDuplicates" properties on the object can be used to track 
-   * modifications that occur in the "id" of the object in order to make
-   * duplication detection easier
-   */
-  public void addUpstreamDuplicate(String... duplicates) {
-    Set<String> upstreamDuplicates = getProperty(UPSTREAMDUPLICATES);
-    if (upstreamDuplicates == null) {
-      upstreamDuplicates = new HashSet<String>();
-      setProperty(UPSTREAMDUPLICATES, upstreamDuplicates);
-    }
-    for (String upstreamDuplicate : duplicates)
-      upstreamDuplicates.add(upstreamDuplicate);
-  }
-  
-  /**
    * Get the url of this object
    */
   public IRI getUrl() {
     return getProperty(URL);
-  }
-  
-  /**
-   * Set the url of this object 
-   */
-  public void setUrl(IRI url) {
-    setProperty(URL,url);
   }
   
   /**
@@ -420,41 +377,12 @@ public class ASObject extends ASBase {
         list.add(obj);
     return list;
   }
-  
-  /**
-   * Set the collection of objects this object is considered a response to.
-   * Note that duplicates are removed
-   */
-  public void setInReplyTo(java.util.Collection<ASObject> inReplyTo) {
-    setProperty(INREPLYTO, new LinkedHashSet<ASObject>(inReplyTo));
-  }
-  
-  /**
-   * Add a new object this object is considered a response to
-   */
-  public void addInReplyTo(ASObject... inReplyTos) {
-    Set<ASObject> list = getProperty(INREPLYTO);
-    if (list == null) {
-      list = new LinkedHashSet<ASObject>();
-      setProperty(INREPLYTO, list);
-    }
-    for (ASObject inReplyTo : inReplyTos)
-      list.add(inReplyTo);
-  }
-  
+    
   /**
    * Get the "location" property
    */
   public PlaceObject getLocation() {
     return getProperty(LOCATION);
-  }
-  
-  /**
-   * Set the "location" property
-   */
-  public void setLocation(PlaceObject location) {
-    setProperty(LOCATION, location);
-    location.setObjectType(null);
   }
   
   /**
@@ -465,13 +393,6 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the "mood" property
-   */
-  public void setMood(Mood mood) {
-    setProperty(MOOD, mood);
-  }
-  
-  /**
    * Get the "source" property
    */
   public <E extends ASObject>E getSource() {
@@ -479,38 +400,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * Set the "source" property
-   */
-  public void setSource(ASObject source) {
-    setProperty(SOURCE, source);
-  }
-
-  /**
    * Get the collection of tags for this object
    */
   public Iterable<ASObject> getTags() {
     return checkEmpty((Iterable<ASObject>)getProperty(TAGS));
-  }
-  
-  /**
-   * Set the collection of tags for this object. Duplicates 
-   * will be removed.
-   */
-  public void setTags(java.util.Collection<ASObject> tags) {
-    setProperty(TAGS, new LinkedHashSet<ASObject>(tags));
-  }
-  
-  /**
-   * Add an object to the collection of tags for this object
-   */
-  public void addTag(ASObject... tags) {
-    Set<ASObject> list = getProperty(TAGS);
-    if (list == null) {
-      list = new LinkedHashSet<ASObject>();
-      setProperty(TAGS, list);
-    }
-    for (ASObject tag : tags)
-      list.add(tag); 
   }
   
   /**
@@ -522,25 +415,10 @@ public class ASObject extends ASBase {
   }
   
   /**
-   * @see org.apache.abdera2.activities.model.ASObject.setEmbeddedExperience()
-   * {"embed":{...}}
-   */
-  public void setEmbed(ASObject embed) {
-    setProperty(EMBED,embed);
-  }
-  
-  /**
    * Get the "rating" property
    */
   public double getRating() {
     return (Double)getProperty(RATING);
-  }
-  
-  /**
-   * Set the "rating" property
-   */
-  public void setRating(double rating) {
-    setProperty(RATING, rating);
   }
   
   public String toString() {
@@ -579,42 +457,13 @@ public class ASObject extends ASBase {
    * 
    * {"openSocial":{"embed":{...}}}
    */
-  public void setEmbeddedExperience(EmbeddedExperience embed) {
-    ASBase os = getProperty("openSocial");
-    if (os == null) {
-      os = new ASBase();
-      setProperty("openSocial", os);
-    }
-    os.setProperty("embed", embed);
-  }
-  
-  /**
-   * "Embedded Experiences" were introduced to Activity Streams 
-   * by the OpenSocial 2.0 specification, while functionally not 
-   * specific to OpenSocial, the spec defines that the "Embedded 
-   * Experience" document has to be wrapped within an "openSocial"
-   * extension property. Other applications, such as Google+, however,
-   * use the "embed" property directly within an object without the
-   * "openSocial" wrapper. To use the "embed" property without 
-   * the "openSocial" wrapper, use the setEmbed/getEmbed properties
-   * on ASObject. To use OpenSocial style Embedded Experiences, 
-   * use the setEmbeddedExperience/getEmbeddedExperience/hasEmbeddedExperience
-   * methods. The OpenSocial style Embedded Experience should be used
-   * primarily to associate OpenSocial Gadgets with an activity 
-   * object while the alternative "embed" can be used to reference
-   * any kind of embedded content.
-   * 
-   * {"openSocial":{"embed":{...}}}
-   */
   public EmbeddedExperience getEmbeddedExperience() {
     if (!has("openSocial")) return null;
     ASBase os = getProperty("openSocial");
     if (!os.has("embed")) return null;
     ASBase e = os.getProperty("embed");
-    if (!(e instanceof EmbeddedExperience)) {
+    if (!(e instanceof EmbeddedExperience))
       e = e.as(EmbeddedExperience.class);
-      os.setProperty("embed", e);
-    }
     return (EmbeddedExperience) e;
   }
   
@@ -649,142 +498,10 @@ public class ASObject extends ASBase {
     return list;
   }
   
-  /**
-   * Begins creating a new object using the fluent factory api
-   */
-  public static <X extends ASObjectGenerator<T>,T extends ASObject>X make() {
-    return (X)new ASObjectGenerator<T>();
+  public <T extends ASObject,M extends Builder<T,M>>T as(Class<T> type, String newObjectType) {
+    return (T)as(type,withoutFields("objectType"))
+      .<T,M>template()
+        .objectType(newObjectType).get();
   }
   
-  public static class ASObjectGenerator<T extends ASObject> extends Generator<T> {
-
-    public ASObjectGenerator() {
-      super((Class<? extends T>) ASObject.class);
-      startNew();
-    }
-    
-    public ASObjectGenerator(Class<? extends T> _class) {
-      super(_class);
-      startNew();
-    }
-
-    public <X extends ASObjectGenerator<T>>X attachment(ASObject object) {
-      item.addAttachment(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X downstreamDuplicate(String id) {
-      item.addDownstreamDuplicate(id);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X inReplyTo(ASObject object) {
-      item.addInReplyTo(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X tag(ASObject object) {
-      item.addTag(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X upstreamDuplicate(String id) {
-      item.addUpstreamDuplicate(id);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X author(ASObject object) {
-      item.setAuthor(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X content(String content) {
-      item.setContent(content);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X displayName(String displayName) {
-      item.setDisplayName(displayName);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X embed(ASObject object) {
-      item.setEmbed(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X embeddedExperience(EmbeddedExperience ee) {
-      item.setEmbeddedExperience(ee);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X id(String id) {
-      item.setId(id);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X image(MediaLink link) {
-      item.setImage(link);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X location(PlaceObject object) {
-      item.setLocation(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X mood(Mood mood) {
-      item.setMood(mood);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X objectType(String type) {
-      item.setObjectType(type);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X published(DateTime dt) {
-      item.setPublished(dt);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X publishedNow() {
-      item.setPublishedNow();
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X rating(double rating) {
-      item.setRating(rating);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X source(ASObject object) {
-      item.setSource(object);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X summary(String summary) {
-      item.setSummary(summary);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X updated(DateTime dt) {
-      item.setUpdated(dt);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X updatedNow() {
-      item.setUpdatedNow();
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X url(IRI url) {
-      item.setUrl(url);
-      return (X)this;
-    }
-    
-    public <X extends ASObjectGenerator<T>>X url(String url) {
-      return url(new IRI(url));
-    }
-  }
 }

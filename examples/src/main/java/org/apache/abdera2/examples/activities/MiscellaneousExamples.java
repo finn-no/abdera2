@@ -3,6 +3,7 @@ package org.apache.abdera2.examples.activities;
 import org.apache.abdera2.activities.extra.ASContext;
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.common.templates.Template;
 
@@ -36,16 +37,39 @@ public class MiscellaneousExamples {
     // do not know about each other directly, we can related the two
     // and detect that they are likely duplicates of one another
     
-    Activity a1 = new Activity();
-    a1.setId("foo");
-    a1.addDownstreamDuplicate("baz");
+    Activity a1 = 
+      Activity.makeActivity()
+        .id("foo")
+        .downstreamDuplicate("baz")
+        .get();
     
-    Activity a2 = new Activity();
-    a2.setId("bar");
-    a2.addUpstreamDuplicate("baz");
+    Activity a2 = 
+      Activity.makeActivity()
+       .id("bar")
+       .upstreamDuplicate("baz")
+       .get();
     
     System.out.println(Extra.IDENTITY_EQUIVALENCE.equivalent(a1, a2)); // false
     System.out.println(Extra.IDENTITY_WITH_DUPLICATES_EQUIVALENCE.equivalent(a1, a2)); // true
+    
+    
+    // All of the Activity objects are immutable thread-safe instances,
+    // which means editing the data in an object is a bit more difficult 
+    // that just calling a setter...
+    // support we want to add a property to one of the activities
+    // we created above... we can do so by using the activity as a template
+    // for creating a new Activity object
+    
+    Activity a3 = a1.<Activity,ActivityBuilder>template().set("foo", "bar").get();
+    a3.writeTo(System.out);
+    
+    // it's also possible to merge two objects into a forth of the 
+    // same or different type... when merging, properties contained
+    // in the passed in object will replace those contained in the 
+    // original source object. The merge is not deep...
+    
+    Activity a4 = a1.as(Activity.class, a3);
+    a4.writeTo(System.out);
     
     
     
@@ -62,8 +86,9 @@ public class MiscellaneousExamples {
     // the url for the next page.
     
     Collection<Activity> collection = 
-      new Collection<Activity>();
-    collection.setProperty("nextPageToken", "foo");
+      Collection.<Activity>makeCollection()
+        .set("nextPageToken", "foo")
+        .get();
     
     Template template = 
       new Template("http://example.org/stuff{?nextPageToken}");

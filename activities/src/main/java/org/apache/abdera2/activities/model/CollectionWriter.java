@@ -12,10 +12,14 @@ public interface CollectionWriter {
    */
   <X extends CollectionWriter>X writeHeader(ASBase base);
   
+  <X extends CollectionWriter>X writeHeader(ASBase.Builder<?,?> base);
+  
   /**
    * Writes an object to the items array of the Collection
    */
   <X extends CollectionWriter>X writeObject(ASObject object);
+  
+  <X extends CollectionWriter>X writeObject(ASObject.Builder<?,?> object);
   
   /**
    * Writes one or more objects to the items array of the Collection

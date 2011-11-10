@@ -17,128 +17,114 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.DateTime;
 
-@Name("event")
 public class EventObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -7607925831414516450L;
   public static final String ATTENDING = "attending";
   public static final String ENDTIME = "endTime";
   public static final String MAYBEATTENDING = "maybeAttending";
   public static final String NOTATTENDING = "notAttending";
   public static final String STARTTIME = "startTime";
   
-  public EventObject() {
+  public EventObject(Map<String,Object> map) {
+    super(map,EventBuilder.class,EventObject.class);
   }
   
-  public EventObject(String displayName) {
-    setDisplayName(displayName);
-  }
-  
-  protected Collection<ASObject> getcol(String name, boolean create) {
-    Collection<ASObject> col = getProperty(name);
-    if (col == null && create) {
-      col = new Collection<ASObject>();
-      setProperty(name,col);
-    }
-    return col;
+  public <X extends EventObject, M extends Builder<X,M>>EventObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   public Collection<ASObject> getAttending() {
-    return getcol(ATTENDING,false);
-  }
-  
-  public Collection<ASObject> getAttending(boolean create) {
-    return getcol(ATTENDING,create);
-  }
-  
-  public void setAttending(Collection<ASObject> attending) {
-    setProperty(ATTENDING, attending);
+    return getProperty(ATTENDING);
   }
   
   public DateTime getEndTime() {
     return getProperty(ENDTIME);
   }
   
-  public void setEndTime(DateTime endTime) {
-    setProperty(ENDTIME, endTime);
-  }
-  
   public Collection<ASObject> getMaybeAttending() {
-    return getcol(MAYBEATTENDING,false);
-  }
-  
-  public Collection<ASObject> getMaybeAttending(boolean create) {
-    return getcol(MAYBEATTENDING,create);
-  }
-  
-  public void setMaybeAttending(Collection<ASObject> maybeAttending) {
-    setProperty(MAYBEATTENDING, maybeAttending);
+    return getProperty(MAYBEATTENDING);
   }
   
   public Collection<ASObject> getNotAttending() {
-    return getcol(NOTATTENDING,false);
-  }
-  
-  public Collection<ASObject> getNotAttending(boolean create) {
-    return getcol(NOTATTENDING,create);
-  }
-  
-  public void setNotAttending(Collection<ASObject> notAttending) {
-    setProperty(NOTATTENDING, notAttending);
+    return getProperty(NOTATTENDING);
   }
   
   public DateTime getStartTime() {
     return getProperty(STARTTIME);
   }
   
-  public void setStartTime(DateTime startTime) {
-    setProperty(STARTTIME, startTime);
+  public static EventBuilder makeEvent() {
+    return new EventBuilder("event");
   }
+  
+  public static EventBuilder makeEvent(String objectType) {
+    return new EventBuilder(objectType);
+  }
+  
+  @Name("event")
+  public static final class EventBuilder extends Builder<EventObject,EventBuilder> {
 
-  public static <T extends EventObject>EventObjectGenerator<T> makeEvent() {
-    return new EventObjectGenerator<T>();
+    public EventBuilder() {
+      super(EventObject.class,EventBuilder.class);
+    }
+
+    public EventBuilder(Map<String, Object> map) {
+      super(map, EventObject.class,EventBuilder.class);
+    }
+
+    public EventBuilder(String objectType) {
+      super(objectType, EventObject.class,EventBuilder.class);
+    }
+    
   }
   
   @SuppressWarnings("unchecked")
-  public static class EventObjectGenerator<T extends EventObject> extends ASObjectGenerator<T> {
+  public static abstract class Builder<X extends EventObject,M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
 
-    public EventObjectGenerator() {
-      super((Class<? extends T>) EventObject.class);
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
     
-    public EventObjectGenerator(Class<? extends T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
     
-    public <X extends EventObjectGenerator<T>>X attending(Collection<ASObject> col) {
-      item.setAttending(col);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
+    }
+
+    public <T extends ASObject>M attending(Collection<T> col) {
+      set(ATTENDING, col);
+      return (M)this;
     }
     
-    public <X extends EventObjectGenerator<T>>X endTime(DateTime dt) {
-      item.setEndTime(dt);
-      return (X)this;
+    public M endTime(DateTime dt) {
+      set(ENDTIME, dt);
+      return (M)this;
     }
     
-    public <X extends EventObjectGenerator<T>>X maybeAttending(Collection<ASObject> col) {
-      item.setMaybeAttending(col);
-      return (X)this;
+    public <T extends ASObject>M maybeAttending(Collection<T> col) {
+      set(MAYBEATTENDING, col);
+      return (M)this;
     }
     
-    public <X extends EventObjectGenerator<T>>X notAttending(Collection<ASObject> col) {
-      item.setNotAttending(col);
-      return (X)this;
+    public <T extends ASObject>M notAttending(Collection<T> col) {
+      set(NOTATTENDING, col);
+      return (M)this;
     }
     
-    public <X extends EventObjectGenerator<T>>X startTime(DateTime t) {
-      item.setStartTime(t);
-      return (X)this;
-    }
+    public M startTime(DateTime t) {
+      set(STARTTIME, t);
+      return (M)this;
+    }    
   }
 }

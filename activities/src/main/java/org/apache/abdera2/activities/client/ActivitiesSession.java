@@ -3,6 +3,7 @@ package org.apache.abdera2.activities.client;
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.activities.model.ASDocument;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
@@ -38,29 +39,29 @@ public class ActivitiesSession
     return (ActivitiesClient) client;
   }
 
-  public <T extends Collection<?>>T getCollection(String uri) {
-    return (T)getCollection(uri, this.getDefaultRequestOptions());
+  public <T extends Collection<?>>ASDocument<T> getCollection(String uri) {
+    return this.<T>getCollection(uri, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base) {
-    return (T)post(uri,base, this.getDefaultRequestOptions());
+    return this.<T>post(uri,base, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base, RequestOptions options) {
     ActivityEntity entity = new ActivityEntity(base);
-    return (T)post(uri, entity, options);
+    return this.<T>post(uri, entity, options);
   }
 
   public <T extends ClientResponse>T put(String uri, ASBase base) {
-    return (T)put(uri,base, this.getDefaultRequestOptions());
+    return this.<T>put(uri,base, this.getDefaultRequestOptions());
   }
   
   public <T extends ClientResponse>T put(String uri, ASBase base, RequestOptions options) {
     ActivityEntity entity = new ActivityEntity(base);
-    return (T)put(uri, entity, options);
+    return this.<T>put(uri, entity, options);
   }
   
-  public <T extends Collection<?>>T getCollection(String uri, RequestOptions options) {
+  public <T extends Collection<?>>ASDocument<T> getCollection(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {
       if (cr != null) {
@@ -68,8 +69,7 @@ public class ActivitiesSession
         case SUCCESSFUL:
           try {
             T t = (T)io.readCollection(cr.getReader());
-            setDocProperties(cr,t);
-            return t;
+            return getDoc(cr,t);
           } catch (Throwable t) {
             throw new ProtocolException(601, t.getMessage());
           }
@@ -84,11 +84,11 @@ public class ActivitiesSession
     }
   }
   
-  public <T extends Activity>T getActivity(String uri) {
-    return (T)getActivity(uri,this.getDefaultRequestOptions());
+  public <T extends Activity>ASDocument<T> getActivity(String uri) {
+    return this.<T>getActivity(uri,this.getDefaultRequestOptions());
   }
   
-  public <T extends Activity>T getActivity(String uri, RequestOptions options) {
+  public <T extends Activity>ASDocument<T> getActivity(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {
       if (cr != null) {
@@ -96,8 +96,7 @@ public class ActivitiesSession
         case SUCCESSFUL:
           try {
             T t = (T)io.readActivity(cr.getReader());
-            setDocProperties(cr,t);
-            return t;
+            return getDoc(cr,t);
           } catch (Throwable t) {
             throw new ProtocolException(601, t.getMessage());
           }
@@ -112,11 +111,11 @@ public class ActivitiesSession
     }
   }
   
-  public <T extends ASObject>T getObject(String uri) {
-    return (T)getObject(uri, this.getDefaultRequestOptions());
+  public <T extends ASObject>ASDocument<T> getObject(String uri) {
+    return this.<T>getObject(uri, this.getDefaultRequestOptions());
   }
 
-  public <T extends ASObject>T getObject(String uri, RequestOptions options) {
+  public <T extends ASObject>ASDocument<T> getObject(String uri, RequestOptions options) {
     ClientResponse cr = get(uri, options);
     try {
       if (cr != null) {
@@ -124,8 +123,7 @@ public class ActivitiesSession
         case SUCCESSFUL:
           try {
             T t = (T)io.readObject(cr.getReader());
-            setDocProperties(cr,t);
-            return t;
+            return getDoc(cr,t);
           } catch (Throwable t) {
             throw new ProtocolException(601, t.getMessage());
           }
@@ -140,21 +138,24 @@ public class ActivitiesSession
     }
   }
   
-  private void setDocProperties(ClientResponse resp, ASBase base) {
+  private <T extends ASBase>ASDocument<T> getDoc(ClientResponse resp, T base) {
+    ASDocument.Builder<T> builder = 
+      ASDocument.make(base);
     EntityTag etag = resp.getEntityTag();
     if (etag != null)
-        base.setEntityTag(etag);
+        builder.entityTag(etag);
     DateTime lm = resp.getLastModified();
     if (lm != null)
-        base.setLastModified(lm);
+        builder.lastModified(lm);
     MimeType mt = resp.getContentType();
     if (mt != null)
-        base.setContentType(mt.toString());
+        builder.contentType(mt.toString());
     String language = resp.getContentLanguage();
     if (language != null)
-        base.setLanguage(language);
+        builder.language(language);
     String slug = resp.getSlug();
     if (slug != null)
-        base.setSlug(slug);
+        builder.slug(slug);
+    return builder.get();
   }
 }

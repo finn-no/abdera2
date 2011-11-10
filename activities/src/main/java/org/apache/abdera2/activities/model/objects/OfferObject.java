@@ -1,5 +1,7 @@
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
@@ -10,128 +12,117 @@ import org.joda.time.DateTime;
  * A simple "objectType":"offer" object that serves primarily as an 
  * example of creating new ASObject types.
  */
-@Name("offer")
-@Properties({
-  @Property(name="validFrom",to=DateTime.class),
-  @Property(name="validUntil",to=DateTime.class)
-})
 @SuppressWarnings("unchecked")
 public class OfferObject extends ASObject {
 
-  private static final long serialVersionUID = 8693274483912587801L;
 
-  public OfferObject() {}
+  public OfferObject(Map<String,Object> map) {
+    super(map,OfferBuilder.class,OfferObject.class);
+  }
   
-  public OfferObject(String displayName) {
-    setDisplayName(displayName);
+  public <X extends OfferObject, M extends Builder<X,M>>OfferObject(Map<String,Object> map,Class<M>_class,Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   public <T extends ASObject>T getAvailability() {
     return (T)getProperty("availability");
   }
   
-  public void setAvailability(ASObject availability) {
-    setProperty("availability", availability);
-  }
-  
   public <T extends ASObject>T getCondition() {
     return (T)getProperty("condition");
-  }
-  
-  public void setCondition(ASObject condition) {
-    setProperty("condition", condition);
   }
   
   public <T extends ASObject>T getItem() {
     return (T)getProperty("item");
   }
   
-  public void setItem(ASObject item) {
-    setProperty("item", item);
-  }
-  
   public String getPrice() {
     return getProperty("price");
-  }
-  
-  public void setPrice(String price) {
-    setProperty("price", price);
   }
   
   public String getCurrency() {
     return getProperty("currency");
   }
   
-  public void setCurrency(String currency) {
-    setProperty("currency",currency);
-  }
-  
   public DateTime getValidUntil() {
     return getProperty("validUntil");
-  }
-  
-  public void setValidUntil(DateTime date) {
-    setProperty("validUntil", date);
   }
   
   public DateTime getValidFrom() {
     return getProperty("validFrom");
   }
   
-  public void setValidFrom(DateTime date) {
-    setProperty("validFrom", date);
-  }
-
   public <T extends ASObject>T getRestriction() {
     return (T)getProperty("restriction");
   }
   
-  public void setRestriction(ASObject restriction) {
-    setProperty("restriction", restriction);
+  public static OfferBuilder makeOffer() {
+    return new OfferBuilder("offer");
   }
   
-  public static <T extends OfferObject>OfferObjectGenerator<T> makeOffer() {
-    return new OfferObjectGenerator<T>();
+  @Name("offer")
+  @Properties({
+    @Property(name="validFrom",to=DateTime.class),
+    @Property(name="validUntil",to=DateTime.class)
+  })
+  public static final class OfferBuilder extends Builder<OfferObject,OfferBuilder> {
+
+    public OfferBuilder() {
+      super(OfferObject.class,OfferBuilder.class);
+    }
+
+    public OfferBuilder(Map<String, Object> map) {
+      super(map, OfferObject.class,OfferBuilder.class);
+    }
+
+    public OfferBuilder(String objectType) {
+      super(objectType, OfferObject.class,OfferBuilder.class);
+    }
+    
   }
   
-  public static class OfferObjectGenerator<T extends OfferObject> extends ASObjectGenerator<T> {
-    public OfferObjectGenerator() {
-      super((Class<T>)OfferObject.class);
+  public static abstract class Builder<X extends OfferObject,M extends Builder<X,M>> 
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public OfferObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends OfferObjectGenerator<T>>X availability(ASObject obj) {
-      item.setAvailability(obj);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
     }
-    public <X extends OfferObjectGenerator<T>>X condition(ASObject obj) {
-      item.setCondition(obj);
-      return (X)this;
+    public M availability(ASObject obj) {
+      set("availability",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X currency(String obj) {
-      item.setCurrency(obj);
-      return (X)this;
+    public M condition(ASObject obj) {
+      set("condition",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X item(ASObject obj) {
-      item.setItem(obj);
-      return (X)this;
+    public M currency(String obj) {
+      set("currency",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X price(String obj) {
-      item.setPrice(obj);
-      return (X)this;
+    public M item(ASObject obj) {
+      set("item",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X restriction(ASObject obj) {
-      item.setRestriction(obj);
-      return (X)this;
+    public M price(String obj) {
+      set("price",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X validFrom(DateTime obj) {
-      item.setValidFrom(obj);
-      return (X)this;
+    public M restriction(ASObject obj) {
+      set("restriction",obj);
+      return (M)this;
     }
-    public <X extends OfferObjectGenerator<T>>X validUntil(DateTime obj) {
-      item.setValidUntil(obj);
-      return (X)this;
+    public M validFrom(DateTime obj) {
+      set("validFrom",obj);
+      return (M)this;
+    }
+    public M validUntil(DateTime obj) {
+      set("validUntil",obj);
+      return (M)this;
     }
   }
 }

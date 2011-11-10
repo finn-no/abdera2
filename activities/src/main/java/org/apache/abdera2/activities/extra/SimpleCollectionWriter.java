@@ -8,31 +8,27 @@ import org.apache.abdera2.activities.model.Collection;
  * Simple implementation of the CollectionWriter interface that builds
  * an in-memory Collection using the CollectionWriter's streaming interface.
  */
-@SuppressWarnings({"unchecked","rawtypes"})
-public class SimpleCollectionWriter 
+@SuppressWarnings({"unchecked"})
+public class SimpleCollectionWriter<T extends ASObject> 
   extends AbstractCollectionWriter {
 
-  private final Collection collection = new Collection();
+  private final Collection.CollectionBuilder<T> builder = 
+    Collection.makeCollection();
   
   @Override
   protected void write(String name, Object val) {
-    collection.setProperty(name, val);
+    builder.set(name, val);
   }
 
-  @Override
-  protected void startItems() {
-    collection.getItems(true);
-  }
+  protected void startItems() {}
 
-  @Override
   protected void writeItem(ASObject object) {
-    collection.addItem(object);
+    builder.item((T)object);
   }
 
-  @Override
   public void complete() {}
 
-  public <T extends ASObject>Collection<T> getCollection() {
-    return (Collection<T>) collection;
+  public Collection<T> getCollection() {
+    return builder.get();
   }
 }

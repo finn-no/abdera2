@@ -18,17 +18,16 @@
 package org.apache.abdera2.activities.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.lang.Iterable;
 
-import org.apache.abdera2.activities.model.objects.PersonObject;
-import org.apache.abdera2.activities.model.objects.ServiceObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
 import org.joda.time.DateTime;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * An Activity. Represents some action that has been taken. At it's core,
@@ -39,10 +38,8 @@ import org.joda.time.DateTime;
  * "post", the Object is "a photo" and the Target is "his album". 
  */
 @SuppressWarnings("unchecked")
-@Name("activity")
 public class Activity extends ASObject {
 
-  private static final long serialVersionUID = -3284781784555866672L;
   public static final String ACTOR = "actor";
   public static final String CONTENT = "content";
   public static final String GENERATOR = "generator";
@@ -74,33 +71,129 @@ public class Activity extends ASObject {
     }
   };
   
-  public Activity() {}
-  
-  public Activity(
-    ASObject actor, 
-    Verb verb) {
-      setActor(actor);
-      setVerb(verb);
+  /**
+   * Begin creating a new Activity object using the fluent factory API
+   */
+  public static ActivityBuilder makeActivity() {
+    return new ActivityBuilder("activity");
   }
   
-  public Activity(
-    ASObject actor, 
-    Verb verb, 
-    ASObject object) {
-      setActor(actor);
-      setVerb(verb);
-      setObject(object);
+  @Name("activity")
+  public static class ActivityBuilder extends Builder<Activity,ActivityBuilder> {
+    public ActivityBuilder() {
+      super(Activity.class,ActivityBuilder.class);
+    }
+    public ActivityBuilder(Map<String, Object> map) {
+      super(map, Activity.class,ActivityBuilder.class);
+    }
+    public ActivityBuilder(String objectType) {
+      super(objectType,Activity.class,ActivityBuilder.class);
+    }
   }
   
-  public Activity(
-    ASObject actor, 
-    Verb verb, 
-    ASObject object, 
-    ASObject target) {
-      setActor(actor);
-      setVerb(verb);
-      setObject(object);
-      setTarget(target);
+  public static abstract class Builder<X extends Activity, M extends Builder<X,M>> 
+    extends ASObject.Builder<X,M> {
+
+    private final ImmutableSet.Builder<ASObject> to = 
+      ImmutableSet.builder();
+    private final ImmutableSet.Builder<ASObject> bto = 
+      ImmutableSet.builder();
+    private final ImmutableSet.Builder<ASObject> cc = 
+      ImmutableSet.builder();
+    private final ImmutableSet.Builder<ASObject> bcc = 
+      ImmutableSet.builder();
+    boolean a,b,c,d;
+    
+    protected Builder(Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
+    }
+    
+    protected Builder(String objectType,Class<X> _class, Class<M> _builder) {
+      super(objectType,_class,_builder);
+    }
+    
+    protected Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      super(map,_class,_builder);
+    }
+    
+    public M to(ASObject object) {
+      a = true;
+      to.add(object);
+      return (M)this;
+    }
+    public M cc(ASObject object) {
+      b = true;
+      cc.add(object);
+      return (M)this;
+    }
+    public M bcc(ASObject object) {
+      c = true;
+      bcc.add(object);
+      return (M)this;
+    }
+    public M bto(ASObject object) {
+      d = true;
+      bto.add(object);
+      return (M)this;
+    }
+    public M actor(ASObject object) {
+      set(ACTOR,object);
+      return (M)this;
+    }
+    public M generator(ASObject object) {
+      set(GENERATOR,object);
+      return (M)this;
+    }
+    public M icon(MediaLink link) {
+      set(ICON,link);
+      return (M)this;
+    }
+    public M object(ASObject object) {
+      set(OBJECT,object);
+      return (M)this;
+    }
+    public M provider(ASObject object) {
+      set(PROVIDER,object);
+      return (M)this;
+    }
+    public M target(ASObject object) {
+      set(TARGET,object);
+      return (M)this;
+    }
+    public M title(String title) {
+      set(TITLE,title);
+      return (M)this;
+    }
+    public M verb(Verb verb) {
+      set(VERB,verb);
+      return (M)this;
+    }
+    public M displayName(String displayName) {
+      title(displayName);
+      return (M)this;
+    }
+    public M image(MediaLink link) {
+      icon(link);
+      return (M)this;
+    }
+    public M author(ASObject author) {
+      actor(author);
+      return (M)this;
+    }
+    public void preGet() {
+      if (a) set(Audience.TO.label(),to.build());
+      if (b) set(Audience.CC.label(),cc.build());
+      if (c) set(Audience.BCC.label(),bcc.build());
+      if (d) set(Audience.BTO.label(),bto.build());
+    }
+  }
+  
+  public Activity(Map<String,Object> map) {
+    super(map,ActivityBuilder.class,Activity.class);
+  }
+  
+  public <X extends Activity, M extends Builder<X,M>>Activity(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    super(map,_class, _obj);
   }
   
   public ASObject getActor() {
@@ -108,53 +201,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Returns the Actor Object... if an actor object 
-   * does not yet exist and create==true, a default
-   * PersonObject will be created and set as the 
-   * object and returned.
-   */
-  public <E extends ASObject>E getActor(boolean create) {
-    ASObject obj = getActor();
-    if (obj == null && create) {
-      obj = new PersonObject();
-      setActor(obj);
-    }
-    return (E)obj;
-  }
-  
-  /**
-   * Set the Actor for this Activity.
-   */
-  public void setActor(ASObject actor) {
-    setProperty(ACTOR, actor);
-  }
-  
-  /**
-   * Set the Actor's displayName for this activity. 
-   * If the Actor has not yet been set, a default
-   * PersonObject will be created with the specified
-   * displayName. If the Actor object has already 
-   * been set, this will change the displayName to
-   * that specified.
-   */
-  public <E extends ASObject>E setActor(String displayName) {
-    ASObject obj = getActor(true);
-    obj.setDisplayName(displayName);
-    return (E)obj;
-  }
-  
-  /**
    * Return the value of the "content" property for this activity
    */
   public String getContent() {
     return getProperty(CONTENT);
-  }
-  
-  /**
-   * Set the value of the "content" property for this activity
-   */
-  public void setContent(String content) {
-    setProperty(CONTENT, content);
   }
   
   /**
@@ -166,77 +216,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Return the ASObject value for the "generator" property for this
-   * activity. If the generator has not yet been set and create==true,
-   * a default ServiceObject will be created, set and returned.
-   */
-  public <E extends ASObject>E getGenerator(boolean create) {
-    ASObject obj = getGenerator();
-    if (obj == null && create) {
-      obj = new ServiceObject();
-      setGenerator(obj);
-    }
-    return (E)obj;
-  }
-  
-  /**
-   * Set the value of the "generator" property for this Activity
-   */
-  public void setGenerator(ASObject generator) {
-    setProperty(GENERATOR, generator); 
-  }
-  
-  /**
-   * Set the value of the "generator" properties displayName.
-   * If the generator has not yet been set, a default ServiceObject
-   * will be created, set and returned. Otherwise, the displayName
-   * of the existing object will be changed to that specified.
-   */
-  public <E extends ASObject>E setGenerator(String displayName) {
-    ASObject obj = getGenerator(true);
-    obj.setDisplayName(displayName);
-    return (E)obj;
-  }
-  
-  /**
    * Return the value of the "icon" property 
    */
   public MediaLink getIcon() {
     return getProperty(ICON);
-  }
-  
-  /**
-   * Set the value of the "icon" property
-   */
-  public void setIcon(MediaLink icon) {
-    setProperty(ICON, icon);  
-  }
-  
-  /**
-   * Set the value of the "icon" property. If the
-   * property has not yet been set, the MediaLink
-   * will be created.
-   */
-  public void setIcon(String uri) {
-    if (uri == null) 
-      setProperty(ICON,null);
-    else {
-      MediaLink link = getIcon();
-      if (link == null) {
-        link = new MediaLink();
-        setIcon(link);
-      }
-      link.setUrl(uri);
-    }
-  }
-  
-  /**
-   * Set the value of the "icon" property. If the
-   * property has not yet been set, the MediaLink 
-   * will be created.
-   */
-  public void setIcon(IRI uri) {
-    setIcon(uri != null ? uri.toString() : null);
   }
   
   /**
@@ -247,31 +230,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Set the value of the "id" property
-   */
-  public void setId(String id) {
-    setProperty(ID, id);
-  }
-  
-  /**
-   * set the value of the "id" property
-   */
-  public void setId(IRI id) {
-    setId(id != null ? id.toString() : null);
-  }
-  
-  /**
    * Get the Activities Object property
    */
   public <E extends ASObject>E getObject() {
     return (E)getProperty(OBJECT);
-  }
-  
-  /**
-   * Set the Activities Object property
-   */
-  public void setObject(ASObject object) {
-    setProperty(OBJECT, object);
   }
   
   /**
@@ -282,57 +244,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Set the value of the Activities "published" property
-   */
-  public void setPublished(DateTime published) {
-    setProperty(PUBLISHED, published);
-  }
-  
-  /**
-   * Set the value of the Activities "published" property using the current date, time and default timezone
-   */
-  public void setPublishedNow() {
-    setPublished(DateTime.now());
-  }
-  
-  /**
    * Get the value of the Activities "provider" property
    */
   public <E extends ASObject>E getProvider() {
     return (E)getProperty(PROVIDER);
-  }
-  
-  /**
-   * Set the value of the Activities "provider" property.
-   * If the value has not yet been set, a default ServiceObject
-   * will be created, set and returned
-   */
-  public <E extends ASObject>E getProvider(boolean create) {
-    ASObject obj = getProvider();
-    if (obj == null && create) {
-      obj = new ServiceObject();
-      setProvider(obj);
-    }
-    return (E)obj;
-  }
-  
-  /**
-   * Set the value of the Activities "provider" property
-   */
-  public void setProvider(ASObject provider) {
-    setProperty(PROVIDER, provider);
-  }
-  
-  /**
-   * Set the displayName of the Activities "provider" property.
-   * If the object has not yet been created, a default 
-   * ServiceObject will be created, otherwise the displayName
-   * will be changed to the provided value
-   */
-  public <E extends ASObject>E setProvider(String displayName) {
-    ASObject obj = getProvider(true);
-    obj.setDisplayName(displayName);
-    return (E)obj;
   }
   
   /**
@@ -343,25 +258,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Set the value of the Activities "target" property
-   */
-  public void setTarget(ASObject target) {
-    setProperty(TARGET, target);
-  }
-  
-  /**
    * Get the value of the "title" property
    */
   public String getTitle() {
     return getProperty(TITLE);
-  }
-  
-  /**
-   * Set the value of the "title" property
-   */
-  public void setTitle(String title) {
-    setProperty(TITLE, title);
-    
   }
   
   /**
@@ -372,31 +272,10 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Set the value of the "updated" property
-   */
-  public void setUpdated(DateTime updated) {
-    setProperty(UPDATED, updated);
-  }
-  
-  /**
-   * Set the value of the "updated" property to the current date, time and default timezone
-   */
-  public void setUpdatedNow() {
-    setUpdated(DateTime.now());
-  }
-  
-  /**
    * Get the value of the "url" property
    */
   public IRI getUrl() {
     return getProperty(URL);
-  }
-  
-  /**
-   * Set the value of the "url" property
-   */
-  public void setUrl(IRI url) {
-    setProperty(URL, url);
   }
   
   /**
@@ -406,20 +285,6 @@ public class Activity extends ASObject {
     return getProperty(VERB);
   }
   
-  /**
-   * Set the value of the "verb" property
-   */
-  public void setVerb(Verb verb) {
-    setProperty(VERB, verb);
-  }
-  
-  /**
-   * Set the value of the "verb" property
-   */
-  public void setVerb(String verb) {
-    setVerb(verb != null ? Verb.get(verb) : null);
-  }
-
   /**
    * Get the value of the "author" property.. for Activity 
    * objects, the "author" property is mapped to the "actor"
@@ -432,39 +297,6 @@ public class Activity extends ASObject {
   }
   
   /**
-   * Set the value of the "author" property.. for Activity
-   * objects, the "author" property is mapped to the "actor"
-   * property in orde to avoid duplication of content. 
-   * If you want to set the actual "author" property,  use
-   * setProperty("author",val)
-   */
-  public <E extends ASObject>E getAuthor(boolean create) {
-    return (E)getActor(create);
-  }
-
-  /**
-   * Set the value of the "author" property.. for Activity
-   * objects, the "author" property is mapped to the "actor"
-   * property in orde to avoid duplication of content. 
-   * If you want to set the actual "author" property,  use
-   * setProperty("author",val)
-   */
-  public void setAuthor(ASObject author) {
-    setActor(author); 
-  }
-  
-  /**
-   * Set the value of the "author" property.. for Activity
-   * objects, the "author" property is mapped to the "actor"
-   * property in order to avoid duplication of content. 
-   * If you want to set the actual "author" property,  use
-   * setProperty("author",val)
-   */
-  public <E extends ASObject>E setAuthor(String displayName) {
-    return (E)setActor(displayName);
-  }
-
-  /**
    * Get the "displayName" property. For Activity objects, the
    * "displayName" property is mapped to the "title" property.
    * If you want to get the actual "displayName" property,
@@ -472,16 +304,6 @@ public class Activity extends ASObject {
    */
   public String getDisplayName() {
     return getTitle();
-  }
-
-  /**
-   * Set the "displayName" property. For Activity objects, the
-   * "displayName" property is mapped to the "title" property.
-   * If you want to set the actual "displayName" property,
-   * us setProperty("displayName",val)
-   */
-  public void setDisplayName(String displayName) {
-    setTitle(displayName);
   }
 
   /**
@@ -494,16 +316,6 @@ public class Activity extends ASObject {
     return getIcon();
   }
 
-  /**
-   * Set the "image" property. For Activity objects, the
-   * "image" property is mapped to the "icon" property.
-   * If you want to set the actual "image" property,
-   * us setProperty("image",val)
-   */
-  public void setImage(MediaLink image) {
-    setIcon(image);
-  }
-  
   /**
    * Get the specified target audience for the activity
    */
@@ -523,91 +335,6 @@ public class Activity extends ASObject {
       if (selector.apply(obj))
         list.add(obj);
     return list;
-  }
+  }  
   
-  /**
-   * Set the target audience for the activity
-   */
-  public void setAudience(Audience audience, Set<ASObject> set) {
-    setProperty(audience.label(), set);
-  }
-  
-  /**
-   * Add one or more entities to the target audience of the activity.
-   * Unlike setAudience, this will not overwrite the existing audience
-   * property values.
-   */
-  public void addAudience(Audience audience, ASObject... objs) {
-    Set<ASObject> list = getProperty(audience.label());
-    if (list == null) {
-      list = new HashSet<ASObject>();
-      setProperty(audience.label(),list);
-    }
-    for (ASObject obj : objs)
-      list.add(obj);
-  }
-
-  /**
-   * Begin creating a new Activity object using the fluent factory API
-   */
-  public static <T extends Activity>ActivityGenerator<T> makeActivity() {
-    return new ActivityGenerator<T>();
-  }
-  
-  public static class ActivityGenerator<T extends Activity> extends ASObjectGenerator<T> {
-    ActivityGenerator() {
-      super((Class<? extends T>) Activity.class);
-    }
-    protected ActivityGenerator(Class<? extends T> _class) {
-      super(_class);
-    }
-    public <X extends ActivityGenerator<T>>X to(ASObject object) {
-      item.addAudience(Audience.TO, object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X cc(ASObject object) {
-      item.addAudience(Audience.CC, object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X bcc(ASObject object) {
-      item.addAudience(Audience.BCC, object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X bto(ASObject object) {
-      item.addAudience(Audience.BTO, object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X actor(ASObject object) {
-      item.setActor(object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X generator(ASObject object) {
-      item.setGenerator(object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X icon(MediaLink link) {
-      item.setIcon(link);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X object(ASObject object) {
-      item.setObject(object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X provider(ASObject object) {
-      item.setProvider(object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X target(ASObject object) {
-      item.setTarget(object);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X title(String title) {
-      item.setTitle(title);
-      return (X)this;
-    }
-    public <X extends ActivityGenerator<T>>X verb(Verb verb) {
-      item.setVerb(verb);
-      return (X)this;
-    }
-  }
 }

@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.activities.protocol.basic;
 
-import java.util.LinkedHashSet;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -26,10 +25,10 @@ import javax.activation.MimeType;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
+import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.activities.model.objects.PersonObject;
-import org.apache.abdera2.activities.protocol.AbstractActivitiesProvider;
 import org.apache.abdera2.activities.protocol.ActivitiesResponseContext;
-import org.apache.abdera2.activities.protocol.ErrorObject;
 import org.apache.abdera2.activities.protocol.managed.FeedConfiguration;
 import org.apache.abdera2.activities.protocol.managed.ManagedCollectionAdapter;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
@@ -80,10 +79,10 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
         return (String)val;
     }
 
-    protected Collection<ASObject> createCollection() {
-      Collection<ASObject> col = 
+    protected <T extends ASObject>CollectionBuilder<T> createCollection() {
+      return
         Collection
-          .makeCollection()
+          .<T>makeCollection()
           .id(config.getFeedUri())
           .set("title", config.getFeedTitle())
           .set("updated", DateTime.now())
@@ -91,31 +90,27 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
             PersonObject
               .makePerson()
               .displayName(config.getFeedAuthor())
-              .get())
-          .get();
-      col.setItems(new LinkedHashSet<ASObject>());
-      return col;
+              .get());
     }
     
-    protected void addEditLinkToObject(ASObject object) throws Exception {
-      if (AbstractActivitiesProvider.getEditUriFromEntry(object) == null)
-        object.setProperty("editLink", object.getId());
+    protected <T extends ASObject>void addEditLinkToObject(
+      ASObject.Builder<T,?> builder, 
+      String id) throws Exception {
+        builder.set("editLink", id);
     }
 
-    protected void setObjectIdIfNull(ASObject object) throws Exception {
-      if (object.getId() != null)
-        return;
+    protected <T extends ASObject>void setObjectId(ASObject.Builder<T,?> builder) throws Exception {
       String uuidUri = UUID.randomUUID().toString();
       String[] segments = uuidUri.split(":");
       String entryId = segments[segments.length - 1];
-      object.setId(createEntryIdUri(entryId));
+      builder.id(createEntryIdUri(entryId));
     }
 
     protected String createEntryIdUri(String entryId) throws Exception {
         return config.getFeedUri() + "/" + entryId;
     }
 
-    private void push(RequestContext context, String channel, ASObject object) {
+    private <T extends ASObject>void push(RequestContext context, String channel, ASObject.Builder<T,?> builder) {
       if (context.getAttribute(Scope.CONTAINER, "AbderaChannelManager") != null) {
         ChannelManager cm = (ChannelManager) context.getAttribute(
           Scope.CONTAINER, "AbderaChannelManager");
@@ -123,12 +118,12 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
           Pusher<ASObject> pusher = 
             cm.getPusher(channel);
           if (pusher != null)
-            pusher.push(object);
+            pusher.push(builder.get());
         }
       }
     }
     
-    private ResponseContext createOrUpdateObject(RequestContext request, boolean createFlag) {
+    ResponseContext createOrUpdateObject(RequestContext request, boolean createFlag) {
       try {
         MimeType mimeType = request.getContentType();
         String contentType = mimeType == null ? null : mimeType.toString();
@@ -143,18 +138,20 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
             target.getType() == TargetType.TYPE_COLLECTION) {
             // only allow multiposts on collections.. these always create, never update
             Collection<ASObject> coll = (Collection<ASObject>) base;
-            Collection<ASObject> retl = new Collection<ASObject>();
+            CollectionBuilder<ASObject> retl = Collection.makeCollection();
             int c = 0;
             for (ASObject inputEntry : coll.getItems()) {
-              ASObject newEntry = createItem(inputEntry,c++);
+              ASObject.Builder<?,?> newEntry = createItem(inputEntry,c++);
               if (newEntry != null) {
                 push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
-                retl.addItem(newEntry);
+                retl.item(newEntry.get());
               } else {
-                ErrorObject err = new ErrorObject();
-                err.setCode(-100);
-                err.setDisplayName("Error adding object");
-                retl.addItem(err);
+                retl.item(
+                  ErrorObject
+                    .makeError()
+                      .code(-100)
+                      .displayName("Error adding object")
+                    .get());
               }
             }
             return
@@ -165,12 +162,12 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
             target.getParameter(BasicProvider.PARAM_ENTRY) : 
               null;
           ASObject inputEntry = (ASObject) base;
-          ASObject newEntry = createFlag ? 
+          ASObject.Builder<ASObject,?> newEntry = createFlag ? 
             createItem(inputEntry) : 
             updateItem(entryId, inputEntry);
           if (newEntry != null) {
             push(request,target.getParameter(BasicProvider.PARAM_FEED),newEntry);
-            String loc = newEntry.getProperty("editLink");
+            String loc = newEntry.get().getProperty("editLink");
             return 
               new ActivitiesResponseContext<ASObject>(newEntry)
                 .setStatus(createFlag?201:200)
@@ -223,7 +220,7 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
           Target target = input.getTarget();
           String entryId = target.getParameter(BasicProvider.PARAM_ENTRY);
           try {
-              ASObject object = getItem(entryId);
+              ASObject.Builder<ASObject,?> object = getItem(entryId);
               if (object != null) {
                 return 
                   new ActivitiesResponseContext<ASObject>(object)
@@ -240,9 +237,8 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
       return new Function<RequestContext,ResponseContext>() {
         public ResponseContext apply(RequestContext input) {
           try {
-            Collection<ASObject> collection = 
+            CollectionBuilder<ASObject> collection = 
               getCollection();
-
             if (collection != null) { 
               return 
                 new ActivitiesResponseContext<Collection<ASObject>>(collection)
@@ -255,15 +251,15 @@ public abstract class BasicAdapter extends ManagedCollectionAdapter {
       };
     }
 
-    public abstract Collection<ASObject> getCollection() throws Exception;
+    public abstract <T extends ASObject>CollectionBuilder<T> getCollection() throws Exception;
 
-    public abstract ASObject getItem(Object objectId) throws Exception;
+    public abstract <T extends ASObject>ASObject.Builder<T,?> getItem(Object objectId) throws Exception;
 
-    public abstract ASObject createItem(ASObject object) throws Exception;
+    public abstract <T extends ASObject>ASObject.Builder<T,?> createItem(ASObject object) throws Exception;
 
-    public abstract ASObject createItem(ASObject object, int c) throws Exception;
+    public abstract <T extends ASObject>ASObject.Builder<T,?> createItem(ASObject object, int c) throws Exception;
     
-    public abstract ASObject updateItem(Object objectId, ASObject object) throws Exception;
+    public abstract <T extends ASObject>ASObject.Builder<T,?> updateItem(Object objectId, ASObject object) throws Exception;
 
     public abstract boolean deleteItem(Object objectId) throws Exception;
 

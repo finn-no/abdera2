@@ -1,32 +1,134 @@
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
+import org.apache.abdera2.common.anno.Version;
 
 /**
  * Activity Stream object that represents a description of a Version 
  * of a referenced object. "objectType":"version"... The basic use 
  * case for this would be for Version control systems.
  */
-@Name("version")
-@Properties({
-  @Property(name="previousVersion", to=VersionObject.class),
-  @Property(name="nextVersion",to=VersionObject.class),
-  @Property(name="stableVersion",to=VersionObject.class),
-  @Property(name="activeVersion",to=VersionObject.class)
-})
 public class VersionObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -7473463819890471971L;
-
-  public VersionObject() {}
+  public static VersionBuilder makeVersion() {
+    return new VersionBuilder("version");
+  }
   
-  public VersionObject(String displayName) {
-    super();
-    setDisplayName(displayName);
+  public static VersionObject makeVersion(
+    ASObject of, 
+    int major, 
+    int minor, 
+    int revision,
+    Version.Status status) {
+    return makeVersion()
+      .of(of)
+      .major(major)
+      .minor(minor)
+      .revision(revision)
+      .status(status)
+      .get();
+  }
+  
+  public static VersionObject makeVersion(Version version) {
+    return makeVersion()
+      .of(
+        ASObject.makeObject()
+          .displayName(version.name())
+          .url(version.uri())
+          .get())
+      .major(version.major())
+      .minor(version.minor())
+      .revision(version.revision())
+      .status(version.status())
+      .get();
+  }
+
+  @Name("version")
+  @Properties({
+    @Property(name="previousVersion", to=VersionObject.class),
+    @Property(name="nextVersion",to=VersionObject.class),
+    @Property(name="stableVersion",to=VersionObject.class),
+    @Property(name="activeVersion",to=VersionObject.class)
+  })
+  public static final class VersionBuilder extends Builder<VersionObject,VersionBuilder> {
+
+    public VersionBuilder() {
+      super(VersionObject.class,VersionBuilder.class);
+    }
+
+    public VersionBuilder(Map<String, Object> map) {
+      super(map, VersionObject.class,VersionBuilder.class);
+    }
+
+    public VersionBuilder(String objectType) {
+      super(objectType, VersionObject.class,VersionBuilder.class);
+    }
+    
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static abstract class Builder<X extends VersionObject, M extends Builder<X,M>> 
+    extends ASObject.Builder<X,M> {
+    protected Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
+    }
+    protected Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
+    }
+    protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
+    }
+    public M active(VersionObject object) {
+      set("activeVersion",object);
+      return (M)this;
+    }
+    public M major(int val) {
+      set("major",Math.max(0, val));
+      return (M)this;
+    }
+    public M minor(int val) {
+      set("minor",Math.max(0, val));
+      return (M)this;
+    }
+    public M revision(int val) {
+      set("revision",Math.max(0,val));
+      return (M)this;
+    }
+    public M status(Version.Status status) {
+      set("status",status.name().toLowerCase());
+      return (M)this;
+    }
+    public M next(VersionObject val) {
+      set("nextVersion",val);
+      return (M)this;
+    }
+    public M of(ASObject val) {
+      set("of",val);
+      return (M)this;
+    }
+    public M previous(VersionObject val) {
+      set("previousVersion",val);
+      return (M)this;
+    }
+    public M stable(VersionObject val) {
+      set("stableVersion",val);
+      return (M)this;
+    }
+  }
+  
+
+  public VersionObject(Map<String,Object> map) {
+    super(map,VersionBuilder.class,VersionObject.class);
+  }
+  
+  public <X extends VersionObject, M extends Builder<X,M>>VersionObject(Map<String,Object> map,Class<M>_class,Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   /** The object this object describes a version of **/
@@ -34,111 +136,38 @@ public class VersionObject
   public <T extends ASObject>T getOf() {
     return (T)getProperty("of");
   }
-  
-  /** The object this object describes a version of **/
-  public void setOf(ASObject object) {
-    setProperty("of", object);
-  }
-  
+    
   public VersionObject getPreviousVersion() {
     return getProperty("previousVersion");
-  }
-  
-  public void setPreviousVersion(VersionObject version) {
-    setProperty("previousVersion", version);
   }
   
   public VersionObject getNextVersion() {
     return getProperty("nextVersion");
   }
   
-  public void setNextVersion(VersionObject version) {
-    setProperty("nextVersion", version);
-  }
-  
   public VersionObject getStableVersion() {
     return getProperty("stableVersion");
-  }
-  
-  public void setStableVersion(VersionObject version) {
-    setProperty("stableVersion", version);
   }
   
   public VersionObject getActiveVersion() {
     return getProperty("activeVersion");
   }
   
-  public void setActiveVersion(VersionObject version) {
-    setProperty("activeVersion", version);
+  public int getMajor() {
+    return getPropertyInt("major");
   }
   
-  public String getMajor() {
-    return getProperty("major");
+  public int getMinor() {
+    return getPropertyInt("minor");
   }
   
-  public void setMajor(String val) {
-    setProperty("major", val);
+  public int getRevision() {
+    return getPropertyInt("revision");
   }
   
-  public String getMinor() {
-    return getProperty("minor");
-  }
-  
-  public void setMinor(String minor) {
-    setProperty("minor", minor);
-  }
-  
-  public String getRevision() {
-    return getProperty("revision");
-  }
-  
-  public void setRevision(String val) {
-    setProperty("revision", val);
-  }
-  
-  public static <T extends VersionObject>VersionObjectGenerator<T> makeVersion() {
-    return new VersionObjectGenerator<T>();
-  }
-  
-  @SuppressWarnings("unchecked")
-  public static class VersionObjectGenerator<T extends VersionObject> extends ASObjectGenerator<T> {
-    public VersionObjectGenerator() {
-      super((Class<? extends T>) VersionObject.class);
-    }
-    public VersionObjectGenerator(Class<T> _class) {
-      super(_class);
-    }
-    public <X extends VersionObjectGenerator<T>>X active(VersionObject object) {
-      item.setActiveVersion(object);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X major(String val) {
-      item.setMajor(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X minor(String val) {
-      item.setMinor(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X next(VersionObject val) {
-      item.setNextVersion(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X of(ASObject val) {
-      item.setOf(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X previous(VersionObject val) {
-      item.setPreviousVersion(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X revision(String val) {
-      item.setRevision(val);
-      return (X)this;
-    }
-    public <X extends VersionObjectGenerator<T>>X stable(VersionObject val) {
-      item.setStableVersion(val);
-      return (X)this;
-    }
+  public Version.Status getStatus() {
+    String status = getProperty("status");
+    return status != null ?
+      Version.Status.valueOf(status.toUpperCase()) : null;
   }
 }

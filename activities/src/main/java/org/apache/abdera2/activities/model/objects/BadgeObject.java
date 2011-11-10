@@ -17,32 +17,37 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("badge")
 public class BadgeObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -3928700532413017490L;
   
-  public BadgeObject() {}
-  
-  public BadgeObject(String displayName) {
-    setDisplayName(displayName);
+  public static <T extends BadgeObject>Builder makeBadge() {
+    return new Builder("badge");
   }
   
-  public static <T extends BadgeObject>BadgeObjectGenerator<T> makeBadge() {
-    return new BadgeObjectGenerator<T>();
+  @Name("badge")
+  public static class Builder extends ASObject.Builder<BadgeObject,Builder>{
+    public Builder() {
+      super(BadgeObject.class,Builder.class);
+    }
+    public Builder(String objectType) {
+      super(objectType,BadgeObject.class,Builder.class);
+    }
+    public Builder(Map<String,Object> map) {
+      super(map,BadgeObject.class,Builder.class);
+    }
   }
   
-  public static class BadgeObjectGenerator<T extends BadgeObject> extends ASObjectGenerator<T> {
-    @SuppressWarnings("unchecked")
-    public BadgeObjectGenerator() {
-      super((Class<? extends T>) BadgeObject.class);
-    }
-    public BadgeObjectGenerator(Class<? extends T> _class) {
-      super(_class);
-    }
+  public BadgeObject(Map<String,Object> map) {
+    super(map,Builder.class,BadgeObject.class);
+  }
+  
+  public <X extends ASObject, M extends ASObject.Builder<X,M>>BadgeObject(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    super(map,_class,_obj);
   }
 }

@@ -26,6 +26,9 @@ public class Activities {
     // coming from.
     //
     // this activity basically says: "James is following John"
+    //
+    // All Activity objects are immutable and thread-safe
+    // once created
     Activity activity = 
       makeActivity()
         .actor(

@@ -3,9 +3,9 @@ package org.apache.abdera2.activities.model.objects;
 import java.util.Map;
 
 import org.apache.abdera2.activities.model.ASBase;
-import org.apache.abdera2.activities.model.ASObject;
-import org.apache.abdera2.activities.model.Generator;
 import org.apache.abdera2.common.iri.IRI;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Represents an Embedded Experience data structure. Embedded Experiences
@@ -15,110 +15,169 @@ import org.apache.abdera2.common.iri.IRI;
  * Gadget specification with an Activity Stream object that can be rendered 
  * in-line when the activity data is displayed within an OpenSocial container.
  */
-public class EmbeddedExperience 
+public final class EmbeddedExperience 
   extends ASBase {
-
-  private static final long serialVersionUID = -4311572934016006379L;
-
-  public EmbeddedExperience() {}
+  
+  public EmbeddedExperience(Map<String,Object> map) {
+    super(map,Builder.class,EmbeddedExperience.class);
+  }
   
   public IRI getUrl() {
     return getProperty("url");
-  }
-  
-  public void setUrl(IRI iri) {
-    setProperty("url", iri);
-  }
-  
-  public void setUrl(String iri) {
-    setUrl(new IRI(iri));
   }
   
   public IRI getGadget() {
     return getProperty("gadget");
   }
   
-  public void setGadget(IRI iri) {
-    setProperty("gadget", iri);
-  }
-  
-  public void setGadget(String iri) {
-    setGadget(new IRI(iri));
-  }
-  
   public ASBase getContext() {
     return getProperty("context");
-  }
-  
-  public void setContext(ASBase context) {
-    setProperty("context", context);
-  }
-  
-  public void setContext(Map<String,Object> context) {
-    setProperty("context", context);
   }
   
   public IRI getPreviewImage() {
     return getProperty("previewImage");
   }
   
-  public void setPreviewImage(IRI iri) {
-    setProperty("previewImage", iri);
+  public static Builder makeEmbeddedExperience() {
+    return new Builder();
   }
   
-  public void setPreviewImage(String iri) {
-    setGadget(new IRI(iri));
+  public static EmbeddedExperience makeGadgetEmbeddedExperience(
+    String url, 
+    ASBase context, 
+    String preview) {
+    return makeEmbeddedExperience()
+      .gadget(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
   }
   
-  public static EmbeddedExperienceGenerator makeEmbeddedExperience() {
-    return new EmbeddedExperienceGenerator();
+  public static EmbeddedExperience makeGadgetEmbeddedExperience(
+    IRI url, 
+    ASBase context, 
+    IRI preview) {
+    return makeEmbeddedExperience()
+      .gadget(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
   }
   
-  public static class EmbeddedExperienceGenerator 
-    extends Generator<EmbeddedExperience> {
+  public static EmbeddedExperience makeGadgetEmbeddedExperience(
+    String url, 
+    Map<String,Object> context, 
+    String preview) {
+    return makeEmbeddedExperience()
+      .gadget(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  public static EmbeddedExperience makeGadgetEmbeddedExperience(
+    IRI url, 
+    Map<String,Object> context, 
+    IRI preview) {
+    return makeEmbeddedExperience()
+      .gadget(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  
+  public static EmbeddedExperience makeUrlEmbeddedExperience(
+    String url, 
+    ASBase context, 
+    String preview) {
+    return makeEmbeddedExperience()
+      .url(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  public static EmbeddedExperience makeUrlEmbeddedExperience(
+    IRI url, 
+    ASBase context, 
+    IRI preview) {
+    return makeEmbeddedExperience()
+      .url(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  public static EmbeddedExperience makeUrlEmbeddedExperience(
+    String url, 
+    Map<String,Object> context, 
+    String preview) {
+    return makeEmbeddedExperience()
+      .url(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  public static EmbeddedExperience makeUrlEmbeddedExperience(
+    IRI url, 
+    Map<String,Object> context, 
+    IRI preview) {
+    return makeEmbeddedExperience()
+      .url(url)
+      .context(context)
+      .previewImage(preview)
+      .get();
+  }
+  
+  public final static class Builder 
+    extends ASBase.Builder<EmbeddedExperience,Builder> {
 
-    public EmbeddedExperienceGenerator() {
-      super(EmbeddedExperience.class);
+    public Builder() {
+      super(EmbeddedExperience.class,Builder.class);
     }
     
-    public EmbeddedExperienceGenerator context(ASObject object) {
-      item.setContext(object);
+    protected Builder(Map<String,Object> map) {
+      super(map,EmbeddedExperience.class,Builder.class);
+    }
+
+    public Builder context(ASBase object) {
+      set("context", object);
       return this;
     }
     
-    public EmbeddedExperienceGenerator context(Map<String,Object> map) {
-      item.setContext(map);
+    public Builder context(Map<String,Object> map) {
+      set("context", ImmutableMap.copyOf(map));
       return this;
     }
     
-    public EmbeddedExperienceGenerator gadget(IRI iri) {
-      item.setGadget(iri);
+    public Builder gadget(IRI iri) {
+      set("gadget",iri);
       return this;
     }
     
-    public EmbeddedExperienceGenerator gadget(String iri) {
-      item.setGadget(iri);
+    public Builder gadget(String iri) {
+      return gadget(iri);
+    }
+    
+    public Builder previewImage(IRI iri) {
+      set("previewImage",iri);
       return this;
     }
     
-    public EmbeddedExperienceGenerator previewImage(IRI iri) {
-      item.setPreviewImage(iri);
+    public Builder previewImage(String iri) {
+      return previewImage(new IRI(iri));
+    }
+    
+    public Builder url(IRI iri) {
+      set("url",iri);
       return this;
     }
     
-    public EmbeddedExperienceGenerator previewImage(String iri) {
-      item.setPreviewImage(iri);
-      return this;
+    public Builder url(String uri) {
+      return url(new IRI(uri));
     }
     
-    public EmbeddedExperienceGenerator url(IRI iri) {
-      item.setUrl(iri);
-      return this;
-    }
-    
-    public EmbeddedExperienceGenerator url(String uri) {
-      item.setUrl(uri);
-      return this;
-    }
   }
 }

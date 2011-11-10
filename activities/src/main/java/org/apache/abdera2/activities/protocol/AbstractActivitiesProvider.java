@@ -25,11 +25,13 @@ import java.util.Set;
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.activities.model.ASDocument;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.TypeAdapter;
+import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.misc.ExceptionHelper;
@@ -87,8 +89,7 @@ public abstract class AbstractActivitiesProvider
             ErrorObject
             .makeError()
             .code(code)
-            .displayName(message)
-            .get())
+            .displayName(message))
         .setStatus(code)
         .setStatusText(message);
   }
@@ -154,28 +155,29 @@ public abstract class AbstractActivitiesProvider
       } catch (Throwable t) {
         throw ExceptionHelper.propogate(t);
       }
-    if (entity != null) {
-      setDocProperties(entity, context);
-      context.setAttribute(ASBase.class.getName(), entity);
-    }
+    if (entity != null)
+      context.setAttribute(ASBase.class.getName(), getDoc(entity,context));
     return (T)entity;
   }
   
-  private static void setDocProperties(ASBase base, RequestContext context) {
+  private static <T extends ASBase>ASDocument<T> getDoc(T base, RequestContext context) {
+    ASDocument.Builder<T> builder = 
+      ASDocument.make(base);
     String etag = context.getHeader("ETag");
     if (etag != null)
-        base.setEntityTag(etag);
+        builder.entityTag(etag);
     DateTime lm = context.getDateHeader("Last-Modified");
     if (lm != null)
-        base.setLastModified(lm);
+        builder.lastModified(lm);
     MimeType mt = context.getContentType();
     if (mt != null)
-        base.setContentType(mt.toString());
+        builder.contentType(mt.toString());
     String language = context.getContentLanguage();
     if (language != null)
-        base.setLanguage(language);
+        builder.language(language);
     String slug = context.getSlug();
     if (slug != null)
-        base.setSlug(slug);
+        builder.slug(slug);
+    return builder.get();
   }
 }

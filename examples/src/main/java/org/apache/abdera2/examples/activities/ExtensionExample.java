@@ -16,14 +16,14 @@ public class ExtensionExample {
   public static void main(String... args) throws Exception {
     
     // create the io with our custom type adapter
-    IO io = IO.get(new BarAdapter());
-    
-    // tell the serializer how to handle specific property names
-    io.addPropertyMapping("bar", Bar.class);
-    io.addPropertyMapping("etag", EntityTag.class);
+    IO io = IO.make()
+      .adapter(new BarAdapter())
+      .property("bar", Bar.class)
+      .property("etag", EntityTag.class)
+      .get();
     
     // create a new object with "objectType":"foo"
-    ASObject as = new ASObject("foo");
+    ASObject.Builder<ASObject,?> as = ASObject.makeObject("foo");
     
     // attach the Foo.class interface to the object to set
     // extension properties
@@ -34,18 +34,19 @@ public class ExtensionExample {
     Map<Bar,String> map = new HashMap<Bar,String>();
     map.put(new Bar("z"),"a");
     map.put(new Bar("y"), "b");
-    as.setProperty("map",map);
+    as.set("map",map);
     
     // outputs: foo
-    System.out.println(as.getObjectType());
+    ASObject obj = as.get();
+    System.out.println(obj.getObjectType());
     
     // outputs: {"etag":"W/\"test\"","map":{"y":"b","z":"a"},"bar":"foobarbaz","objectType":"foo"}
-    as.writeTo(io,System.out);
+    obj.writeTo(io,System.out);
     
     // now try reading it
-    StringReader sr = new StringReader(io.write(as));
-    as = io.readObject(sr);
-    foo = as.extend(Foo.class);
+    StringReader sr = new StringReader(io.write(obj));
+    obj = io.readObject(sr);
+    foo = obj.extend(Foo.class);
 
     System.out.println();
     
@@ -55,7 +56,7 @@ public class ExtensionExample {
     System.out.println(foo.getBar().getClass());
     
     // map will deserialize as an asobject...
-    System.out.println(as.getProperty("map").getClass());
+    System.out.println(obj.getProperty("map").getClass());
     
   }
   

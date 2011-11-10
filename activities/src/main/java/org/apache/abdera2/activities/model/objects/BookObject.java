@@ -1,5 +1,7 @@
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
@@ -7,98 +9,94 @@ import org.apache.abdera2.common.anno.Name;
  * A simple "objectType":"book" object that serves primarily as an 
  * example of creating new ASObject types.
  */
-@Name("book")
+@SuppressWarnings("unchecked")
 public class BookObject extends CreativeWork {
 
-  private static final long serialVersionUID = -178336535850006357L;
 
-  public BookObject() {}
-  
-  public BookObject(String displayName) {
-    setDisplayName(displayName);
+  public BookObject(Map<String,Object> map) {
+    super(map,BookBuilder.class,BookObject.class);
   }
   
-  @SuppressWarnings("unchecked")
+  public <X extends BookObject, M extends Builder<X,M>>BookObject(Map<String,Object> map, Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+  
   public <T extends ASObject>T getFormat() {
     return (T)getProperty("format");
-  }
-  
-  public void setFormat(ASObject format) {
-    setProperty("format", format);
   }
   
   public String getEdition() {
     return getProperty("edition");
   }
   
-  public void setEdition(String edition) {
-    setProperty("edition", edition);
-  }
-  
   public String getIsbn10() {
     return getProperty("isbn10");
-  }
-  
-  public void setIsbn10(String isbn) {
-    setProperty("isbn10", isbn);
   }
   
   public String getIsbn13() {
     return getProperty("isbn13");
   }
   
-  public void setIsbn13(String isbn) {
-    setProperty("isbn13", isbn);
-  }
-  
   public int getPageCount() {
-    return (Integer)getProperty("pageCount");
+    return getPropertyInt("pageCount");
   }
   
-  public void setPageCount(int pageCount) {
-    setProperty("pageCount", pageCount);
-  }
-
-  @SuppressWarnings("unchecked")
   public <T extends ASObject>T getIllustrator() {
     return (T)getProperty("illustrator");
   }
   
-  public void setIllustrator(ASObject illustrator) {
-    setProperty("illustrator", illustrator);
-  }
- 
-  public static <T extends BookObject>BookObjectGenerator<T> makeBook() {
-    return new BookObjectGenerator<T>();
+  public static BookBuilder makeBook() {
+    return new BookBuilder("book");
   }
   
-  @SuppressWarnings("unchecked")
-  public static class BookObjectGenerator<T extends BookObject> extends CreativeWorkGenerator<T> {
-    public BookObjectGenerator() {
-      super((Class<T>) BookObject.class);
+  @Name("book")
+  public static final class BookBuilder extends Builder<BookObject,BookBuilder> {
+    public BookBuilder() {
+      super(BookObject.class,BookBuilder.class);
     }
-    public BookObjectGenerator(Class<T> _class) {
-      super(_class);
+    public BookBuilder(Map<String, Object> map) {
+      super(map, BookObject.class,BookBuilder.class);
     }
-    public <X extends BookObjectGenerator<T>>X edition(String val) {
-      item.setEdition(val);
-      return (X)this;
+    public BookBuilder(String objectType) {
+      super(objectType, BookObject.class,BookBuilder.class);
     }
-    public <X extends BookObjectGenerator<T>>X format(ASObject obj) {
-      item.setFormat(obj);
-      return (X)this;
+  }
+  
+  public abstract static class Builder<X extends BookObject,M extends Builder<X,M>> 
+    extends CreativeWork.Builder<X,M> {
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public <X extends BookObjectGenerator<T>>X illustrator(ASObject obj) {
-      item.setIllustrator(obj);
-      return (X)this;
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends BookObjectGenerator<T>>X isbn10(String val) {
-      item.setIsbn10(val);
-      return (X)this;
+    protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
     }
-    public <X extends BookObjectGenerator<T>>X pageCount(int count) {
-      item.setPageCount(count);
-      return (X)this;
+    public M edition(String val) {
+      set("edition",val);
+      return (M)this;
     }
+    public M format(ASObject obj) {
+      set("format",obj);
+      return (M)this;
+    }
+    public M illustrator(ASObject obj) {
+      set("illustrator",obj);
+      return (M)this;
+    }
+    public M isbn10(String val) {
+      set("isbn10",val);
+      return (M)this;
+    }
+    public M isbn13(String val) {
+      set("isbn13",val);
+      return (M)this;
+    }
+    public M pageCount(int count) {
+      set("pageCount",count);
+      return (M)this;
+    }
+
   }
 }

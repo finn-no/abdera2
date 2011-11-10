@@ -36,9 +36,11 @@ public class ActivitiesClientBatchPusher<T extends ASObject>
         new Runnable() {
           public void run() {
             try {
-              Collection<T> col = new Collection<T>();
-              col.setItems(t);
-              handle(session.post(iri, col, options));
+              handle(
+                session.post(
+                  iri, 
+                  Collection.<T>makeCollection(t), 
+                  options));
             } catch (Throwable ex) {
               handle(ex);
             }

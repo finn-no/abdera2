@@ -1,8 +1,8 @@
 package org.apache.abdera2.examples.activities;
 
 import org.apache.abdera2.activities.model.Activity;
-import org.apache.abdera2.activities.model.Collection;
-import org.apache.abdera2.activities.model.Generator;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
 import org.apache.abdera2.activities.model.objects.FileObject;
 import org.apache.abdera2.activities.model.objects.VersionObject;
 
@@ -19,16 +19,21 @@ public class VersionControlExample {
 
   public static void main(String... args) throws Exception {
         
-    Generator<Activity> gen = 
+    ActivityBuilder me = 
       makeActivity()
       .actor(
         makePerson()
           .displayName("James")
-          .get())
-      .get()
-      .newGenerator();
+          .get());
     
-    Collection.CollectionGenerator<Activity> builder = 
+    ActivityBuilder boss = 
+      makeActivity()
+      .actor(
+        makePerson()
+          .displayName("The Boss")
+          .get());
+    
+    CollectionBuilder<Activity> builder = 
       makeCollection();
     
     // first, indicate that we created a document
@@ -39,54 +44,52 @@ public class VersionControlExample {
         .get();
     
     builder.item(
-      gen.startNew()
+      me.template()
         .set("object", file)
         .set("verb", POST)
-        .complete());
+        .get());
     
     // second, indicate that a new version was created
     VersionObject version = 
       makeVersion()
         .of(file)
-        .major("2")
+        .major(2)
         .get();
     
     builder.item(
-      gen.startNew() 
+      me.template() 
          .set("object", version)
          .set("verb", POST)
-         .complete());
+         .get());
     
     // whoops, the boss rejected the new version
     builder.item(
-      gen.startNew()
+      boss.template()
          .set("object", version)
          .set("verb", REJECT)
-         .set("actor", makePerson().displayName("The Boss").get())
          .set("summary", "This version is missing something")
-         .complete());
+         .get());
     
     // create a new version to deal with the bosses concerns
     VersionObject old = version;
     version = makeVersion()
       .of(file)
-      .major("3")
+      .major(3)
       .previous(old)
       .get();
     
     builder.item(
-        gen.startNew() 
-           .set("object", version)
-           .set("verb", POST)
-           .complete());
+      me.template() 
+         .set("object", version)
+         .set("verb", POST)
+         .get());
     
     // the boss approves the new version
     builder.item(
-      gen.startNew()
-         .set("object", version)
-         .set("verb", APPROVE)
-         .set("actor", makePerson().displayName("The Boss").get())
-         .complete());
+      boss.template()
+       .set("object", version)
+       .set("verb", APPROVE)
+       .get());
     
     builder.get().writeTo(System.out);
   }

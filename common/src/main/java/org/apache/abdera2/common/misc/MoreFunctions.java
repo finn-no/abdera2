@@ -1,5 +1,6 @@
 package org.apache.abdera2.common.misc;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -111,7 +112,9 @@ public class MoreFunctions {
       public T apply(Object[] input) {
         try {
           if (input != null) {
-            return _class.getConstructor(args).newInstance(input);
+            Constructor<T> c = _class.getConstructor(args);
+            c.setAccessible(true);
+            return c.newInstance(input);
           } else {
             return _class.newInstance();
           }

@@ -31,6 +31,10 @@ public final class IsoPosition
     return new IsoPosition(coordinate.getLatitude(),coordinate.getLongitude());
   }
   
+  public static IsoPosition at(double latitude, double longitude) {
+    return new IsoPosition(latitude,longitude);
+  }
+  
   public static IsoPosition at(Point point) {
     return new IsoPosition(
       point.getCoordinate().getLatitude(),

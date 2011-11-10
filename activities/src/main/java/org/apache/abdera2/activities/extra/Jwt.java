@@ -10,6 +10,7 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.common.security.HashHelper;
 import org.apache.commons.codec.binary.Base64;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Utility class for Generating/Validating JSON Web Tokens 
@@ -119,18 +120,17 @@ public class Jwt {
   }
   
   public static String generate(IO io, Alg alg, Key key, ASBase claim) {
-    return generate(io,alg,key,claim,null);
+    return generate(io,alg,key,claim,ASBase.make().set("alg", alg).get());
   }
   
   public static String generate(IO io, Alg alg, Key key, byte[] claim) {
-    return generate(io,alg,key,claim,null);
+    return generate(io,alg,key,claim,ASBase.make().set("alg", alg).get());
   }
   
   public static String generate(IO io, Alg alg, Key key, byte[] claim, ASBase header) {
     try {
-      if (header == null) header = new ASBase();
-      if (!header.has("alg"))
-        header.setProperty("alg", alg.toString());
+      checkNotNull(header);
+      checkNotNull(header.getProperty("alg"));
       StringBuilder buf = new StringBuilder();
       String _header = Base64.encodeBase64URLSafeString(io.write(header).getBytes("UTF-8"));
       String _claim = Base64.encodeBase64URLSafeString(claim);

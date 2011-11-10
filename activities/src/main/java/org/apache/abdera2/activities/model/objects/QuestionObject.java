@@ -17,59 +17,113 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("question")
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class QuestionObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -691354277218118929L;
   public static final String OPTIONS = "options";
   
-  public QuestionObject() {}
-
-  public QuestionObject(String displayName) {
-    setDisplayName(displayName);
+  public QuestionObject(Map<String,Object> map) {
+    super(map,QuestionBuilder.class,QuestionObject.class);
+  }
+  
+  public <X extends QuestionObject, M extends Builder<X,M>>QuestionObject(Map<String,Object> map, Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   public Iterable<ASObject> getOptions() {
     return getProperty(OPTIONS);
   }
   
-  public void setOptions(Set<ASObject> options) {
-    setProperty(OPTIONS, options);
+  public static QuestionBuilder makeQuestion() {
+    return new QuestionBuilder("question");
+  }
+  
+  public static QuestionObject makeQuestion(
+    String displayName,
+    String summary, 
+    ASObject author,
+    ASObject... options) {
+    return makeQuestion()
+      .displayName(displayName)
+      .summary(summary)
+      .author(author)
+      .option(options).get();
+  }
+  
+  public static QuestionObject makeQuestion(
+    String displayName,
+    String summary, 
+    ASObject author,
+    Iterable<ASObject> options) {
+    return makeQuestion()
+      .displayName(displayName)
+      .summary(summary)
+      .author(author)
+      .option(options).get();
+  }
+
+  @Name("question")
+  public static final class QuestionBuilder extends Builder<QuestionObject,QuestionBuilder> {
+
+    public QuestionBuilder() {
+      super(QuestionObject.class,QuestionBuilder.class);
+    }
+
+    public QuestionBuilder(Map<String, Object> map) {
+      super(map,QuestionObject.class,QuestionBuilder.class);
+    }
+
+    public QuestionBuilder(String objectType) {
+      super(objectType,QuestionObject.class,QuestionBuilder.class);
+    }
     
   }
   
-  public void addOption(ASObject option) {
-    Set<ASObject> list = getProperty(OPTIONS);
-    if (list == null) {
-      list = new HashSet<ASObject>();
-      setProperty(OPTIONS, list);
-    }
-    list.add(option); 
-  }
-  
-  public static <T extends QuestionObject>QuestionObjectGenerator<T> makeQuestion() {
-    return new QuestionObjectGenerator<T>();
-  }
-
   @SuppressWarnings("unchecked")
-  public static class QuestionObjectGenerator<T extends QuestionObject> 
-    extends ASObjectGenerator<T> {
-    public QuestionObjectGenerator() {
-      super((Class<? extends T>) QuestionObject.class);
+  public static abstract class Builder <X extends QuestionObject, M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    
+    private ImmutableSet.Builder<ASObject> options = 
+      ImmutableSet.builder();
+    boolean a;
+    
+    protected Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public QuestionObjectGenerator(Class<T> _class) {
-      super(_class);
+    protected Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends QuestionObjectGenerator<T>>X option(ASObject object) {
-      item.addOption(object);
-      return (X)this;
+    protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
+    }
+    public M option(Iterable<ASObject> options) {
+      if (Iterables.isEmpty(options)) return (M)this;
+      for (ASObject option : options)
+        option(option);
+      return (M)this;
+    }
+    public M option(ASObject... options) {
+      if (options.length == 0) return (M)this;
+      for (ASObject option : options)
+        option(option);
+      return (M)this;
+    }
+    public M option(ASObject object) {
+      if (object == null) return (M)this;
+      a = true;
+      options.add(object);
+      return (M)this;
+    }
+    public void preGet() {
+      if (a) set(OPTIONS, options.build());
     }
   }
 }

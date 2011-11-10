@@ -1,5 +1,6 @@
 package org.apache.abdera2.activities.client;
 
+import org.apache.abdera2.activities.model.ASDocument;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
@@ -31,32 +32,32 @@ public class ActivitiesClient
     return (T)new ActivitiesSession(this);
   }
 
-  public <T extends Collection<?>>T getCollection(String uri) {
+  public <T extends Collection<?>>ASDocument<T> getCollection(String uri) {
     ActivitiesSession session = newSession();
     return session.<T>getCollection(uri);
   }
   
-  public <T extends Collection<?>>T getCollection(String uri, RequestOptions options) {
+  public <T extends Collection<?>>ASDocument<T> getCollection(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<T>getCollection(uri,options);
   }
   
-  public <T extends Activity>T getActivity(String uri) {
+  public <T extends Activity>ASDocument<T> getActivity(String uri) {
     ActivitiesSession session = newSession();
     return session.<T>getActivity(uri);
   }
   
-  public <T extends Activity>T getActivity(String uri, RequestOptions options) {
+  public <T extends Activity>ASDocument<T> getActivity(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<T>getActivity(uri,options);
   }
   
-  public <T extends ASObject>T getObject(String uri) {
+  public <T extends ASObject>ASDocument<T> getObject(String uri) {
     ActivitiesSession session = newSession();
     return session.<T>getObject(uri);
   }
   
-  public <T extends ASObject>T getObject(String uri, RequestOptions options) {
+  public <T extends ASObject>ASDocument<T> getObject(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<T>getObject(uri,options);
   }

@@ -1,15 +1,16 @@
 package org.apache.abdera2.ext.activities;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
+import org.apache.abdera2.activities.model.ASObject.ASObjectBuilder;
 import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
 import org.apache.abdera2.activities.model.CollectionWriter;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.activities.model.Verb;
@@ -72,24 +73,24 @@ public class FeedToActivityConverter {
   }
 
   protected ASBase header(Feed feed) {
-    Collection<Activity> col = 
-      new Collection<Activity>();
-    col.setId(feed.getId().toString());
-    col.setAuthor(authors(feed.getAuthors()));
-    col.setProperty("contributors", authors(feed.getContributors()));
-    categories(feed.getCategories(), col);
-    col.setProperty("generator", generator(feed.getGenerator()));
-    col.setImage(image(feed.getIcon()));
-    col.setUrl(feed.getAlternateLinkResolvedHref());
-    col.setDisplayName(feed.getTitle());
-    col.setSummary(feed.getSubtitle());
-    col.setUpdated(feed.getUpdated());
-    col.setProperty("nextLink", FeedPagingHelper.getNext(feed));
-    col.setProperty("previousLink", FeedPagingHelper.getPrevious(feed));
-    col.setProperty("firstLink", FeedPagingHelper.getFirst(feed));
-    col.setProperty("lastLink", FeedPagingHelper.getLast(feed));
-    col.setProperty("selfLink", feed.getSelfLinkResolvedHref());
-    return col;
+    CollectionBuilder<Activity> builder = 
+      Collection.<Activity>makeCollection()
+        .id(feed.getId().toString())
+        .author(authors(feed.getAuthors()))
+        .set("contributors", authors(feed.getContributors()));
+    categories(feed.getCategories(), builder);
+    builder.set("generator", generator(feed.getGenerator()))
+      .image(image(feed.getIcon()))
+      .url(feed.getAlternateLinkResolvedHref())
+      .displayName(feed.getTitle())
+      .summary(feed.getSubtitle())
+      .updated(feed.getUpdated())
+      .set("nextLink", FeedPagingHelper.getNext(feed))
+      .set("previousLink", FeedPagingHelper.getPrevious(feed))
+      .set("firstLink", FeedPagingHelper.getFirst(feed))
+      .set("lastLink", FeedPagingHelper.getLast(feed))
+      .set("selfLink", feed.getSelfLinkResolvedHref());
+    return builder.get();
   }
   
   protected Verb verb(Entry entry) {
@@ -105,30 +106,29 @@ public class FeedToActivityConverter {
   }
   
   protected Activity item(Entry entry) {
-    Activity activity = new Activity();
+    ActivityBuilder builder = Activity.makeActivity();
     if (entry.getId() != null)
-      activity.setId(entry.getId().toString());
+      builder.id(entry.getId().toString());
     if (entry.getUpdated() != null)
-      activity.setUpdated(entry.getUpdated());
+      builder.updated(entry.getUpdated());
     if (entry.getPublished() != null)
-      activity.setPublished(entry.getPublished());
-    activity.setUrl(entry.getAlternateLinkResolvedHref());
-    activity.setTitle(entry.getTitle());
-    activity.setSummary(entry.getSummary());
-    categories(entry.getCategories(), activity);
-    activity.setLang(entry.getLanguageTag());
-    activity.setVerb(verb(entry));
+      builder.published(entry.getPublished());
+    builder.url(entry.getAlternateLinkResolvedHref())
+      .title(entry.getTitle())
+      .summary(entry.getSummary());
+    categories(entry.getCategories(), builder);
+    builder.lang(entry.getLanguageTag())
+      .verb(verb(entry));
     List<Person> authors = entry.getAuthorsInherited();
-    activity.setActor(authors(authors));
-    activity.setProperty("contributors", authors(entry.getContributors()));
-    activity.setObject(object(entry));
-    activity.setTarget(target(entry));
+    builder.actor(authors(authors))
+      .set("contributors", authors(entry.getContributors()))
+      .object(object(entry))
+      .target(target(entry));
     List<Link> enclosures = entry.getLinks("enclosure");
-    for (Link link : enclosures) {
-      activity.addAttachment(
+    for (Link link : enclosures)
+      builder.attachment(
         attachment(link));
-    }
-    return activity;
+    return builder.get();
   }
   
   protected String objectType(ExtensibleElement ext) {
@@ -143,29 +143,28 @@ public class FeedToActivityConverter {
   }
   
   protected ASObject object(ExtensibleElement ext) {
-    ASObject obj = new ASObject();
+    ASObjectBuilder builder = ASObject.makeObject(objectType(ext));
     if (ext.has(Constants.ID))
-      obj.setId(ext.getSimpleExtension(Constants.ID));
+      builder.id(ext.getSimpleExtension(Constants.ID));
     if (ext.has(Constants.TITLE)) {
       Text text = ext.getExtension(Constants.TITLE);
-      obj.setDisplayName(text.getValue());
+      builder.displayName(text.getValue());
     }
     if (ext.has(Constants.SUMMARY)) {
       Text text = ext.getExtension(Constants.SUMMARY);
-      obj.setSummary(text.getValue());
+      builder.summary(text.getValue());
     }
-    obj.setObjectType(objectType(ext));
     List<Link> links = ext.getExtensions(
       Constants.LINK, withRel("preview"));
     for (Link link : links) {
       String rel = link.getCanonicalRel();
       if (Link.REL_ALTERNATE.equalsIgnoreCase(rel)) {
-        obj.setUrl(link.getResolvedHref());
+        builder.url(link.getResolvedHref());
       } else if ("preview".equalsIgnoreCase(rel)) {
-        obj.setImage(image(link.getResolvedBaseUri()));
+        builder.image(image(link.getResolvedBaseUri()));
       }
     }
-    return obj;
+    return builder.get();
   }
   
   protected ASObject target(Entry entry) {
@@ -181,73 +180,61 @@ public class FeedToActivityConverter {
   }
   
   protected ASObject attachment(Link link) {
-    ASObject obj = new ASObject();
-    obj.setUrl(link.getResolvedHref());
-    obj.setProperty("mimeType", link.getMimeType());
-    obj.setDisplayName(link.getTitle());
-    obj.setProperty("hreflang", link.getHrefLang());
-    obj.setObjectType("link");
-    return obj;
+    return ASObject.makeObject("link")
+      .url(link.getResolvedHref())
+      .set("mimeType", link.getMimeType())
+      .displayName(link.getTitle())
+      .set("hreflang", link.getHrefLang())
+      .get();
   }
   
   protected MediaLink image(IRI iri) {
-    MediaLink link = null;
-    if (iri != null) {
-      link = new MediaLink();
-      link.setUrl(iri);
-    }
-    return link;
+    return iri == null ? null :
+      MediaLink.makeMediaLink()
+        .url(iri).get();
   }
   
   protected ASObject generator(Generator generator) {
-    ASObject _generator = null;
-    if (generator != null) {
-      _generator = new ServiceObject();
-      _generator.setDisplayName(generator.getText());
-      _generator.setProperty("version", generator.getVersion());
-      _generator.setUrl(generator.getUri());
-    }
-    return _generator;
+    return generator == null ? null :
+      ServiceObject
+        .makeService()
+        .displayName(generator.getText())
+        .set("version",generator.getVersion())
+        .url(generator.getUri())
+        .get();
   }
   
-  protected void categories(List<Category> categories, ASObject obj) {
+  protected void categories(List<Category> categories, ASObject.Builder<?,?> builder) {
     for (Category category : categories)
-      obj.addTag(category(category));
+      builder.tag(category(category));
   }
   
   protected ASObject category(Category category) {
-    ASObject _category = new ASObject("category");
-    _category.setDisplayName(category.getTerm());
-    if (category.getScheme() != null)
-      _category.setProperty("scheme", category.getScheme());
-    return _category;
+    return ASObject.makeObject("category")
+      .displayName(category.getTerm())
+      .set("scheme",category.getScheme()).get();
   }
   
   protected ASObject authors(List<Person> authors) {
     if (authors.size() == 1) {
       return person(authors.get(0));
     } else if (authors.size() > 1) {
-      Collection<PersonObject> _authors = 
-        new Collection<PersonObject>();
+      CollectionBuilder<PersonObject> _authors = 
+        Collection.<PersonObject>makeCollection();
       for (Person person : authors) {
         PersonObject _person = person(person);
         if (_person != null) 
-          _authors.addItem(_person);
+          _authors.item(_person);
       }
-      return _authors;
+      return _authors.get();
     } else return null;
   }
   
   protected PersonObject person(Person person) {
-    PersonObject _person = new PersonObject();
-    _person.setDisplayName(person.getName());
-    if (person.getUri() != null)
-      _person.setUrl(person.getUri());
-    if (person.getEmail() != null) {
-      Set<String> emails = new HashSet<String>();
-      emails.add(person.getEmail());
-      _person.setEmails(emails);
-    }
-    return _person;
+    return 
+      PersonObject.makePerson()
+       .displayName(person.getName())
+       .url(person.getUri())
+       .email(person.getEmail()).get();
   }
 }

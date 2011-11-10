@@ -17,58 +17,71 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
-@Name("video")
+
 public class VideoObject 
   extends ASObject {
-
-  private static final long serialVersionUID = 5394642824444623984L;
+ 
   public static final String EMBEDCODE = "embedCode";
   public static final String STREAM = "stream";
+
+  public static VideoBuilder makeVideo() {
+    return new VideoBuilder("video");
+  }
   
-  public VideoObject() {}
+  @Name("video")
+  public static final class VideoBuilder extends Builder<VideoObject,VideoBuilder> {
+    public VideoBuilder() {
+      super(VideoObject.class,VideoBuilder.class);
+    }
+    public VideoBuilder(Map<String, Object> map) {
+      super(map, VideoObject.class,VideoBuilder.class);
+    }
+    public VideoBuilder(String objectType) {
+      super(objectType,VideoObject.class,VideoBuilder.class);
+    }
+  }
   
-  public VideoObject(String displayName) {
-    setDisplayName(displayName);
+  @SuppressWarnings("unchecked")
+  public static abstract class Builder<X extends VideoObject,M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    protected Builder(Class<X> _class,Class<M> _builder) { 
+      super(_class,_builder);
+    }
+    protected Builder(String objectType,Class<X> _class,Class<M> _builder) {
+      super(objectType,_class,_builder);
+    }
+    protected Builder(Map<String,Object> map,Class<X> _class,Class<M> _builder) {
+      super(map,_class,_builder);
+    }
+    public M embedCode(String code) {
+      set(EMBEDCODE,code);
+      return (M)this;
+    }
+    public M stream(MediaLink stream) {
+      set(STREAM,stream);
+      return (M)this;
+    }
+  }
+  
+  public VideoObject(Map<String,Object> map) {
+    super(map,VideoBuilder.class,VideoObject.class);
+  }
+  
+  public <X extends VideoObject, M extends Builder<X,M>>VideoObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   public String getEmbedCode() {
     return getProperty(EMBEDCODE);
   }
   
-  public void setEmbedCode(String embedCode) {
-    setProperty(EMBEDCODE, embedCode);
-  }
-  
   public MediaLink getStream() {
     return getProperty(STREAM);
   }
   
-  public void setStream(MediaLink stream) {
-    setProperty(STREAM, stream);
-  }
-  
-  public static <T extends VideoObject>VideoObjectGenerator<T> makeVideo() {
-    return new VideoObjectGenerator<T>();
-  }
-  
-  @SuppressWarnings("unchecked")
-  public static class VideoObjectGenerator<T extends VideoObject> extends ASObjectGenerator<T> {
-    public VideoObjectGenerator() {
-      super((Class<? extends T>) VideoObject.class);
-    }
-    public VideoObjectGenerator(Class<T> _class) {
-      super(_class);
-    }
-    public <X extends VideoObjectGenerator<T>>X embedCode(String code) {
-      item.setEmbedCode(code);
-      return (X)this;
-    }
-    public <X extends VideoObjectGenerator<T>>X stream(MediaLink stream) {
-      item.setStream(stream);
-      return (X)this;
-    }
-  }
 }

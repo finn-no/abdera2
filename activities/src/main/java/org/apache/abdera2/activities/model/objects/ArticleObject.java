@@ -17,32 +17,36 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("article")
 public class ArticleObject 
   extends ASObject {
-
-  private static final long serialVersionUID = -9127545085992655433L;
   
-  public ArticleObject() {}
-  
-  public ArticleObject(String displayName) {
-    setDisplayName(displayName);
+  public static <T extends ArticleObject>Builder makeArticle() {
+    return new Builder("article");
   }
   
-  public static <T extends ArticleObject>ArticleObjectGenerator<T> makeArticle() {
-    return new ArticleObjectGenerator<T>();
+  @Name("article")
+  public static class Builder extends ASObject.Builder<ArticleObject,Builder> {
+    public Builder() {
+      super(ArticleObject.class,Builder.class);
+    }
+    public Builder(String objectType) {
+      super(objectType,ArticleObject.class,Builder.class);
+    }
+    public Builder(Map<String,Object> map) {
+      super(map,ArticleObject.class,Builder.class);
+    }
   }
   
-  public static class ArticleObjectGenerator<T extends ArticleObject> extends ASObjectGenerator<T> {
-    @SuppressWarnings("unchecked")
-    public ArticleObjectGenerator() {
-      super((Class<? extends T>) ArticleObject.class);
-    }
-    public ArticleObjectGenerator(Class<? extends T> _class) {
-      super(_class);
-    }
+  public ArticleObject(Map<String,Object> map) {
+    super(map,Builder.class,ArticleObject.class);
+  }
+  
+  public <X extends ArticleObject, M extends ASObject.Builder<X,M>>ArticleObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
   }
 }

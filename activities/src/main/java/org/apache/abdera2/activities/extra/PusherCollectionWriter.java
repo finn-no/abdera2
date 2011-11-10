@@ -1,6 +1,7 @@
 package org.apache.abdera2.activities.extra;
 
 import org.apache.abdera2.activities.model.ASBase;
+import org.apache.abdera2.activities.model.ASBase.Builder;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.CollectionWriter;
 import org.apache.abdera2.common.pusher.Pusher;
@@ -50,6 +51,15 @@ public class PusherCollectionWriter
    */
   public void complete() {
     // ignored
+  }
+
+  public <X extends CollectionWriter> X writeHeader(Builder<?, ?> base) {
+    return writeHeader(base.get());
+  }
+
+  public <X extends CollectionWriter> X writeObject(
+      org.apache.abdera2.activities.model.ASObject.Builder<?, ?> object) {
+    return writeObject(object.get());
   }
   
 }

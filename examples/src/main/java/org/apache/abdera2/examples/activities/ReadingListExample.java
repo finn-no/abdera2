@@ -1,8 +1,8 @@
 package org.apache.abdera2.examples.activities;
 
 import org.apache.abdera2.activities.model.Activity;
-import org.apache.abdera2.activities.model.Collection;
-import org.apache.abdera2.activities.model.Generator;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
 import org.apache.abdera2.activities.model.IO;
 
 import static org.apache.abdera2.activities.model.Verb.SAVE;
@@ -28,31 +28,30 @@ public class ReadingListExample {
     // Building an activity stream for a reading list
     IO io = IO.get();
     
-    Generator<Activity> gen = 
+    ActivityBuilder gen = 
       makeActivity()
         .actor(
           makePerson()
             .displayName("James")
-            .get())
-        .get().newGenerator();
+            .get());
 
-    Collection.CollectionGenerator<Activity> builder = 
+    CollectionBuilder<Activity> builder = 
       makeCollection();
     
     // Add a book we want to read
     builder.item(
-      gen.startNew()
+      gen.template()
          .set("verb", SAVE)
          .set("object", 
            makeBook()
              .displayName("The Cat in the Hat")
              .get())
          .set("format", EBOOK())
-         .complete());
+         .get());
     
     // Add a book we just finished
     builder.item(
-      gen.startNew()
+      gen.template()
          .set("verb", CONSUME)
          .set("object", 
            makeBook()
@@ -63,7 +62,7 @@ public class ReadingListExample {
                  .get())
              .get())
          .set("format", HARDCOVER())
-         .complete());
+         .get());
     
     builder.get().writeTo(io,System.out);
     

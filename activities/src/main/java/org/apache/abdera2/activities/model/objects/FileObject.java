@@ -17,79 +17,124 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 
-@Name("file")
 public class FileObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -5449136149228249949L;
   public static final String FILEURL = "fileUrl";
   
-  public FileObject() {
+  public FileObject(Map<String,Object> map) {
+    super(map,FileBuilder.class,FileObject.class);
   }
   
-  public FileObject(String displayName) {
-    setDisplayName(displayName);
+  public <X extends FileObject, M extends Builder<X,M>>FileObject(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    super(map,_class,_obj);
   }
   
   public IRI getFileUrl() {
     return getProperty(FILEURL);
   }
   
-  public void setFileUrl(IRI fileUrl) {
-    setProperty(FILEURL, fileUrl);
-  }
-  
-  public void setFileUrl(String fileUrl) {
-    setFileUrl(new IRI(fileUrl));
-  }
-  
   public MimeType getMimeType() {
     return getProperty("mimeType");
   }
   
-  public void setMimeType(MimeType mimeType) {
-    setProperty("mimeType", MimeTypeHelper.unmodifiableMimeType(mimeType));
+  public static FileBuilder makeFile() {
+    return new FileBuilder("file");
   }
   
-  public void setMimeType(String mimeType) {
-    setProperty("mimeType", MimeTypeHelper.unmodifiableMimeType(mimeType));
+  public static FileObject makeFile(
+    String displayName, 
+    String fileUrl, 
+    String mimeType) {
+    return makeFile()
+      .displayName(displayName)
+      .fileUrl(fileUrl)
+      .mimeType(mimeType)
+      .get();
   }
   
-  public static <T extends FileObject>FileObjectGenerator<T> makeFile() {
-    return new FileObjectGenerator<T>();
+  public static FileObject makeFile(
+    String displayName, 
+    IRI fileUrl, 
+    String mimeType) {
+    return makeFile()
+      .displayName(displayName)
+      .fileUrl(fileUrl)
+      .mimeType(mimeType)
+      .get();
   }
+  
+  public static FileObject makeFile(
+    String displayName, 
+    String fileUrl, 
+    MimeType mimeType) {
+    return makeFile()
+      .displayName(displayName)
+      .fileUrl(fileUrl)
+      .mimeType(mimeType)
+      .get();
+  }
+  
+  public static FileObject makeFile(
+    String displayName, 
+    IRI fileUrl, 
+    MimeType mimeType) {
+    return makeFile()
+      .displayName(displayName)
+      .fileUrl(fileUrl)
+      .mimeType(mimeType)
+      .get();
+  }
+  
+  @Name("file")
+  public static final class FileBuilder extends Builder<FileObject,FileBuilder> {
+    public FileBuilder() {
+      super(FileObject.class,FileBuilder.class);
+    }
+    public FileBuilder(Map<String, Object> map) {
+      super(map, FileObject.class,FileBuilder.class);
+    }
+    public FileBuilder(String objectType) {
+      super(objectType, FileObject.class,FileBuilder.class);
+    }
+  }
+  
   
   @SuppressWarnings("unchecked")
-  public static class FileObjectGenerator<T extends FileObject> extends ASObjectGenerator<T> {
-    public FileObjectGenerator() {
-      super((Class<? extends T>) FileObject.class);
+  public static abstract class Builder<X extends FileObject, M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
     }
-    public FileObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X> _class, Class<M> _builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends FileObjectGenerator<T>>X fileUrl(IRI iri) {
-      item.setFileUrl(iri);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      super(map,_class,_builder);
     }
-    public <X extends FileObjectGenerator<T>>X fileUrl(String uri) {
-      item.setFileUrl(uri);
-      return (X)this;
+    public M fileUrl(IRI iri) {
+      set(FILEURL,iri);
+      return (M)this;
     }
-    public <X extends FileObjectGenerator<T>>X mimeType(MimeType mimeType) {
-      item.setMimeType(mimeType);
-      return (X)this;
+    public M fileUrl(String uri) {
+      return fileUrl(new IRI(uri));
     }
-    public <X extends FileObjectGenerator<T>>X mimeType(String mimeType) {
-      item.setMimeType(mimeType);
-      return (X)this;
+    public M mimeType(MimeType mimeType) {
+      set("mimeType",MimeTypeHelper.unmodifiableMimeType(mimeType));
+      return (M)this;
+    }
+    public M mimeType(String mimeType) {
+      set("mimeType",MimeTypeHelper.unmodifiableMimeType(mimeType));
+      return (M)this;
     }
   }
 }

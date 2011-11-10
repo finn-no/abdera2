@@ -17,46 +17,62 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("image")
 public class ImageObject 
   extends ASObject {
 
-  private static final long serialVersionUID = 2130182696482757451L;
   public static final String FULLIMAGE = "fullImage";
   
-  public ImageObject() {}
-  
-  public ImageObject(String displayName) {
-    setDisplayName(displayName);
+  public ImageObject(Map<String,Object> map) {
+    super(map,ImageBuilder.class,ImageObject.class);
   }
   
+  public <X extends ImageObject, M extends Builder<X,M>>ImageObject(Map<String,Object> map, Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+    
   public MediaLink getFullImage() {
     return getProperty(FULLIMAGE);
   }
-  
-  public void setFullImage(MediaLink fullImage) {
-    setProperty(FULLIMAGE, fullImage);
+
+  public static ImageBuilder makeImage() {
+    return new ImageBuilder("image");
   }
   
-  public static <T extends ImageObject>ImageObjectGenerator<T> makeImage() {
-    return new ImageObjectGenerator<T>();
+  @Name("image")
+  public static final class ImageBuilder extends Builder<ImageObject,ImageBuilder> {
+    public ImageBuilder() {
+      super(ImageObject.class, ImageBuilder.class);
+    }
+    public ImageBuilder(Map<String, Object> map) {
+      super(map, ImageObject.class, ImageBuilder.class);
+    }
+    public ImageBuilder(String objectType) {
+      super(objectType,ImageObject.class, ImageBuilder.class);
+    }
+    
   }
   
   @SuppressWarnings("unchecked")
-  public static class ImageObjectGenerator<T extends ImageObject> extends ASObjectGenerator<T> {
-    public ImageObjectGenerator() {
-      super((Class<? extends T>) ImageObject.class);
+  public static abstract class Builder<X extends ImageObject, M extends Builder<X,M>> 
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public ImageObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends ImageObjectGenerator<T>>X fullImage(MediaLink fullImage) {
-      item.setFullImage(fullImage);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
+    }
+    public M fullImage(MediaLink fullImage) {
+      set(FULLIMAGE, fullImage);
+      return (M)this;
     }
   }
 }

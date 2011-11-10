@@ -27,6 +27,10 @@ import java.io.IOException;
 import org.apache.abdera2.activities.client.ActivityEntity;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
+
+import static org.apache.abdera2.activities.model.ASBase.withoutFields;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.Verb;
@@ -79,17 +83,15 @@ public class BasicTest {
 
     @Test
     public void testPostEntry() throws IOException {
-        Activity activity = new Activity();
-        activity.setId("http://localhost:9002/sample/foo");
-        activity.setTitle("test entry");
-        activity.setVerb(Verb.POST);
-        activity.setPublishedNow();
-        PersonObject person = new PersonObject();
-        person.setDisplayName("James");
-        activity.setActor(person);
-        NoteObject note = new NoteObject();
-        note.setContent("Test Content");
-        activity.setObject(note);
+      Activity activity = 
+        Activity.makeActivity()
+         .id("http://localhost:9002/sample/foo")
+         .title("test entry")
+         .verb(Verb.POST)
+         .publishedNow()
+         .actor(PersonObject.makePerson().displayName("James").get())
+         .object(NoteObject.makeNote().content("Test Content").get())
+         .get();
         Session session = client.newSession();
         ActivityEntity ae = new ActivityEntity(activity);
         ClientResponse resp = session.post("http://localhost:9002/sample", ae);
@@ -122,7 +124,7 @@ public class BasicTest {
         resp.release();
         assertTrue(object instanceof Activity);
         Activity activity = (Activity) object;
-        activity.setTitle("This is the modified title");
+        activity = activity.<Activity,ActivityBuilder>template(withoutFields("title")).get();
         ActivityEntity ae = new ActivityEntity(activity);
         resp = session.put("http://localhost:9002/sample/foo", ae);
         assertEquals(ResponseType.SUCCESSFUL, resp.getType());
@@ -163,23 +165,19 @@ public class BasicTest {
     @SuppressWarnings("unused")
     @Test
     public void testMultiPostEntry() throws IOException {
-        Collection<Activity> collection = new Collection<Activity>();
-        for (int n = 0; n < 10; n++) {
-          Activity activity = new Activity();
-          activity.setId("http://localhost:9002/sample/foo" + n);
-          activity.setTitle("test entry " + n);
-          activity.setVerb(Verb.POST);
-          activity.setPublishedNow();
-          PersonObject person = new PersonObject();
-          person.setDisplayName("James");
-          activity.setActor(person);
-          NoteObject note = new NoteObject();
-          note.setContent("Test Content " + n);
-          activity.setObject(note);
-          collection.addItem(activity);
-        }
+        CollectionBuilder<Activity> builder = Collection.makeCollection();
+        for (int n = 0; n < 10; n++)
+          builder.item(
+            Activity.makeActivity()
+             .id("http://localhost:9002/sample/foo" + n)
+             .title("test entry "+n)
+             .verb(Verb.POST)
+             .publishedNow()
+             .actor(PersonObject.makePerson().displayName("James").get())
+             .object(NoteObject.makeNote().content("Test Content "+n).get())
+             .get());
         Session session = client.newSession();
-        ActivityEntity ae = new ActivityEntity(collection);
+        ActivityEntity ae = new ActivityEntity(builder.get());
         ClientResponse resp = session.post("http://localhost:9002/sample", ae);
         assertNotNull(resp);
         assertEquals(ResponseType.SUCCESSFUL, resp.getType());

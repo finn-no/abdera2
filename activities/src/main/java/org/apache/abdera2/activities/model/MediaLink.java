@@ -17,106 +17,112 @@
  */
 package org.apache.abdera2.activities.model;
 
+import java.util.Map;
+
 import org.apache.abdera2.common.iri.IRI;
 
 /**
  * Represents the Activity Streams Media Link construct.
  */
-public class MediaLink extends ASBase {
+public final class MediaLink extends ASBase {
 
-  private static final long serialVersionUID = -2003166656259290419L;
   public static final String DURATION = "duration";
   public static final String HEIGHT = "height";
   public static final String WIDTH = "width";
   public static final String URL = "url";
   
-  public MediaLink() {}
-  
-  public MediaLink(IRI url) {
-    setUrl(url);
+  public static Builder makeMediaLink() {
+    return new Builder();
   }
   
-  public MediaLink(
-    IRI url, 
-    int height, 
-    int width, 
+  public static MediaLink makeMediaLink(String iri) {
+    return makeMediaLink().url(iri).get();
+  }
+  
+  public static MediaLink makeMediaLink(IRI iri) {
+    return makeMediaLink().url(iri).get();
+  }
+  
+  public static MediaLink makeMediaLink(
+    String iri,
+    int height,
+    int width,
     int duration) {
-      setUrl(url);
-      setHeight(height);
-      setWidth(width);
-      setDuration(duration);
+    return makeMediaLink()
+      .url(iri)
+      .height(height)
+      .width(width)
+      .duration(duration)
+      .get();
+  }
+  
+  public static MediaLink makeMediaLink(
+    IRI iri,
+    int height,
+    int width,
+    int duration) {
+    return makeMediaLink()
+      .url(iri)
+      .height(height)
+      .width(width)
+      .duration(duration)
+      .get();
+  }
+  
+  public final static class Builder 
+    extends ASBase.Builder<MediaLink,Builder> {
+
+    public Builder() {
+      super(MediaLink.class,Builder.class);
+    }
+    
+    public Builder(Map<String,Object> map) {
+      super(map,MediaLink.class,Builder.class);
+    }
+    
+    public Builder duration(int duration) {
+      set(DURATION,Math.max(0,duration));
+      return this;
+    }
+    
+    public Builder height(int height) {
+      set(HEIGHT,Math.max(0,height));
+      return this;
+    }
+    
+    public Builder width(int width) {
+      set(WIDTH,Math.max(0,width));
+      return this;
+    }
+    
+    public Builder url(IRI iri) {
+      set(URL,iri);
+      return this;
+    }
+    
+    public Builder url(String uri) {
+      return url(new IRI(uri));
+    }
+  }
+  
+  MediaLink(Map<String,Object> map) {
+    super(map,Builder.class,MediaLink.class);
   }
   
   public int getDuration() {
     return (Integer)getProperty(DURATION);
   }
   
-  public void setDuration(int duration) {
-    setProperty(DURATION, duration < 0 ? null : duration);
-  }
-  
   public int getHeight() {
     return (Integer)getProperty(HEIGHT);
-  }
-  
-  public void setHeight(int height) {
-    setProperty(HEIGHT, height < 0 ? null : height);
   }
   
   public int getWidth() {
     return (Integer)getProperty(WIDTH);
   }
   
-  public void setWidth(int width) {
-    setProperty(WIDTH, width < 0 ? null : width);
-  }
-  
   public IRI getUrl() {
     return getProperty(URL);
-  }
-  
-  public void setUrl(IRI url) {
-    setProperty(URL, url);
-  }
-  
-  public void setUrl(String url) {
-    setUrl(new IRI(url));
-  }
-  
-  public static MediaLinkGenerator makeMediaLink() {
-    return new MediaLinkGenerator();
-  }
-  
-  public static class MediaLinkGenerator extends Generator<MediaLink> {
-
-    public MediaLinkGenerator() {
-      super(MediaLink.class);
-    }
-    
-    public MediaLinkGenerator duration(int duration) {
-      item.setDuration(duration);
-      return this;
-    }
-    
-    public MediaLinkGenerator height(int height) {
-      item.setHeight(height);
-      return this;
-    }
-    
-    public MediaLinkGenerator width(int width) {
-      item.setWidth(width);
-      return this;
-    }
-    
-    public MediaLinkGenerator url(IRI iri) {
-      item.setUrl(iri);
-      return this;
-    }
-    
-    public MediaLinkGenerator url(String uri) {
-      item.setUrl(new IRI(uri));
-      return this;
-    }
   }
   
 }

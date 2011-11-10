@@ -36,7 +36,7 @@ import static com.google.common.base.Preconditions.*;
 /**
  * Miscellaneous extensions
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked","rawtypes"})
 public class Extra {
 
   /**
@@ -481,72 +481,72 @@ public class Extra {
   
   
   public static <X extends ASObject>Selector<X> isMe() {
-    return (Selector<X>)sameIdentity(ME());
+    return (Selector<X>)sameIdentity(ME);
   }
   
   public static <X extends ASObject>Selector<X> isSelf() {
-    return (Selector<X>)sameIdentity(SELF());
+    return (Selector<X>)sameIdentity(SELF);
   }
   
   public static <X extends ASObject>Selector<X> isFriends() {
-    return (Selector<X>)sameIdentity(FRIENDS());
+    return (Selector<X>)sameIdentity(FRIENDS);
   }
   
   public static <X extends ASObject>Selector<X> isFriends(String id) {
-    return (Selector<X>)sameIdentity(FRIENDS(id));
+    return (Selector<X>)sameIdentity(FRIENDS(id).get());
   }
   
   public static <X extends ASObject>Selector<X> isNetwork() {
-    return (Selector<X>)sameIdentity(NETWORK());
+    return (Selector<X>)sameIdentity(NETWORK);
   }
   
   public static <X extends ASObject>Selector<X> isAll() {
-    return (Selector<X>)sameIdentity(ALL());
+    return (Selector<X>)sameIdentity(ALL);
   }
   
   public static <X extends ASObject>Selector<X> isPublic() {
-    return (Selector<X>)sameIdentity(PUBLIC());
+    return (Selector<X>)sameIdentity(PUBLIC);
   }
   
   public static <X extends ASObject>Selector<X> isMeOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(ME());
+    Selector<X> s2 = sameIdentity(ME);
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isSelfOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(SELF());
+    Selector<X> s2 = sameIdentity(SELF);
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isFriendsOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(FRIENDS());
+    Selector<X> s2 = sameIdentity(FRIENDS);
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isFriendsOr(String id, ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(FRIENDS(id));
+    Selector<X> s2 = sameIdentity(FRIENDS(id).get());
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isNetworkOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(NETWORK());
+    Selector<X> s2 = sameIdentity(NETWORK);
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isAllOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(ALL());
+    Selector<X> s2 = sameIdentity(ALL);
     return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isPublicOr(ASObject object) {
     Selector<X> s1 = sameIdentity(object);
-    Selector<X> s2 = sameIdentity(PUBLIC());
+    Selector<X> s2 = sameIdentity(PUBLIC);
     return Selectors.<X>or(s1,s2);
   }
   
@@ -653,7 +653,7 @@ public class Extra {
   public static final Comparator<ASObject> PUBLISHED_COMPARATOR = 
     new PublishedComparator();
   
-  private static class UpdatedComparator 
+  static class UpdatedComparator 
     extends DateTimes.DateTimeComparator<ASObject> {
       public int compare(ASObject a1, ASObject a2) {
         DateTime d1 = a1.getUpdated();
@@ -662,7 +662,7 @@ public class Extra {
       }
   }
   
-  private static class PublishedComparator 
+  static class PublishedComparator 
     extends DateTimes.DateTimeComparator<ASObject> {
       public int compare(ASObject a1, ASObject a2) {
         return innerCompare(
@@ -702,6 +702,64 @@ public class Extra {
     return (M)e.create();
   }
   
+  /**
+   * Uses cglib to create an extension of the base ASObject type
+   * that implements the given interface. All setter/getter methods
+   * on the supplied interface will be mapped to properties on the
+   * underlying ASObject.. for instance, getFoo() and setFoo(..) will
+   * be mapped to a "foo" property
+   */
+  public static <X extends ASBase.Builder,M>M extendBuilder(
+    X object,
+    Class<?> type) {
+    checkNotNull(type);
+    checkNotNull(object);
+    Enhancer e = new Enhancer();
+    if (type.isInterface()) {
+      e.setSuperclass(type);
+      e.setInterfaces(addin(object.getClass().getInterfaces(),type));
+    } else if (ASObject.class.isAssignableFrom(type)) {
+      e.setSuperclass(type);
+    }
+    e.setCallback(new BuilderWrapper(type,object));
+    return (M)e.create();
+  }
+  
+  private static class BuilderWrapper 
+  implements MethodInterceptor {
+  private final Class<?> type;
+  private final ASBase.Builder builder;
+  BuilderWrapper(
+    Class<?> type, 
+    ASBase.Builder builder) {
+    this.type = type;
+    this.builder = builder;
+  }
+  public Object intercept(
+    Object obj, 
+    Method method, 
+    Object[] args,
+    MethodProxy proxy) 
+      throws Throwable {
+      if (method.getDeclaringClass().equals(type)) {
+        boolean setter = 
+          method.getName().matches("[Ss]et.+") || 
+          ((void.class.isAssignableFrom(method.getReturnType()) ||
+           method.getReturnType().isAssignableFrom(type)) && 
+          method.getParameterTypes().length == 1);
+        String name = get_name(method);
+        if (setter) {
+          if (args.length != 1)
+            throw new UnsupportedOperationException();
+          builder.set(name,args[0]);
+          return method.getReturnType().isAssignableFrom(type) ?
+            obj : null; 
+        } else {
+          throw new UnsupportedOperationException();
+        }
+      } else return proxy.invokeSuper(builder, args);
+    }    
+  }
   
   private static class ExtensionWrapper 
     implements MethodInterceptor {
@@ -720,19 +778,20 @@ public class Extra {
       MethodProxy proxy) 
         throws Throwable {
       if (method.getDeclaringClass().equals(type)) {
-        boolean setter = 
-          method.getName().matches("[Ss]et.+") || 
-          (void.class.isAssignableFrom(method.getReturnType()) && 
-          method.getParameterTypes().length == 1);
         String name = get_name(method);
-        if (setter) {
-          if (args.length != 1)
-            throw new UnsupportedOperationException();
-          base.setProperty(name,args[0]);
-          return method.getReturnType().isAssignableFrom(type) ?
-            obj : null; 
-        } else if (method.getParameterTypes().length == 0) {
-          return method.getReturnType().cast(base.getProperty(name));
+        if (method.getParameterTypes().length == 0 && 
+            method.getReturnType() != Void.class) {
+          Object ret = base.getProperty(name);
+          Class<?> retType = method.getReturnType();
+          if (ret instanceof ASBase && 
+              ASBase.class.isAssignableFrom(retType) && 
+              !ret.getClass().equals(ASBase.class) &&
+              !ret.getClass().equals(type)) {
+            ASBase bret = (ASBase) ret;
+            return bret.as((Class<? extends ASBase>)retType);
+          } else {
+            return retType.cast(base.getProperty(name));
+          }
         } else {
           throw new UnsupportedOperationException();
         }
@@ -740,7 +799,7 @@ public class Extra {
     }    
   }
   
-  private static String get_name(Method obj) {   
+  static String get_name(Method obj) {   
     String name = null;
     if (obj.isAnnotationPresent(Name.class))
       name = obj.getAnnotation(Name.class).value();

@@ -87,17 +87,15 @@ public class AsyncBasicTest {
           Thread.sleep(20 * 1000);
         } catch (Throwable t) {}
       
-        Activity activity = new Activity();
-        activity.setId("http://localhost:9002/sample/foo");
-        activity.setTitle("test entry");
-        activity.setVerb(Verb.POST);
-        activity.setPublishedNow();
-        PersonObject person = new PersonObject();
-        person.setDisplayName("James");
-        activity.setActor(person);
-        NoteObject note = new NoteObject();
-        note.setContent("Test Content");
-        activity.setObject(note);
+        Activity activity = 
+          Activity.makeActivity()
+           .id("http://localhost:9002/sample/foo")
+           .title("test entry")
+           .verb(Verb.POST)
+           .publishedNow()
+           .actor(PersonObject.makePerson().displayName("James").get())
+           .object(NoteObject.makeNote().content("Test Content").get())
+           .get();
         Session session = client.newSession();
         ActivityEntity ae = new ActivityEntity(activity);
         ClientResponse resp = session.post("http://localhost:9002/sample", ae);

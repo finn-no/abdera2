@@ -18,7 +18,6 @@
 package org.apache.abdera2.activities.protocol.managed;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -26,6 +25,7 @@ import org.apache.abdera2.common.protocol.CollectionInfo;
 import org.apache.abdera2.common.protocol.RequestContext;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 
 public class FeedConfiguration extends Configuration implements CollectionInfo {
     public static final String PROP_NAME_ADAPTER_CLASS = "adapterClassName";
@@ -45,16 +45,16 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
 
     public static class Generator implements Supplier<FeedConfiguration> {
 
-      private String feedId;
-      private String subUri;
-      private String adapterClassName;
-      private String feedConfigLocation;
-      private ServerConfiguration serverConfiguration;
-      private String feedTitle = "unknown";
-      private String feedAuthor = "unknown";
-      private final Map<Object, Object> optionalProperties = 
-        new HashMap<Object,Object>();
-      private CollectionAdapterConfiguration adapterConfiguration;      
+      String feedId;
+      String subUri;
+      String adapterClassName;
+      String feedConfigLocation;
+      ServerConfiguration serverConfiguration;
+      String feedTitle = "unknown";
+      String feedAuthor = "unknown";
+      final ImmutableMap.Builder<Object,Object> optionalProperties =
+        ImmutableMap.builder();
+      CollectionAdapterConfiguration adapterConfiguration;      
       
       public Generator id(String id) {
         this.feedId = id;
@@ -123,8 +123,7 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
     private final ServerConfiguration serverConfiguration;
     private final String feedTitle;
     private final String feedAuthor;
-    private final Map<Object, Object> optionalProperties = 
-      new HashMap<Object,Object>();
+    private final ImmutableMap<Object, Object> optionalProperties;
     private final CollectionAdapterConfiguration adapterConfiguration;
 
     protected FeedConfiguration(Generator gen) {
@@ -135,7 +134,7 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
       this.serverConfiguration = gen.serverConfiguration;
       this.feedTitle = gen.feedTitle;
       this.feedAuthor = gen.feedAuthor;
-      this.optionalProperties.putAll(gen.optionalProperties);
+      this.optionalProperties = gen.optionalProperties.build();
       this.adapterConfiguration = gen.adapterConfiguration;
     }
 
@@ -210,7 +209,7 @@ public class FeedConfiguration extends Configuration implements CollectionInfo {
         String[] arr = null;
         if (accepts == null || !(accepts instanceof String))
             arr = new String[] {"application/json"};
-        arr = ((String)accepts).split("\\s*,\\s*");
+        else arr = ((String)accepts).split("\\s*,\\s*");
         return Arrays.<String>asList(arr);
     }
 

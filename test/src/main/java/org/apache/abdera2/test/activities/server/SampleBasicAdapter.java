@@ -21,8 +21,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
-import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
 import org.apache.abdera2.activities.protocol.basic.BasicAdapter;
 import org.apache.abdera2.activities.protocol.managed.FeedConfiguration;
 import org.apache.abdera2.common.protocol.RequestContext;
@@ -58,57 +59,58 @@ public class SampleBasicAdapter extends BasicAdapter {
     }
 
     @Override
-    public Collection<ASObject> getCollection() throws Exception {
-        Collection<ASObject> col = createCollection();
-        
+    public CollectionBuilder<ASObject> getCollection() throws Exception {
+        CollectionBuilder<ASObject> col = createCollection();
         for (Item item : entries)
-          col.addItem(item.getValue());
+          col.item(item.getValue());
         return col;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ASObject getItem(Object entryId) throws Exception {
+    public ASObject.Builder<ASObject,?> getItem(Object entryId) throws Exception {
       ASObject ret = null;
       for (Item item : entries)
         if (item.getKey().equals(entryId.toString())) {
           ret = item.getValue();
           break;
         }
-      return ret;
+      if (ret == null) return null;
+      return ret.<ASObject,ASObject.Builder>template();
     }
 
     @Override
-    public ASObject createItem(ASObject object) throws Exception {
+    public <T extends ASObject>ASObject.Builder<T,?> createItem(ASObject object) throws Exception {
         return createItem(object,-1);
     }
     
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ASObject createItem(ASObject object, int c) throws Exception {
-        setObjectIdIfNull(object);
-        logger.info("assigning id to Object: " + object.getId().toString());
-        String entryId = getObjectIdFromUri(object.getId().toString());
-        if (c != -1) entryId += c;
-        if (object.getUpdated() == null) {
-            object.setUpdatedNow();
-        }
-        addEditLinkToObject(object);
-        storeObject(entryId, object);
-        logger.finest("returning this object from sampleadapter.createItem: " + object.toString());
-        return object;
+    public <T extends ASObject>ASObject.Builder<T,?> createItem(ASObject object, int c) throws Exception {
+      ASObject.Builder<T, ?> builder = object.<ASObject,ASObject.Builder>template(ASBase.withoutFields("editLink","updated"));
+      if (!object.has("id"))
+        setObjectId(builder);
+      logger.info("assigning id to Object: " + object.getId().toString());
+      String entryId = getObjectIdFromUri(object.getId().toString());
+      if (c != -1) entryId += c;
+      builder.updatedNow();
+      addEditLinkToObject(builder,object.getId());
+      storeObject(entryId, object);
+      logger.finest("returning this object from sampleadapter.createItem: " + object.toString());
+      return builder;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public ASObject updateItem(Object entryId, ASObject object) throws Exception {
+    public <T extends ASObject>ASObject.Builder<T,?> updateItem(Object entryId, ASObject object) throws Exception {
         if (!deleteItem(entryId))
             throw new Exception(ERROR_INVALID_ENTRY);
-        
-        if (object.getUpdated() == null) {
-            object.setUpdatedNow();
-        }
-        addEditLinkToObject(object);
-        storeObject((String)entryId, object);
+        ASObject.Builder<T, ?> builder = object.<ASObject,ASObject.Builder>template(ASBase.withoutFields("editLink","updated"));
+        builder.updatedNow();
+        addEditLinkToObject(builder,object.getId());
+        storeObject((String)entryId, builder.get());
         logger.finest("returning this entry from sampleadapter.updateEntry: " + object.toString());
-        return object;
+        return builder;
     }
 
     @Override

@@ -28,9 +28,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.abdera2.common.Discover;
-import org.apache.abdera2.common.anno.AnnoUtil;
+import org.apache.abdera2.activities.io.gson.GsonIO;
 import org.apache.abdera2.common.anno.DefaultImplementation;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Primary interface for serializing/deserializing Activity objects. 
@@ -49,18 +51,71 @@ import org.apache.abdera2.common.anno.DefaultImplementation;
  * is to use two separate IO instances each configured with the 
  * appropriate property and object type mappings.
  */
-@DefaultImplementation("org.apache.abdera2.activities.io.gson.GsonIO")
 public abstract class IO {
 
-  protected boolean autoclose = false;
-  protected String defcharset = "UTF-8";
+  @DefaultImplementation("org.apache.abdera2.activities.io.gson.GsonIO.Builder")
+  public static abstract class Builder implements Supplier<IO> {
+    
+    protected ImmutableSet.Builder<TypeAdapter<?>> adapters = 
+      ImmutableSet.builder();
+    protected boolean autoclose;
+    protected boolean prettyprint;
+    protected String charset = "UTF-8";
+    public Builder autoClose() {
+      this.autoclose = true;
+      return this;
+    }
+    public Builder prettyPrint() {
+      this.prettyprint = true;
+      return this;
+    }
+    public Builder charset(String charset) {
+      this.charset = charset;
+      return this;
+    }
+    
+    public Builder adapter(TypeAdapter<?> adapter) {
+      adapters.add(adapter);
+      return this;
+    }
+    
+    public Builder adapter(TypeAdapter<?>... adapters) {
+      for (TypeAdapter<?> adapter : adapters)
+        adapter(adapter);
+      return this;
+    }
+    
+    public Builder adapter(Iterable<TypeAdapter<?>> adapters) {
+      for (TypeAdapter<?> adapter : adapters)
+        adapter(adapter);
+      return this;
+    }
+    
+    /**
+     * Adds a mapping of a property name to a specific value class. The 
+     * serializer/deserializer will use this to select the appropriate 
+     * type adapter for the property.
+     */
+    public abstract Builder property(String name, Class<?> _class);
+    
+    /**
+     * Registers an appropriate objectType mapping for the object. This is
+     * used to automatically select an appropriate class for individual 
+     * "objectType" values.
+     */
+    @SuppressWarnings("rawtypes")
+    public abstract <X extends ASObject.Builder>Builder object(Class<? extends X>... _class);
+    
+  }
   
-  /**
-   * True if streams and writers should be automatically closed when
-   * the IO instance is done with them. Applies to both reads and writes
-   */
-  public void setAutoClose(boolean autoclose) {
-    this.autoclose = true;
+  protected final boolean autoclose;
+  protected final boolean prettyPrint;
+  protected final String charset;
+  
+  protected IO(Builder builder) {
+    this.autoclose = builder.autoclose;
+    this.prettyPrint = builder.prettyprint;
+    this.charset = builder.charset;
   }
   
   /**
@@ -71,29 +126,8 @@ public abstract class IO {
     return autoclose;
   }
   
-  /**
-   * Adds a mapping of a property name to a specific value class. The 
-   * serializer/deserializer will use this to select the appropriate 
-   * type adapter for the property.
-   */
-  public abstract void addPropertyMapping(String name, Class<?> _class);
-  
-  /**
-   * Registers an appropriate objectType mapping for the object. This is
-   * used to automatically select an appropriate class for individual 
-   * "objectType" values.
-   */
-  public abstract void addObjectMapping(Class<? extends ASObject>... _class);
-  
-  /**
-   * Set the default character set used when parsing InputStreams
-   */
-  public void setDefaultCharset(String charset) {
-    this.defcharset = charset!=null?charset:"UTF-8";
-  }
-  
   public String getDefaultCharset() {
-    return defcharset;
+    return charset;
   }
   
   public String write(
@@ -116,7 +150,7 @@ public abstract class IO {
     try {
       OutputStreamWriter writer = 
         new OutputStreamWriter(
-          out,charset!=null?charset:defcharset);
+          out,charset!=null?charset:this.charset);
       write(base,writer);
       writer.flush();
     } catch (Throwable t) {
@@ -203,19 +237,17 @@ public abstract class IO {
   private static synchronized void set_cached(IO io, TypeAdapter<?>... adapters) {
     map.put(new CacheKey(adapters),io);
   }
+
+  public static Builder make() {
+    return new GsonIO.Builder();
+  }
   
   public static IO get(TypeAdapter<?>... adapters) { 
     IO io = get_cached(adapters);
     if (io == null) {
-      String defaultImpl = 
-        AnnoUtil.getDefaultImplementation(IO.class);
-      io = Discover.locate(
-          IO.class, 
-          defaultImpl, 
-          (Object)adapters); 
-      if (io != null)
-        set_cached(io,adapters);
-    } 
+      io = new GsonIO.Builder().adapter(adapters).get();
+      set_cached(io,adapters);
+    }
     return io;
   }
   

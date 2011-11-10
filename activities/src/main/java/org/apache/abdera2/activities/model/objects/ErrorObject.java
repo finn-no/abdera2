@@ -19,40 +19,54 @@ package org.apache.abdera2.activities.model.objects;
 
 import java.util.Map;
 
+import org.apache.abdera2.activities.io.gson.Properties;
+import org.apache.abdera2.activities.io.gson.Property;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-public class GroupObject 
-  extends ASObject {
+public final class ErrorObject extends ASObject {
+  public static final String TYPE = "error";
+  public ErrorObject(Map<String,Object> map) {
+    super(map,Builder.class,ErrorObject.class);
+  }  
 
-  
-  public static Builder makeGroup() {
-    return new Builder("group");
+  public int getCode() {
+    return getPropertyInt("code");
   }
   
-  public static GroupObject makeGroup(String id) {
-    return makeGroup().id(id).get();
+  public static Builder makeError() {
+    return new Builder("error");
   }
   
-  @Name("group")
-  public static final class Builder extends ASObject.Builder<GroupObject,Builder> {
+  public static ErrorObject makeError(int code, String message) {
+    return makeError()
+      .code(code)
+      .displayName(message)
+      .get();
+  }
+  
+  @Name("error")
+  @Properties(@Property(name="code",to=Integer.class))
+  public final static class Builder 
+    extends ASObject.Builder<ErrorObject,Builder> {
     public Builder() {
-      super(GroupObject.class,Builder.class);
+      super(ErrorObject.class,Builder.class);
     }
     public Builder(String objectType) {
-      super(objectType,GroupObject.class,Builder.class);
+      super(objectType,ErrorObject.class,Builder.class);
     }
     public Builder(Map<String,Object> map) {
-      super(map,GroupObject.class,Builder.class);
+      super(map,ErrorObject.class,Builder.class);
+    }
+    public Builder template() {
+      return new Builder(map.build());
+    }
+    public Builder code(int code) {
+      set("code",code);
+      return this;
+    }
+    public ErrorObject get() {
+      return new ErrorObject(map.build());
     }
   }
-  
-  public GroupObject(Map<String,Object> map) {
-    super(map,Builder.class,GroupObject.class);
-  }
-  
-  public <X extends GroupObject, M extends ASObject.Builder<X,M>>GroupObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
-    super(map,_class,_obj);
-  }
-  
 }

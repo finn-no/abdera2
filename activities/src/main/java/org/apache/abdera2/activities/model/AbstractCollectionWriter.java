@@ -21,6 +21,10 @@ public abstract class AbstractCollectionWriter
   
   public abstract void complete();
   
+  public <X extends CollectionWriter>X writeHeader(ASBase.Builder<?,?> base) {
+    return writeHeader(base.get());
+  }
+  
   public <X extends CollectionWriter>X writeHeader(ASBase base) {
     if (_items || _header)
     throw new IllegalStateException();
@@ -35,6 +39,10 @@ public abstract class AbstractCollectionWriter
     _header = true;
     flush();
     return (X)this;
+  }
+  
+  public <X extends CollectionWriter>X writeObject(ASObject.Builder<?, ?> object) {
+    return writeObject(object.get());
   }
   
   public <X extends CollectionWriter>X writeObject(ASObject object) {

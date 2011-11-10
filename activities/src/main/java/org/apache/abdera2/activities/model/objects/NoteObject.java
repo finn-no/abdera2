@@ -17,32 +17,37 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("note")
 public class NoteObject 
   extends ASObject {
-
-  private static final long serialVersionUID = -1394391975713468634L;
   
-  public NoteObject() {}
-  
-  public NoteObject(String displayName) {
-    setDisplayName(displayName);
-  }  
-  
-  public static <T extends NoteObject>NoteObjectGenerator<T> makeNote() {
-    return new NoteObjectGenerator<T>();
+  public static <T extends NoteObject>Builder makeNote() {
+    return new Builder("note");
   }
   
-  public static class NoteObjectGenerator<T extends NoteObject> extends ASObjectGenerator<T> {
-    @SuppressWarnings("unchecked")
-    public NoteObjectGenerator() {
-      super((Class<? extends T>) NoteObject.class);
+  @Name("note")
+  public static class Builder extends ASObject.Builder<NoteObject,Builder> {
+    public Builder() {
+      super(NoteObject.class,Builder.class);
     }
-    public NoteObjectGenerator(Class<? extends T> _class) {
-      super(_class);
+    public Builder(String objectType) {
+      super(objectType,NoteObject.class,Builder.class);
+    }
+    public Builder(Map<String,Object> map) {
+      super(map,NoteObject.class,Builder.class);
     }
   }
+  
+  public NoteObject(Map<String,Object> map) {
+    super(map,Builder.class,NoteObject.class);
+  }
+  
+  public <X extends NoteObject, M extends ASObject.Builder<X,M>>NoteObject(Map<String,Object> map,Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+  
 }

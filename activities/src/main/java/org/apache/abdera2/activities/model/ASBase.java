@@ -17,73 +17,139 @@
  */
 package org.apache.abdera2.activities.model;
 
-import org.joda.time.DateTime;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.activation.MimeType;
+import java.util.Map.Entry;
 
 import org.apache.abdera2.activities.extra.Extra;
-import org.apache.abdera2.activities.model.Generator.Copyable;
-import org.apache.abdera2.common.http.EntityTag;
-import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
-import org.apache.abdera2.common.mediatype.MimeTypeHelper;
-import org.apache.abdera2.common.mediatype.MimeTypeParseException;
 import org.apache.abdera2.common.misc.ExceptionHelper;
-import org.apache.abdera2.common.misc.MoreFunctions;
+import org.apache.abdera2.common.selector.Selector;
+import org.apache.abdera2.common.selector.AbstractSelector;
 
+import static org.apache.abdera2.common.misc.MoreFunctions.*;
 import static com.google.common.base.Preconditions.*;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import static com.google.common.collect.Maps.filterEntries;
 
 /**
  * Root of the Activity Streams object hierarchy, provides the core property
  * management and can be used to represent simple, untyped objects.
  */
+@SuppressWarnings("unchecked")
 public class ASBase 
-  implements Iterable<String>, Cloneable, Serializable, Copyable {
+  implements Iterable<String>, Cloneable {
+  
+  public static ASBuilder make() {
+    return new ASBuilder();
+  }
+  
+  public static class ASBuilder extends Builder<ASBase,ASBuilder> {
+    public ASBuilder() {
+      super(ASBase.class,ASBuilder.class);
+    }
+    protected ASBuilder(Map<String,Object> map) {
+      super(map,ASBase.class,ASBuilder.class);
+    }    
+  }
+  
+  public static <X extends ASBase, M extends Builder<X,M>>Function<Object[],M> createBuilder(
+      final Class<M> _m) {
+      return new Function<Object[],M>() {
+        public M apply(Object[] input) {
+          try {
+            if (input != null) {
+              Constructor<M> c = _m.getConstructor(Map.class);
+              c.setAccessible(true);
+              return c.newInstance(input);
+            } else {
+              return _m.newInstance();
+            }
+          } catch (Throwable t) {
+            throw ExceptionHelper.propogate(t);
+          }
+        }
+      };
+    }
+  
+  public static abstract class Builder<X extends ASBase, M extends Builder<X,M>>
+    implements Supplier<X> {
 
-  private static final long serialVersionUID = -5432906925445653268L;
-  private final Map<String,Object> exts =
-    new HashMap<String,Object>();
+    protected final ImmutableMap.Builder<String,Object> map = 
+      ImmutableMap.builder();
+    private final Function<Object[],X> con;
+    private final Function<Object[],M> bld;
+    
+    protected Builder(Class<X> _class, Class<M> _builder) {
+      con = createInstance(_class, Map.class);
+      bld = createBuilder(_builder);
+    }
+        
+    protected Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      this(_class,_builder);
+      this.map.putAll(map);
+    }
+    public M set(String name, Object val) {
+      if (val != null)
+        map.put(name,val);
+      return (M)this;
+    }
+    public M lang(String lang) {
+      return lang(new Lang(lang));
+    }
+    public M lang(Lang lang) {
+      set("lang",lang);
+      return (M)this;
+    }
+    protected void preGet() {}
+    public X get() {
+      preGet();
+      return con.apply(array(map.build()));
+    }
+    public <N>N extend(Class<N> as) {
+      checkArgument(as.isInterface(),"Extension is not an interface!");
+      return Extra.extendBuilder(this,as);
+    }
+    public M template() {
+      return bld.apply(array(map.build()));
+    }
+  }
+
+  protected final Map<String,Object> exts;
+  private final Function<Object[],?> builder;
   
-  public ASBase() {}
-  
-  protected <T>Iterable<T> checkEmpty(Iterable<T> i) {
-    return i == null ?
-      Collections.<T>emptySet() : i;
+  public ASBase(Map<String,Object> map) {
+    this.exts = map;
+    this.builder = createBuilder(ASBuilder.class);
   }
   
-  /**
-   * Set the value of the "lang" property. This optionally establishes
-   * a language context for the other properties in this object. It 
-   * is not inherited by contained objects.
-   */
-  public void setLang(Lang lang) {
-    setProperty("lang", lang);
+  protected <X extends ASBase, M extends Builder<X,M>>ASBase(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    this.exts = ImmutableMap.copyOf(map);
+    this.builder = createBuilder(_class);
   }
   
-  /**
-   * Gets value of the "lang" property. 
-   */
   public Lang getLang() {
     return getProperty("lang");
   }
   
-  /**
-   * Return the value of the named property
-   */
-  @SuppressWarnings("unchecked")
   public <T>T getProperty(String name) {
     return (T)exts.get(name);
+  }
+  
+  protected int getPropertyInt(String name) {
+    Object obj = exts.get(name);
+    if (obj instanceof Integer)
+      return (Integer)obj;
+    else return Integer.parseInt(obj.toString());
   }
   
   /**
@@ -95,25 +161,95 @@ public class ASBase
   }
   
   /**
-   * Set the value of the named property
-   */
-  public void setProperty(String name, Object value) {
-    if (value != null)
-      exts.put(name, value);
-    else if (exts.containsKey(name))
-      exts.remove(name);
-  }
-
-  /**
    * Return a listing of all the properties in this object
    */
   public Iterator<String> iterator() {
-    return Iterators.<String>unmodifiableIterator(exts.keySet().iterator());
+    return exts.keySet().iterator();
   }
+  
+  public <X extends ASBase, M extends Builder<X,M>>M template() {
+    return (M)builder.apply(array(exts));
+  }
+  
+  public <X extends ASBase, M extends Builder<X,M>>M template(Selector<Map.Entry<String,Object>> predicate) {
+    return (M)builder.apply(array(filterEntries(exts, predicate)));
+  }
+  
+  public <X extends ASBase, M extends Builder<X,M>>M templateWith(ASBase other) {
+    M builder = this.<X,M>template(withoutFields(other));
+    for (String field : other)
+      builder.set(field,other.getProperty(field));
+    return builder;
+  }
+  
+  public <X extends ASBase, M extends Builder<X,M>>M templateWith(Map<String,Object> other) {
+    ImmutableMap<String,Object> copy = 
+      other instanceof ImmutableMap ? 
+        (ImmutableMap<String,Object>)other : 
+        ImmutableMap.copyOf(other);
+    M builder = this.<X,M>template(withoutFields(copy.keySet()));
+    for (Map.Entry<String,Object> entry : copy.entrySet())
+      builder.set(entry.getKey(),entry.getValue());
+    return builder;
+  }
+  
+  public static final Selector<Map.Entry<String, Object>> withAllFields = 
+    new AbstractSelector<Map.Entry<String, Object>>(){
+      public boolean select(Object item) {
+        return true;
+      } 
+  };
+  
+  public static final Selector<Map.Entry<String, Object>> withNoFields = 
+    new AbstractSelector<Map.Entry<String, Object>>(){
+      public boolean select(Object item) {
+        return false;
+      } 
+  };
 
+  public static Selector<Map.Entry<String, Object>> withFields(Iterable<String> names) {
+    final ImmutableSet<String> list = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Object>>() {
+      public boolean select(Object item) {
+        Map.Entry<String,Object> entry = (Entry<String, Object>) item;
+        return list.contains(entry.getKey());
+      }
+    };
+  }
+  
+  public static Selector<Map.Entry<String, Object>> withFields(String... names) {
+    final ImmutableSet<String> list = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Object>>() {
+      public boolean select(Object item) {
+        Map.Entry<String,Object> entry = (Entry<String, Object>) item;
+        return list.contains(entry.getKey());
+      }
+    };
+  }
+  
+  public static Selector<Map.Entry<String, Object>> withoutFields(Iterable<String> names) {
+    final ImmutableSet<String> list = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Object>>() {
+      public boolean select(Object item) {
+        Map.Entry<String,Object> entry = (Entry<String, Object>) item;
+        return !list.contains(entry.getKey());
+      }
+    };
+  }
+  
+  public static Selector<Map.Entry<String, Object>> withoutFields(String... names) {
+    final ImmutableSet<String> list = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Object>>() {
+      public boolean select(Object item) {
+        Map.Entry<String,Object> entry = (Entry<String, Object>) item;
+        return !list.contains(entry.getKey());
+      }
+    };
+  }
+  
   @Override
   public int hashCode() {
-    return MoreFunctions.genHashCode(1,exts);
+    return genHashCode(1,exts);
   }
 
   @Override
@@ -142,34 +278,64 @@ public class ASBase
     try {
       if (type.isAssignableFrom(this.getClass()))
         return type.cast(this);
-      ASBase t = type.newInstance();
-      t.exts.putAll(exts);
-      t.contentType = contentType;
-      t.lastModified = lastModified;
-      t.entityTag = entityTag;
-      t.language = language;
-      t.slug = slug;
-      t.base = base;      
-      return type.cast(t);
+      return createInstance(type,Map.class).apply(array(exts));
     } catch (Throwable t) {
       throw ExceptionHelper.propogate(t);
     }
+  }
+  
+  /** 
+   * if we already implement the type, just return 
+   * a cast to that type... otherwise, create a 
+   * new instance and copy all the properties over 
+   **/
+  public <T extends ASBase>T as(Class<T> type,Selector<Map.Entry<String, Object>> filter) {
+    try {
+      return createInstance(type,Map.class).apply(array(filterEntries(exts,filter)));
+    } catch (Throwable t) {
+      throw ExceptionHelper.propogate(t);
+    }
+  }
+  
+  @SuppressWarnings("rawtypes")
+  public <T extends ASBase>T as(Class<T> type, ASBase other) {
+    Builder builder = 
+      as(type,withoutFields(other))
+        .template();
+    for (String field : other)
+        builder.set(field,other.getProperty(field));
+    return (T)builder.get();
+  }
+  
+  @SuppressWarnings("rawtypes")
+  public <T extends ASBase>T as(Class<T> type, Map<String,Object> other) {
+    ImmutableMap<String,Object> copy = 
+      other instanceof ImmutableMap ?
+        (ImmutableMap<String,Object>)other :
+        ImmutableMap.copyOf(other);
+    Builder builder = as(type,withoutFields(copy.keySet()))
+      .template();
+    for (Entry<String,Object> entry : copy.entrySet())
+      builder.set(entry.getKey(),entry.getValue());
+    return (T)builder.get();
   }
   
   /**
    * Returns this object wrapped with the specified interface.
    * The argument MUST be an interface. This is used as a means
    * of extending the object in a type-safe manner. Instead of 
-   * calling setProperty("foo","bar"), you can define an 
-   * extension interface with the methods setFoo(String m) and 
-   * getFoo().. so that obj.extend(MyExt.class).setFoo("bar") 
-   * will set the "foo" property.
+   * calling getProperty("foo"), you can define an 
+   * extension interface with the methods getFoo()
    */
   public <T>T extend(Class<T> as) {
     checkArgument(as.isInterface(),"Extension is not an interface!");
     return Extra.extend(this,as);
   }
  
+  public boolean has(String name) {
+    return exts.containsKey(name);
+  }
+  
   public String toString() {
     return IO.get().write(this);
   }
@@ -219,112 +385,15 @@ public class ASBase
   public void writeTo(OutputStream out, TypeAdapter<?>... adapters) {
     writeTo(out,"UTF-8",adapters);
   }
-  
-  /////// DOCUMENT PROPERTIES ///////
-  
-  private MimeType contentType;
-  private DateTime lastModified;
-  private EntityTag entityTag;
-  private Lang language;
-  private String slug;
-  private IRI base;
-  
-  public MimeType getContentType() {
-    return contentType;
+      
+  protected static <T>Iterable<T> checkEmpty(Iterable<T> i) {
+    return i == null ?
+      Collections.<T>emptySet() : i;
   }
   
-  public void setContentType(String mimeType) {
-    this.contentType = MimeTypeHelper.unmodifiableMimeType(mimeType);
-  }
-  
-  public void setContentType(MimeType mimeType) {
-    this.contentType = MimeTypeHelper.unmodifiableMimeType(mimeType);
-  }
-  
-  public DateTime getLastModified() {
-    return lastModified;
-  }
-  
-  public void setLastModified(DateTime lastModified) {
-    this.lastModified = lastModified;
-  }
-  
-  public EntityTag getEntityTag() {
-    return entityTag;
-  }
-  
-  public void setEntityTag(EntityTag entityTag) {
-    this.entityTag = entityTag;
-  }
-  
-  public void setEntityTag(String entityTag) {
-    this.entityTag = new EntityTag(entityTag);
-  }
-  
-  public Lang getLanguage() {
-    return language;
-  }
-  
-  public void setLanguage(Lang language) {
-    this.language = language;
-  }
-  
-  public void setLanguage(String language) {
-    this.language = new Lang(language);
-  }
-  
-  public String getSlug() {
-    return slug;
-  }
-  
-  public void setSlug(String slug) {
-    this.slug = slug;
-  }
-  
-  public IRI getBaseUri() {
-    return base;
-  }
-  
-  public void setBaseUri(IRI iri) {
-    this.base = iri;
-  }
-  
-  public void setBaseUri(String iri) {
-    this.base = new IRI(iri);
-  }
-  
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public <T extends ASObject>Generator<T> newGenerator() {
-    return (Generator<T>)new Generator(getClass(),this);
-  }
-
-  public Object copy() {
-    try {
-      Class<?> _class = this.getClass();
-      ASBase copy = (ASBase) _class.newInstance();
-      for (String name : this) {
-        // do a potentially deep copy
-        Object val = getProperty(name);
-        copy.setProperty(
-          name,
-          val instanceof Copyable ? 
-            ((Copyable)val).copy() : 
-            val);
-      }
-      copy.contentType = contentType;
-      copy.lastModified = lastModified;
-      copy.entityTag = entityTag;
-      copy.language = language;
-      copy.slug = slug;
-      copy.base = base;
-      return copy;
-    } catch (Throwable t) {
-      throw new RuntimeException();
-    }
-  }
-  
-  public boolean has(String name) {
-    return exts.containsKey(name);
+  @SuppressWarnings("rawtypes")
+  public Object clone() throws CloneNotSupportedException {
+    return this.<ASBase,Builder>template().get();
   }
 }
 

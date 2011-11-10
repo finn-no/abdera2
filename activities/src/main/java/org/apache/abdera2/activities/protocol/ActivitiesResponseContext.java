@@ -34,17 +34,15 @@ public class ActivitiesResponseContext<T extends ASBase>
   
   private final static Log log = LogFactory.getLog(ActivitiesResponseContext.class);
   
-  private final T base;
+  private final ASBase.Builder<T,?> builder;
   private final boolean chunked;
   
-  public ActivitiesResponseContext(T base) {
-    this(base, true);
+  public ActivitiesResponseContext(ASBase.Builder<T,?> builder) {
+    this(builder, true);
   }
   
-  public ActivitiesResponseContext(T base, boolean chunked) {
-    log.debug(String.format("Entity: %s", base.toString()));
-    log.debug(String.format("Chunked? %s", chunked));
-    this.base = base;
+  public ActivitiesResponseContext(ASBase.Builder<T,?> builder, boolean chunked) {
+    this.builder = builder;
     setStatus(200);
     setStatusText("OK");
     this.chunked = chunked;
@@ -59,24 +57,29 @@ public class ActivitiesResponseContext<T extends ASBase>
     log.debug(String.format("Content-Type: %s", getContentType()));
   }
    
+  @SuppressWarnings("unchecked")
+  public <X extends ASBase.Builder<T,?>>X getBuilder() {
+    return (X)builder;
+  }
+  
   public T getEntity() {
-    return base;
+    return builder.get();
   }
 
   public boolean hasEntity() {
-    return (base != null);
+    return (builder != null);
   }
 
   public void writeTo(java.io.Writer javaWriter) throws IOException {
     log.debug("Writing...");
     if (hasEntity())
-      base.writeTo(javaWriter);
+      getEntity().writeTo(javaWriter);
   }
 
   public void writeTo(OutputStream out) throws IOException {
     log.debug("Writing...");
     if (hasEntity())
-      base.writeTo(out);
+      getEntity().writeTo(out);
   }
 
   public MimeType getContentType() {
@@ -88,7 +91,7 @@ public class ActivitiesResponseContext<T extends ASBase>
     if (hasEntity() && len == -1 && !chunked) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            base.writeTo(out);
+            getEntity().writeTo(out);
             len = out.size();
             super.setContentLength(len);
         } catch (Exception e) {

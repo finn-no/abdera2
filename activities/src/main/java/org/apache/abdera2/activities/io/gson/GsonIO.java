@@ -55,31 +55,35 @@ import com.google.gson.stream.JsonWriter;
 
 @SuppressWarnings("unchecked")
 public class GsonIO extends IO {
+  
+  public static class Builder extends IO.Builder {
+       
+    private final BaseAdapter asbs = new BaseAdapter();
+    
+    public IO get() {
+      return new GsonIO(
+        this,
+        asbs,
+        gson(
+          prettyprint,
+          asbs,
+          adapters.build()));
+    }
+   
+    public Builder property(String name, Class<?> _class) {
+      asbs.addPropertyMap(name, _class);
+      return this;
+    }
 
-  private final Gson gson;
-  private final BaseAdapter asbs;
-  
-  public GsonIO() {
-    this.asbs = new BaseAdapter();
-    this.gson = gson(false,(BaseAdapter)asbs);
+    @SuppressWarnings({ "rawtypes" })
+    public <X extends ASObject.Builder> Builder object(
+        Class<? extends X>... _class) {
+      asbs.addObjectMap(_class);
+      return this;
+    }    
   }
   
-  public GsonIO(TypeAdapter<?>... adapters) {
-    this.asbs = new BaseAdapter();
-    this.gson = gson(false,asbs, adapters);
-  }
-  
-  public GsonIO(Boolean prettyprint) {
-    this.asbs = new BaseAdapter();
-    this.gson = gson(prettyprint,(BaseAdapter)asbs);
-  }
-  
-  public GsonIO(Boolean prettyprint, TypeAdapter<?>... adapters) {
-    this.asbs = new BaseAdapter();
-    this.gson = gson(prettyprint,asbs, adapters);
-  }
-  
-  private static Gson gson(Boolean pretty, BaseAdapter asbs, TypeAdapter<?>... adapters) {
+  static Gson gson(Boolean pretty, BaseAdapter asbs, Iterable<TypeAdapter<?>> adapters) {
     GsonBuilder gb = new GsonBuilder();    
     gb.registerTypeHierarchyAdapter(Verb.class, new VerbAdapter());
     gb.registerTypeHierarchyAdapter(Lang.class, new LangAdapter());
@@ -110,6 +114,13 @@ public class GsonIO extends IO {
     if (pretty)
       gb.setPrettyPrinting();
     return gb.create();
+  }
+  
+  private final Gson gson;
+  
+  GsonIO(Builder builder, BaseAdapter asbs, Gson gson) {
+    super(builder);
+    this.gson = gson;
   }
   
   public String write(ASBase base) {
@@ -158,16 +169,6 @@ public class GsonIO extends IO {
   
   public MediaLink readMediaLink(String json) {
     return gson.fromJson(json, MediaLink.class);
-  }
-
-  @Override
-  public void addPropertyMapping(String name, Class<?> _class) {
-    asbs.addPropertyMap(name, _class);
-  }
-
-  @Override
-  public void addObjectMapping(Class<? extends ASObject>... _class) {
-    asbs.addObjectMap(_class);
   }
   
   public void writeCollection(

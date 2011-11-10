@@ -5,6 +5,7 @@ import org.apache.abdera2.common.anno.Param;
 import org.apache.abdera2.common.anno.URITemplate;
 
 import org.apache.abdera2.activities.client.ActivitiesClient;
+import org.apache.abdera2.activities.model.ASDocument;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import static org.apache.abdera2.common.templates.Template.expandAnnotated;
@@ -24,10 +25,11 @@ public class GooglePlusExample   {
     ActivitiesClient cl = 
       new ActivitiesClient();
     try {
-      Collection<Activity> c = 
+      ASDocument<Collection<Activity>> doc = 
         cl.getCollection(
           expandAnnotated(
             new GooglePlusExample()));
+      Collection<Activity> c = doc.getRoot();
       out.println(c.getProperty("title"));
       int n = 1;
       for (Activity a : c.getItems())

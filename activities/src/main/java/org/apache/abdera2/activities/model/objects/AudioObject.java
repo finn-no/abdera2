@@ -17,59 +17,70 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("audio")
 public class AudioObject 
   extends ASObject {
 
-  private static final long serialVersionUID = 3686825866815403406L;
   public static final String EMBEDCODE = "embedCode";
   public static final String STREAM = "stream";
   
-  public AudioObject() { }
+  public AudioObject(Map<String,Object> map) { 
+    super(map,AudioBuilder.class,AudioObject.class);
+  }
   
-  public AudioObject(String displayName) {
-    setDisplayName(displayName);
+  public <X extends AudioObject, M extends Builder<X,M>>AudioObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
   }
   
   public String getEmbedCode() {
     return getProperty(EMBEDCODE);
   }
-  
-  public void setEmbedCode(String embedCode) {
-    setProperty(EMBEDCODE, embedCode);
-  }
-  
+
   public MediaLink getStream() {
     return getProperty(STREAM);
   }
-  
-  public void setStream(MediaLink stream) {
-    setProperty(STREAM, stream);
-  }
 
-  public static <T extends AudioObject>AudioObjectGenerator<T> makeAudio() {
-    return new AudioObjectGenerator<T>();
+  public static AudioBuilder makeAudio() {
+    return new AudioBuilder("audio");
+  }
+  
+  @Name("audio")
+  public static final class AudioBuilder extends Builder<AudioObject,AudioBuilder> {
+    public AudioBuilder() {
+      super(AudioObject.class,AudioBuilder.class);
+    }
+    public AudioBuilder(Map<String, Object> map) {
+      super(map, AudioObject.class,AudioBuilder.class);
+    }
+    public AudioBuilder(String objectType) {
+      super(objectType,AudioObject.class,AudioBuilder.class);
+    }
   }
   
   @SuppressWarnings("unchecked")
-  public static class AudioObjectGenerator<T extends AudioObject> extends ASObjectGenerator<T> {
-    public AudioObjectGenerator() {
-      super((Class<? extends T>) AudioObject.class);
+  public static abstract class Builder<X extends AudioObject,M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X> _class,Class<M> _builder) { 
+      super(_class,_builder);
     }
-    public AudioObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X> _class,Class<M> _builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends AudioObjectGenerator<T>>X embedCode(String code) {
-      item.setEmbedCode(code);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X> _class,Class<M> _builder) {
+      super(map,_class,_builder);
     }
-    public <X extends AudioObjectGenerator<T>>X stream(MediaLink stream) {
-      item.setStream(stream);
-      return (X)this;
+    public M embedCode(String code) {
+      set(EMBEDCODE,code);
+      return (M)this;
+    }
+    public M stream(MediaLink stream) {
+      set(STREAM,stream);
+      return (M)this;
     }
   }
 }

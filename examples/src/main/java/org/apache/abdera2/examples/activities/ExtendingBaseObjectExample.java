@@ -1,8 +1,10 @@
 package org.apache.abdera2.examples.activities;
 
+import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.objects.EventObject;
 import org.apache.abdera2.activities.model.objects.AdditionalEventProperties;
+import org.apache.abdera2.activities.model.objects.EventObject.EventBuilder;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 
 /**
@@ -16,17 +18,23 @@ public class ExtendingBaseObjectExample {
 
   public static void main(String... args) throws Exception {
     IO io = IO.get();
-    EventObject event = new EventObject();
-    event.setObjectType("hangout");
+    EventBuilder builder = 
+      EventObject.makeEvent("hangout");
     // the extend method dynamically attaches a new interface
     // to the object that can be used to specify extension
     // properties in a typesafe manner
-    AdditionalEventProperties ext = 
-      event.extend(
-        AdditionalEventProperties.class);
-    ext.setHost(new PersonObject("james"));
-    event.getAttending(true).addItem(new PersonObject("joe"));
-    io.write(event,System.out,"UTF-8");
+    builder.extend(
+      AdditionalEventProperties.Builder.class)
+       .host(PersonObject.makePerson().displayName("James").get());
+    builder.attending(
+      Collection.makeCollection()
+        .item(
+           PersonObject
+             .makePerson()
+               .displayName("Joe")
+                 .get())
+                   .get());
+    io.write(builder.get(),System.out,"UTF-8");
   }
   
 }

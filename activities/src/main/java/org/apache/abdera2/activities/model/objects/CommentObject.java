@@ -17,32 +17,37 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("comment")
 public class CommentObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -7911420073285087386L;
   
-  public CommentObject() {}
-  
-  public CommentObject(String displayName) {
-    setDisplayName(displayName);
-  }
-
-  public static <T extends CommentObject>CommentObjectGenerator<T> makeComment() {
-    return new CommentObjectGenerator<T>();
+  public static <T extends CommentObject>Builder makeComment() {
+    return new Builder("comment");
   }
   
-  public static class CommentObjectGenerator<T extends CommentObject> extends ASObjectGenerator<T> {
-    @SuppressWarnings("unchecked")
-    public CommentObjectGenerator() {
-      super((Class<? extends T>) CommentObject.class);
+  @Name("comment")
+  public static class Builder extends ASObject.Builder<CommentObject,Builder> {
+    public Builder() {
+      super(CommentObject.class,Builder.class);
     }
-    public CommentObjectGenerator(Class<? extends T> _class) {
-      super(_class);
+    public Builder(String objectType) {
+      super(objectType,CommentObject.class,Builder.class);
     }
+    protected Builder(Map<String,Object> map) {
+      super(map,CommentObject.class,Builder.class);
+    }    
+  }
+  
+  public CommentObject(Map<String,Object> map) {
+    super(map,Builder.class,CommentObject.class);
+  }
+ 
+  public <X extends CommentObject, M extends ASObject.Builder<X,M>>CommentObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+    super(map,_class,_obj);
   }
 }

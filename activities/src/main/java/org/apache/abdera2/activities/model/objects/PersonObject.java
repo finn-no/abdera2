@@ -17,8 +17,7 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.abdera2.activities.io.gson.Properties;
 import org.apache.abdera2.activities.io.gson.Property;
@@ -26,361 +25,364 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 
-@Name("person")
-@Properties({
-  @Property(name="profileUrl",to=IRI.class),
-  @Property(name="thumbnailUrl",to=IRI.class),
-  @Property(name="urls",to=IRI.class),
-  @Property(name="name",to=NameObject.class),
-  @Property(name="preferredName",to=NameObject.class),
-  @Property(name="nativeName",to=NameObject.class),
-  @Property(name="alternateNames",to=NameObject.class),
-  @Property(name="accounts",to=AccountObject.class),
-  @Property(name="addresses",to=Address.class),
-  @Property(name="organizations",to=OrganizationObject.class)
-})
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+
 public class PersonObject 
   extends ASObject {
-
-  private static final long serialVersionUID = 5240611684336430061L;
   
-  public PersonObject() { }
-  
-  public PersonObject(String displayName) {
-    setDisplayName(displayName);
+  public PersonObject(Map<String,Object> map) { 
+    super(map,PersonBuilder.class,PersonObject.class);
   }
-
+  
+  public <X extends PersonObject, M extends Builder<X,M>>PersonObject(Map<String,Object> map, Class<M> _class,Class<X>_obj) { 
+    super(map,_class,_obj);
+  }
+  
   public String getAboutMe() {
     return getProperty("aboutMe");
-  }
-  
-  public void setAboutMe(String val) {
-    setProperty("aboutMe", val);
   }
   
   public String getContactPreference() {
     return getProperty("contactPreference");
   }
   
-  public void setContactPreference(String val) {
-    setProperty("contactPreference", val);
-  }
-  
   public String getDn() {
     return getProperty("dn");
-  }
-  
-  public void setDn(String val) {
-    setProperty("dn", val);
   }
   
   public String getPreferredUsername() {
     return getProperty("preferredUsername");
   }
   
-  public void setPreferredUsername(String val) {
-    setProperty("preferredUsername", val);
-  }
-  
   public IRI getProfileUrl() {
     return getProperty("profileUrl");
-  }
-  
-  public void setProfileUrl(IRI iri) {
-    setProperty("profileUrl", iri);
-  }
-  
-  public void setProfileUrl(String iri) {
-    setProfileUrl(new IRI(iri));
   }
   
   public String getStatus() {
     return getProperty("status");
   }
   
-  public void setStatus(String status) {
-    setProperty("status", status);
-  }
-  
   public IRI getThumbnailUrl() {
     return getProperty("thumbnailUrl");
-  }
-  
-  public void setThumbnailUrl(IRI iri) {
-    setProperty("thumbnailUrl", iri);
-  }
-  
-  public void setThumbnailUrl(String iri) {
-    setThumbnailUrl(new IRI(iri));
   }
   
   public String getUtcOffset() {
     return getProperty("utcOffset");
   }
   
-  public void setUtcOffset(String val) {
-    setProperty("utfOffset",val);
-  }
-  
   public NameObject getName() {
     return getProperty("name");
-  }
-  
-  public void setName(NameObject name) {
-    setProperty("name", name);
   }
   
   public NameObject getNativeName() {
     return getProperty("nativeName");
   }
   
-  public void setNativeName(NameObject name) {
-    setProperty("nativeName", name);
-  }
-  
   public NameObject getPreferredName() {
     return getProperty("preferredName");
   }
   
-  public void setPreferredName(NameObject name) {
-    setProperty("preferredName", name);
-  }
-  
   public Iterable<NameObject> getAlternateNames() {
-    return getProperty("alternateNames");
-  }
-  
-  public void setAlternateNames(Set<NameObject> set) {
-    setProperty("alternateNames", set);
-  }
-  
-  public void addAlternateName(NameObject name) {
-    Set<NameObject> list = getProperty("alternateNames");
-    if (list == null) {
-      list = new HashSet<NameObject>();
-      setProperty("alternateNames",list);
-    }
-    list.add(name);
+    return checkEmpty(this.<Iterable<NameObject>>getProperty("alternateNames"));
   }
   
   public Iterable<String> getEmails() {
-    return getProperty("emails");
-  }
-  
-  public void setEmails(Set<String> set) {
-    setProperty("emails", set);
-  }
-  
-  public void addEmail(String email) {
-    Set<String> list = getProperty("email");
-    if (list == null) {
-      list = new HashSet<String>();
-      setProperty("emails",list);
-    }
-    list.add(email);
+    return checkEmpty(this.<Iterable<String>>getProperty("emails"));
   }
   
   public Iterable<String> getIms() {
-    return getProperty("ims");
-  }
-  
-  public void setIms(Set<String> set) {
-    setProperty("ims", set);
-  }
-  
-  public void addIm(String im) {
-    Set<String> list = getProperty("ims");
-    if (list == null) {
-      list = new HashSet<String>();
-      setProperty("ims",list);
-    }
-    list.add(im);
+    return checkEmpty(this.<Iterable<String>>getProperty("ims"));
   }
   
   public Iterable<String> getPhoneNumbers() {
-    return getProperty("phoneNumbers");
-  }
-  
-  public void setPhoneNumbers(Set<String> set) {
-    setProperty("phoneNumbers", set);
-  }
-  
-  public void addPhoneNumber(String phoneNumber) {
-    Set<String> list = getProperty("phoneNumbers");
-    if (list == null) {
-      list = new HashSet<String>();
-      setProperty("phoneNumbers",list);
-    }
-    list.add(phoneNumber);
+    return checkEmpty(this.<Iterable<String>>getProperty("phoneNumbers"));
   }
   
   public Iterable<IRI> getUrls() {
-    return getProperty("urls");
-  }
-  
-  public void setUrls(Set<IRI> set) {
-    setProperty("urls", set);
-  }
-  
-  public void addUrl(IRI url) {
-    Set<IRI> list = getProperty("urls");
-    if (list == null) {
-      list = new HashSet<IRI>();
-      setProperty("urls",list);
-    }
-    list.add(url);
-  }
-  
-  public void addUrl(String url) {
-    addUrl(new IRI(url));
+    return checkEmpty(this.<Iterable<IRI>>getProperty("urls"));
   }
   
   public Iterable<Address> getAddresses() {
-    return getProperty("addresses");
-  }
-  
-  public void setAddresses(Set<Address> set) {
-    setProperty("addresses", set);
-  }
-  
-  public void addAddress(Address address) {
-    Set<Address> list = getProperty("addresses");
-    if (list == null) {
-      list = new HashSet<Address>();
-      setProperty("addresses",list);
-    }
-    list.add(address);
+    return checkEmpty(this.<Iterable<Address>>getProperty("addresses"));
   }
   
   public Iterable<AccountObject> getAccounts() {
-    return getProperty("accounts");
-  }
-  
-  public void setAccounts(Set<AccountObject> set) {
-    setProperty("accounts", set);
-  }
-  
-  public void addAccount(AccountObject service) {
-    Set<ServiceObject> list = getProperty("accounts");
-    if (list == null) {
-      list = new HashSet<ServiceObject>();
-      setProperty("accounts",list);
-    }
-    list.add(service);
+    return checkEmpty(this.<Iterable<AccountObject>>getProperty("accounts"));
   }
   
   public Iterable<OrganizationObject> getOrganizations() {
-    return getProperty("organizations");
+    return checkEmpty(this.<Iterable<OrganizationObject>>getProperty("organizations"));
   }
   
-  public void setOrganizations(Set<OrganizationObject> set) {
-    setProperty("organizations", set);
+  public static PersonBuilder makePerson() {
+    return new PersonBuilder("person");
   }
   
-  public void addOrganization(OrganizationObject org) {
-    Set<OrganizationObject> list = getProperty("organizations");
-    if (list == null) {
-      list = new HashSet<OrganizationObject>();
-      setProperty("organizations",list);
+  public static PersonBuilder makePerson(String displayName) {
+    return makePerson().displayName(displayName);
+  }
+  
+  @Name("person")
+  @Properties({
+    @Property(name="profileUrl",to=IRI.class),
+    @Property(name="thumbnailUrl",to=IRI.class),
+    @Property(name="urls",to=IRI.class),
+    @Property(name="name",to=NameObject.class),
+    @Property(name="preferredName",to=NameObject.class),
+    @Property(name="nativeName",to=NameObject.class),
+    @Property(name="alternateNames",to=NameObject.class),
+    @Property(name="accounts",to=AccountObject.class),
+    @Property(name="addresses",to=Address.class),
+    @Property(name="organizations",to=OrganizationObject.class)
+  })
+  public static final class PersonBuilder extends Builder<PersonObject,PersonBuilder> {
+
+    public PersonBuilder() {
+      super(PersonObject.class, PersonBuilder.class);
     }
-    list.add(org);
-  }
-  
-  public static <T extends PersonObject>PersonObjectGenerator<T> makePerson() {
-    return new PersonObjectGenerator<T>();
+
+    public PersonBuilder(Map<String, Object> map) {
+      super(map, PersonObject.class, PersonBuilder.class);
+    }
+
+    public PersonBuilder(String objectType) {
+      super(objectType, PersonObject.class, PersonBuilder.class);
+    }
+    
   }
   
   @SuppressWarnings("unchecked")
-  public static class PersonObjectGenerator<T extends PersonObject> extends ASObjectGenerator<T> {
-    public PersonObjectGenerator() {
-      super((Class<T>)PersonObject.class);
+  public static class Builder<X extends PersonObject, M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    private final ImmutableSet.Builder<AccountObject> accounts = ImmutableSet.builder();
+    private final ImmutableSet.Builder<Address> addresses = ImmutableSet.builder();
+    private final ImmutableSet.Builder<NameObject> altnames = ImmutableSet.builder();
+    private final ImmutableSet.Builder<String> emails = ImmutableSet.builder();
+    private final ImmutableSet.Builder<String> ims = ImmutableSet.builder();
+    private final ImmutableSet.Builder<OrganizationObject> orgs = ImmutableSet.builder();
+    private final ImmutableSet.Builder<String> phones = ImmutableSet.builder();
+    private final ImmutableSet.Builder<IRI> urls = ImmutableSet.builder();
+    boolean a,b,c,d,e,f,g,h;
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public PersonObjectGenerator(Class<? extends T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends PersonObjectGenerator<T>>X account(AccountObject object) {
-      item.addAccount(object);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
     }
-    public <X extends PersonObjectGenerator<T>>X address(Address object) {
-      item.addAddress(object);
-      return (X)this;
+    public M account(AccountObject object) {
+      if (object == null) return (M)this;
+      a = true;
+      accounts.add(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X alternateName(NameObject name) {
-      item.addAlternateName(name);
-      return (X)this;
+    public M account(AccountObject... objects) {
+      if (objects.length == 0) return (M)this;
+      for (AccountObject object : objects)
+        account(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X email(String email) {
-      item.addEmail(email);
-      return (X)this;
+    public M account(Iterable<AccountObject> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (AccountObject object : objects)
+        account(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X im(String im) {
-      item.addIm(im);
-      return (X)this;
+    public M address(Address object) {
+      if (object == null) return (M)this;
+      b = true;
+      addresses.add(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X organization(OrganizationObject object) {
-      item.addOrganization(object);
-      return (X)this;
+    public M address(Address... objects) {
+      if (objects.length == 0) return (M)this;
+      for (Address object : objects)
+        address(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X phoneNumber(String pn) {
-      item.addPhoneNumber(pn);
-      return (X)this;
+    public M address(Iterable<Address> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (Address object : objects)
+        address(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X urls(String url) {
-      item.addUrl(url);
-      return (X)this;
+    public M alternateName(NameObject name) {
+      if (name == null) return (M)this;
+      c = true;
+      altnames.add(name);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X urls(IRI url) {
-      item.addUrl(url);
-      return (X)this;
+    public M alternateName(NameObject... objects) {
+      if (objects.length == 0) return (M)this;
+      for (NameObject object : objects)
+        alternateName(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X aboutMe(String val) {
-      item.setAboutMe(val);
-      return (X)this;
+    public M alternateName(Iterable<NameObject> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (NameObject object : objects)
+        alternateName(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X contactPreference(String val) {
-      item.setContactPreference(val);
-      return (X)this;
+    public M email(String email) {
+      if (email == null) return (M)this;
+      d = true;
+      emails.add(email);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X dn(String val) {
-      item.setDn(val);
-      return (X)this;
+    public M email(String... objects) {
+      if (objects.length == 0) return (M)this;
+      for (String object : objects)
+        email(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X name(NameObject val) {
-      item.setName(val);
-      return (X)this;
+    public M email(Iterable<String> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (String object : objects)
+        email(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X nativeName(NameObject val) {
-      item.setNativeName(val);
-      return (X)this;
+    public M im(String im) {
+      if (im == null) return (M)this;
+      e = true;
+      ims.add(im);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X preferredName(NameObject val) {
-      item.setPreferredName(val);
-      return (X)this;
+    public M im(String... objects) {
+      if (objects.length == 0) return (M)this;
+      for (String object : objects)
+        im(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X profileUrl(String val) {
-      item.setProfileUrl(val);
-      return (X)this;
+    public M im(Iterable<String> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (String object : objects)
+        im(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X profileUrl(IRI val) {
-      item.setProfileUrl(val);
-      return (X)this;
+    public M organization(OrganizationObject object) {
+      if (object == null) return (M)this;
+      f = true;
+      orgs.add(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X status(String val) {
-      item.setStatus(val);
-      return (X)this;
+    public M organization(OrganizationObject... objects) {
+      if (objects.length == 0) return (M)this;
+      for (OrganizationObject object : objects)
+        organization(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X thumbnailUrl(String val) {
-      item.setThumbnailUrl(val);
-      return (X)this;
+    public M organization(Iterable<OrganizationObject> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (OrganizationObject object : objects)
+        organization(object);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X thumbnailUrl(IRI val) {
-      item.setThumbnailUrl(val);
-      return (X)this;
+    public M phoneNumber(String pn) {
+      if (pn == null) return (M)this;
+      g = true;
+      phones.add(pn);
+      return (M)this;
     }
-    public <X extends PersonObjectGenerator<T>>X utcOffset(String val) {
-      item.setUtcOffset(val);
-      return (X)this;
+    public M phoneNumber(String... objects) {
+      if (objects.length == 0) return (M)this;
+      for (String object : objects)
+        phoneNumber(object);
+      return (M)this;
     }
+    public M phoneNumber(Iterable<String> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (String object : objects)
+        phoneNumber(object);
+      return (M)this;
+    }
+    public M urls(String url) {
+      if (url == null) return (M)this;
+      return urls(new IRI(url));
+    }
+    public M urls(String... objects) {
+      if (objects.length == 0) return (M)this;
+      for (String object : objects)
+        urls(object);
+      return (M)this;
+    }
+    public M urls(Iterable<Object> objects) {
+      if (Iterables.isEmpty(objects)) return (M)this;
+      for (Object object : objects)
+        urls(object.toString());
+      return (M)this;
+    }
+    public M urls(IRI url) {
+      if (url == null) return (M)this;
+      h = true;
+      urls.add(url);
+      return (M)this;
+    }
+    public M urls(IRI... objects) {
+      if (objects.length == 0) return (M)this;
+      for (IRI object : objects)
+        urls(object);
+      return (M)this;
+    }
+    public M aboutMe(String val) {
+      set("aboutMe",val);
+      return (M)this;
+    }
+    public M contactPreference(String val) {
+      set("contactPreference",val);
+      return (M)this;
+    }
+    public M dn(String val) {
+      set("dn",val);
+      return (M)this;
+    }
+    public M name(NameObject val) {
+      set("name",val);
+      return (M)this;
+    }
+    public M nativeName(NameObject val) {
+      set("nativeName",val);
+      return (M)this;
+    }
+    public M preferredName(NameObject val) {
+      set("preferredName",val);
+      return (M)this;
+    }
+    public M profileUrl(String val) {
+      return profileUrl(new IRI(val));
+    }
+    public M profileUrl(IRI val) {
+      set("profileUrl",val);
+      return (M)this;
+    }
+    public M status(String val) {
+      set("status",val);
+      return (M)this;
+    }
+    public M thumbnailUrl(String val) {
+      return thumbnailUrl(new IRI(val));
+    }
+    public M thumbnailUrl(IRI val) {
+      set("thumbnailUrl",val);
+      return (M)this;
+    }
+    public M utcOffset(String val) {
+      set("utcOffset",val);
+      return (M)this;
+    }
+    public void preGet() {
+      if (a) set("accounts",accounts.build());
+      if (b) set("addresses",addresses.build());
+      if (c) set("alternateNames",altnames.build());
+      if (d) set("emails",emails.build());
+      if (e) set("ims",ims.build());
+      if (f) set("organizations",orgs.build());
+      if (g) set("phoneNumbers",phones.build());
+      if (h) set("urls",urls.build());
+    }
+    
   }
 }

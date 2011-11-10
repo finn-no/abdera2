@@ -22,8 +22,11 @@ public class JwtExample {
     
     KeyPair pair = KeyHelper.generateKeyPair("RSA", 1024);
 
-    Activity activity = new Activity();
-    activity.setVerb(Verb.POST);
+    Activity activity = 
+      Activity
+        .makeActivity()
+          .verb(Verb.POST)
+            .get();
 
     String jwt = Jwt.generate(pair.getPrivate(), activity);
     

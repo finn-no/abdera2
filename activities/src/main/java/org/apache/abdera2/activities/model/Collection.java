@@ -18,13 +18,15 @@
 package org.apache.abdera2.activities.model;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * An Activity Streams Collection... used as the root object of
@@ -34,16 +36,124 @@ import org.apache.abdera2.common.selector.Selector;
  * the array of items inline, the "url" property can be used to 
  * reference an external Collection document. 
  */
-@Name("collection")
 public class Collection<T extends ASObject> 
   extends ASObject {
 
-  private static final long serialVersionUID = 1530068180553259077L;
   public static final String TOTAL_ITEMS = "totalItems";
   public static final String URL = "url";
   public static final String ITEMS = "items";
   public static final String OBJECT_TYPES = "objectTypes";
 
+  /**
+   * Begin making a new collection object using the fluent factory api
+   */
+  public static <T extends ASObject>CollectionBuilder<T> makeCollection() {
+    return new CollectionBuilder<T>("collection");
+  }
+  
+  public static <T extends ASObject>Collection<T> makeCollection(Iterable<T> items) {
+    return Collection.<T>makeCollection().items(items).get();
+  }
+  
+  public static <T extends ASObject>Collection<T> makeCollection(T... items) {
+    return Collection.<T>makeCollection().items(items).get();
+  }
+  
+  @SuppressWarnings("unchecked")
+  static <T extends ASObject>Class<Collection<T>> _class(Class<?> _class) {
+    return (Class<Collection<T>>) _class;
+  }
+  
+  @SuppressWarnings("unchecked")
+  static <T extends ASObject>Class<CollectionBuilder<T>> _builder(Class<?> _class) {
+    return (Class<CollectionBuilder<T>>) _class;
+  }
+  
+  @Name("collection")
+  public static class CollectionBuilder<T extends ASObject>
+    extends Builder<T,Collection<T>,CollectionBuilder<T>> {
+
+    public CollectionBuilder() {
+      super(
+        Collection.<T>_class(Collection.class),
+        Collection.<T>_builder(CollectionBuilder.class));
+    }
+
+    public CollectionBuilder(Map<String, Object> map) {
+      super(map, Collection.<T>_class(Collection.class),
+          Collection.<T>_builder(CollectionBuilder.class));
+    }
+
+    public CollectionBuilder(String objectType) {
+      super(objectType, Collection.<T>_class(Collection.class),
+          Collection.<T>_builder(CollectionBuilder.class));
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static abstract class Builder<T extends ASObject, X extends ASObject, M extends Builder<T,X,M>>
+    extends ASObject.Builder<X,M> {
+    private final ImmutableSet.Builder<T> items = 
+      ImmutableSet.builder();
+    private final ImmutableSet.Builder<String> types = 
+      ImmutableSet.builder();
+    boolean a,b,c;
+    protected Builder(Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
+    }
+    protected Builder(String objectType,Class<X> _class, Class<M> _builder) {
+      super(objectType,_class,_builder);
+    }
+    protected Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      super(map,_class,_builder);
+    }
+    public M item(T item) {
+      if (item == null) return (M)this;
+      a=true;
+      items.add(item);
+      return (M)this;
+    } 
+    public M items(T... items) {
+      for (T item : items)
+        item(item);
+      return (M)this;
+    }
+    public M items(Iterable<T> items) {
+      for (T item : items)
+        item(item);
+      return (M)this;
+    }
+    public M objectTypes(String... types) {
+      if (types.length == 0) return (M)this;
+      b=true;
+      for (String type : types)
+        this.types.add(type);
+      return (M)this;
+    } 
+    public M totalItems(int count) {
+      c = true;
+      set(TOTAL_ITEMS, Math.max(0,count));
+      return (M)this;
+    }
+    public void preGet() {
+      Set<T> i = items.build();
+      if(b) set(OBJECT_TYPES, types.build());
+      if(a) {
+        if (!c) set(TOTAL_ITEMS, i.size());
+        map.put(ITEMS, i);
+      }
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Collection(Map<String,Object> map) {
+    super(map,CollectionBuilder.class,Collection.class);
+  }
+  
+  public <X extends Collection<T>, M extends Builder<T,X,M>>Collection(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+    super(map,_class,_obj);
+  }
+  
   /**
    * Return the value of the "totalItems" property... this does not 
    * necessarily reflect the actual number of items in the "items" 
@@ -54,14 +164,6 @@ public class Collection<T extends ASObject>
   }
   
   /**
-   * Set the value of the "totalItems" property
-   */
-  public Collection<T> setTotalItems(int totalItems) {
-    setProperty(TOTAL_ITEMS, totalItems);
-    return this;
-  }
-  
-  /**
    * Get the url of this collection
    */
   public IRI getUrl() {
@@ -69,38 +171,10 @@ public class Collection<T extends ASObject>
   }
   
   /**
-   * Set the url of this collection
-   */
-  public void setUrl(IRI url) {
-    setProperty(URL, url);
-  }
-
-  /**
    * Get the list of objectTypes expected to be found in this collection
    */
   public Iterable<String> getObjectTypes() {
     return checkEmpty(this.<Iterable<String>>getProperty(OBJECT_TYPES));
-  }
-  
-  /**
-   * Set the list of objectTypes expected to be found in this collection
-   */
-  public void setObjectTypes(java.util.Collection<String> types) {
-    setProperty(OBJECT_TYPES,new LinkedHashSet<String>(types));
-  }
-  
-  /**
-   * Add a new objectType to the list of objectTypes expected to be found
-   * in this collection
-   */
-  public void addObjectType(String... objectTypes) {
-    Set<String> list = getProperty(OBJECT_TYPES);
-    if (list == null) {
-      list = new LinkedHashSet<String>();
-      setProperty(OBJECT_TYPES, list);
-    }
-    for (String objectType : objectTypes)
-      list.add(objectType);
   }
   
   /**
@@ -121,90 +195,5 @@ public class Collection<T extends ASObject>
   public Iterable<T> getItems() {
     return checkEmpty((Iterable<T>)getProperty(ITEMS));
   }
-  
-  /**
-   * Get the items contained in this collection. If no "items" 
-   * property exists, a new LinkedHashSet will be created, set 
-   * and returned if create == true;
-   */
-  public Iterable<T> getItems(boolean create) {
-    Iterable<T> items = getItems();
-    if (items == null && create) {
-      items = new LinkedHashSet<T>();
-      setProperty(ITEMS,items);
-    }
-    return items;
-  }
-  
-  /**
-   * Set the items in this collection, overwriting the existing value.
-   * setting this will change the value of the "totalItems" property 
-   * to reflect the number of items passed in.
-   */
-  public void setItems(java.util.Collection<T> items) {
-    setProperty(ITEMS, new LinkedHashSet<T>(items));
-    setTotalItems(items.size());
-  }
-  
-  /**
-   * Set the items in this collection, overwriting the existing value.
-   * setting this will change the value of the "totalItems" property 
-   * to reflect the number of items passed in.
-   */
-  public void setItems(Iterable<T> items) {
-    Set<T> set = new LinkedHashSet<T>();
-    for (T item : items) set.add(item);
-    setItems(set);
-  }
-  
-  /**
-   * Add an item to this collection
-   * setting this will change the value of the "totalItems" property 
-   * to reflect the number of items passed in.
-   */
-  public void addItem(T... items) {
-    Set<T> list = getProperty(ITEMS);
-    if (list == null) {
-      list = new LinkedHashSet<T>();
-      setProperty(ITEMS, list);
-    }
-    for (T item : items)
-      list.add(item);
-    setTotalItems(list.size());
-  }
-  
-  /**
-   * Begin making a new collection object using the fluent factory api
-   */
-  public static <T extends ASObject>CollectionGenerator<T> makeCollection() {
-    return new CollectionGenerator<T>();
-  }
-  
-  @SuppressWarnings("unchecked")
-  public static class CollectionGenerator<T extends ASObject> 
-    extends ASObjectGenerator<Collection<T>> {
-    
-    @SuppressWarnings("rawtypes")
-    private static <T extends ASObject>Class<? extends Collection<T>> t(Class _class) {
-      return (Class<? extends Collection<T>>) _class;
-    }
-    
-    public CollectionGenerator() {
-      super(CollectionGenerator.<T>t(Collection.class));
-    }
-    
-    public CollectionGenerator(Class<? extends Collection<T>> _class) {
-      super(_class);
-    }
-    
-    public <X extends CollectionGenerator<T>>X totalItems(int items) {
-      item.setTotalItems(items);
-      return (X)this;
-    }
-    
-    public <X extends CollectionGenerator<T>>X item(T item) {
-      this.item.addItem(item);
-      return (X)this;
-    }
-  }
+ 
 }

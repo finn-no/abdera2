@@ -17,58 +17,108 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
+import org.apache.abdera2.common.geo.Coordinate;
+import org.apache.abdera2.common.geo.IsoPosition;
+import org.apache.abdera2.common.geo.Point;
 
-@Name("place")
 public class PlaceObject 
   extends ASObject {
-
-  private static final long serialVersionUID = -8556845441567764050L;
-  public static final String POSITION = "position";
   public static final String ADDRESS = "address";
+  public static final String POSITION = "position";
   
-  public PlaceObject() {}
-  
-  public PlaceObject(String displayName) {
-    setDisplayName(displayName);
+  public PlaceObject(Map<String,Object> map) {
+    super(map,PlaceBuilder.class,PlaceObject.class);
   }
   
-  public String getPosition() {
+  public <X extends PlaceObject, M extends Builder<X,M>>PlaceObject(Map<String,Object> map, Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+  
+  public IsoPosition getPosition() {
     return getProperty(POSITION);
-  }
-  
-  public void setPosition(String position) {
-    setProperty(POSITION, position);
   }
   
   public Address getAddress() {
     return getProperty(ADDRESS);
   }
   
-  public void setAddress(Address address) {
-    setProperty(ADDRESS, address);
+  public static PlaceBuilder makePlace() {
+    return new PlaceBuilder("place");
   }
+  
+  public static PlaceObject makePlace(String displayName) {
+    return makePlace().displayName(displayName).get();
+  }
+  
+  public static PlaceObject makePlace(String displayName, double latitude, double longitude) {
+    return makePlace().displayName(displayName).position(latitude,longitude).get();
+  }
+  
+  public static PlaceObject makePlace(String displayName, Coordinate coord) {
+    return makePlace().displayName(displayName).position(coord).get();
+  }
+  
+  public static PlaceObject makePlace(String displayName, Point point) {
+    return makePlace().displayName(displayName).position(point).get();
+  }
+  
+  public static PlaceObject makePlace(String displayName, IsoPosition position) {
+    return makePlace().displayName(displayName).position(position).get();
+  }
+  
+  public static PlaceObject makePlace(String displayName, Address address) {
+    return makePlace().displayName(displayName).address(address).get();
+  }
+  
+  @Name("place")
+  public static final class PlaceBuilder extends Builder<PlaceObject,PlaceBuilder> {
 
-  public static <T extends PlaceObject>PlaceObjectGenerator<T> makePlace() {
-    return new PlaceObjectGenerator<T>();
+    public PlaceBuilder() {
+      super(PlaceObject.class,PlaceBuilder.class);
+    }
+
+    public PlaceBuilder(Map<String, Object> map) {
+      super(map, PlaceObject.class,PlaceBuilder.class);
+    }
+
+    public PlaceBuilder(String objectType) {
+      super(objectType, PlaceObject.class,PlaceBuilder.class);
+    }
+    
   }
   
   @SuppressWarnings("unchecked")
-  public static class PlaceObjectGenerator<T extends PlaceObject> extends ASObjectGenerator<T> {
-    public PlaceObjectGenerator() {
-      super((Class<? extends T>) PlaceObject.class);
+  public static abstract class Builder<X extends PlaceObject, M extends Builder<X,M>>
+    extends ASObject.Builder<X,M> {
+    public Builder(Class<X>_class,Class<M>_builder) {
+      super(_class,_builder);
     }
-    public PlaceObjectGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X>_class,Class<M>_builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends PlaceObjectGenerator<T>>X position(String position) {
-      item.setPosition(position);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
+      super(map,_class,_builder);
     }
-    public <X extends PlaceObjectGenerator<T>>X address(Address address) {
-      item.setAddress(address);
-      return (X)this;
+    public M position(IsoPosition position) {
+      set(POSITION,position);
+      return (M)this;
+    }
+    public M position(double latitude, double longitude) {
+      return position(IsoPosition.at(latitude, longitude));
+    }
+    public M position(Coordinate coord) {
+      return position(IsoPosition.at(coord));
+    }
+    public M position(Point point) {
+      return position(IsoPosition.at(point));
+    }
+    public M address(Address address) {
+      set(ADDRESS,address);
+      return (M)this;
     }
   }
 }

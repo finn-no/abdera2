@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.activities.protocol;
 
+import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 public class ProtocolException extends RuntimeException {
@@ -31,9 +32,11 @@ public class ProtocolException extends RuntimeException {
 
     public ProtocolException(int code, String message) {
         super(String.format("%d::%s",code,message));
-        this.error = new ErrorObject();
-        error.setDisplayName(message);
-        error.setCode(code);
+        this.error = ErrorObject
+          .makeError()
+            .code(code)
+            .displayName(message)
+          .get();
     }
 
     public ErrorObject getError() {

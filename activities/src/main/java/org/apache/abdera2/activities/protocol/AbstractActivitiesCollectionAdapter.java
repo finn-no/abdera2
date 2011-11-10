@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
 import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
 import org.apache.abdera2.common.misc.ExceptionHelper;
@@ -51,32 +52,32 @@ public abstract class AbstractActivitiesCollectionAdapter
     return Arrays.asList("application/json");
   }
   
-  protected ResponseContext buildCreateEntryResponse(
+  protected <T extends ASBase>ResponseContext buildCreateEntryResponse(
     String link, 
-    ASBase base) {
+    ASBase.Builder<T,?> builder) {
     return
-      new ActivitiesResponseContext<ASBase>(base)
+      new ActivitiesResponseContext<T>(builder)
         .setLocation(link)
         .setContentLocation(link)
-        .setEntityTag(calculateEntityTag(base))
+        .setEntityTag(calculateEntityTag(builder.get()))
         .setStatus(201);
   }
 
-  protected ResponseContext buildGetEntryResponse(
+  protected <T extends ASObject>ResponseContext buildGetEntryResponse(
     RequestContext request, 
-    ASObject base)
+    ASObject.Builder<T,?> builder)
       throws ResponseContextException {
-      base.setSource(createSourceObject(request));
+      builder.source(createSourceObject(request));
       return 
-        new ActivitiesResponseContext<ASObject>(base)
-         .setEntityTag(calculateEntityTag(base));
+        new ActivitiesResponseContext<T>(builder)
+         .setEntityTag(calculateEntityTag(builder.get()));
   }
 
-  protected ResponseContext buildGetFeedResponse(
-    Collection<ASObject> collection) {
+  protected <T extends ASObject>ResponseContext buildGetFeedResponse(
+    CollectionBuilder<T> builder) {
       return 
-        new ActivitiesResponseContext<Collection<ASObject>>(collection)
-          .setEntityTag(calculateEntityTag(collection));
+        new ActivitiesResponseContext<Collection<T>>(builder)
+          .setEntityTag(calculateEntityTag(builder.get()));
   }
 
   protected ServiceObject createSourceObject(

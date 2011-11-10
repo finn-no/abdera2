@@ -14,13 +14,17 @@ import org.apache.abdera2.activities.model.ASObject;
  */
 public interface AdditionalEventProperties {
   <T extends ASObject>T getHost();
-  void setHost(ASObject host);
   <T extends ASObject>T getOffers();
-  void setOffers(ASObject offers);
   <T extends ASObject>T getSubEvents();
-  void setSubEvents(ASObject subEvents);
   <T extends ASObject>T getSuperEvent();
-  void setSuperEvent(ASObject superEvent);
   <T extends ASObject>T getPerformers();
-  void setPerformers(ASObject performers);
+  
+  public static interface Builder {
+    Builder host(ASObject host);
+    Builder offers(ASObject offers);
+    Builder subEvents(ASObject subEvents);
+    Builder superEvent(ASObject superEvent);
+    Builder performers(ASObject performers);
+  }
+  
 }

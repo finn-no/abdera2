@@ -17,32 +17,40 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("review")
 public class ReviewObject 
   extends ASObject {
 
-  private static final long serialVersionUID = -6860912447124744192L;
   
-  public ReviewObject() {}
-  
-  public ReviewObject(String displayName) {
-    setDisplayName(displayName);
+  public static <T extends ReviewObject>Builder makeReview() {
+    return new Builder("review");
+  }
+  @Name("review")
+  public static final class Builder 
+    extends ASObject.Builder<ReviewObject,Builder> {
+    public Builder(String objectType) {
+      super(objectType,ReviewObject.class,Builder.class);
+    }
+    public Builder() {
+      super(ReviewObject.class,Builder.class);
+    }
+    public Builder(Map<String,Object> map) {
+      super(map,ReviewObject.class,Builder.class);
+    }
+    public Builder template() {
+      return new Builder(map.build());
+    }
   }
   
-  public static <T extends ReviewObject>ReviewObjectGenerator<T> makeReview() {
-    return new ReviewObjectGenerator<T>();
+  public ReviewObject(Map<String,Object> map) {
+    super(map,Builder.class,ReviewObject.class);
   }
   
-  public static class ReviewObjectGenerator<T extends ReviewObject> extends ASObjectGenerator<T> {
-    @SuppressWarnings("unchecked")
-    public ReviewObjectGenerator() {
-      super((Class<? extends T>) ReviewObject.class);
-    }
-    public ReviewObjectGenerator(Class<? extends T> _class) {
-      super(_class);
-    }
+  public <X extends ReviewObject, M extends ASObject.Builder<X,M>>ReviewObject(Map<String,Object> map,Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
   }
 }

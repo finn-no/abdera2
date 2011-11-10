@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.abdera2.activities.model.Activity;
-import org.apache.abdera2.activities.model.Generator;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.Pusher;
@@ -20,12 +20,10 @@ import org.apache.abdera2.common.pusher.SimpleListener;
 
 public class PusherExample {
 
-  private static final Generator<Activity> gen = 
+  private static final ActivityBuilder gen = 
     makeActivity()
     .actor(makePerson().displayName("joe").get())
-    .verb(Verb.POST)
-    .get()
-    .newGenerator();
+    .verb(Verb.POST);
   
   public static void main(String... args) throws Exception {
     
@@ -51,12 +49,12 @@ public class PusherExample {
     Pusher<Activity> pusher = cm.getPusher("foo");
     for (int n = 0; n < 3; n++) 
       pusher.push(
-        gen.startNew()
+        gen.template()
           .set("object",
             makeNote()
               .displayName(format("My note #%d",n+1))
               .get())
-          .complete()
+          .get()
         );
     
     latch.await();

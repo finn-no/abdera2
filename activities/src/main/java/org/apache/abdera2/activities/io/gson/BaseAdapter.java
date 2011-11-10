@@ -18,8 +18,6 @@
 package org.apache.abdera2.activities.io.gson;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +33,7 @@ import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.activities.model.*;
 import org.apache.abdera2.activities.model.objects.AccountObject;
 import org.apache.abdera2.activities.model.objects.Address;
+import org.apache.abdera2.activities.model.objects.AlertObject;
 import org.apache.abdera2.activities.model.objects.ArticleObject;
 import org.apache.abdera2.activities.model.objects.AudioObject;
 import org.apache.abdera2.activities.model.objects.BadgeObject;
@@ -42,6 +41,7 @@ import org.apache.abdera2.activities.model.objects.BinaryObject;
 import org.apache.abdera2.activities.model.objects.BookObject;
 import org.apache.abdera2.activities.model.objects.BookmarkObject;
 import org.apache.abdera2.activities.model.objects.CommentObject;
+import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.activities.model.objects.EventObject;
 import org.apache.abdera2.activities.model.objects.FileObject;
 import org.apache.abdera2.activities.model.objects.GroupObject;
@@ -63,9 +63,9 @@ import org.apache.abdera2.activities.model.objects.TvSeasonObject;
 import org.apache.abdera2.activities.model.objects.TvSeriesObject;
 import org.apache.abdera2.activities.model.objects.VersionObject;
 import org.apache.abdera2.activities.model.objects.VideoObject;
-import org.apache.abdera2.activities.protocol.ErrorObject;
 import org.joda.time.DateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -77,13 +77,15 @@ import com.google.gson.JsonSerializationContext;
 /**
  * (De)serialization of ASBase object
  */
+@SuppressWarnings("rawtypes")
 public class BaseAdapter 
   implements GsonTypeAdapter<ASBase> {
 
   private final Map<String,Class<?>> map = 
     new ConcurrentHashMap<String,Class<?>>();
-  private final Map<String,Class<? extends ASObject>> objsmap =
-    new ConcurrentHashMap<String,Class<? extends ASObject>>();
+  
+  private final Map<String,Class<? extends ASObject.Builder>> objsmap =
+    new ConcurrentHashMap<String,Class<? extends ASObject.Builder>>();
   
   public BaseAdapter() {
     initPropMap();
@@ -132,46 +134,47 @@ public class BaseAdapter
     
     processType(
       objsmap,map,
-      Address.class,
-      Activity.class,
-      ArticleObject.class,
-      AudioObject.class,
-      BadgeObject.class,
-      BookmarkObject.class,
-      Collection.class,
-      CommentObject.class,
-      EventObject.class,
-      FileObject.class,
-      GroupObject.class,
-      ImageObject.class,
-      NoteObject.class,
-      PersonObject.class,
-      PlaceObject.class,
-      ProductObject.class,
-      QuestionObject.class,
-      ReviewObject.class,
-      ServiceObject.class,
-      VideoObject.class,
-      ErrorObject.class,
-      NameObject.class,
-      AccountObject.class,
-      OrganizationObject.class,
-      BookObject.class,
-      MovieObject.class,
-      OfferObject.class,
-      TvEpisodeObject.class,
-      TvSeasonObject.class,
-      TvSeriesObject.class,
-      VersionObject.class,
-      BinaryObject.class
+      Address.AddressBuilder.class,
+      Activity.ActivityBuilder.class,
+      AlertObject.AlertBuilder.class,
+      ArticleObject.Builder.class,
+      AudioObject.AudioBuilder.class,
+      BadgeObject.Builder.class,
+      BookmarkObject.BookmarkBuilder.class,
+      Collection.CollectionBuilder.class,
+      CommentObject.Builder.class,
+      EventObject.EventBuilder.class,
+      FileObject.FileBuilder.class,
+      GroupObject.Builder.class,
+      ImageObject.ImageBuilder.class,
+      NoteObject.Builder.class,
+      PersonObject.PersonBuilder.class,
+      PlaceObject.PlaceBuilder.class,
+      ProductObject.ProductBuilder.class,
+      QuestionObject.QuestionBuilder.class,
+      ReviewObject.Builder.class,
+      ServiceObject.Builder.class,
+      VideoObject.VideoBuilder.class,
+      ErrorObject.Builder.class,
+      NameObject.NameBuilder.class,
+      AccountObject.AccountBuilder.class,
+      OrganizationObject.OrganizationBuilder.class,
+      BookObject.BookBuilder.class,
+      MovieObject.MovieBuilder.class,
+      OfferObject.OfferBuilder.class,
+      TvEpisodeObject.TvEpisodeBuilder.class,
+      TvSeasonObject.TvSeasonBuilder.class,
+      TvSeriesObject.TvSeriesBuilder.class,
+      VersionObject.VersionBuilder.class,
+      BinaryObject.BinaryBuilder.class
     );
   }
   
-  private static void processType(
-    Map<String,Class<? extends ASObject>> map, 
+  private static <X extends ASObject.Builder>void processType(
+    Map<String,Class<? extends ASObject.Builder>> map, 
     Map<String,Class<?>> propsmap,
-    Class<? extends ASObject>... _classes) {
-    for (Class<? extends ASObject> _class : _classes) {
+    Class<? extends X>... _classes) {
+    for (Class<? extends X> _class : _classes) {
       String name = AnnoUtil.getName(_class);
       map.put(name, _class);
       if (_class.isAnnotationPresent(Properties.class)) {
@@ -185,7 +188,7 @@ public class BaseAdapter
     }
   }
   
-  public void addObjectMap(Class<? extends ASObject>... _class) {
+  public <X extends ASObject.Builder> void addObjectMap(Class<? extends X>... _class) {
     processType(objsmap,map,_class);
   }
   
@@ -221,74 +224,79 @@ public class BaseAdapter
     JsonDeserializationContext context) 
       throws JsonParseException {
     JsonObject obj = (JsonObject)el;
-    ASBase base = null;
+    ASBase.Builder<?,?> builder;
     if (type == Collection.class)
-      base = new Collection<ASObject>();
+      builder = Collection.makeCollection();
     else if (type == Activity.class)
-      base = new Activity();
+      builder = Activity.makeActivity();
     else if (type == MediaLink.class)
-      base = new MediaLink();
+      builder = MediaLink.makeMediaLink();
     else if (type == PlaceObject.class)
-      base = new PlaceObject();
+      builder = PlaceObject.makePlace();
     else if (type == Mood.class)
-      base = new Mood();
+      builder = Mood.makeMood();
     else if (type == Address.class)
-      base = new Address();
+      builder = Address.makeAddress();
     else {
       JsonPrimitive ot = obj.getAsJsonPrimitive("objectType");
       if (ot != null) {
         String ots = ot.getAsString();
-        Class<? extends ASObject> _class = objsmap.get(ots);
+        Class<? extends ASObject.Builder> _class = objsmap.get(ots);
         if (_class != null) {
-          base = Discover.locate(_class, _class.getName());
+          builder = Discover.locate(_class, _class.getName());
           try {
-            base = _class.newInstance();
+            builder = _class.getConstructor(String.class).newInstance(ots);
           } catch (Throwable t) {}
           
-        } else base = new ASObject(ots);
+        } else builder = ASObject.makeObject(ots);
       } else {
         if (obj.has("verb") && (obj.has("actor") || obj.has("object") || obj.has("target"))) {
-          base = new Activity();
+          builder = Activity.makeActivity();
         } else if (obj.has("items")) {
-          base = new Collection<ASObject>();
+          builder = Collection.makeCollection();
         } else {
-          base = new ASObject(); // anonymous object
+          builder = ASObject.makeObject(); // anonymous
         }
       }
     }
     for (Entry<String,JsonElement> entry : obj.entrySet()) {
       String name = entry.getKey();
+      if (name.equalsIgnoreCase("objectType")) continue;
       Class<?> _class = map.get(name);
       JsonElement val = entry.getValue();
       if (val.isJsonPrimitive()) {
         if (_class != null) {
-          base.setProperty(name, context.deserialize(val,_class));
+          builder.set(name, context.deserialize(val,_class));
         } else {
           JsonPrimitive prim = val.getAsJsonPrimitive();
           if (prim.isBoolean()) 
-            base.setProperty(name, prim.getAsBoolean());
+            builder.set(name, prim.getAsBoolean());
           else if (prim.isNumber())
-            base.setProperty(name, prim.getAsNumber());
+            builder.set(name, prim.getAsNumber());
           else {
-            base.setProperty(name, prim.getAsString());
+            builder.set(name, prim.getAsString());
           }
         }
       } else if (val.isJsonArray()) {
-        List<Object> list = new ArrayList<Object>();
+        ImmutableList.Builder<Object> list = ImmutableList.builder();
         JsonArray arr = val.getAsJsonArray();
         processArray(arr, _class, context, list);
-        base.setProperty(name, list);
+        builder.set(name, list.build());
       } else if (val.isJsonObject()) {
         if (map.containsKey(name)) {
-          base.setProperty(name, context.deserialize(val, map.get(name)));
+          builder.set(name, context.deserialize(val, map.get(name)));
         } else
-          base.setProperty(name, context.deserialize(val, ASObject.class));
+          builder.set(name, context.deserialize(val, ASObject.class));
       }
     }
-    return base;
+    return builder.get();
   }
 
-  private void processArray(JsonArray arr, Class<?> _class, JsonDeserializationContext context, List<Object> list) {
+  private void processArray(
+    JsonArray arr, 
+    Class<?> _class, 
+    JsonDeserializationContext context, 
+    ImmutableList.Builder<Object> list) {
     for (JsonElement mem : arr) {
       if (mem.isJsonPrimitive()) {
         if (_class != null) {
@@ -306,9 +314,9 @@ public class BaseAdapter
         list.add(context.deserialize(mem, _class!=null?_class:ASObject.class));
       } else if (mem.isJsonArray()) {
         JsonArray array = mem.getAsJsonArray();
-        List<Object> objs = new ArrayList<Object>();
+        ImmutableList.Builder<Object> objs = ImmutableList.builder();
         processArray(array,_class,context,objs);
-        list.add(objs);
+        list.add(objs.build());
       }
     }
   }

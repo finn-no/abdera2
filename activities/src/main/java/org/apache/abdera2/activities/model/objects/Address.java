@@ -17,13 +17,13 @@
  */
 package org.apache.abdera2.activities.model.objects;
 
+import java.util.Map;
+
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
-@Name("address")
 public class Address extends ASObject {
 
-  private static final long serialVersionUID = -6352046844998504401L;
   public static final String FORMATTED = "formatted";
   public static final String STREETADDRESS = "streetAddress";
   public static final String LOCALITY = "locality";
@@ -31,52 +31,36 @@ public class Address extends ASObject {
   public static final String POSTALCODE = "postalCode";
   public static final String COUNTRY = "country";
   
-  public String getFormatted() {
-    return getProperty(FORMATTED);
+  public Address(Map<String,Object> map) {
+    super(map,AddressBuilder.class,Address.class);
   }
   
-  public void setFormatted(String formatted) {
-    setProperty(FORMATTED, formatted);
+  public <X extends Address, M extends Builder<X,M>>Address(Map<String,Object> map, Class<M> _class,Class<X>_obj) {
+    super(map,_class,_obj);
+  }
+  
+  public String getFormatted() {
+    return getProperty(FORMATTED);
   }
   
   public String getStreetAddress() {
     return getProperty(STREETADDRESS);
   }
   
-  public void setStreetAddress(String streetAddress) {
-    setProperty(STREETADDRESS, streetAddress);
-  }
-  
   public String getLocality() {
     return getProperty(LOCALITY);
-  }
-  
-  public void setLocality(String locality) {
-    setProperty(LOCALITY, locality);
   }
   
   public String getRegion() {
     return getProperty(REGION);
   }
   
-  public void setRegion(String region) {
-    setProperty(REGION, region);
-  }
-  
   public String getPostalCode() {
     return getProperty(POSTALCODE);
   }
   
-  public void setPostalCode(String postalCode) {
-    setProperty(POSTALCODE, postalCode);
-  }
-  
   public String getCountry() {
     return getProperty(COUNTRY);
-  }
-  
-  public void setCountry(String country) {
-    setProperty(COUNTRY, country);
   }
   
   public String toString() {
@@ -89,41 +73,58 @@ public class Address extends ASObject {
     return buf.toString();
   }
   
-  public static <T extends Address>AddressGenerator<T> makeAddress() {
-    return new AddressGenerator<T>();
+  public static AddressBuilder makeAddress() {
+    return new AddressBuilder("address");
+  }
+  
+  @Name("address")
+  public static class AddressBuilder extends Builder<Address,AddressBuilder> {
+    public AddressBuilder() {
+      super(Address.class,AddressBuilder.class);
+    }
+    public AddressBuilder(Map<String, Object> map) {
+      super(map, Address.class,AddressBuilder.class);
+    }
+    public AddressBuilder(String objectType) {
+      super(objectType, Address.class,AddressBuilder.class);
+    }
   }
   
   @SuppressWarnings("unchecked")
-  public static class AddressGenerator<T extends Address> extends ASObjectGenerator<T> {
-    public AddressGenerator() {
-      super((Class<? extends T>) Address.class);
+  public static abstract class Builder<X extends Address, M extends Builder<X,M>> 
+  extends ASObject.Builder<X,M> {
+    public Builder(Class<X> _class, Class<M> _builder) {
+      super(_class,_builder);
     }
-    public AddressGenerator(Class<T> _class) {
-      super(_class);
+    public Builder(String objectType,Class<X> _class, Class<M> _builder) {
+      super(objectType,_class,_builder);
     }
-    public <X extends AddressGenerator<T>>X country(String country) {
-      item.setCountry(country);
-      return (X)this;
+    public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+      super(map,_class,_builder);
     }
-    public <X extends AddressGenerator<T>>X formatted(String formatted) {
-      item.setFormatted(formatted);
-      return (X)this;
+    public M country(String country) {
+      set(COUNTRY,country);
+      return (M)this;
     }
-    public <X extends AddressGenerator<T>>X locality(String locality) {
-      item.setLocality(locality);
-      return (X)this;
+    public M formatted(String formatted) {
+      set(FORMATTED,formatted);
+      return (M)this;
     }
-    public <X extends AddressGenerator<T>>X postalCode(String postalCode) {
-      item.setPostalCode(postalCode);
-      return (X)this;
+    public M locality(String locality) {
+      set(LOCALITY,locality);
+      return (M)this;
     }
-    public <X extends AddressGenerator<T>>X region(String region) {
-      item.setRegion(region);
-      return (X)this;
+    public M postalCode(String postalCode) {
+      set(POSTALCODE,postalCode);
+      return (M)this;
     }
-    public <X extends AddressGenerator<T>>X streetAddress(String address) {
-      item.setStreetAddress(address);
-      return (X)this;
+    public M region(String region) {
+      set(REGION, region);
+      return (M)this;
+    }
+    public M streetAddress(String address) {
+      set(STREETADDRESS,address);
+      return (M)this;
     }
   }
 }

@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.TypeAdapter;
+import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import org.apache.abdera2.common.protocol.AbstractWorkspaceProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
@@ -87,8 +88,7 @@ public abstract class AbstractActivitiesWorkspaceProvider
           ErrorObject
             .makeError()
             .code(code)
-            .displayName(message)
-            .get())
+            .displayName(message))
         .setStatus(code)
         .setStatusText(message);
   }
