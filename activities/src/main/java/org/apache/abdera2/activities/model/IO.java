@@ -109,12 +109,10 @@ public abstract class IO {
   }
   
   protected final boolean autoclose;
-  protected final boolean prettyPrint;
   protected final String charset;
   
   protected IO(Builder builder) {
     this.autoclose = builder.autoclose;
-    this.prettyPrint = builder.prettyprint;
     this.charset = builder.charset;
   }
   
@@ -166,6 +164,11 @@ public abstract class IO {
       throw new RuntimeException(t);
     }
   }
+  
+  public <T extends ASBase>T readAs(InputStream in, String charset, Class<T> _class) {
+    return read(in,charset).as(_class);
+  }
+  
   public Activity readActivity(InputStream in, String charset) {
     try {
       return readActivity(new InputStreamReader(in,charset));
@@ -188,6 +191,11 @@ public abstract class IO {
       throw new RuntimeException(t);
     }
   }
+  
+  public <T extends ASObject>T readObjectAs(InputStream in, String charset, Class<T> _class) {
+    return readObject(in,charset).as(_class);
+  }
+  
   public MediaLink readMediaLink(InputStream in, String charset) {
     try {
       return readMediaLink(new InputStreamReader(in,charset));
@@ -205,6 +213,19 @@ public abstract class IO {
   public abstract <T extends ASObject>T readObject(String json);
   public abstract MediaLink readMediaLink(Reader reader);
   public abstract MediaLink readMediaLink(String json);
+  
+  public <T extends ASBase>T readAs(Reader reader, Class<T> _class) {
+    return read(reader).as(_class);
+  }
+  public <T extends ASBase>T readAs(String json, Class<T> _class) {
+    return read(json).as(_class);
+  }
+  public <T extends ASObject>T readObjectAs(Reader reader, Class<T> _class) {
+    return readObject(reader).as(_class);
+  }
+  public <T extends ASObject>T readObjectAs(String json, Class<T> _class) {
+    return readObject(json).as(_class);
+  }
   
   private static class CacheKey {
     private final int hash;
