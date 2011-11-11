@@ -78,7 +78,7 @@ public class Address extends ASObject {
   }
   
   @Name("address")
-  public static class AddressBuilder extends Builder<Address,AddressBuilder> {
+  public static final class AddressBuilder extends Builder<Address,AddressBuilder> {
     public AddressBuilder() {
       super(Address.class,AddressBuilder.class);
     }

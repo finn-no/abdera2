@@ -22,7 +22,7 @@ import org.apache.abdera2.common.text.CharUtils.Profile;
 
 import com.google.common.base.Function;
 
-public class Slug {
+public final class Slug {
 
     public static final String SANITIZE_PATTERN = "[^A-Za-z0-9\\%!$&\\\\'()*+,;=_]+";
 

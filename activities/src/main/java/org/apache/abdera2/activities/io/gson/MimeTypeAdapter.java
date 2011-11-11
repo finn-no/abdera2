@@ -22,7 +22,7 @@ import javax.activation.MimeType;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 
 @AdaptedType(MimeType.class)
-public class MimeTypeAdapter
+class MimeTypeAdapter
   extends SimpleAdapter<MimeType> {
 
   protected MimeType deserialize(String v) {

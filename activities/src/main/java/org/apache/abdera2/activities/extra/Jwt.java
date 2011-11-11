@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  The ASF licenses this file to You
+ * under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.  For additional information regarding
+ * copyright in this work, please see the NOTICE file in the top level
+ * directory of this distribution.
+ */
 package org.apache.abdera2.activities.extra;
 
 import java.io.IOException;
@@ -15,37 +32,38 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Utility class for Generating/Validating JSON Web Tokens 
  */
-public class Jwt {
+public final class Jwt {
 
+  private Jwt() {}
+  
+  private static enum Type {
+    HMAC,SIG
+  }
+  
   public static enum Alg {
-    HS256("HmacSHA256"),
-    HS384("HmacSHA384"),
-    HS512("HmacSHA512"),
-    RS256("SHA256withRSA"),
-    RS384("SHA384withRSA"),
-    RS512("SHA512withRSA"),
-    ES256("SHA256withECDSA"),  
-    ES384("SHA384withECDSA"),  
-    ES512("SHA512withECDSA");
+    HS256("HmacSHA256",Type.HMAC),
+    HS384("HmacSHA384",Type.HMAC),
+    HS512("HmacSHA512",Type.HMAC),
+    RS256("SHA256withRSA",Type.SIG),
+    RS384("SHA384withRSA",Type.SIG),
+    RS512("SHA512withRSA",Type.SIG),
+    ES256("SHA256withECDSA",Type.SIG),  
+    ES384("SHA384withECDSA",Type.SIG),  
+    ES512("SHA512withECDSA",Type.SIG);
     
     private final String internal;
+    private final Type type;
     
-    Alg(String internal) {
+    Alg(String internal,Type type) {
       this.internal = internal;
+      this.type = type;
     }
     
     public String sig(Key key, byte[] mat) {
-      switch(this) {
-      case HS256:
-      case HS384:
-      case HS512:
+      switch(this.type) {
+      case HMAC:
         return HashHelper.hmac(key, internal, mat);
-      case RS256:
-      case RS384:
-      case RS512:
-      case ES256:
-      case ES384:
-      case ES512:
+      case SIG:
         return HashHelper.sig((PrivateKey)key,internal,mat);
       default:
         throw new UnsupportedOperationException();
@@ -54,17 +72,10 @@ public class Jwt {
 
     public boolean val(Key key, byte[] mat, byte[] dat) {
       try {
-        switch(this) {
-        case HS256:
-        case HS384:
-        case HS512:
+        switch(this.type) {
+        case HMAC:
           return HashHelper.hmacval(key, internal, mat, dat);
-        case RS256:
-        case RS384:
-        case RS512:
-        case ES256:
-        case ES384:
-        case ES512: {
+        case SIG: {
           return HashHelper.sigval((PublicKey)key, internal, mat, dat);
         }
         default:

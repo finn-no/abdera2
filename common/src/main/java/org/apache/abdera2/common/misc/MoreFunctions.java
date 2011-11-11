@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  The ASF licenses this file to You
+ * under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.  For additional information regarding
+ * copyright in this work, please see the NOTICE file in the top level
+ * directory of this distribution.
+ */
 package org.apache.abdera2.common.misc;
 
 import java.lang.reflect.Constructor;
@@ -23,7 +40,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
-public class MoreFunctions {
+public final class MoreFunctions {
+  
+  private MoreFunctions() {}
   
   public static <K,V>Function<K,V> alwaysNull() {
     return new Function<K,V>() {
@@ -384,9 +403,9 @@ public class MoreFunctions {
   }
   
   public static class ChoiceGenerator<T,R> implements Supplier<Function<T,R>> {
-    private final Set<Choice.Option<T,R>> options = 
+    final Set<Choice.Option<T,R>> options = 
       new LinkedHashSet<Choice.Option<T,R>>();
-    private Supplier<R> otherwise;
+     Supplier<R> otherwise;
     public ChoiceGenerator<T,R> of(Choice.Option<T,R> option) {
       this.options.add(option);
       return this;
@@ -409,13 +428,13 @@ public class MoreFunctions {
     }
   }
   
-  private static class Choice<T,R> implements Function<T,R> {    
+  static class Choice<T,R> implements Function<T,R> {    
     public static interface Option<T,R>
     extends Predicate<T>, Supplier<R> {}
     private final Set<Choice.Option<T,R>> options = 
       new LinkedHashSet<Choice.Option<T,R>>();
     private final Supplier<R> otherwise;
-    private Choice(Set<Choice.Option<T,R>> options, Supplier<R> otherwise) {
+    Choice(Set<Choice.Option<T,R>> options, Supplier<R> otherwise) {
       this.options.addAll(options);
       this.otherwise = otherwise;
     }

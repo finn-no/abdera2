@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.common.templates.Template;
 
 @AdaptedType(Template.class)
-public class TemplateAdapter 
+class TemplateAdapter 
   extends SimpleAdapter<Template> {
 
   protected Template deserialize(String v) {

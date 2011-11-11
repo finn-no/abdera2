@@ -31,7 +31,7 @@ public class CommentObject
   }
   
   @Name("comment")
-  public static class Builder extends ASObject.Builder<CommentObject,Builder> {
+  public static final class Builder extends ASObject.Builder<CommentObject,Builder> {
     public Builder() {
       super(CommentObject.class,Builder.class);
     }

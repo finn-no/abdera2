@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.joda.time.Duration;
 
 @AdaptedType(Duration.class)
-public class DurationAdapter
+class DurationAdapter
   extends SimpleAdapter<Duration> {
 
   protected String serialize(Duration t) {

@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.common.iri.IRI;
 
 @AdaptedType(IRI.class)
-public class IriAdapter 
+class IriAdapter 
   extends SimpleAdapter<IRI> {
   
   protected IRI deserialize(String v) {

@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.joda.time.Interval;
 
 @AdaptedType(Interval.class)
-public class IntervalAdapter
+class IntervalAdapter
   extends SimpleAdapter<Interval> {
 
   protected String serialize(Interval t) {

@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.common.geo.IsoPosition;
 
 @AdaptedType(IsoPosition.class)
-public class PositionAdapter 
+class PositionAdapter 
   extends SimpleAdapter<IsoPosition> {
 
   protected IsoPosition deserialize(String v) {

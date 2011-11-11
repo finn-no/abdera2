@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.common.http.EntityTag;
 
 @AdaptedType(EntityTag.class)
-public class EntityTagAdapter 
+class EntityTagAdapter 
   extends SimpleAdapter<EntityTag> {
 
   protected EntityTag deserialize(String v) {

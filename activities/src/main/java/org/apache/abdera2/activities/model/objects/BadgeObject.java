@@ -31,7 +31,7 @@ public class BadgeObject
   }
   
   @Name("badge")
-  public static class Builder extends ASObject.Builder<BadgeObject,Builder>{
+  public static final class Builder extends ASObject.Builder<BadgeObject,Builder>{
     public Builder() {
       super(BadgeObject.class,Builder.class);
     }

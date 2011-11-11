@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.activities.model.Verb;
 
 @AdaptedType(Verb.class)
-public class VerbAdapter 
+class VerbAdapter 
   extends SimpleAdapter<Verb> {
 
   protected Verb deserialize(String v) {

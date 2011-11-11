@@ -20,7 +20,7 @@ package org.apache.abdera2.activities.io.gson;
 import org.apache.abdera2.common.lang.Lang;
 
 @AdaptedType(Lang.class)
-public class LangAdapter 
+class LangAdapter 
   extends SimpleAdapter<Lang> {
 
   protected Lang deserialize(String v) {

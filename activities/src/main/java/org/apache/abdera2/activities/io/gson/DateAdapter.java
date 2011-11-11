@@ -22,7 +22,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
 @AdaptedType(Date.class)
-public class DateAdapter
+class DateAdapter
   extends SimpleAdapter<Date> {
   protected String serialize(Date t) {
     return ISODateTimeFormat.dateTime().print(new DateTime(t));

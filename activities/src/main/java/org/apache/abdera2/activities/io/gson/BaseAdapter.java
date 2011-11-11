@@ -78,7 +78,7 @@ import com.google.gson.JsonSerializationContext;
  * (De)serialization of ASBase object
  */
 @SuppressWarnings("rawtypes")
-public class BaseAdapter 
+final class BaseAdapter 
   implements GsonTypeAdapter<ASBase> {
 
   private final Map<String,Class<?>> map = 

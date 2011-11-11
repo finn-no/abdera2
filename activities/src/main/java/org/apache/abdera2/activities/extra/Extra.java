@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  The ASF licenses this file to You
+ * under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.  For additional information regarding
+ * copyright in this work, please see the NOTICE file in the top level
+ * directory of this distribution.
+ */
 package org.apache.abdera2.activities.extra;
 
 import java.lang.reflect.Method;
@@ -37,8 +54,10 @@ import static com.google.common.base.Preconditions.*;
  * Miscellaneous extensions
  */
 @SuppressWarnings({"unchecked","rawtypes"})
-public class Extra {
+public final class Extra {
 
+  private Extra() {}
+  
   /**
    * Returns a Selector that tests whether the provided 
    * activity uses the given Verb.
@@ -757,8 +776,19 @@ public class Extra {
         } else {
           throw new UnsupportedOperationException();
         }
+      } else if (method.getDeclaringClass().equals(ExtensionBuilder.class) && 
+          method.getName().equals("unwrap")) {
+        return builder;
       } else return proxy.invokeSuper(builder, args);
     }    
+  }
+  
+  public static interface ExtensionBuilder {
+    <T extends ASBase.Builder>T unwrap();
+  }
+  
+  public static interface ExtensionObject {
+    <T extends ASBase>T unwrap();
   }
   
   private static class ExtensionWrapper 
@@ -795,6 +825,9 @@ public class Extra {
         } else {
           throw new UnsupportedOperationException();
         }
+      } else if (method.getDeclaringClass().equals(ExtensionObject.class) && 
+          method.getName().equals("unwrap")) {
+        return base;
       } else return proxy.invokeSuper(base, args);
     }    
   }

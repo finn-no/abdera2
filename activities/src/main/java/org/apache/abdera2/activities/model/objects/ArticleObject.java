@@ -30,7 +30,7 @@ public class ArticleObject
   }
   
   @Name("article")
-  public static class Builder extends ASObject.Builder<ArticleObject,Builder> {
+  public static final class Builder extends ASObject.Builder<ArticleObject,Builder> {
     public Builder() {
       super(ArticleObject.class,Builder.class);
     }
