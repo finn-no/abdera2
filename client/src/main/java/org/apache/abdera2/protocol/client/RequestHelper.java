@@ -22,14 +22,7 @@ import java.net.URI;
 import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.Method;
 
-import static org.apache.abdera2.common.http.Method.GET;
-import static org.apache.abdera2.common.http.Method.POST;
-import static org.apache.abdera2.common.http.Method.PUT;
-import static org.apache.abdera2.common.http.Method.DELETE;
-import static org.apache.abdera2.common.http.Method.OPTIONS;
-import static org.apache.abdera2.common.http.Method.PATCH;
-import static org.apache.abdera2.common.http.Method.HEAD;
-import static org.apache.abdera2.common.http.Method.TRACE;
+import static org.apache.abdera2.common.http.Method.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
