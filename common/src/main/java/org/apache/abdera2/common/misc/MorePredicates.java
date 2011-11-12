@@ -28,6 +28,7 @@ import org.apache.abdera2.common.text.CodepointMatcher;
 
 import com.google.common.base.Predicates;
 
+import static org.apache.abdera2.common.misc.Comparisons.*;
 import static com.google.common.base.Preconditions.*;
 
 public final class MorePredicates {
@@ -37,8 +38,8 @@ public final class MorePredicates {
   public static Selector<String> equalsIgnoreCase(final String val) {
     return new AbstractSelector<String>() {
       public boolean select(Object input) {
-        checkNotNull(input);
-        checkNotNull(val);
+        if (bothAreNull(val, input)) return true;
+        if (onlyOneIsNull(val, input)) return false;
         return input.toString().equalsIgnoreCase(val);
       }
     };

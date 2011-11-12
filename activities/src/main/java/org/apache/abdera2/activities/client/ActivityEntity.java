@@ -29,9 +29,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 
-/**
- * Required for the Apache Commons HTTP AbderaClient.
- */
 public class ActivityEntity
   extends BasicHttpEntity 
   implements HttpEntity {
@@ -98,7 +95,9 @@ public class ActivityEntity
     }
 
     public void writeTo(OutputStream out) throws IOException {
-      base.writeTo(out);
+      if (buf == null)
+        base.writeTo(out);
+      else out.write(buf);
     }
     
     public InputStream getContent() {

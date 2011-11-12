@@ -41,18 +41,14 @@ import org.joda.time.DateTime;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
-
+import static com.google.common.base.Predicates.*;
 import static org.apache.abdera2.activities.model.objects.Objects.*;
 import static org.apache.abdera2.common.misc.Comparisons.*;
+import static org.apache.abdera2.common.misc.MorePredicates.*;
 import static com.google.common.base.Preconditions.*;
 
-
-/**
- * Miscellaneous extensions
- */
 @SuppressWarnings({"unchecked","rawtypes"})
 public final class Extra {
 
@@ -66,7 +62,18 @@ public final class Extra {
     return PropertySelector.<Activity>create(
       Activity.class, 
       "getVerb", 
-      Predicates.equalTo(verb));
+      equalTo(verb));
+  }
+  
+  /**
+   * Returns a Selector that tests whether the provided
+   * activity uses the given ObjectType
+   */
+  public static Selector<ASObject> isObjectType(String name) {
+    return PropertySelector.<ASObject>create(
+      ASObject.class,
+      "getObjectType",
+      equalsIgnoreCase(name));
   }
   
   /**
@@ -649,7 +656,7 @@ public final class Extra {
         Iterable<String> bids = b.getKnownIds();
         Iterable<String> cids = 
           Iterables.filter(
-            aids, Predicates.in((Set<String>)bids));
+            aids, in((Set<String>)bids));
         // if cids is empty, it's not a duplicate, so return false
         // if cids isn't empty, they are likely duplicates, return true
         return !Iterables.isEmpty(cids);

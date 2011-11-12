@@ -27,10 +27,14 @@
   </parent>  
 
   <artifactId>abdera2-test</artifactId>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
   <name>Abdera2 Tests</name>
   <version>2.0-SNAPSHOT</version>  
   <description>Abdera Tests</description>
+
+  <properties>
+    <topDir>${basedir}/..</topDir> 
+  </properties>
 
   <build>
   <testSourceDirectory>src/main/java</testSourceDirectory>

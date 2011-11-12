@@ -19,6 +19,7 @@ package org.apache.abdera2.activities.client;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.common.pusher.Pusher;
 import org.apache.abdera2.protocol.client.RequestOptions;
 
 /**
@@ -30,40 +31,65 @@ import org.apache.abdera2.protocol.client.RequestOptions;
 public class ActivitiesClientBatchPusher<T extends ASObject> 
   extends ActivitiesClientPusher<T> {
 
-  public ActivitiesClientBatchPusher(String iri, ActivitiesSession session,
-      RequestOptions options) {
+  public static <T extends ASObject>Pusher<T> create(String iri) {
+    return new ActivitiesClientBatchPusher<T>(iri);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    RequestOptions options) {
+    return new ActivitiesClientBatchPusher<T>(iri,options);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    ActivitiesSession session) {
+    return new ActivitiesClientBatchPusher<T>(iri,session);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    ActivitiesSession session,
+    RequestOptions options) {
+    return new ActivitiesClientBatchPusher<T>(iri,session,options);
+  }
+  
+  public ActivitiesClientBatchPusher(
+    String iri, 
+    ActivitiesSession session,
+    RequestOptions options) {
     super(iri, session, options);
   }
 
-  public ActivitiesClientBatchPusher(String iri, ActivitiesSession session) {
+  public ActivitiesClientBatchPusher(
+    String iri, 
+    ActivitiesSession session) {
     super(iri, session);
   }
 
-  public ActivitiesClientBatchPusher(String iri, RequestOptions options) {
+  public ActivitiesClientBatchPusher(
+    String iri, 
+    RequestOptions options) {
     super(iri, options);
   }
 
-  public ActivitiesClientBatchPusher(String iri) {
+  public ActivitiesClientBatchPusher(
+    String iri) {
     super(iri);
   }
 
   @Override
   public void pushAll(final Iterable<T> t) {
-    exec.execute(
-        new Runnable() {
-          public void run() {
-            try {
-              handle(
-                session.post(
-                  iri, 
-                  Collection.<T>makeCollection(t), 
-                  options));
-            } catch (Throwable ex) {
-              handle(ex);
-            }
-          }
-        }
-      );
+    try {
+      session.post(
+        iri, 
+        Collection.<T>makeCollection(t), 
+        options,
+        exec,
+        this);
+    } catch (Throwable x) {
+      handle(x);
+    }
   }
 
 }

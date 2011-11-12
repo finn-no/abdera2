@@ -46,10 +46,16 @@ import org.joda.time.DateTime;
 public class ActivitiesSession 
   extends Session {
 
-  private static final IO io = IO.get();
+  private final IO io;
+  
+  protected ActivitiesSession(Client client, IO io) {
+    super(client);
+    this.io = io;
+  }
   
   protected ActivitiesSession(Client client) {
     super(client);
+    this.io = IO.get();
   }
 
   public IO getIO() {
@@ -145,10 +151,10 @@ public class ActivitiesSession
   }
   
   public <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollection(String uri, RequestOptions options) {
-    return ActivitiesSession.<M,T>getCollectionFromResp(get(uri, options));
+    return ActivitiesSession.<M,T>getCollectionFromResp(io,get(uri, options));
   }
   
-  static <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollectionFromResp(ClientResponse cr) {
+  static <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollectionFromResp(IO io, ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -193,10 +199,10 @@ public class ActivitiesSession
   }
   
   public <T extends Activity>ASDocument<T> getActivity(String uri, RequestOptions options) {
-    return getActivityFromResponse(get(uri, options));
+    return getActivityFromResponse(io,get(uri, options));
   }
   
-  static <T extends Activity>ASDocument<T> getActivityFromResponse(ClientResponse cr) {
+  static <T extends Activity>ASDocument<T> getActivityFromResponse(IO io,ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -241,10 +247,10 @@ public class ActivitiesSession
   }
 
   public <T extends ASObject>ASDocument<T> getObject(String uri, RequestOptions options) {
-    return getObjectFromResponse(get(uri, options));
+    return getObjectFromResponse(io,get(uri, options));
   }
   
-  static <T extends ASObject>ASDocument<T> getObjectFromResponse(ClientResponse cr) {
+  static <T extends ASObject>ASDocument<T> getObjectFromResponse(IO io,ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -357,39 +363,68 @@ public class ActivitiesSession
 
   static abstract class ASListener<T extends ClientResponse, X extends ASBase> 
     implements Listener<T> {
+      protected final IO io;
+      protected ASListener(IO io) {
+        this.io = io;
+      }
       protected abstract void onResponse(ASDocument<X> doc);
   }
   
   public static abstract class CollectionListener<T extends ClientResponse,X extends ASObject> 
     extends ASListener<T,Collection<X>> {
+    protected CollectionListener(IO io) {
+     super(io);
+    }
     public void onResponse(T resp) {
-      onResponse(ActivitiesSession.<X,Collection<X>>getCollectionFromResp(resp));
+      onResponse(ActivitiesSession.<X,Collection<X>>getCollectionFromResp(io,resp));
     }
   }
   
   public static abstract class SimpleActivityCollectionListener 
-    extends CollectionListener<ClientResponse,Activity>{}
+    extends CollectionListener<ClientResponse,Activity>{
+    protected SimpleActivityCollectionListener(IO io) {
+      super(io);
+     }
+  }
   
   public static abstract class SimpleObjectCollectionListener 
-    extends CollectionListener<ClientResponse,ASObject>{}
+    extends CollectionListener<ClientResponse,ASObject>{
+    protected SimpleObjectCollectionListener(IO io) {
+      super(io);
+     }
+  }
   
   public static abstract class SimpleActivityListener 
-    extends ActivityListener<ClientResponse,Activity>{}
+    extends ActivityListener<ClientResponse,Activity>{
+    protected SimpleActivityListener(IO io) {
+      super(io);
+     }
+  }
   
   public static abstract class SimpleObjectListener 
-    extends ObjectListener<ClientResponse,ASObject>{}
+    extends ObjectListener<ClientResponse,ASObject>{
+    protected SimpleObjectListener(IO io) {
+      super(io);
+     }
+  }
   
   public static abstract class ActivityListener<T extends ClientResponse,X extends Activity> 
     extends ASListener<T,X> {
+    protected ActivityListener(IO io) {
+      super(io);
+     }
     public void onResponse(T resp) {
-      onResponse(ActivitiesSession.<X>getActivityFromResponse(resp));
+      onResponse(ActivitiesSession.<X>getActivityFromResponse(io,resp));
     }
   }
   
   public static abstract class ObjectListener<T extends ClientResponse,X extends ASObject> 
     extends ASListener<T,X> {
+    protected ObjectListener(IO io) {
+      super(io);
+     }
     public void onResponse(T resp) {
-      onResponse(ActivitiesSession.<X>getObjectFromResponse(resp));
+      onResponse(ActivitiesSession.<X>getObjectFromResponse(io,resp));
     }
   }
 }

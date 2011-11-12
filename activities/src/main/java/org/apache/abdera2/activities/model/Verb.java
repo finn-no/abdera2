@@ -99,12 +99,10 @@ public abstract class Verb {
     return name;
   }
 
-  @Override
   public int hashCode() {
-    return MoreFunctions.genHashCode(1,name);
+    return MoreFunctions.genHashCode(1,name.toLowerCase());
   }
 
-  @Override
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -116,7 +114,7 @@ public abstract class Verb {
     if (name == null) {
       if (other.name != null)
         return false;
-    } else if (!name.equals(other.name))
+    } else if (!name.equalsIgnoreCase(other.name))
       return false;
     return true;
   }

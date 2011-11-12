@@ -21,6 +21,8 @@ import org.apache.abdera2.activities.model.ASDocument;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.IO;
+import org.apache.abdera2.protocol.client.BasicCachingClient;
 import org.apache.abdera2.protocol.client.BasicClient;
 import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.protocol.client.ClientWrapper;
@@ -28,7 +30,7 @@ import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 
 /**
- * Extension of the base Abdera Client that provides utility methods
+ * Extension of the base Abdera Client that provides methods
  * for working with Activity Stream objects. The ActivityClient acts 
  * as a decorator for the base Abdera Client. 
  */
@@ -36,44 +38,97 @@ import org.apache.abdera2.protocol.client.Session;
 public class ActivitiesClient 
   extends ClientWrapper {
 
+  /**
+   * Creates a new Activity Client that wraps a new BasicClient
+   */
+  public static ActivitiesClient create() {
+    return new ActivitiesClient();
+  }
+  
+  /**
+   * Creates a new Activity Client that wraps the given client
+   */
+  public static ActivitiesClient create(Client client) {
+    return new ActivitiesClient(client);
+  }
+  
+  /**
+   * Creates a new Activity Client that wraps a new BasicCachingClient
+   */
+  public static ActivitiesClient createCaching() {
+    return new ActivitiesClient(new BasicCachingClient());
+  }
+  
+  /**
+   * Creates a new Activity Client that wraps a new BasicClient
+   */
   public ActivitiesClient() {
     super(new BasicClient());
   }
   
+  /**
+   * Creates a new Activity Client that wraps the given Client
+   */
   public ActivitiesClient(Client client) {
     super(client);
   }
 
-  @Override
+  /**
+   * Creates a new Session for this Client. Session objects provide
+   * the interface for all HTTP methods and track the state of 
+   * individual sessions
+   */
   public <T extends Session> T newSession() {
     return (T)new ActivitiesSession(this);
   }
+  
+  public <T extends Session> T newSession(IO io) {
+    return (T)new ActivitiesSession(this,io);
+  }
 
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <M extends ASObject,T extends Collection<M>>ASDocument<T> getCollection(String uri) {
     ActivitiesSession session = newSession();
     return session.<M,T>getCollection(uri);
   }
   
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <M extends ASObject,T extends Collection<M>>ASDocument<T> getCollection(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<M,T>getCollection(uri,options);
   }
   
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <T extends Activity>ASDocument<T> getActivity(String uri) {
     ActivitiesSession session = newSession();
     return session.<T>getActivity(uri);
   }
   
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <T extends Activity>ASDocument<T> getActivity(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<T>getActivity(uri,options);
   }
   
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <T extends ASObject>ASDocument<T> getObject(String uri) {
     ActivitiesSession session = newSession();
     return session.<T>getObject(uri);
   }
   
+  /**
+   * Shortcut utility method that retrieves and parses an Activity Streams document
+   */
   public <T extends ASObject>ASDocument<T> getObject(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
     return session.<T>getObject(uri,options);

@@ -63,10 +63,6 @@ public final class ASContext
       (T)base.getProperty(var);
   }
 
-  public void clear() {
-    throw new UnsupportedOperationException();
-  }
-
   public boolean contains(String var) {
     return base.has(var);
   }
@@ -76,7 +72,7 @@ public final class ASContext
   }
   
   @SuppressWarnings("rawtypes")
-  public static class IterableWrapper 
+  static class IterableWrapper 
     implements Iterable {
 
     private final Iterable i;
@@ -91,8 +87,13 @@ public final class ASContext
     
   }
   
+  /**
+   * This and IterableWrapper ensure that all ASBase values
+   * within an ASBase are wrapped as ASContext instances 
+   * for purposes of URI Template expansion
+   */
   @SuppressWarnings("rawtypes")
-  public static class IteratorWrapper 
+  static class IteratorWrapper 
     implements Iterator {
 
     private final Iterator i;
@@ -108,7 +109,7 @@ public final class ASContext
     public Object next() {
       Object obj = i.next();
       if (obj instanceof ASBase) 
-        return new ASContext((ASBase)obj);
+        return ASContext.create((ASBase)obj);
       if (obj instanceof Iterable)
         return new IterableWrapper((Iterable)obj);
       return obj;

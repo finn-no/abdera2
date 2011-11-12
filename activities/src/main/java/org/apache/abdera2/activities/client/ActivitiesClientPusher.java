@@ -17,28 +17,57 @@
  */
 package org.apache.abdera2.activities.client;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.pusher.Pusher;
+import org.apache.abdera2.protocol.client.Session.Listener;
 import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import static org.apache.abdera2.common.misc.MoreExecutors2.getExitingExecutor;
 
 /**
  * Utility that wraps an ActivitiesClient and uses the pusher 
  * interface to asynchronously send those off to somewhere else
- * using POST requests. 
+ * using POST requests. The default behavior is to attempt to 
+ * push the item once and forget about it, the status of the 
+ * request will not be checked. Subclasses can customize that 
+ * behavior as necessary
  */
 public class ActivitiesClientPusher<T extends ASObject> 
-  implements Pusher<T> {
-  private final static Log log = LogFactory.getLog(ActivitiesClientPusher.class);
+  implements Pusher<T>, Listener<ClientResponse> {
+  private final static Log log = 
+    LogFactory.getLog(
+      ActivitiesClientPusher.class);
+  
+  public static <T extends ASObject>Pusher<T> create(String iri) {
+    return new ActivitiesClientPusher<T>(iri);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    RequestOptions options) {
+    return new ActivitiesClientPusher<T>(iri,options);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    ActivitiesSession session) {
+    return new ActivitiesClientPusher<T>(iri,session);
+  }
+  
+  public static <T extends ASObject>Pusher<T> create(
+    String iri,
+    ActivitiesSession session,
+    RequestOptions options) {
+    return new ActivitiesClientPusher<T>(iri,session,options);
+  }
   
   protected final ActivitiesSession session;
   protected final String iri;
-  protected final Executor exec;
+  protected final ExecutorService exec;
   protected final RequestOptions options;
 
   public ActivitiesClientPusher(String iri) {
@@ -69,27 +98,16 @@ public class ActivitiesClientPusher<T extends ASObject>
     this.exec = initExecutor();
   }
   
-  protected Executor initExecutor() {
-    return Executors.newSingleThreadExecutor();
+  protected ExecutorService initExecutor() {
+    return getExitingExecutor();
   }
   
   public void push(final T t) {
-    exec.execute(
-      new Runnable() {
-        public void run() {
-          try {
-            handle(session.post(iri, t, options));
-          } catch (Throwable ex) {
-            handle(ex);
-          }
-        }
-      }
-    );
-  }
-  
-  protected void handle(ClientResponse resp) {
-    // by default, do nothing, fire'n'forget
-    resp.release();
+    try {
+      session.post(iri,t,options,exec,this);
+    } catch (Throwable x) {
+      handle(x);
+    }
   }
   
   protected void handle(Throwable t) {
@@ -99,6 +117,10 @@ public class ActivitiesClientPusher<T extends ASObject>
 
   public void pushAll(Iterable<T> t) {
     for (T i : t) push(i);
+  }
+
+  public void onResponse(ClientResponse resp) {
+    resp.release();
   }
 
 }

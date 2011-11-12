@@ -75,7 +75,7 @@ public final class PusherCollectionWriter
   }
 
   public <X extends CollectionWriter> X writeObject(
-      org.apache.abdera2.activities.model.ASObject.Builder<?, ?> object) {
+      ASObject.Builder<?, ?> object) {
     return writeObject(object.get());
   }
   
