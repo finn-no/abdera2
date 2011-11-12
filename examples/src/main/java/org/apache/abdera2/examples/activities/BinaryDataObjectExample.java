@@ -22,12 +22,11 @@ import static org.apache.abdera2.activities.model.objects.BinaryObject.makeBinar
  */
 public class BinaryDataObjectExample {
 
+  private final static IO io = IO.get();
+  
   public static void main(String... args) throws Exception {
     
-    IO io = IO.get();
-    
     // First prepare the data we wish to include
-    // within the object...
     URL url = BinaryDataObjectExample.class.getResource("/info.png");
     DataHandler dataHandler = new DataHandler(url); 
     
@@ -37,7 +36,7 @@ public class BinaryDataObjectExample {
         .attachment(
           makeBinary()
             .data(
-              dataHandler, 
+              dataHandler, // the data will be automatically base64 encoded
               new Md5(),   // generate an md5 hash and set an "md5" property.. we could also do an hmac here
               DEFLATE)     // apply deflate compression to the data before encoding it
             .get())
@@ -63,8 +62,7 @@ public class BinaryDataObjectExample {
       check.update(buf, 0, r);
     
     // check the md5 hash to show that the input data and output data are the same
-    String checks = check.get();
-    System.out.println(checks.equalsIgnoreCase(md5));
+    check.checkElement(md5);
     
   }
   

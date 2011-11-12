@@ -1,11 +1,11 @@
 package org.apache.abdera2.examples.activities;
 
-import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
-import org.apache.abdera2.activities.model.objects.EventObject;
 import org.apache.abdera2.activities.model.objects.AdditionalEventProperties;
 import org.apache.abdera2.activities.model.objects.EventObject.EventBuilder;
-import org.apache.abdera2.activities.model.objects.PersonObject;
+import static org.apache.abdera2.activities.model.objects.EventObject.makeEvent;
+import static org.apache.abdera2.activities.model.Collection.makeCollection;
+import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
 
 /**
  * Quick example that shows how new object types can be
@@ -17,24 +17,19 @@ import org.apache.abdera2.activities.model.objects.PersonObject;
 public class ExtendingBaseObjectExample {
 
   public static void main(String... args) throws Exception {
-    IO io = IO.get();
-    EventBuilder builder = 
-      EventObject.makeEvent("hangout");
-    // the extend method dynamically attaches a new interface
-    // to the object that can be used to specify extension
-    // properties in a typesafe manner
-    builder.extend(
-      AdditionalEventProperties.Builder.class)
-       .host(PersonObject.makePerson().displayName("James").get());
-    builder.attending(
-      Collection.makeCollection()
-        .item(
-           PersonObject
-             .makePerson()
-               .displayName("Joe")
-                 .get())
-                   .get());
-    io.write(builder.get(),System.out,"UTF-8");
+    makeEvent("hangout")
+      .extend(    // dynamically extend the builder using the specified interface...
+        AdditionalEventProperties.Builder.class)
+          .host(makePerson("James").get())
+          .performers(makePerson("Bob").get())
+          .<EventBuilder>unwrap()
+          .attending(
+            makeCollection()
+              .item(makePerson("Joe").get())
+            .get()).get().writeTo(
+              IO.get(),
+              System.out,
+              "UTF-8");
   }
   
 }

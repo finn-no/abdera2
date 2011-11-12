@@ -29,6 +29,7 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
@@ -126,7 +127,8 @@ public final class HashHelper {
     }
   }
   
-  public static abstract class Hasher 
+  public static abstract class Hasher
+    extends AbstractSelector<String>
     implements Supplier<String> {
     public <T extends Hasher>T update(byte[] buf) {
       update(buf,0,buf.length);
@@ -139,6 +141,11 @@ public final class HashHelper {
     }
     public String name() {
       return getClass().getSimpleName().toLowerCase();
+    }
+    // checks to see if the passed in hash matches this one
+    public boolean select(Object check) {
+      if (check == null) return false;
+      return get().equalsIgnoreCase(check.toString());
     }
   }
     

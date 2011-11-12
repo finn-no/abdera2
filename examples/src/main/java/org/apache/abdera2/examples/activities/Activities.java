@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import static org.apache.abdera2.activities.model.Verb.FOLLOW;
@@ -12,15 +13,24 @@ import static org.apache.abdera2.activities.model.objects.PersonObject.makePerso
 
 public class Activities {
 
+  
+  // The IO class is the main component for parsing/serializing
+  // acivity streams objects. They are immutable and threadsafe
+  // and can be safely set within a static final variable. 
+  // 
+  // Each IO Instance has it's own configuration of type adapters
+  // and property registrations that tell the deserializer how
+  // to interpret the input data. A single application can 
+  // utilize many individual IO instances if necessary, but 
+  // for most applications, one is all you'll ever actually need
+  private static final IO io = IO.get();
+  
+  
   public static void main(String... args) throws Exception {
-    
-    // Simple Activities Example
-    IO io = IO.get();
-    
     
     // A simple fluent factory model can be used to create 
     // activities and their associated objects... several
-    // of the methods here are statically imported so be
+    // of the methods used here are statically imported so be
     // sure to take a look at the import statements at 
     // the top of the class to see where various bits are 
     // coming from.
@@ -31,15 +41,11 @@ public class Activities {
     // once created
     Activity activity = 
       makeActivity()
-        .actor(
-          makePerson()
-            .displayName("James")
-            .get())
+        .actor(makePerson("James").get())
         .verb(FOLLOW)
         .object(
-          makePerson()
+          makePerson("John Doe")
             .email("john.doe@example.org")
-            .displayName("John Doe")
             .get())
         .get();
     

@@ -18,7 +18,8 @@
 package org.apache.abdera2.activities.model.objects;
 
 import org.apache.abdera2.activities.model.ASObject;
-
+import org.apache.abdera2.activities.extra.Extra.ExtensionObject;
+import org.apache.abdera2.activities.extra.Extra.ExtensionBuilder;
 /**
  * Additional extension properties for the EventObject...
  * attach this interface to an EventObject using the 
@@ -29,14 +30,16 @@ import org.apache.abdera2.activities.model.ASObject;
  * avp.setOffers(...);
  * ...
  */
-public interface AdditionalEventProperties {
+public interface AdditionalEventProperties
+  extends ExtensionObject {
   <T extends ASObject>T getHost();
   <T extends ASObject>T getOffers();
   <T extends ASObject>T getSubEvents();
   <T extends ASObject>T getSuperEvent();
   <T extends ASObject>T getPerformers();
   
-  public static interface Builder {
+  public static interface Builder
+    extends ExtensionBuilder {
     Builder host(ASObject host);
     Builder offers(ASObject offers);
     Builder subEvents(ASObject subEvents);
