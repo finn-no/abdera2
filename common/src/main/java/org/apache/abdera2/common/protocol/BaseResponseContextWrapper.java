@@ -305,10 +305,6 @@ public class BaseResponseContextWrapper implements ResponseContext {
     public Iterable<Preference> getPrefer() {
       return response.getPrefer();
     }
-    
-    public Iterable<Preference> getPreferApplied() {
-      return response.getPreferApplied();
-    }
 
     public <T extends ResponseContext> T setWebLinks(WebLink link,
         WebLink... links) {
@@ -319,12 +315,6 @@ public class BaseResponseContextWrapper implements ResponseContext {
     public <T extends ResponseContext> T setPrefer(Preference pref,
         Preference... prefs) {
       response.setPrefer(pref, prefs);
-      return (T)this;
-    }
-
-    public <T extends ResponseContext> T setPreferApplied(Preference pref,
-        Preference... prefs) {
-      response.setPreferApplied(pref, prefs);
       return (T)this;
     }
 

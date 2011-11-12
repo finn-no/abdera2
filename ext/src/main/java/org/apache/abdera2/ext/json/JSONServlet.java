@@ -67,30 +67,31 @@ public class JSONServlet extends HttpServlet {
 
         Abdera abdera = getAbdera();
         AbderaClient client = new AbderaClient(abdera);
-        RequestOptions options = RequestHelper.createDefaultRequestOptions();
+        RequestOptions.Builder options = 
+          RequestHelper.createAtomDefaultRequestOptions();
         if (request.getHeader("If-Match") != null)
-            options.setIfMatch(request.getHeader("If-Match"));
+            options.ifMatch(request.getHeader("If-Match"));
         if (request.getHeader("If-None-Match") != null)
-            options.setIfNoneMatch(request.getHeader("If-None-Match"));
+            options.ifNoneMatch(request.getHeader("If-None-Match"));
         if (request.getHeader("If-Modified-Since") != null)
-            options.setIfNoneMatch(request.getHeader("If-Modified-Since"));
+            options.ifNoneMatch(request.getHeader("If-Modified-Since"));
         if (request.getHeader("If-Unmodified-Since") != null)
-            options.setIfNoneMatch(request.getHeader("If-Unmodified-Since"));
+            options.ifNoneMatch(request.getHeader("If-Unmodified-Since"));
         try {
-            Document<?> doc = client.get(url);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            if (doc.getEntityTag() != null)
-                response.setHeader("ETag", doc.getEntityTag().toString());
-            if (doc.getLanguage() != null)
-                response.setHeader("Content-Language", doc.getLanguage());
-            if (doc.getLastModified() != null)
-                response.setDateHeader("Last-Modified", doc.getLastModified().getMillis());
-            OutputStream out = response.getOutputStream();
-            doc.writeTo("json", out);
+          Document<?> doc = client.get(url,options.get());
+          response.setContentType("application/json");
+          response.setCharacterEncoding("UTF-8");
+          if (doc.getEntityTag() != null)
+            response.setHeader("ETag", doc.getEntityTag().toString());
+          if (doc.getLanguage() != null)
+            response.setHeader("Content-Language", doc.getLanguage());
+          if (doc.getLastModified() != null)
+            response.setDateHeader("Last-Modified", doc.getLastModified().getMillis());
+          OutputStream out = response.getOutputStream();
+          doc.writeTo("json", out);
         } catch (Exception e) {
-            response.sendError(500);
-            return;
+          response.sendError(500);
+          return;
         }
         client.shutdown();
     }

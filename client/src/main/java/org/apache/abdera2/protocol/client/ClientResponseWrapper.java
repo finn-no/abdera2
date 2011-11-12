@@ -141,10 +141,6 @@ public class ClientResponseWrapper
     return internal.getPrefer();
   }
 
-  public Iterable<Preference> getPreferApplied() {
-    return internal.getPreferApplied();
-  }
-
   public Method getMethod() {
     return internal.getMethod();
   }

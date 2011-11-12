@@ -20,16 +20,17 @@ package org.apache.abdera2.protocol.client;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.abdera2.common.http.Method;
 import org.apache.abdera2.common.http.ResponseType;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.ProtocolException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.HttpClient;
@@ -45,6 +46,11 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * A client session. Session's MUST NOT be used by more
@@ -82,6 +88,25 @@ public class Session {
     public <T extends ClientResponse>T get(String uri, RequestOptions options) {
         return (T)wrap(execute("GET", uri, (HttpEntity)null, options));
     }
+    
+    public <T extends ClientResponse>Callable<T> getTask(
+      final String uri) {
+      return new Callable<T>() {
+        public T call() throws Exception {
+          return get(uri);
+        }
+      };
+    }
+    
+    public <T extends ClientResponse>Callable<T> getTask(
+      final String uri, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return get(uri,options);
+          }
+        };
+    }
 
     /**
      * Sends an HTTP POST request to the specified URI.
@@ -90,8 +115,32 @@ public class Session {
      * @param entity A RequestEntity object providing the payload of the request
      * @param options The request options
      */
-    public <T extends ClientResponse>T post(String uri, HttpEntity entity, RequestOptions options) {
-        return (T)wrap(execute("POST", uri, entity, options));
+    public <T extends ClientResponse>T post(
+      String uri, 
+      HttpEntity entity, 
+      RequestOptions options) {
+      return (T)wrap(execute("POST", uri, entity, options));
+    }
+    
+    public <T extends ClientResponse>Callable<T> postTask(
+      final String uri, 
+      final HttpEntity entity) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return post(uri,entity);
+          }
+        };
+    }
+    
+    public <T extends ClientResponse>Callable<T> postTask(
+      final String uri, 
+      final HttpEntity entity, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return post(uri,entity,options);
+          }
+        };
     }
 
     /**
@@ -103,6 +152,27 @@ public class Session {
      */
     public <T extends ClientResponse>T post(String uri, InputStream in, RequestOptions options) {
         return (T)wrap(execute("POST", uri, new InputStreamEntity(in,-1), options));
+    }
+    
+    public <T extends ClientResponse>Callable<T> postTask(
+      final String uri, 
+      final InputStream in) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return post(uri,in);
+          }
+        };
+    }
+    
+    public <T extends ClientResponse>Callable<T> postTask(
+      final String uri, 
+      final InputStream in, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return post(uri,in,options);
+          }
+        };
     }
 
     /**
@@ -116,6 +186,27 @@ public class Session {
         return (T)wrap(execute("PUT", uri, entity, options));
     }
 
+    public <T extends ClientResponse>Callable<T> putTask(
+      final String uri, 
+      final HttpEntity entity) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return put(uri,entity);
+          }
+        };
+    }
+    
+    public <T extends ClientResponse>Callable<T> putTask(
+      final String uri, 
+      final HttpEntity entity, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return put(uri,entity,options);
+          }
+        };
+    }
+
     /**
      * Sends an HTTP PUT request to the specified URI.
      * 
@@ -125,6 +216,27 @@ public class Session {
      */
     public <T extends ClientResponse>T put(String uri, InputStream in, RequestOptions options) {
         return (T)wrap(execute("PUT", uri, new InputStreamEntity(in,-1), options));
+    }
+    
+    public <T extends ClientResponse>Callable<T> putTask(
+        final String uri, 
+        final InputStream in) {
+          return new Callable<T>() {
+            public T call() throws Exception {
+              return put(uri,in);
+            }
+          };
+      }
+    
+    public <T extends ClientResponse>Callable<T> putTask(
+      final String uri, 
+      final InputStream in, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return put(uri,in,options);
+          }
+        };
     }
 
     /**
@@ -136,6 +248,25 @@ public class Session {
     public <T extends ClientResponse>T delete(String uri, RequestOptions options) {
         return (T)wrap(execute("DELETE", uri, (HttpEntity)null, options));
     }
+    
+    public <T extends ClientResponse>Callable<T> deleteTask(
+      final String uri) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return delete(uri);
+          }
+        };
+    }
+    
+    public <T extends ClientResponse>Callable<T> deleteTask(
+      final String uri,
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return delete(uri,options);
+          }
+        };
+    }
 
     /**
      * Sends an HTTP HEAD request to the specified URI using the default options
@@ -143,7 +274,26 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T head(String uri) {
-        return (T)wrap(head(uri, getDefaultRequestOptions()));
+        return (T)wrap(head(uri, getDefaultRequestOptions().get()));
+    }
+    
+    public <T extends ClientResponse>Callable<T> headTask(
+        final String uri) {
+          return new Callable<T>() {
+            public T call() throws Exception {
+              return head(uri);
+            }
+          };
+      }
+    
+    public <T extends ClientResponse>Callable<T> headTask(
+      final String uri,
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return head(uri,options);
+          }
+        };
     }
     
     /**
@@ -161,7 +311,7 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T get(String uri) {
-        return (T)wrap(get(uri, getDefaultRequestOptions()));
+        return (T)wrap(get(uri, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -171,7 +321,7 @@ public class Session {
      * @param entity A RequestEntity object providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, HttpEntity entity) {
-        return (T)wrap(post(uri, entity, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, entity, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -181,7 +331,7 @@ public class Session {
      * @param in An InputStream providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, InputStream in) {
-        return (T)wrap(post(uri, in, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, in, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -191,7 +341,7 @@ public class Session {
      * @param entity A RequestEntity object providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, HttpEntity entity) {
-        return (T)wrap(put(uri, entity, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, entity, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -201,7 +351,7 @@ public class Session {
      * @param in An InputStream providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, InputStream in) {
-        return (T)wrap(put(uri, in, getDefaultRequestOptions()));
+        return (T)wrap(put(uri, in, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -210,7 +360,7 @@ public class Session {
      * @param uri The request URI
      */
     public <T extends ClientResponse>T delete(String uri) {
-        return (T)wrap(delete(uri, getDefaultRequestOptions()));
+        return (T)wrap(delete(uri, getDefaultRequestOptions().get()));
     }
     
     /**
@@ -228,13 +378,25 @@ public class Session {
         InputStream in, 
         RequestOptions options) {
         if (options == null)
-          options = getDefaultRequestOptions();
+          options = getDefaultRequestOptions().get();
         InputStreamEntity re = 
           new InputStreamEntity(in, -1);
         re.setContentType(
           options.getContentType().toString());
         return (T)wrap(execute(
           method, uri, re, options));
+    }
+    
+    public <T extends ClientResponse>Callable<T> executeTask(
+      final String method, 
+      final String uri, 
+      final InputStream in, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return execute(method,uri,in,options);
+          }
+        };
     }
     
     /**
@@ -253,6 +415,18 @@ public class Session {
         RequestOptions options) {
         return (T)wrap(execute(method.name(),uri,in,options));
     }
+    
+    public <T extends ClientResponse>Callable<T> executeTask(
+      final Method method, 
+      final String uri, 
+      final InputStream in, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return execute(method,uri,in,options);
+          }
+        };
+    }
 
     public <T extends ClientResponse>T execute(
         Method method, 
@@ -260,6 +434,18 @@ public class Session {
         HttpEntity entity, 
         RequestOptions options) {
       return (T)wrap(execute(method.name(),uri,entity,options));
+    }
+    
+    public <T extends ClientResponse>Callable<T> executeTask(
+      final Method method, 
+      final String uri, 
+      final HttpEntity entity, 
+      final RequestOptions options) {
+        return new Callable<T>() {
+          public T call() throws Exception {
+            return execute(method,uri,entity,options);
+          }
+        };
     }
     
     /**
@@ -279,17 +465,18 @@ public class Session {
         options =
           options != null ? 
             options : 
-            getDefaultRequestOptions();
+            getDefaultRequestOptions()
+              .get();
         try {
-            HttpUriRequest request = 
-              RequestHelper.createRequest(
-                  method, uri, entity, options);
-            HttpResponse response = 
-              getClient().execute(request, localContext);
-            ClientResponse resp = 
-              wrap(new ClientResponseImpl(
-                this, response, method, localContext));
-            return (T)checkRequestException(resp, options);
+          HttpUriRequest request = 
+            RequestHelper.createRequest(
+                method, uri, entity, options);
+          HttpResponse response = 
+            getClient().execute(request, localContext);
+          ClientResponse resp = 
+            wrap(new ClientResponseImpl(
+              this, response, method, localContext));
+          return (T)checkRequestException(resp, options);
         } catch (RuntimeException r) {
             throw r;
         } catch (Throwable t) {
@@ -297,6 +484,18 @@ public class Session {
         }
     }
 
+    public <T extends ClientResponse>Callable<T> executeTask(
+      final String method, 
+      final String uri, 
+      final HttpEntity entity, 
+      final RequestOptions options) {
+       return new Callable<T>() {
+          public T call() throws Exception {
+            return execute(method,uri,entity,options);
+          }
+        };
+    }
+    
     protected <T extends ClientResponse>T checkRequestException(ClientResponse response, RequestOptions options) {
       if (response == null)
           return (T)response;
@@ -311,8 +510,8 @@ public class Session {
     /**
      * Get a copy of the default request options
      */
-    public RequestOptions getDefaultRequestOptions() {
-        return RequestHelper.createDefaultRequestOptions();
+    public RequestOptions.Builder getDefaultRequestOptions() {
+        return RequestHelper.createAtomDefaultRequestOptions();
     }
 
     public void usePreemptiveAuthentication(String target, String realm) throws URISyntaxException {
@@ -321,9 +520,9 @@ public class Session {
           String host = AuthScope.ANY_HOST;
           int port = AuthScope.ANY_PORT;
           if (target != null) {
-              URI uri = new URI(target);
-              host = uri.getHost();
-              port = uri.getPort();
+            URI uri = new URI(target);
+            host = uri.getHost();
+            port = uri.getPort();
           }
           BasicScheme basicAuth = new BasicScheme();
           HttpHost targetHost = 
@@ -334,22 +533,357 @@ public class Session {
         }
     }
     
-    public void doFormLogin(String uri, String userid, String password) {
-      doFormLogin(uri, "j_username", userid, "j_password", password);
+    public boolean doFormLogin(String uri, String userid, String password) {
+      return doFormLogin(uri, "j_username", userid, "j_password", password);
     }
     
-    public void doFormLogin(String uri, String userfield, String userid, String passfield, String password) {
+    public boolean doFormLogin(String uri, String userfield, String userid, String passfield, String password) {
       try {
         HttpPost httpost = new HttpPost(uri);
-        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-        nvps.add(new BasicNameValuePair(userfield, userid));
-        nvps.add(new BasicNameValuePair(passfield, password));
-        httpost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+        httpost.setEntity(
+          new UrlEncodedFormEntity(
+            ImmutableList.of(
+              new BasicNameValuePair(userfield,userid),
+              new BasicNameValuePair(passfield,password)
+            ),
+            HTTP.UTF_8));
         HttpResponse response = getClient().execute(httpost,localContext);
         HttpEntity entity = response.getEntity();
         EntityUtils.consume(entity);
+        ResponseType type = ResponseType.select(response.getStatusLine().getStatusCode());
+        return type == ResponseType.SUCCESSFUL;
       } catch (Throwable t) {
         throw new RuntimeException(t);
       }
+    }
+    
+  public static interface Listener<X extends ClientResponse> {
+    void onResponse(X resp);
+  }
+  
+  /**
+   * Processes requests asynchronously.. will return a Future
+   * whose value will be set once the call completes
+   */
+  public <X extends ClientResponse>Future<X> process(
+    ExecutorService executor, 
+    Callable<X> resp) {
+      ListeningExecutorService exec = 
+        MoreExecutors.listeningDecorator(executor);
+      return exec.submit(resp);
+  }
+  
+  /**
+   * Processes requests asynchronously.. the listener will
+   * be invoked once the call completes
+   */
+  public <X extends ClientResponse>void process(
+    ExecutorService executor, 
+    Callable<X> resp, 
+    final Listener<X> listener) {
+      ListeningExecutorService exec = MoreExecutors.listeningDecorator(executor);
+      final ListenableFuture<X> lf = exec.submit(resp);
+      lf.addListener(
+        new Runnable() {
+          public void run() {
+            try {
+              listener.onResponse(lf.get());
+            } catch (Throwable t) {
+              t.printStackTrace();
+              throw ExceptionHelper.propogate(t);
+            }
+          }
+        }, 
+        executor);
+  }
+  
+  public <T extends ClientResponse>void get(
+    String uri, 
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>getTask(uri),listener);
+  }
+  
+  public <T extends ClientResponse>void get(
+    String uri, 
+    RequestOptions options,
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>getTask(uri,options),listener);
+  }
+  
+  public <T extends ClientResponse>Future<T> get(
+    String uri, 
+    ExecutorService exec) {
+      return process(exec,this.<T>getTask(uri));
+  }
+  
+  public <T extends ClientResponse>Future<T> get(
+    String uri, 
+    RequestOptions options,
+    ExecutorService exec) {
+      return process(exec,this.<T>getTask(uri,options));
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    InputStream in,
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>postTask(uri,in),listener);
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    InputStream in,
+    RequestOptions options,
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>postTask(uri,in,options),listener);
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    InputStream in,
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,in));
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    InputStream in,
+    RequestOptions options,
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,in,options));
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    HttpEntity in,
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>postTask(uri,in),listener);
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    HttpEntity in,
+    RequestOptions options,
+    ExecutorService exec, 
+    Listener<T> listener) {
+    process(exec,this.<T>postTask(uri,in,options),listener);
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    HttpEntity in,
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,in));
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    HttpEntity in,
+    RequestOptions options,
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,in,options));
+  }
+
+
+  public <T extends ClientResponse>void put(
+      String uri, 
+      InputStream in,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,in),listener);
+    }
+    
+    public <T extends ClientResponse>void put(
+      String uri, 
+      InputStream in,
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> put(
+      String uri, 
+      InputStream in,
+      ExecutorService exec) {
+        return process(exec,this.<T>putTask(uri,in));
+    }
+    
+    public <T extends ClientResponse>Future<T> put(
+      String uri, 
+      InputStream in,
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>putTask(uri,in,options));
+    }
+    
+    public <T extends ClientResponse>void put(
+      String uri, 
+      HttpEntity in,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,in),listener);
+    }
+    
+    public <T extends ClientResponse>void put(
+      String uri, 
+      HttpEntity in,
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> put(
+      String uri, 
+      HttpEntity in,
+      ExecutorService exec) {
+        return process(exec,this.<T>putTask(uri,in));
+    }
+    
+    public <T extends ClientResponse>Future<T> put(
+      String uri, 
+      HttpEntity in,
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>putTask(uri,in,options));
+    }
+    
+    public <T extends ClientResponse>void delete(
+      String uri, 
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>deleteTask(uri),listener);
+    }
+    
+    public <T extends ClientResponse>void delete(
+      String uri, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>deleteTask(uri,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> delete(
+      String uri, 
+      ExecutorService exec) {
+        return process(exec,this.<T>deleteTask(uri));
+    }
+    
+    public <T extends ClientResponse>Future<T> delete(
+      String uri, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>deleteTask(uri,options));
+    }
+    
+    public <T extends ClientResponse>void head(
+      String uri, 
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>headTask(uri),listener);
+    }
+    
+    public <T extends ClientResponse>void head(
+      String uri, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>headTask(uri,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> head(
+      String uri, 
+      ExecutorService exec) {
+        return process(exec,this.<T>headTask(uri));
+    }
+    
+    public <T extends ClientResponse>Future<T> head(
+      String uri, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>headTask(uri,options));
+    }
+    
+    
+    public <T extends ClientResponse>void execute(
+      String method, 
+      String uri, 
+      InputStream in, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>executeTask(method,uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>void execute(
+      String method, 
+      String uri, 
+      HttpEntity in, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>executeTask(method,uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> execute(
+      String method, 
+      String uri, 
+      InputStream in, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>executeTask(method,uri,in,options));
+    }
+    
+    public <T extends ClientResponse>Future<T> execute(
+      String method, 
+      String uri, 
+      HttpEntity in, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>executeTask(method,uri,in,options));
+    }
+    
+    public <T extends ClientResponse>void execute(
+      Method method, 
+      String uri, 
+      InputStream in, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>executeTask(method,uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>void execute(
+      Method method, 
+      String uri, 
+      HttpEntity in, 
+      RequestOptions options,
+      ExecutorService exec, 
+      Listener<T> listener) {
+      process(exec,this.<T>executeTask(method,uri,in,options),listener);
+    }
+    
+    public <T extends ClientResponse>Future<T> execute(
+      Method method, 
+      String uri, 
+      InputStream in, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>executeTask(method,uri,in,options));
+    }
+    
+    public <T extends ClientResponse>Future<T> execute(
+      Method method, 
+      String uri, 
+      HttpEntity in, 
+      RequestOptions options,
+      ExecutorService exec) {
+        return process(exec,this.<T>executeTask(method,uri,in,options));
     }
 }

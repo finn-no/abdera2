@@ -56,7 +56,7 @@ public class ActivitiesClientPusher<T extends ASObject>
   public ActivitiesClientPusher(
     String iri, 
     ActivitiesSession session) {
-      this(iri,session,session.getDefaultRequestOptions());
+      this(iri,session,session.getDefaultRequestOptions().get());
   }
   
   public ActivitiesClientPusher(

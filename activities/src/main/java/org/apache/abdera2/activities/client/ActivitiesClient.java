@@ -49,14 +49,14 @@ public class ActivitiesClient
     return (T)new ActivitiesSession(this);
   }
 
-  public <T extends Collection<?>>ASDocument<T> getCollection(String uri) {
+  public <M extends ASObject,T extends Collection<M>>ASDocument<T> getCollection(String uri) {
     ActivitiesSession session = newSession();
-    return session.<T>getCollection(uri);
+    return session.<M,T>getCollection(uri);
   }
   
-  public <T extends Collection<?>>ASDocument<T> getCollection(String uri, RequestOptions options) {
+  public <M extends ASObject,T extends Collection<M>>ASDocument<T> getCollection(String uri, RequestOptions options) {
     ActivitiesSession session = newSession();
-    return session.<T>getCollection(uri,options);
+    return session.<M,T>getCollection(uri,options);
   }
   
   public <T extends Activity>ASDocument<T> getActivity(String uri) {

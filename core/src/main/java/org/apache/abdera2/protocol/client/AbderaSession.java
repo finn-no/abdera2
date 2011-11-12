@@ -77,11 +77,6 @@ public class AbderaSession extends Session {
      * @param options The request options
      */
     public <T extends ClientResponse>T post(String uri, Base base, RequestOptions options) {
-        if (base instanceof Document) {
-            Document<?> d = (Document<?>)base;
-            if (options.getSlug() == null && d.getSlug() != null)
-                options.setSlug(d.getSlug());
-        }
         return (T)wrap(execute("POST", uri, new AbderaEntity(base), options));
     }
 
@@ -95,7 +90,7 @@ public class AbderaSession extends Session {
      * @param media The media object that will be sent as the second element of the multipart/related object
      */
     public <T extends ClientResponse>T post(String uri, Entry entry, ContentBody media) {
-        return (T)wrap(post(uri, entry, media, getDefaultRequestOptions()));
+        return (T)wrap(post(uri, entry, media, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -133,20 +128,27 @@ public class AbderaSession extends Session {
      * @param provider An EntityProvider implementation providing the payload of the request
      * @param options The request options
      */
-    public <T extends ClientResponse>T put(String uri, EntityProvider provider, RequestOptions options) {
-        if (options == null)
-            options = getDefaultRequestOptions();
-        if (options.isConditionalPut()) {
-            EntityTag etag = provider.getEntityTag();
-            if (etag != null)
-                options.setIfMatch(etag);
-            else {
-                DateTime lm = provider.getLastModified();
-                if (lm != null)
-                    options.setIfUnmodifiedSince(lm);
-            }
+    public <T extends ClientResponse>T put(
+      String uri, 
+      EntityProvider provider, 
+      RequestOptions options) {
+      if (options == null)
+          options = getDefaultRequestOptions().get();
+      if (options.isConditionalPut() && 
+          !(options.has("If-Match") || 
+            options.has("If-Unmodified-Since"))) {
+        EntityTag etag = provider.getEntityTag();
+        RequestOptions.Builder builder = options.template();
+        if (etag != null)
+          builder.ifMatch(etag);
+        else {
+          DateTime lm = provider.getLastModified();
+          if (lm != null)
+            builder.ifUnmodifiedSince(lm);
         }
-        return (T)wrap(put(uri, new EntityProviderEntity(getAbdera(), provider), options));
+        options = builder.get();
+      }
+      return (T)wrap(put(uri, new EntityProviderEntity(getAbdera(), provider), options));
     }
 
     /**
@@ -158,18 +160,19 @@ public class AbderaSession extends Session {
      */
     public <T extends ClientResponse>T put(String uri, Base base, RequestOptions options) {
         if (options == null)
-            options = getDefaultRequestOptions();
+            options = getDefaultRequestOptions().get();
         if (base instanceof Document) {
-            Document<?> d = (Document<?>)base;
-            if (options.getSlug() == null && d.getSlug() != null)
-                options.setSlug(d.getSlug());
-
-            if (options.isConditionalPut()) {
-                if (d.getEntityTag() != null)
-                    options.setIfMatch(d.getEntityTag());
-                else if (d.getLastModified() != null)
-                    options.setIfUnmodifiedSince(d.getLastModified());
-            }
+          Document<?> d = (Document<?>) base;
+          if (options.isConditionalPut() && 
+              !(options.has("If-Match") || 
+                options.has("If-Unmodified-Since"))) {
+            RequestOptions.Builder builder = options.template();
+            if (d.getEntityTag() != null)
+              builder.ifMatch(d.getEntityTag());
+            else if (d.getLastModified() != null)
+              builder.ifUnmodifiedSince(d.getLastModified());
+            options = builder.get();
+          }
         }
         return (T)wrap(execute("PUT", uri, new AbderaEntity(base), options));
     }
@@ -181,7 +184,7 @@ public class AbderaSession extends Session {
      * @param provider An EntityProvider implementation providing the payload the request
      */
     public <T extends ClientResponse>T post(String uri, EntityProvider provider) {
-        return (T)wrap(post(uri, provider, getDefaultRequestOptions()));
+      return (T)wrap(post(uri, provider, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -191,7 +194,7 @@ public class AbderaSession extends Session {
      * @param base A FOM Document or Element providing the payload of the request
      */
     public <T extends ClientResponse>T post(String uri, Base base) {
-        return (T)wrap(post(uri, base, getDefaultRequestOptions()));
+      return (T)wrap(post(uri, base, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -201,7 +204,7 @@ public class AbderaSession extends Session {
      * @param provider An EntityProvider implementation providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, EntityProvider provider) {
-        return (T)wrap(put(uri, provider, getDefaultRequestOptions()));
+      return (T)wrap(put(uri, provider, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -211,7 +214,7 @@ public class AbderaSession extends Session {
      * @param base A FOM Document or Element providing the payload of the request
      */
     public <T extends ClientResponse>T put(String uri, Base base) {
-        return (T)wrap(put(uri, base, getDefaultRequestOptions()));
+      return (T)wrap(put(uri, base, getDefaultRequestOptions().get()));
     }
 
     /**
@@ -270,7 +273,7 @@ public class AbderaSession extends Session {
         EntityProvider provider, 
         RequestOptions options) {
         if (options == null)
-            options = getDefaultRequestOptions();
+            options = getDefaultRequestOptions().get();
         return (T)wrap(execute(
             method, 
             uri, 

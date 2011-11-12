@@ -383,56 +383,41 @@ public class AppTest {
     public void testRequestOptions() throws Exception {
         Client abderaClient = new BasicClient();
         Session session = abderaClient.newSession();
-        RequestOptions options = session.getDefaultRequestOptions();
-        options.setIfModifiedSince(DateTimes.now());
-        assertNotNull(options.getIfModifiedSince());
+        RequestOptions options = 
+          session.getDefaultRequestOptions()
+            .ifModifiedSinceNow()
+            .requestException4xx()
+            .requestException5xx()
+            .usePostOverride()
+            .accept("text/plain")
+            .acceptCharset("UTF-8")
+            .acceptEncoding("gzip")
+            .acceptLanguage("en-US")
+            .cacheControl("no-cache")
+            .contentType("text/plain")
+            .encodedHeader("foo", "UTF-8", "bar")
+            .header("foo", "bar")
+            .ifMatch("testing")
+            .ifNoneMatch("testing")
+            .slug("This is the slug")
+            .get();
 
-        options.set4xxRequestException(true);
-        assertTrue(options.is4xxRequestException());
-
-        options.set5xxRequestException(true);
-        assertTrue(options.is5xxRequestException());
-
-        options.setAccept("text/plain");
-        assertEquals("text/plain", options.getAccept());
-
-        options.setAcceptCharset("UTF-8");
-        assertEquals("UTF-8", options.getAcceptCharset());
-
-        options.setAcceptEncoding("gzip");
-        assertEquals("gzip", options.getAcceptEncoding());
-
-        options.setAcceptLanguage("en-US");
-        assertEquals("en-US", options.getAcceptLanguage());
-
-//        options.setAuthorization("auth");
-//        assertEquals("auth", options.getAuthorization());
-
-        options.setCacheControl("no-cache");
+        assertTrue(options.isUsePostOverride());
+        assertEquals("This is the slug", options.getSlug());
+        assertTrue(EntityTag.matchesAny(new EntityTag("testing"), options.getIfNoneMatch()));
+        assertTrue(EntityTag.matchesAny(new EntityTag("testing"), options.getIfMatch()));
+        assertEquals("bar", options.getHeader("foo"));
+        assertEquals("bar", options.getDecodedHeader("foo"));
+        assertTrue(MimeTypeHelper.isMatch(options.getContentType(), new MimeType("text/plain")));
         CacheControl cc = options.getCacheControl();
         assertTrue(cc.isNoCache());
-
-        options.setContentType("text/plain");
-        assertTrue(MimeTypeHelper.isMatch(options.getContentType(), new MimeType("text/plain")));
-
-        options.setEncodedHeader("foo", "UTF-8", "bar");
-        assertEquals("bar", options.getDecodedHeader("foo"));
-
-        options.setHeader("foo", "bar");
-        assertEquals("bar", options.getHeader("foo"));
-
-        options.setIfMatch("testing");
-        assertTrue(EntityTag.matchesAny(new EntityTag("testing"), options.getIfMatch()));
-
-        options.setIfNoneMatch("testing");
-        assertTrue(EntityTag.matchesAny(new EntityTag("testing"), options.getIfNoneMatch()));
-
-        options.setSlug("This is the slug");
-        assertEquals("This is the slug", options.getSlug());
-
-        options.setUsePostOverride(true);
-        assertTrue(options.isUsePostOverride());
-        
+        assertEquals("en-US", options.getAcceptLanguage());
+        assertEquals("gzip", options.getAcceptEncoding());
+        assertEquals("UTF-8", options.getAcceptCharset());
+        assertEquals("text/plain", options.getAccept());
+        assertNotNull(options.getIfModifiedSince());
+        assertTrue(options.is4xxRequestException());
+        assertTrue(options.is5xxRequestException());
         abderaClient.shutdown();
     }
 
@@ -441,10 +426,11 @@ public class AppTest {
         AbderaClient abderaClient = new AbderaClient();
         AbderaSession session = (AbderaSession) abderaClient.newSession();
         Entry entry = getFactory().newEntry();
-        RequestOptions options = session.getDefaultRequestOptions();
-        options.setHeader("Connection", "close");
-        options.setUseExpectContinue(false);
-
+        RequestOptions options = 
+          session.getDefaultRequestOptions()
+            .header("Connection", "close")
+            .doNotUseExpectContinue()
+            .get();
         // do the introspection step
         AbderaClientResponse response = 
           (AbderaClientResponse) session.get(
@@ -564,10 +550,11 @@ public class AppTest {
         // Now let's try to do a media post
 
         // Post the media resource
-        options = session.getDefaultRequestOptions();
-        options.setContentType("text/plain");
-        options.setHeader("Connection", "close");
-        options.setUseExpectContinue(false);
+        options = session.getDefaultRequestOptions()
+          .contentType("text/plain")
+          .header("Connection", "close")
+          .doNotUseExpectContinue()
+          .get();
 
         response = (AbderaClientResponse) session.post(col_uri, new ByteArrayInputStream("test".getBytes()), options);
 
@@ -582,8 +569,8 @@ public class AppTest {
         }
 
         // was an entry created?
-        options = session.getDefaultRequestOptions();
-        options.setHeader("Connection", "close");
+        options = session.getDefaultRequestOptions()
+          .header("Connection", "close").get();
         response = (AbderaClientResponse) session.get(self_uri, options);
 
         String edit_media, media;
@@ -609,10 +596,10 @@ public class AppTest {
         }
 
         // submit the changes
-        options = session.getDefaultRequestOptions();
-        options.setContentType("application/atom+xml;type=entry");
-        options.setHeader("Connection", "close");
-        options.setUseExpectContinue(false);
+        options = session.getDefaultRequestOptions()
+          .contentType("application/atom+xml;type=entry")
+          .header("Connection", "close")
+          .doNotUseExpectContinue().get();
 
         response = (AbderaClientResponse) session.put(edit_uri, entry, options);
 
@@ -635,10 +622,11 @@ public class AppTest {
         }
 
         // edit the media resource
-        options = session.getDefaultRequestOptions();
-        options.setHeader("Connection", "close");
-        options.setContentType("text/plain");
-        options.setUseExpectContinue(false);
+        options = session.getDefaultRequestOptions()
+          .header("Connection", "close")
+          .contentType("text/plain")
+          .doNotUseExpectContinue()
+          .get();
 
         response = (AbderaClientResponse) session.put(edit_media, new ByteArrayInputStream("TEST".getBytes()), options);
 
@@ -679,7 +667,7 @@ public class AppTest {
         }
 
         // is the media resource gone?
-        options.setCacheControl(CacheControl.NOCACHE());
+        options = options.template().cacheControl(CacheControl.NOCACHE()).get();
 
         response = (AbderaClientResponse) session.get(media, options);
 

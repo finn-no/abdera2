@@ -111,15 +111,5 @@ public abstract class AbstractMessage
       }
       return links;
     }
-    
-    public Iterable<Preference> getPreferApplied() {
-      List<Preference> links = new ArrayList<Preference>();
-      Iterable<Object> headers = this.getHeaders("Preference-Applied");
-      for (Object obj : headers) {
-        Iterable<Preference> list = Preference.parse(obj.toString());
-        for (Preference link : list)
-          links.add(link);
-      }
-      return links;
-    }
+
 }

@@ -138,8 +138,8 @@ public final class OAuth2Helper {
   public static ASBase getToken(Session session, String uri, String payload) throws IOException {
     ASBase token = null;
     RequestOptions options = 
-      session.getDefaultRequestOptions();
-    options.setContentType("application/x-www-form-urlencoded");
+      session.getDefaultRequestOptions()
+      .contentType("application/x-www-form-urlencoded").get();
     ClientResponse resp = 
       session.post(
         uri, 

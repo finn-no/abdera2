@@ -109,8 +109,4 @@ public interface Message {
      */
     Iterable<Preference> getPrefer();
     
-    /**
-     * Return the Applied Preferences
-     */
-    Iterable<Preference> getPreferApplied();
 }

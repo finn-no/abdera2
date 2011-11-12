@@ -449,7 +449,7 @@ public final class FeedPagingHelper {
     private static <E extends Element>Document<E> fetch(IRI iri, AbderaSession session) {
       if (iri == null) return null;
       PageFetch<E> fetch = new PageFetch<E>(iri.toString(), session);
-      return fetch.apply(session.getDefaultRequestOptions());
+      return fetch.apply(session.getDefaultRequestOptions().get());
     }
     
     public static class PageFetch<E extends Element>

@@ -210,6 +210,5 @@ public interface ResponseContext extends Response {
     <B extends ResponseContext>B setWebLinks(WebLink link, WebLink... links);
     
     <B extends ResponseContext>B setPrefer(Preference pref, Preference... prefs);
-    
-    <B extends ResponseContext>B setPreferApplied(Preference pref, Preference... prefs);
+
 }

@@ -17,6 +17,10 @@
  */
 package org.apache.abdera2.activities.client;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import javax.activation.MimeType;
 
 import org.apache.abdera2.activities.model.ASBase;
@@ -29,6 +33,7 @@ import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.protocol.ProtocolException;
 import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.protocol.client.ClientResponse;
+import org.apache.abdera2.protocol.client.RequestHelper;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 import org.joda.time.DateTime;
@@ -41,11 +46,10 @@ import org.joda.time.DateTime;
 public class ActivitiesSession 
   extends Session {
 
-  private final IO io;
+  private static final IO io = IO.get();
   
   protected ActivitiesSession(Client client) {
     super(client);
-    this.io = IO.get();
   }
 
   public IO getIO() {
@@ -56,21 +60,63 @@ public class ActivitiesSession
     return (ActivitiesClient) client;
   }
 
-  public <T extends Collection<?>>ASDocument<T> getCollection(String uri) {
-    return this.<T>getCollection(uri, this.getDefaultRequestOptions());
+  public <M extends ASObject,T extends Collection<M>>ASDocument<T> getCollection(String uri) {
+    return this.<M,T>getCollection(uri, this.getDefaultRequestOptions().get());
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base) {
-    return this.<T>post(uri,base, this.getDefaultRequestOptions());
+    return this.<T>post(uri,base, this.getDefaultRequestOptions().get());
+  }
+  
+  public <T extends ClientResponse>Callable<T> postTask(
+    final String uri, 
+    final ASBase base) {
+    return new Callable<T>() {
+      public T call() throws Exception {
+        return post(uri,base);
+      }
+    };
+  }
+  
+  public <T extends ClientResponse>Callable<T> postTask(
+    final String uri, 
+    final ASBase base,
+    final RequestOptions options) {
+    return new Callable<T>() {
+      public T call() throws Exception {
+        return post(uri,base,options);
+      }
+    };
   }
   
   public <T extends ClientResponse>T post(String uri, ASBase base, RequestOptions options) {
     ActivityEntity entity = new ActivityEntity(base);
     return this.<T>post(uri, entity, options);
   }
+  
+  public <T extends ClientResponse>Callable<T> putTask(
+    final String uri, 
+    final ASBase base) {
+    return new Callable<T>() {
+      public T call() throws Exception {
+        return put(uri,base);
+      }
+    };
+  }
+  
+  public <T extends ClientResponse>Callable<T> putTask(
+    final String uri, 
+    final ASBase base,
+    final RequestOptions options) {
+    return new Callable<T>() {
+      public T call() throws Exception {
+        return put(uri,base,options);
+      }
+    };
+  }
 
   public <T extends ClientResponse>T put(String uri, ASBase base) {
-    return this.<T>put(uri,base, this.getDefaultRequestOptions());
+    return this.<T>put(uri,base, this.getDefaultRequestOptions().get());
   }
   
   public <T extends ClientResponse>T put(String uri, ASBase base, RequestOptions options) {
@@ -78,8 +124,31 @@ public class ActivitiesSession
     return this.<T>put(uri, entity, options);
   }
   
-  public <T extends Collection<?>>ASDocument<T> getCollection(String uri, RequestOptions options) {
-    ClientResponse cr = get(uri, options);
+  public <M extends ASObject,T extends Collection<M>>Callable<ASDocument<T>> getCollectionTask(final String uri) {
+    final ActivitiesSession session = this;
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return session.<M,T>getCollection(uri);
+      }
+    };
+  }
+  
+  public <M extends ASObject, T extends Collection<M>>Callable<ASDocument<T>> getCollectionTask(
+    final String uri, 
+    final RequestOptions options) {
+    final ActivitiesSession session = this;
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return session.<M,T>getCollection(uri,options);
+      }
+    };
+  }
+  
+  public <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollection(String uri, RequestOptions options) {
+    return ActivitiesSession.<M,T>getCollectionFromResp(get(uri, options));
+  }
+  
+  static <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollectionFromResp(ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -101,12 +170,33 @@ public class ActivitiesSession
     }
   }
   
+  public <T extends Activity>Callable<ASDocument<T>> getActivityTask(final String uri) {
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return getActivity(uri);
+      }
+    };
+  }
+  
+  public <T extends Activity>Callable<ASDocument<T>> getActivityTask(
+    final String uri, 
+    final RequestOptions options) {
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return getActivity(uri,options);
+      }
+    };
+  }
+  
   public <T extends Activity>ASDocument<T> getActivity(String uri) {
-    return this.<T>getActivity(uri,this.getDefaultRequestOptions());
+    return this.<T>getActivity(uri,this.getDefaultRequestOptions().get());
   }
   
   public <T extends Activity>ASDocument<T> getActivity(String uri, RequestOptions options) {
-    ClientResponse cr = get(uri, options);
+    return getActivityFromResponse(get(uri, options));
+  }
+  
+  static <T extends Activity>ASDocument<T> getActivityFromResponse(ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -128,12 +218,33 @@ public class ActivitiesSession
     }
   }
   
+  public <T extends ASObject>Callable<ASDocument<T>> getObjectTask(final String uri) {
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return getObject(uri);
+      }
+    };
+  }
+  
+  public <T extends ASObject>Callable<ASDocument<T>> getObjectTask(
+    final String uri, 
+    final RequestOptions options) {
+    return new Callable<ASDocument<T>>() {
+      public ASDocument<T> call() throws Exception {
+        return getObject(uri,options);
+      }
+    };
+  }
+  
   public <T extends ASObject>ASDocument<T> getObject(String uri) {
-    return this.<T>getObject(uri, this.getDefaultRequestOptions());
+    return this.<T>getObject(uri, this.getDefaultRequestOptions().get());
   }
 
   public <T extends ASObject>ASDocument<T> getObject(String uri, RequestOptions options) {
-    ClientResponse cr = get(uri, options);
+    return getObjectFromResponse(get(uri, options));
+  }
+  
+  static <T extends ASObject>ASDocument<T> getObjectFromResponse(ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -155,7 +266,7 @@ public class ActivitiesSession
     }
   }
   
-  private <T extends ASBase>ASDocument<T> getDoc(ClientResponse resp, T base) {
+  private static <T extends ASBase>ASDocument<T> getDoc(ClientResponse resp, T base) {
     ASDocument.Builder<T> builder = 
       ASDocument.make(base);
     EntityTag etag = resp.getEntityTag();
@@ -174,5 +285,111 @@ public class ActivitiesSession
     if (slug != null)
         builder.slug(slug);
     return builder.get();
+  }
+  
+  public RequestOptions.Builder getDefaultRequestOptions() {
+    return RequestHelper.createActivitiesDefaultRequestOptions();
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    ASBase base, 
+    ExecutorService exec, 
+    Listener<T> listener) {
+      process(exec,this.<T>postTask(uri,base),listener);
+  }
+  
+  public <T extends ClientResponse>void post(
+    String uri, 
+    ASBase base, 
+    RequestOptions options,
+    ExecutorService exec, 
+    Listener<T> listener) {
+      process(exec,this.<T>postTask(uri,base,options),listener);
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    ASBase base, 
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,base));
+  }
+  
+  public <T extends ClientResponse>Future<T> post(
+    String uri, 
+    ASBase base, 
+    RequestOptions options,
+    ExecutorService exec) {
+      return process(exec,this.<T>postTask(uri,base,options));
+  }
+  
+  public <T extends ClientResponse>void put(
+    String uri, 
+    ASBase base, 
+    ExecutorService exec, 
+    Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,base),listener);
+  }
+  
+  public <T extends ClientResponse>void put(
+    String uri, 
+    ASBase base, 
+    RequestOptions options,
+    ExecutorService exec, 
+    Listener<T> listener) {
+      process(exec,this.<T>putTask(uri,base,options),listener);
+  }
+  
+  public <T extends ClientResponse>Future<T> put(
+    String uri, 
+    ASBase base, 
+    ExecutorService exec) {
+      return process(exec,this.<T>putTask(uri,base));
+  }
+  
+  public <T extends ClientResponse>Future<T> put(
+    String uri, 
+    ASBase base, 
+    RequestOptions options,
+    ExecutorService exec) {
+      return process(exec,this.<T>putTask(uri,base,options));
+  }
+
+  static abstract class ASListener<T extends ClientResponse, X extends ASBase> 
+    implements Listener<T> {
+      protected abstract void onResponse(ASDocument<X> doc);
+  }
+  
+  public static abstract class CollectionListener<T extends ClientResponse,X extends ASObject> 
+    extends ASListener<T,Collection<X>> {
+    public void onResponse(T resp) {
+      onResponse(ActivitiesSession.<X,Collection<X>>getCollectionFromResp(resp));
+    }
+  }
+  
+  public static abstract class SimpleActivityCollectionListener 
+    extends CollectionListener<ClientResponse,Activity>{}
+  
+  public static abstract class SimpleObjectCollectionListener 
+    extends CollectionListener<ClientResponse,ASObject>{}
+  
+  public static abstract class SimpleActivityListener 
+    extends ActivityListener<ClientResponse,Activity>{}
+  
+  public static abstract class SimpleObjectListener 
+    extends ObjectListener<ClientResponse,ASObject>{}
+  
+  public static abstract class ActivityListener<T extends ClientResponse,X extends Activity> 
+    extends ASListener<T,X> {
+    public void onResponse(T resp) {
+      onResponse(ActivitiesSession.<X>getActivityFromResponse(resp));
+    }
+  }
+  
+  public static abstract class ObjectListener<T extends ClientResponse,X extends ASObject> 
+    extends ASListener<T,X> {
+    public void onResponse(T resp) {
+      onResponse(ActivitiesSession.<X>getObjectFromResponse(resp));
+    }
   }
 }

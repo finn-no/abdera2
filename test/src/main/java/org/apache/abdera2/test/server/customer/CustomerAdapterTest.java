@@ -40,7 +40,6 @@ import org.apache.abdera2.model.Workspace;
 import org.apache.abdera2.protocol.client.AbderaClient;
 import org.apache.abdera2.protocol.client.AbderaClientResponse;
 import org.apache.abdera2.protocol.client.AbderaSession;
-import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.server.AtompubProvider;
 import org.apache.abdera2.protocol.server.impl.DefaultAtompubProvider;
 import org.apache.abdera2.protocol.server.impl.SimpleWorkspaceInfo;
@@ -56,7 +55,7 @@ import org.junit.Test;
 
 public class CustomerAdapterTest {
 
-    private DefaultAtompubProvider customerProvider;
+    DefaultAtompubProvider customerProvider;
 
     private void setupAbdera(String base) throws Exception {
         customerProvider = new DefaultAtompubProvider(base);
@@ -137,9 +136,12 @@ public class CustomerAdapterTest {
         customerEl.setAttributeValue(new QName("name"), "Dan Diephouse");
         entry.setContent(customerEl);
 
-        RequestOptions opts = new RequestOptions();
-        opts.setContentType("application/atom+xml;type=entry");
-        res = (AbderaClientResponse) session.post(colUri.toString() + "?test=foo", entry, opts);
+        res = (AbderaClientResponse) session.post(
+          colUri.toString() + "?test=foo", 
+          entry,
+          session.getDefaultRequestOptions()
+            .contentType("application/atom+xml;type=entry")
+            .get());
         assertEquals(201, res.getStatus());
 
         // prettyPrint(abdera, res.getDocument());

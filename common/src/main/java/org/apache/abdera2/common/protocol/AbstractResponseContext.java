@@ -291,8 +291,5 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
     public <T extends ResponseContext>T setPrefer(Preference pref, Preference... prefs) {
       return (T)setHeader("Prefer", Preference.toString(pref,prefs));
     }
-    
-    public <T extends ResponseContext>T setPreferApplied(Preference pref, Preference... prefs) {
-      return (T)setHeader("Preference-Applied", Preference.toString(pref,prefs));
-    }
+
 }

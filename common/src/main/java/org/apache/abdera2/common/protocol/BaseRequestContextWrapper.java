@@ -245,10 +245,6 @@ public class BaseRequestContextWrapper
       return request.getPrefer();
     }
     
-    public Iterable<Preference> getPreferApplied() {
-      return request.getPreferApplied();
-    }
-
     public <T> T getHeader(String name, Function<String, T> transform) {
       return request.getHeader(name,transform);
     }

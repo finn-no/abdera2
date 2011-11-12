@@ -26,7 +26,7 @@ public class GooglePlusExample   {
       new ActivitiesClient();
     try {
       ASDocument<Collection<Activity>> doc = 
-        cl.getCollection(
+        cl.<Activity,Collection<Activity>>getCollection(
           expandAnnotated(
             new GooglePlusExample()));
       Collection<Activity> c = doc.getRoot();

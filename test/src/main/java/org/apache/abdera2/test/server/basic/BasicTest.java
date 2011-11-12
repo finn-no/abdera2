@@ -36,7 +36,6 @@ import org.apache.abdera2.protocol.client.AbderaClient;
 import org.apache.abdera2.protocol.client.AbderaClientResponse;
 import org.apache.abdera2.protocol.client.AbderaSession;
 import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 import org.apache.abdera2.test.server.JettyServer;
 import org.apache.abdera2.common.Constants;
@@ -126,9 +125,10 @@ public class BasicTest {
     public void testPostMedia() {
         Session session = client.newSession();
         ByteArrayInputStream in = new ByteArrayInputStream(new byte[] {0x01, 0x02, 0x03, 0x04});
-        RequestOptions options = session.getDefaultRequestOptions();
-        options.setContentType("application/octet-stream");
-        ClientResponse resp = session.post("http://localhost:9002/sample", in, options);
+        ClientResponse resp = session.post(
+          "http://localhost:9002/sample", 
+          in, session.getDefaultRequestOptions()
+            .contentType("application/octet-stream").get());
         assertEquals(ResponseType.CLIENT_ERROR, resp.getType());
         assertEquals(405, resp.getStatus());
         resp.release();

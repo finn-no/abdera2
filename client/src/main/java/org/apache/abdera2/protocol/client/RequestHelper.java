@@ -47,10 +47,21 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
+import com.google.common.collect.ImmutableSet;
+
 public final class RequestHelper {
 
     private RequestHelper() {}
-  
+     
+    // the set of methods we never use post-override for
+    private static final ImmutableSet<Method> nopostoveride = 
+      ImmutableSet.of(
+        Method.GET,
+        Method.POST,
+        Method.OPTIONS,
+        Method.HEAD,
+        Method.TRACE);
+    
     public static HttpUriRequest createRequest(
       String method, 
       String uri, 
@@ -59,22 +70,18 @@ public final class RequestHelper {
         if (method == null)
             return null;
         if (options == null)
-          options = createDefaultRequestOptions();
+          options = createAtomDefaultRequestOptions().get();
         Method m = Method.get(method);
         Method actual = null;
         HttpUriRequest httpMethod = null;
-        if (options.isUsePostOverride()) {
-            if (m.equals(Method.PUT)) {
-                actual = m;
-            } else if (m.equals(Method.DELETE)) {
-                actual = m;
-            }
-            if (actual != null)
-                m = Method.POST;
+        if (options.isUsePostOverride() && 
+            !nopostoveride.contains(m)) {
+          actual = m;
+          m = Method.POST;
         }
-        if (m == GET) {
+        if (m == GET)
           httpMethod = new HttpGet(uri);
-        } else if (m == POST) {
+        else if (m == POST) {
           httpMethod = new HttpPost(uri);
           if (entity != null) 
             ((HttpPost)httpMethod).setEntity(entity);
@@ -82,19 +89,18 @@ public final class RequestHelper {
           httpMethod = new HttpPut(uri);
           if (entity != null)
             ((HttpPut)httpMethod).setEntity(entity);
-        } else if (m == DELETE) {
+        } else if (m == DELETE)
           httpMethod = new HttpDelete(uri);
-        } else if (m == HEAD) {
+        else if (m == HEAD)
           httpMethod = new HttpHead(uri);
-        } else if (m == OPTIONS) {
+        else if (m == OPTIONS)
           httpMethod = new HttpOptions(uri);
-        } else if (m == TRACE) {
+        else if (m == TRACE)
           httpMethod = new HttpTrace(uri);
-        } else if (m == PATCH) {
+        else if (m == PATCH)
           httpMethod = new ExtensionRequest(m.name(),uri,entity);
-        } else {
+        else
           httpMethod = new ExtensionRequest(m.name(),uri,entity);
-        }
         if (actual != null) {
             httpMethod.addHeader("X-HTTP-Method-Override", actual.name());
         }
@@ -103,10 +109,11 @@ public final class RequestHelper {
         HttpParams params = httpMethod.getParams();
         if (!options.isUseExpectContinue())
           params.setBooleanParameter(
-              CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
+            CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
         if (!(httpMethod instanceof HttpEntityEnclosingRequest))
             params.setBooleanParameter(
-              ClientPNames.HANDLE_REDIRECTS, options.isFollowRedirects()); 
+              ClientPNames.HANDLE_REDIRECTS, 
+              options.isFollowRedirects()); 
         return httpMethod;
     }
 
@@ -114,9 +121,8 @@ public final class RequestHelper {
         Iterable<String> headers = options.getHeaderNames();
         for (String header : headers) {
             Iterable<Object> values = options.getHeaders(header);
-            for (Object value : values) {
+            for (Object value : values)
                 request.addHeader(header, value.toString());
-            }
         }
         CacheControl cc = options.getCacheControl();
         if (cc != null) { 
@@ -148,18 +154,29 @@ public final class RequestHelper {
       
     }
     
-    public static RequestOptions createDefaultRequestOptions() {
-        RequestOptions options = new RequestOptions();
-        options.setAcceptEncoding("gzip", "deflate");
-        options.setAccept("application/atom+xml;type=entry",
-                          "application/atom+xml;type=feed",
-                          "application/atom+xml",
-                          "application/atomsvc+xml",
-                          "application/atomcat+xml",
-                          "application/xml;q=0.5",
-                          "text/xml;q=0.5",
-                          "*/*;q=0.01");
-        options.setAcceptCharset("utf-8", "*;q=0.5");
-        return options;
+    public static RequestOptions.Builder createAtomDefaultRequestOptions() {
+      return RequestOptions.make()
+        .acceptEncoding("gzip", "deflate")
+        .accept(
+          "application/atom+xml;type=entry",
+          "application/atom+xml;type=feed",
+          "application/atom+xml",
+          "application/atomsvc+xml",
+          "application/atomcat+xml",
+          "application/xml;q=0.5",
+          "text/xml;q=0.5",
+          "*/*;q=0.01")
+        .acceptCharset("utf-8", "*;q=0.5");
+    }
+    
+    public static RequestOptions.Builder createActivitiesDefaultRequestOptions() {
+      return RequestOptions.make()
+        .acceptEncoding("gzip", "deflate")
+        .accept(
+          "application/json",
+          "*/*;q=0.01")
+        .acceptCharset(
+          "utf-8", 
+          "*;q=0.5");
     }
 }

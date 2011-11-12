@@ -310,66 +310,82 @@ public class CacheTest {
     public void testResponseMustRevalidate() throws Exception {
         Client abderaClient = new BasicCachingClient();
         Session session = abderaClient.newSession();
-        RequestOptions options = session.getDefaultRequestOptions();
-        options.setHeader("Connection", "close");
-        options.setHeader("x-reqnum", "1");
-        ClientResponse response = session.get(CHECK_MUST_REVALIDATE, options);
+        ClientResponse response = 
+          session.get(
+            CHECK_MUST_REVALIDATE, 
+            session.getDefaultRequestOptions()
+              .header("Connection", "close")
+              .header("x-reqnum", "1")
+              .get());
 
         String resp1 = getResponse(response);
         assertEquals("1", resp1);
 
-        // Should be revalidated and use the cache
-        options.setHeader("x-reqnum", "2");
-        response = session.get(CHECK_MUST_REVALIDATE, options);
+        response = session.get(
+          CHECK_MUST_REVALIDATE, 
+          session.getDefaultRequestOptions()
+            .header("Connection", "close")
+            .header("x-reqnum", "2")
+            .get());
 
         assertEquals(304, response.getStatus());
 
-        // Should be revalidated and return a 404
-        options.setHeader("x-reqnum", "3");
-        response = session.get(CHECK_MUST_REVALIDATE, options);
+        response = session.get(
+          CHECK_MUST_REVALIDATE, 
+          session.getDefaultRequestOptions()
+            .header("Connection", "close")
+            .header("x-reqnum", "3")
+            .get());
         assertEquals(404, response.getStatus());
         response.release();
 
         abderaClient.shutdown();
     }
 
-    private RequestOptions getRequestOptions(Session session, int num) {
-        RequestOptions options = session.getDefaultRequestOptions();
-        options.setHeader("Connection", "close");
-        options.setHeader("x-reqnum", String.valueOf(num));
-        options.setUseExpectContinue(false);
-        return options;
+    private RequestOptions.Builder getRequestOptions(Session session, int num) {
+        return session.getDefaultRequestOptions()
+          .header("Connection", "close")
+          .header("x-reqnum", String.valueOf(num))
+          .doNotUseExpectContinue();
     }
 
     private void _methodInvalidates(int type) throws Exception {
 
         Client abderaClient = new BasicCachingClient();
         Session session = abderaClient.newSession();
-        RequestOptions options = getRequestOptions(session, 1);
-        ClientResponse response = session.get(CHECK_CACHE_INVALIDATE, options);
+        ClientResponse response = session.get(
+          CHECK_CACHE_INVALIDATE, 
+          getRequestOptions(session, 1).get());
 
         String resp1 = getResponse(response);
 
         response.release();
         assertEquals("1", resp1);
 
-        // calling a method that could change state on the server should invalidate the cache
-        options = getRequestOptions(session, 2);
         switch (type) {
             case POST:
-                response = session.post(CHECK_CACHE_INVALIDATE, new ByteArrayInputStream("".getBytes()), options);
+                response = session.post(
+                  CHECK_CACHE_INVALIDATE, 
+                  new ByteArrayInputStream("".getBytes()), 
+                  getRequestOptions(session, 2).get());
                 break;
             case PUT:
-                response = session.put(CHECK_CACHE_INVALIDATE, new ByteArrayInputStream("".getBytes()), options);
+                response = session.put(
+                  CHECK_CACHE_INVALIDATE, 
+                  new ByteArrayInputStream("".getBytes()), 
+                  getRequestOptions(session, 2).get());
                 break;
             case DELETE:
-                response = session.delete(CHECK_CACHE_INVALIDATE, options);
+                response = session.delete(
+                  CHECK_CACHE_INVALIDATE, 
+                  getRequestOptions(session, 2).get());
                 break;
         }
         response.release();
-
-        options = getRequestOptions(session, 3);
-        response = session.get(CHECK_CACHE_INVALIDATE, options);
+        
+        response = session.get(
+          CHECK_CACHE_INVALIDATE, 
+          getRequestOptions(session, 3).get());
 
         resp1 = getResponse(response);
         response.release();
@@ -382,50 +398,51 @@ public class CacheTest {
 
         BasicCachingClient abderaClient = new BasicCachingClient();
         Session session = abderaClient.newSession();
-        RequestOptions options = getRequestOptions(session, 1);
-        ClientResponse response = session.get(CHECK_CACHE_INVALIDATE, options);
+        ClientResponse response = session.get(
+          CHECK_CACHE_INVALIDATE, 
+          getRequestOptions(session, 1).get());
         String resp1 = getResponse(response);
         assertEquals("1", resp1);
 
         // Should use the cache
-        options = getRequestOptions(session, 3);
+        RequestOptions.Builder builder = getRequestOptions(session, 3);
         switch (type) {
-            case NOCACHE:
-                options.setCacheControl(CacheControl.NONNOCACHE());
-                break;
-            case NOSTORE:
-              options.setCacheControl(CacheControl.NONNOSTORE());
-                break;
-            case MAXAGE0:
-              options.setCacheControl(CacheControl.MAXAGE(60));
-              try {
-                // sleep for a few seconds to let the cache age;
-                Thread.sleep(5*1000);
-              } catch (Throwable t) {}
-                break;
+          case NOCACHE:
+            builder.cacheControl(CacheControl.NONNOCACHE());
+            break;
+          case NOSTORE:
+            builder.cacheControl(CacheControl.NONNOSTORE());
+            break;
+          case MAXAGE0:
+            builder.cacheControl(CacheControl.MAXAGE(60));
+            try {
+              // sleep for a few seconds to let the cache age;
+              Thread.sleep(5*1000);
+            } catch (Throwable t) {}
+              break;
         }
-        response = session.get(CHECK_CACHE_INVALIDATE, options);
+        response = session.get(CHECK_CACHE_INVALIDATE, builder.get());
         String resp3 = getResponse(response);
         assertEquals("1", resp3);
         
         // Should not use the cache
-        options = getRequestOptions(session, 2);
+        builder = getRequestOptions(session, 2);
         switch (type) {
-            case NOCACHE:
-                options.setCacheControl(CacheControl.NOCACHE());
-                break;
-            case NOSTORE:
-                options.setCacheControl(CacheControl.NOSTORE());
-                break;
-            case MAXAGE0:
-                options.setCacheControl(CacheControl.MAXAGE(0));
-                try {
-                  // sleep for a few seconds to let the cache age;
-                  Thread.sleep(5*1000);
-                } catch (Throwable t) {}
-                break;
+          case NOCACHE:
+            builder.cacheControl(CacheControl.NOCACHE());
+            break;
+          case NOSTORE:
+            builder.cacheControl(CacheControl.NOSTORE());
+            break;
+          case MAXAGE0:
+            builder.cacheControl(CacheControl.MAXAGE(0));
+            try {
+              // sleep for a few seconds to let the cache age;
+              Thread.sleep(5*1000);
+            } catch (Throwable t) {}
+            break;
         }
-        response = session.get(CHECK_CACHE_INVALIDATE, options);
+        response = session.get(CHECK_CACHE_INVALIDATE, builder.get());
 
         String resp2 = getResponse(response);
         assertEquals("2", resp2);
@@ -437,26 +454,32 @@ public class CacheTest {
 
         Client abderaClient = new BasicCachingClient();
         Session session = abderaClient.newSession();
-        RequestOptions options = getRequestOptions(session, 1);
-        options.setHeader("x-reqtest", String.valueOf(type));
-        ClientResponse response = session.get(CHECK_NO_CACHE, options);
+        ClientResponse response = 
+          session.get(
+            CHECK_NO_CACHE, 
+            getRequestOptions(session, 1)
+              .header("x-reqtest", String.valueOf(type))
+              .get());
 
         String resp1 = getResponse(response);
         assertEquals("1", resp1);
 
         // Should not use the cache
-
-        options = getRequestOptions(session, 2);
-        options.setHeader("x-reqtest", String.valueOf(type));
-        response = session.get(CHECK_NO_CACHE, options);
+        response = session.get(
+          CHECK_NO_CACHE, 
+          getRequestOptions(session, 2)
+            .header("x-reqtest", String.valueOf(type))
+            .get());
 
         String resp2 = getResponse(response);
         assertEquals("2", resp2);
 
         // Should use the cache
-        options = getRequestOptions(session, 3);
-        options.setHeader("x-reqtest", String.valueOf(type));
-        response = session.get(CHECK_NO_CACHE, options);
+        response = session.get(
+          CHECK_NO_CACHE, 
+          getRequestOptions(session, 3)
+            .header("x-reqtest", String.valueOf(type))
+            .get());
 
         String resp3 = getResponse(response);
         assertEquals("3", resp3);

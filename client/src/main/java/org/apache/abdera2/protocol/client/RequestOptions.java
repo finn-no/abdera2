@@ -17,21 +17,26 @@
  */
 package org.apache.abdera2.protocol.client;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.lang.Lang;
+import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.AbstractRequest;
 import org.apache.abdera2.common.protocol.Request;
+import org.apache.abdera2.common.selector.AbstractSelector;
+import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.common.text.Codec;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.abdera2.common.text.CharUtils.Profile;
+import org.apache.abdera2.common.date.DateTimes;
+import org.apache.abdera2.common.http.Authentication;
 import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Preference;
@@ -40,257 +45,446 @@ import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+
 /**
  * The RequestOptions class allows a variety of options affecting the execution of the request to be modified.
  */
 public class RequestOptions extends AbstractRequest implements Request {
 
-    private boolean noLocalCache = false;
-    private boolean revalidateAuth = false;
-    private boolean useChunked = false;
-    private boolean usePostOverride = false;
-    private boolean requestException4xx = false;
-    private boolean requestException5xx = false;
-    private boolean useExpectContinue = true;
-    private boolean useConditional = true;
-    private boolean followRedirects = true;
-    private CacheControl cacheControl = null;
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static Builder make(DateTime ifModifiedSince) {
+    return make().ifModifiedSince(ifModifiedSince);
+  }
 
-    private final Map<String, Set<String>> headers = 
-      new HashMap<String, Set<String>>();
+  public static Builder make(String ifNoneMatch) {
+    return make().ifNoneMatch(ifNoneMatch);
+  }
 
-    public RequestOptions() {
+  public static Builder make(String etag, String... ifNoneMatch) {
+    return make().ifNoneMatch(etag, ifNoneMatch);
+  }
+
+  public static Builder make(DateTime ifModifiedSince, String ifNoneMatch) {
+    return make()
+      .ifModifiedSince(ifModifiedSince)
+      .ifNoneMatch(ifNoneMatch);
+  }
+
+  public static Builder make(DateTime ifModifiedSince, String etag, String... ifNoneMatch) {
+    return make()
+      .ifModifiedSince(ifModifiedSince)
+      .ifNoneMatch(etag, ifNoneMatch);
+  }
+
+  public static Builder make(boolean no_cache) {
+    return make().cacheControl(CacheControl.NOCACHE());
+  }
+  
+  public Builder template() {
+    return new Builder(this);
+  }
+  
+  public Builder template(Selector<Map.Entry<String, Set<String>>> filter) {
+    return new Builder(this,filter);
+  }
+  
+  public static Selector<Map.Entry<String, Set<String>>> withAllHeaders() {
+    return new AbstractSelector<Map.Entry<String, Set<String>>>() {
+      public boolean select(Object item) {
+        return true;
+      }
+    };
+  }
+  
+  public static Selector<Map.Entry<String, Set<String>>> withNoHeaders() {
+    return new AbstractSelector<Map.Entry<String, Set<String>>>() {
+      public boolean select(Object item) {
+        return false;
+      }
+    };
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static Selector<Map.Entry<String, Set<String>>> withHeaders(String... names) {
+    final ImmutableSet<String> set = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Set<String>>>() {
+      public boolean select(Object item) {
+        Map.Entry<String, Set<String>> entry = 
+          (Entry<String, Set<String>>) item;
+        return set.contains(entry.getKey());
+      }
+    };
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static Selector<Map.Entry<String, Set<String>>> withoutHeaders(String... names) {
+    final ImmutableSet<String> set = ImmutableSet.copyOf(names);
+    return new AbstractSelector<Map.Entry<String, Set<String>>>() {
+      public boolean select(Object item) {
+        Map.Entry<String, Set<String>> entry = 
+          (Entry<String, Set<String>>) item;
+        return !set.contains(entry.getKey());
+      }
+    };
+  }
+  
+  
+  public static class Builder implements Supplier<RequestOptions> {
+
+    boolean revalidateAuth = false;
+    boolean useChunked = false;
+    boolean usePostOverride = false;
+    boolean requestException4xx = false;
+    boolean requestException5xx = false;
+    boolean useExpectContinue = true;
+    boolean useConditional = true;
+    boolean followRedirects = true;
+    CacheControl cacheControl = null;
+    
+    final Map<String, ImmutableSet.Builder<String>> headers = 
+      Maps.newHashMap();
+    
+    public Builder() {}
+    
+    Builder(RequestOptions template) {
+      this(template,null);
+    }
+    
+    Builder(RequestOptions template,Selector<Map.Entry<String, Set<String>>> filter) {
+      this.revalidateAuth = template.revalidateAuth;
+      this.followRedirects = template.followRedirects;
+      this.cacheControl = template.cacheControl;
+      this.useChunked = template.useChunked;
+      this.usePostOverride = template.usePostOverride;
+      this.requestException4xx = template.requestException4xx;
+      this.requestException5xx = template.requestException5xx;
+      this.useExpectContinue = template.useExpectContinue;
+      this.useConditional = template.useConditional;
+      for (Map.Entry<String, Set<String>> header : template.headers.entrySet()) {
+        if (filter == null || filter.apply(header)) {
+          ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+          builder.addAll(header.getValue());
+          this.headers.put(header.getKey(),builder);
+        }
+      }
+    }
+    
+    public Builder revalidateAuth() {
+      this.revalidateAuth = true;
+      return this;
+    }
+    
+    public Builder useChunked() {
+      this.useChunked = true;
+      return this;
+    }
+    
+    public Builder usePostOverride() {
+      this.usePostOverride = true;
+      return this;
+    }
+    
+    public Builder requestException4xx() {
+      this.requestException4xx = true;
+      return this;
+    }
+    
+    public Builder requestException5xx() {
+      this.requestException5xx = true;
+      return this;
+    }
+    
+    public Builder doNotUseExpectContinue() {
+      this.useExpectContinue = false;
+      return this;
+    }
+    
+    public Builder doNotFollowRedirects() {
+      this.followRedirects = false;
+      return this;
+    }
+    
+    public Builder contentType(String value) {
+      return header("Content-Type", value);
+    }
+
+    public Builder contentType(MimeType value) {
+      return header("Content-Type", value.toString());
+    }
+    
+    public Builder contentLocation(String iri) {
+      return header("Content-Location", iri);
+    }
+
+    public Builder setAuthorization(String auth) {
+      return header("Authorization", auth);
+    }
+
+    public Builder setAuthorization(Authentication auth) {
+      return header("Authorization",auth.toString());
+    }
+    
+    public Builder encodedHeader(String header, String charset, String value) {
+      return header(header, Codec.encode(value, charset));
+    }
+
+    public Builder encodedHeader(String header, String charset, String... values) {
+      if (values != null && values.length > 0) {
+        ImmutableSet.Builder<String> vals = headers.get(header);
+        if (vals == null) {
+          vals = ImmutableSet.builder();
+          headers.put(header, vals);
+        }
+        for (String value : values) 
+          vals.add(Codec.encode(value,charset));
+      }
+      return this;
+    }
+
+    public Builder header(String header, String value) {
+      if (value != null)
+        header(header, MoreFunctions.array(value));
+      return this;
+    }
+
+    public Builder header(String header, String... values) {
+      if (values != null && values.length > 0) {
+        ImmutableSet.Builder<String> vals = headers.get(header);
+        if (vals == null) {
+          vals = ImmutableSet.builder();
+          headers.put(header, vals);
+        }
+        vals.add(combine(values));
+      }
+      return this;
+    }
+
+    public Builder dateHeader(
+      String header, 
+      DateTime value) {
+      if (value != null)
+        header(header, DateUtils.formatDate(value.toDate()));
+      return this;
+    }
+
+    private String combine(String... values) {
+      StringBuilder v = new StringBuilder();
+      for (String val : values) {
+          if (v.length() > 0)
+              v.append(", ");
+          v.append(val);
+      }
+      return v.toString();
+    }
+
+    public Builder ifMatch(EntityTag entity_tag) {
+        return header("If-Match", entity_tag.toString());
     }
 
     /**
-     * Create the RequestOptions object with the specified If-Modified-Since header value
-     * 
-     * @param ifModifiedSince
+     * Sets the value of the HTTP If-Match header
      */
-    public RequestOptions(DateTime ifModifiedSince) {
-        this();
-        setIfModifiedSince(ifModifiedSince);
+    public Builder ifMatch(EntityTag tag, EntityTag... entity_tags) {
+        return header("If-Match", EntityTag.toString(tag,entity_tags));
     }
 
     /**
-     * Create the RequestOptions object with the specified If-None-Match header value
-     * 
-     * @param IfNoneMatch
+     * Sets the value of the HTTP If-Match header
      */
-    public RequestOptions(String ifNoneMatch) {
-        this();
-        setIfNoneMatch(ifNoneMatch);
+    public Builder ifMatch(String etag, String... entity_tags) {
+        return header("If-Match", EntityTag.toString(etag, entity_tags));
     }
 
     /**
-     * Create the RequestOptions object with the specified If-None-Match header value
-     * 
-     * @param IfNoneMatch
+     * Sets the value of the HTTP If-None-Match header
      */
-    public RequestOptions(String etag, String... ifNoneMatch) {
-        this();
-        setIfNoneMatch(etag, ifNoneMatch);
+    public Builder ifNoneMatch(String entity_tag) {
+        return ifNoneMatch(new EntityTag(entity_tag));
     }
 
     /**
-     * Create the RequestOptions object with the specified If-Modified-Since and If-None-Match header values
-     * 
-     * @param ifModifiedSince
-     * @param IfNoneMatch
+     * Sets the value of the HTTP If-None-Match header
      */
-    public RequestOptions(DateTime ifModifiedSince, String ifNoneMatch) {
-        this();
-        setIfModifiedSince(ifModifiedSince);
-        setIfNoneMatch(ifNoneMatch);
+    public Builder ifNoneMatch(EntityTag entity_tag) {
+        return header("If-None-Match", entity_tag.toString());
     }
 
     /**
-     * Create the RequestOptions object with the specified If-Modified-Since and If-None-Match header values
-     * 
-     * @param ifModifiedSince
-     * @param IfNoneMatch
+     * Sets the value of the HTTP If-None-Match header
      */
-    public RequestOptions(DateTime ifModifiedSince, String etag, String... ifNoneMatch) {
-        this();
-        setIfModifiedSince(ifModifiedSince);
-        setIfNoneMatch(etag, ifNoneMatch);
+    public Builder ifNoneMatch(EntityTag etag, EntityTag... entity_tags) {
+        return header("If-None-Match", EntityTag.toString(etag, entity_tags));
     }
 
     /**
-     * Create the RequestOptions object
-     * 
-     * @param no_cache True if the request will indicate that cached responses should not be returned
+     * Sets the value of the HTTP If-None-Match header
      */
-    public RequestOptions(boolean no_cache) {
-        this();
-        setCacheControl(CacheControl.NOCACHE());
-        noLocalCache = true;
+    public Builder ifNoneMatch(String etag, String... entity_tags) {
+        return header("If-None-Match", EntityTag.toString(etag, entity_tags));
+    }
+
+    /**
+     * Sets the value of the HTTP If-Modified-Since header
+     */
+    public Builder ifModifiedSince(DateTime date) {
+        return dateHeader("If-Modified-Since", date);
+    }
+    
+    public Builder ifModifiedSinceNow() {
+      return ifModifiedSince(DateTimes.now());
+    }
+
+    /**
+     * Sets the value of the HTTP If-Unmodified-Since header
+     */
+    public Builder ifUnmodifiedSince(DateTime date) {
+        return dateHeader("If-Unmodified-Since", date);
+    }
+
+    /**
+     * Sets the value of the HTTP Accept header
+     */
+    public Builder accept(String accept) {
+      return accept(new String[] {accept});
+    }
+
+    /**
+     * Sets the value of the HTTP Accept header
+     */
+    public Builder accept(String... accept) {
+      return header("Accept", combine(accept));
+    }
+
+    public Builder acceptLanguage(Locale locale) {
+      return acceptLanguage(Lang.fromLocale(locale));
+    }
+
+    public Builder acceptLanguage(Locale... locales) {
+      String[] langs = new String[locales.length];
+      for (int n = 0; n < locales.length; n++)
+          langs[n] = Lang.fromLocale(locales[n]);
+      acceptLanguage(langs);
+      return this;
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Language header
+     */
+    public Builder acceptLanguage(String accept) {
+        return acceptLanguage(new String[] {accept});
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Language header
+     */
+    public Builder acceptLanguage(String... accept) {
+      return header("Accept-Language", combine(accept));
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Charset header
+     */
+    public Builder acceptCharset(String accept) {
+      return acceptCharset(new String[] {accept});
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Charset header
+     */
+    public Builder acceptCharset(String... accept) {
+        return header("Accept-Charset", combine(accept));
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Encoding header
+     */
+    public Builder acceptEncoding(String accept) {
+        return acceptEncoding(new String[] {accept});
+    }
+
+    /**
+     * Sets the value of the HTTP Accept-Encoding header
+     */
+    public Builder acceptEncoding(String... accept) {
+        return header("Accept-Encoding", combine(accept));
+    }
+
+    /**
+     * Sets the value of the Atom Publishing Protocol Slug header
+     */
+    public Builder slug(String slug) {
+        if (slug.indexOf((char)10) > -1 || slug.indexOf((char)13) > -1)
+            throw new IllegalArgumentException(Localizer.get("SLUG.BAD.CHARACTERS"));
+        return header("Slug", UrlEncoding.encode(slug, Profile.PATHNODELIMS));
+    }
+
+    public Builder cacheControl(String cc) {
+      this.cacheControl = CacheControl.parse(cc);
+      return this;
+    }
+
+    public Builder cacheControl(CacheControl cc) {
+      this.cacheControl = cc;
+      return this;
+    }
+    
+    public Builder ifMatch(String entity_tag) {
+        return ifMatch(new EntityTag(entity_tag));
+    }    
+    
+    public Builder webLinks(WebLink weblink, WebLink... links) {
+      header("Link", WebLink.toString(weblink,links));
+      return this;
+    }
+    
+    public Builder prefer(Preference pref, Preference... prefs) {
+      header("Prefer", Preference.toString(pref, prefs));
+      return this;
+    }
+    
+    public RequestOptions get() {
+      ImmutableMap.Builder<String,Set<String>> actuals =
+        ImmutableMap.builder();
+      for (Map.Entry<String, ImmutableSet.Builder<String>> header : headers.entrySet())
+        actuals.put(header.getKey(), header.getValue().build());
+      return new RequestOptions(this,actuals.build());
+    }
+    
+  }
+  
+    final boolean revalidateAuth;
+    final boolean useChunked;
+    final boolean usePostOverride;
+    final boolean requestException4xx;
+    final boolean requestException5xx;
+    final boolean useExpectContinue;
+    final boolean useConditional;
+    final boolean followRedirects;
+    final CacheControl cacheControl;
+    final ImmutableMap<String, Set<String>> headers;
+
+    RequestOptions(Builder builder,ImmutableMap<String,Set<String>> headers) {
+      this.revalidateAuth = builder.revalidateAuth;
+      this.useChunked = builder.useChunked;
+      this.usePostOverride = builder.usePostOverride;
+      this.requestException4xx = builder.requestException4xx;
+      this.requestException5xx = builder.requestException5xx;
+      this.useConditional = builder.useConditional;
+      this.useExpectContinue = builder.useExpectContinue;
+      this.followRedirects = builder.followRedirects;
+      this.cacheControl = builder.cacheControl;
+      this.headers = headers;
     }
 
     private Map<String, Set<String>> getHeaders() {
         return headers;
-    }
-
-    private String combine(String... values) {
-        StringBuilder v = new StringBuilder();
-        for (String val : values) {
-            if (v.length() > 0)
-                v.append(", ");
-            v.append(val);
-        }
-        return v.toString();
-    }
-
-    /**
-     * The difference between this and getNoCache is that this only disables the local cache without affecting the
-     * Cache-Control header.
-     */
-    public boolean getUseLocalCache() {
-        return !noLocalCache;
-    }
-
-    /**
-     * True if the local client cache should be used
-     */
-    public RequestOptions setUseLocalCache(boolean use_cache) {
-        this.noLocalCache = !use_cache;
-        return this;
-    }
-
-    /**
-     * Set the value of the HTTP Content-Type header
-     */
-    public RequestOptions setContentType(String value) {
-        return setHeader("Content-Type", value);
-    }
-
-    public RequestOptions setContentLocation(String iri) {
-        return setHeader("Content-Location", iri);
-    }
-
-    /**
-     * Set the value of the HTTP Content-Type header
-     */
-    public RequestOptions setContentType(MimeType value) {
-        return setHeader("Content-Type", value.toString());
-    }
-
-    /**
-     * Set the value of the HTTP Authorization header
-     */
-    public RequestOptions setAuthorization(String auth) {
-        return setHeader("Authorization", auth);
-    }
-
-    /**
-     * Set the value of a header using proper encoding of non-ascii characters
-     */
-    public RequestOptions setEncodedHeader(String header, String charset, String value) {
-        return setHeader(header, Codec.encode(value, charset));
-    }
-
-    /**
-     * Set the values of a header using proper encoding of non-ascii characters
-     */
-    public RequestOptions setEncodedHeader(String header, String charset, String... values) {
-        if (values != null && values.length > 0) {
-            Set<String> vals = new HashSet<String>();
-            for (String value : values) 
-              vals.add(Codec.encode(value,charset));
-            getHeaders().put(header, vals);
-        } else {
-            removeHeaders(header);
-        }
-        return this;
-    }
-
-    /**
-     * Set the value of the specified HTTP header
-     */
-    public RequestOptions setHeader(String header, String value) {
-        return value != null ? setHeader(header, new String[] {value}) : removeHeaders(header);
-    }
-
-    /**
-     * Set the value of the specified HTTP header
-     */
-    public RequestOptions setHeader(String header, String... values) {
-        if (values != null && values.length > 0) {
-            Set<String> vals = new HashSet<String>();
-            vals.add(combine(values));
-            getHeaders().put(header, vals);
-        } else {
-            removeHeaders(header);
-        }
-        return this;
-    }
-
-    /**
-     * Set the date value of the specified HTTP header
-     */
-    public RequestOptions setDateHeader(String header, DateTime value) {
-        return value != null ? setHeader(
-          header, 
-          DateUtils.formatDate(value.toDate())) : 
-            removeHeaders(header);
-    }
-
-    /**
-     * Similar to setEncodedHeader, but allows for multiple instances of the specified header
-     */
-    public RequestOptions addEncodedHeader(String header, String charset, String value) {
-        return addHeader(header, Codec.encode(value, charset));
-    }
-
-    /**
-     * Similar to setEncodedHeader, but allows for multiple instances of the specified header
-     */
-    public RequestOptions addEncodedHeader(String header, String charset, String... values) {
-        if (values == null || values.length == 0)
-            return this;
-        for (int n = 0; n < values.length; n++) {
-            values[n] = Codec.encode(values[n], charset);
-        }
-        Set<String> list = getHeaders().get(header);
-        String value = combine(values);
-        if (list != null)
-          list.add(value);
-        else
-          setHeader(header, new String[] {value});
-        return this;
-    }
-
-    /**
-     * Similar to setHeader but allows for multiple instances of the specified header
-     */
-    public RequestOptions addHeader(String header, String value) {
-        if (value != null)
-            addHeader(header, new String[] {value});
-        return this;
-    }
-
-    /**
-     * Similar to setHeader but allows for multiple instances of the specified header
-     */
-    public RequestOptions addHeader(String header, String... values) {
-        if (values == null || values.length == 0)
-            return this;
-        Set<String> headers = getHeaders().get(header);
-        String value = combine(values);
-        if (headers != null)
-          headers.add(value);
-        else
-            setHeader(header, new String[] {value});
-        return this;
-    }
-
-    /**
-     * Similar to setDateHeader but allows for multiple instances of the specified header
-     */
-    public RequestOptions addDateHeader(String header, DateTime value) {
-        if (value == null)
-            return this;
-        return addHeader(header, DateUtils.formatDate(value.toDate()));
     }
 
     /**
@@ -305,198 +499,26 @@ public class RequestOptions extends AbstractRequest implements Request {
      * Return a listing of text values for the specified header
      */
     public Iterable<Object> getHeaders(String header) {
-        Set<String> headers = getHeaders().get(header);
-        return new HashSet<Object>(headers);
+      return ImmutableSet.<Object>copyOf(getHeaders().get(header));
     }
 
     /**
      * Returns the date value of the specified header
      */
     public DateTime getDateHeader(String header) {
-        String val = getHeader(header);
-        try {
-            return (val != null) ? new DateTime(DateUtils.parseDate(val)) : null;
-        } catch (DateParseException e) {
-            throw new RuntimeException(e);
-        }
+      String val = getHeader(header);
+      try {
+          return (val != null) ? new DateTime(DateUtils.parseDate(val)) : null;
+      } catch (DateParseException e) {
+        throw ExceptionHelper.propogate(e);
+      }
     }
 
     /**
      * Returns a listing of header names
      */
     public Iterable<String> getHeaderNames() {
-        return getHeaders().keySet();
-    }
-
-    /**
-     * Sets the value of the HTTP If-Match header
-     */
-    public RequestOptions setIfMatch(String entity_tag) {
-        return setIfMatch(new EntityTag(entity_tag));
-    }
-
-    /**
-     * Sets the value of the HTTP If-Match header
-     */
-    public RequestOptions setIfMatch(EntityTag entity_tag) {
-        return setHeader("If-Match", entity_tag.toString());
-    }
-
-    /**
-     * Sets the value of the HTTP If-Match header
-     */
-    public RequestOptions setIfMatch(EntityTag tag, EntityTag... entity_tags) {
-        return setHeader("If-Match", EntityTag.toString(tag,entity_tags));
-    }
-
-    /**
-     * Sets the value of the HTTP If-Match header
-     */
-    public RequestOptions setIfMatch(String etag, String... entity_tags) {
-        return setHeader("If-Match", EntityTag.toString(etag, entity_tags));
-    }
-
-    /**
-     * Sets the value of the HTTP If-None-Match header
-     */
-    public RequestOptions setIfNoneMatch(String entity_tag) {
-        return setIfNoneMatch(new EntityTag(entity_tag));
-    }
-
-    /**
-     * Sets the value of the HTTP If-None-Match header
-     */
-    public RequestOptions setIfNoneMatch(EntityTag entity_tag) {
-        return setHeader("If-None-Match", entity_tag.toString());
-    }
-
-    /**
-     * Sets the value of the HTTP If-None-Match header
-     */
-    public RequestOptions setIfNoneMatch(EntityTag etag, EntityTag... entity_tags) {
-        return setHeader("If-None-Match", EntityTag.toString(etag, entity_tags));
-    }
-
-    /**
-     * Sets the value of the HTTP If-None-Match header
-     */
-    public RequestOptions setIfNoneMatch(String etag, String... entity_tags) {
-        return setHeader("If-None-Match", EntityTag.toString(etag, entity_tags));
-    }
-
-    /**
-     * Sets the value of the HTTP If-Modified-Since header
-     */
-    public RequestOptions setIfModifiedSince(DateTime date) {
-        return setDateHeader("If-Modified-Since", date);
-    }
-
-    /**
-     * Sets the value of the HTTP If-Unmodified-Since header
-     */
-    public RequestOptions setIfUnmodifiedSince(DateTime date) {
-        return setDateHeader("If-Unmodified-Since", date);
-    }
-
-    /**
-     * Sets the value of the HTTP Accept header
-     */
-    public RequestOptions setAccept(String accept) {
-        return setAccept(new String[] {accept});
-    }
-
-    /**
-     * Sets the value of the HTTP Accept header
-     */
-    public RequestOptions setAccept(String... accept) {
-        return setHeader("Accept", combine(accept));
-    }
-
-    public RequestOptions setAcceptLanguage(Locale locale) {
-        return setAcceptLanguage(Lang.fromLocale(locale));
-    }
-
-    public RequestOptions setAcceptLanguage(Locale... locales) {
-        String[] langs = new String[locales.length];
-        for (int n = 0; n < locales.length; n++)
-            langs[n] = Lang.fromLocale(locales[n]);
-        setAcceptLanguage(langs);
-        return this;
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Language header
-     */
-    public RequestOptions setAcceptLanguage(String accept) {
-        return setAcceptLanguage(new String[] {accept});
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Language header
-     */
-    public RequestOptions setAcceptLanguage(String... accept) {
-        return setHeader("Accept-Language", combine(accept));
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Charset header
-     */
-    public RequestOptions setAcceptCharset(String accept) {
-        return setAcceptCharset(new String[] {accept});
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Charset header
-     */
-    public RequestOptions setAcceptCharset(String... accept) {
-        return setHeader("Accept-Charset", combine(accept));
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Encoding header
-     */
-    public RequestOptions setAcceptEncoding(String accept) {
-        return setAcceptEncoding(new String[] {accept});
-    }
-
-    /**
-     * Sets the value of the HTTP Accept-Encoding header
-     */
-    public RequestOptions setAcceptEncoding(String... accept) {
-        return setHeader("Accept-Encoding", combine(accept));
-    }
-
-    /**
-     * Sets the value of the Atom Publishing Protocol Slug header
-     */
-    public RequestOptions setSlug(String slug) {
-        if (slug.indexOf((char)10) > -1 || slug.indexOf((char)13) > -1)
-            throw new IllegalArgumentException(Localizer.get("SLUG.BAD.CHARACTERS"));
-        return setHeader("Slug", UrlEncoding.encode(slug, Profile.PATHNODELIMS));
-    }
-
-    /**
-     * Sets the value of the HTTP Cache-Control header
-     */
-    public RequestOptions setCacheControl(String cc) {
-        this.cacheControl = CacheControl.parse(cc);
-        return this;
-    }
-    
-    /**
-     * Sets the value of the HTTP Cache-Control header
-     */
-    public RequestOptions setCacheControl(CacheControl cc) {
-      this.cacheControl = cc;
-      return this;
-    }
-
-    /**
-     * Remove the specified HTTP header
-     */
-    public RequestOptions removeHeaders(String name) {
-        getHeaders().remove(name);
-        return this;
+      return getHeaders().keySet();
     }
 
     /**
@@ -514,34 +536,10 @@ public class RequestOptions extends AbstractRequest implements Request {
     }
 
     /**
-     * Configure the AbderaClient Side cache to revalidate when using Authorization
-     */
-    public RequestOptions setRevalidateWithAuth(boolean revalidateAuth) {
-        this.revalidateAuth = revalidateAuth;
-        return this;
-    }
-
-    /**
      * Should the request use chunked encoding?
      */
     public boolean isUseChunked() {
         return useChunked;
-    }
-
-    /**
-     * Set whether the request should use chunked encoding.
-     */
-    public RequestOptions setUseChunked(boolean useChunked) {
-        this.useChunked = useChunked;
-        return this;
-    }
-
-    /**
-     * Set whether the request should use the X-HTTP-Method-Override option
-     */
-    public RequestOptions setUsePostOverride(boolean useOverride) {
-        this.usePostOverride = useOverride;
-        return this;
     }
 
     /**
@@ -552,14 +550,6 @@ public class RequestOptions extends AbstractRequest implements Request {
     }
 
     /**
-     * Set whether or not to throw a RequestExeption on 4xx responses
-     */
-    public RequestOptions set4xxRequestException(boolean v) {
-        this.requestException4xx = v;
-        return this;
-    }
-
-    /**
      * Return true if a RequestException should be thrown on 4xx responses
      */
     public boolean is4xxRequestException() {
@@ -567,26 +557,10 @@ public class RequestOptions extends AbstractRequest implements Request {
     }
 
     /**
-     * Set whether or not to throw a RequestExeption on 5xx responses
-     */
-    public RequestOptions set5xxRequestException(boolean v) {
-        this.requestException5xx = v;
-        return this;
-    }
-
-    /**
      * Return true if a RequestException should be thrown on 5xx responses
      */
     public boolean is5xxRequestException() {
         return this.requestException5xx;
-    }
-
-    /**
-     * Set whether or not to use the HTTP Expect-Continue mechanism (enabled by default)
-     */
-    public RequestOptions setUseExpectContinue(boolean useExpect) {
-        this.useExpectContinue = useExpect;
-        return this;
     }
 
     /**
@@ -605,41 +579,13 @@ public class RequestOptions extends AbstractRequest implements Request {
     }
 
     /**
-     * True if HTTP Conditinal Request should be used automatically. This only has an effect when putting a Document
-     * that has an ETag or Last-Modified date present
-     */
-    public RequestOptions setConditionalPut(boolean conditional) {
-        this.useConditional = conditional;
-        return this;
-    }
-
-    /**
      * True if the client should follow redirects automatically
      */
     public boolean isFollowRedirects() {
         return followRedirects;
     }
-
-    /**
-     * True if the client should follow redirects automatically
-     */
-    public RequestOptions setFollowRedirects(boolean followredirects) {
-        this.followRedirects = followredirects;
-        return this;
-    }
     
-    public RequestOptions setWebLinks(WebLink weblink, WebLink... links) {
-      setHeader("Link", WebLink.toString(weblink,links));
-      return this;
-    }
-    
-    public RequestOptions setPrefer(Preference pref, Preference... prefs) {
-      setHeader("Prefer", Preference.toString(pref, prefs));
-      return this;
-    }
-    
-    public RequestOptions setPreferApplied(Preference pref, Preference... prefs) {
-      setHeader("Preference-Applied", Preference.toString(pref, prefs));
-      return this;
+    public boolean has(String header) {
+      return headers.containsKey(header);
     }
 }
