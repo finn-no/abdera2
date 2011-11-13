@@ -19,7 +19,6 @@ package org.apache.abdera2.common.templates;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,9 +36,9 @@ public final class MultiContext
   
   public static final class Builder implements Supplier<Context> {
 
-    private final Set<Context> contexts = 
-      new LinkedHashSet<Context>();
-    private boolean isiri;
+    final ImmutableSet.Builder<Context> contexts = 
+      ImmutableSet.builder();
+    boolean isiri;
     
     public Builder iri() {
       this.isiri = false;
@@ -76,7 +75,7 @@ public final class MultiContext
   
   MultiContext(Builder builder) {
     super(builder.isiri);
-    this.contexts = ImmutableSet.copyOf(builder.contexts);
+    this.contexts = builder.contexts.build();
   } 
   public boolean contains(String var) {
     for (Context context : contexts)

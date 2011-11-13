@@ -57,9 +57,7 @@ public class ReadingListExample {
            makeBook()
              .displayName("Meditations on the Method")
              .author(
-               makePerson()
-                 .displayName("Rene Descartes")
-                 .get())
+               makePerson("Rene Descartes").get())
              .get())
          .set("format", HARDCOVER())
          .get());

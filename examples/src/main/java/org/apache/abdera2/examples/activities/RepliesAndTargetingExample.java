@@ -1,5 +1,6 @@
 package org.apache.abdera2.examples.activities;
 
+import static org.apache.abdera2.activities.extra.Extra.*;
 import org.apache.abdera2.activities.model.Activity;
 import static org.apache.abdera2.activities.model.objects.NoteObject.makeNote;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
@@ -23,6 +24,9 @@ public class RepliesAndTargetingExample {
         .get();
     
     activity.writeTo(System.out);
+    
+    System.out.println(isToMe().apply(activity));
+    System.out.println(isTo(makePerson().displayName("bob").get()).apply(activity));
     
     /**
      * {"to":[

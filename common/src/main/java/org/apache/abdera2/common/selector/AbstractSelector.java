@@ -20,6 +20,8 @@ package org.apache.abdera2.common.selector;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Constraint;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractSelector<X> 
@@ -29,6 +31,54 @@ public abstract class AbstractSelector<X>
     return select(item);
   }
   
+  public boolean all(Iterable<X> items) {
+    if (items == null) return false;
+    return Iterables.all(items, this);
+  }
+  
+  public boolean any(Iterable<X> items) {
+    if (items == null) return false;
+    return Iterables.any(items, this);
+  }
+  
+  public boolean none(Iterable<X> items) {
+    if (items == null) return false;
+    return Iterables.all(items, this.negate());
+  }
+  
+  public Iterable<X> filter(Iterable<X> items) {
+    if (items == null) return ImmutableSet.<X>of();
+    return Iterables.filter(items, this);
+  }
+  
+  public Iterable<X> filterOut(Iterable<X> items) {
+    if (items == null) return ImmutableSet.of();
+    return Iterables.<X>filter(items, this.negate());
+  }
+  
+  public X choose(Iterable<X> items) {
+    if (items == null) return null;
+    return Iterables.find(items, this);
+  }
+  
+  public X chooseNot(Iterable<X> items) {
+    if (items == null) return null;
+    return Iterables.find(items, this.negate());
+  }
+  
+  public X test(X item) {
+    return apply(item) ? item : null;
+  }
+  
+  public X test(X item, X otherwise) {
+    return apply(item) ? item : otherwise;
+  }
+  
+  public <Y>Y test(X item, Function<X,Y> transform) {
+    return apply(item) ? transform.apply(item) : null;
+  }
+ 
+ 
   public X checkElement(X element) {
     if (apply(element))
       return element;

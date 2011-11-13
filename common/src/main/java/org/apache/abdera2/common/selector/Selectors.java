@@ -29,6 +29,14 @@ public final class Selectors {
   
   private Selectors() {}
   
+  public static <X>Selector<X> notNull() {
+    return forPredicate(Predicates.<X>notNull());
+  }
+  
+  public static <X>Selector<X> isNull() {
+    return forPredicate(Predicates.<X>isNull());
+  }
+  
   public static <X>Selector<X> alwaysTrue() {
     return forPredicate(Predicates.<X>alwaysTrue());
   }

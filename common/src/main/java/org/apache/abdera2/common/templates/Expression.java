@@ -18,9 +18,7 @@
 package org.apache.abdera2.common.templates;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +28,7 @@ import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.Expression;
 import org.apache.abdera2.common.templates.Operation;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.MorePreconditions.*;
@@ -41,7 +39,7 @@ public final class Expression
   private static final long serialVersionUID = 1457650843240079628L;
   private static final Pattern EXPRESSION = Pattern.compile("([\\+\\#\\.\\/\\;\\?\\&\\=\\,\\!\\@\\|\\$\\(\\)])?(.*){1}");
   private static final Pattern VARSPEC = Pattern.compile("([^(?:\\:\\d+)\\*\\^]+)([(?:\\:\\d+)\\*\\^]+)?");
-  private static final Pattern LENGTH = Pattern.compile("\\:(\\d+)");
+  static final Pattern LENGTH = Pattern.compile("\\:(\\d+)");
   
   private final String EXP;
   private final Operation op;
@@ -103,7 +101,7 @@ public final class Expression
   }
 
   private Pair<Operation,Iterable<VarSpec>> parse() {
-    List<VarSpec> varspecs = new ArrayList<VarSpec>();
+    ImmutableList.Builder<VarSpec> varspecs = ImmutableList.builder();
     Operation op = null;
     Matcher mt = EXPRESSION.matcher(EXP);
     if (checkArgument(mt.find(),"Invalid Expression")) {
@@ -120,7 +118,7 @@ public final class Expression
               vt.group(2)));
       }
     }
-    return Pair.of(op,Iterables.unmodifiableIterable(varspecs));
+    return Pair.<Operation,Iterable<VarSpec>>of(op,varspecs.build());
   }
   
   

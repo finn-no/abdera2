@@ -31,14 +31,55 @@ public interface Selector<X>
     /** Returns true the item is to be selected **/
     boolean select(Object item);
 
-    public Function<X,Boolean> asFunction();
-    public Predicate<X> asPredicate();
-    public Constraint<X> asConstraint();
+    /** Returns true if all the items in the set match **/
+    boolean all(Iterable<X> items);
+    
+    /** Returns true if any the items in the set match **/
+    boolean any(Iterable<X> items);
+    
+    /** Returns true if none the items in the set match **/
+    boolean none(Iterable<X> items);
+    
+    /**
+     * Returns an immutable iterable containing only the items 
+     * from the given iterable for which the selector applies
+     */
+    Iterable<X> filter(Iterable<X> items);
+    
+    /**
+     * Returns an immutable iterable containing only the items
+     * from the given iterable for which the selector does not apply
+     */
+    Iterable<X> filterOut(Iterable<X> items);
+    
+    /**
+     * Returns the first item in the set that matches the selector
+     */
+    X choose(Iterable<X> items);
+    
+    /**
+     * Returns the first item in the set that matches the selector
+     */
+    X chooseNot(Iterable<X> items);
+    
+    /** Returns the object if the Selector applies, or return null if it doesn't **/
+    X test(X item);
+    
+    /** Returns the result of transform.apply(item) if the Selector applies to the input **/
+    <Y>Y test(X item, Function<X,Y> transform);
+    
+    /** Returns the object if the Selector applies, or return the other X if it doesn't **/
+    X test(X item, X otherwise);
+    
+    Function<X,Boolean> asFunction();
+    Predicate<X> asPredicate();
+    Constraint<X> asConstraint();
+    
     
     /**
      * Returns a Selector that matches this selector up to a specific number of times
      */
-    public Selector<X> limit(int limit);
+    Selector<X> limit(int limit);
     
     /**
      * Returns a Selector<Y> A using this Selector B and Funtion<Y,X> C such that
@@ -46,27 +87,27 @@ public interface Selector<X>
      * B(X),
      * A(Y) = B(C(Y))
      */
-    public <Y>Selector<Y> compose(Function<Y,X> transform);
+    <Y>Selector<Y> compose(Function<Y,X> transform);
     /**
      * Returns a Selector that selects the opposite of this selector
      */
-    public Selector<X> negate();
+    Selector<X> negate();
     /**
      * Returns a Selector that is the union of this and the specified selector
      */
-    public Selector<X> and(Selector<X> selector);
+    Selector<X> and(Selector<X> selector);
     /**
      * Returns a Selector that matches either this or the specified selector
      */
-    public Selector<X> or(Selector<X> selector);
+    Selector<X> or(Selector<X> selector);
     /**
      * Returns a Selector that matches this, but not the specified selector
      */
-    public Selector<X> andNot(Selector<X> selector);
+    Selector<X> andNot(Selector<X> selector);
     /**
      * Returns a Selector that matches this or the inverse of the specified selector
      */
-    public Selector<X> orNot(Selector<X> selector);
+    Selector<X> orNot(Selector<X> selector);
     
     public static class ConstraintSelector<X>
       extends AbstractSelector<X> {
