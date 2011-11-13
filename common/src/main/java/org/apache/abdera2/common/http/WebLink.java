@@ -18,12 +18,7 @@
 package org.apache.abdera2.common.http;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +34,7 @@ import org.apache.abdera2.common.text.Codec;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import static org.apache.abdera2.common.text.CharUtils.*;
@@ -70,19 +66,19 @@ public class WebLink implements Serializable {
   
   public static class Builder implements Supplier<WebLink> {
 
-    private IRI iri;
-    private final Set<String> rel = 
-      new LinkedHashSet<String>();
-    private IRI anchor;
-    private final Set<String> rev =
-      new LinkedHashSet<String>();
-    private Lang lang;
-    private final Set<String> media = 
-      new LinkedHashSet<String>();
-    private String title;
-    private MimeType mediaType;
-    private final Map<String,String> params = 
-      new LinkedHashMap<String,String>();
+    IRI iri;
+    final ImmutableSet.Builder<String> rel = 
+      ImmutableSet.builder();
+    IRI anchor;
+    final ImmutableSet.Builder<String> rev =
+     ImmutableSet.builder();
+    Lang lang;
+    final ImmutableSet.Builder<String> media = 
+      ImmutableSet.builder();
+    String title;
+    MimeType mediaType;
+    final ImmutableMap.Builder<String,String> params = 
+      ImmutableMap.builder();
 
     public Builder () {}
     
@@ -99,19 +95,15 @@ public class WebLink implements Serializable {
       return this;
     }
     
-    public Builder from(WebLink link) {
+    Builder from(WebLink link) {
       this.iri = link.iri;
-      this.rel.clear();
       this.rel.addAll(link.rel);
       this.anchor = link.anchor;
-      this.rev.clear();
       this.rev.addAll(link.rev);
       this.lang = link.lang;
-      this.media.clear();
       this.media.addAll(link.media);
       this.title = link.title;
       this.mediaType = link.mediaType;
-      this.params.clear();
       this.params.putAll(link.params);
       return this;
     }
@@ -183,33 +175,26 @@ public class WebLink implements Serializable {
     }
   }
   
-  private final IRI iri;
-  private final Set<String> rel;
-  private IRI anchor;
-  private final Set<String> rev;
-  private Lang lang;
-  private final Set<String> media;
-  private String title;
-  private MimeType mediaType;
-  private final Map<String,String> params = 
-    new LinkedHashMap<String,String>();
+  final IRI iri;
+  final Set<String> rel;
+  final IRI anchor;
+  final Set<String> rev;
+  final Lang lang;
+  final Set<String> media;
+  final String title;
+  final MimeType mediaType;
+  final ImmutableMap<String,String> params;
   
-  private WebLink(Builder builder) {
+  WebLink(Builder builder) {
     this.iri = builder.iri;
-    this.rel = builder.rel != null ?
-      ImmutableSet.copyOf(builder.rel) :
-      ImmutableSet.<String>of();
-    this.rev = builder.rev != null ?
-      ImmutableSet.copyOf(builder.rev) :
-      ImmutableSet.<String>of();
-    this.media = builder.media != null ?
-      ImmutableSet.copyOf(builder.media) :
-      ImmutableSet.<String>of();
+    this.rel = builder.rel.build();
+    this.rev = builder.rev.build();
+    this.media = builder.media.build();
     this.anchor = builder.anchor;
     this.lang = builder.lang;
     this.title = builder.title;
     this.mediaType = builder.mediaType;
-    this.params.putAll(builder.params);
+    this.params = builder.params.build();
   }
   
   public WebLink(String iri) {
@@ -232,6 +217,7 @@ public class WebLink implements Serializable {
     this.lang = null;
     this.title = null;
     this.mediaType = null;
+    this.params = ImmutableMap.<String,String>of();
   }
   
   public WebLink(IRI iri) {
@@ -244,6 +230,7 @@ public class WebLink implements Serializable {
     this.rel = ImmutableSet.<String>of();
     this.rev = ImmutableSet.<String>of();
     this.media = ImmutableSet.<String>of();
+    this.params = ImmutableMap.<String,String>of();
   }
   
   public IRI getResolvedIri(IRI base) {
@@ -358,11 +345,10 @@ public class WebLink implements Serializable {
 
 
   private static final Set<String> reserved = 
-    new HashSet<String>(
-      ImmutableSet.of(
-        "rel","anchor","rev","hreflang",
-        "media","title","type"));
-  private static boolean reserved(String name) {
+    ImmutableSet.of(
+      "rel","anchor","rev","hreflang",
+      "media","title","type");
+  static boolean reserved(String name) {
     return reserved.contains(name);
   }
   
@@ -425,7 +411,7 @@ public class WebLink implements Serializable {
   };
   
   public static Iterable<WebLink> parse(String text) {
-    List<WebLink> links = new ArrayList<WebLink>();
+    ImmutableList.Builder<WebLink> links = ImmutableList.builder();
     if (text == null) return ImmutableList.<WebLink>of();
     int z = scanFor('<', text, 0, true);
     while(z != -1) {
@@ -465,7 +451,7 @@ public class WebLink implements Serializable {
       if (s == -1) break;
       z = scanFor('<', text, s+1, false);
     }
-    return ImmutableList.copyOf(links);
+    return links.build();
   }
     
   public static String toString(WebLink link, WebLink... links) {

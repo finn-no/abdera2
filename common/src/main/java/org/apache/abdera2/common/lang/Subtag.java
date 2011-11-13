@@ -31,98 +31,102 @@ public final class Subtag
 
     private static final long serialVersionUID = -4496128268514329138L;
 
+    static Type wild(String name, Type other) {
+      return name.equals("*") ? Type.WILDCARD : other;
+    }
+    
     public static Subtag language(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.LANGUAGE, name);
+      return new Subtag(wild(name,Type.LANGUAGE), name);
     }
     
     public static Subtag language(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.LANGUAGE, name, prev);
+      return new Subtag(wild(name,Type.LANGUAGE), name, prev);
     }
     
     public static Subtag extlang(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTLANG, name);
+      return new Subtag(wild(name,Type.EXTLANG), name);
     }
     
     public static Subtag extlang(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTLANG, name, prev);
+      return new Subtag(wild(name,Type.EXTLANG), name, prev);
     }
     
     public static Subtag script(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SCRIPT, name);
+      return new Subtag(wild(name,Type.SCRIPT), name);
     }
     
     public static Subtag script(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SCRIPT, name, prev);
+      return new Subtag(wild(name,Type.SCRIPT), name, prev);
     }
     
     public static Subtag region(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.REGION, name);
+      return new Subtag(wild(name,Type.REGION), name);
     }
     
     public static Subtag region(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.REGION, name, prev);
+      return new Subtag(wild(name,Type.REGION), name, prev);
     }
     
     public static Subtag variant(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.VARIANT, name);
+      return new Subtag(wild(name,Type.VARIANT), name);
     }
     
     public static Subtag variant(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.VARIANT, name, prev);
+      return new Subtag(wild(name,Type.VARIANT), name, prev);
     }
     
     public static Subtag singleton(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SINGLETON, name);
+      return new Subtag(wild(name,Type.SINGLETON), name);
     }
     
     public static Subtag singleton(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SINGLETON, name, prev);
+      return new Subtag(wild(name,Type.SINGLETON), name, prev);
     }
     
     public static Subtag extension(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTENSION, name);
+      return new Subtag(wild(name,Type.EXTENSION), name);
     }
     
     public static Subtag extension(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.EXTENSION, name, prev);
+      return new Subtag(wild(name,Type.EXTENSION), name, prev);
     }
     
     public static Subtag privateuse(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.PRIVATEUSE, name);
+      return new Subtag(wild(name,Type.PRIVATEUSE), name);
     }
     
     public static Subtag privateuse(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.PRIVATEUSE, name, prev);
+      return new Subtag(wild(name,Type.PRIVATEUSE), name, prev);
     }
     
     public static Subtag grandfathered(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.GRANDFATHERED, name);
+      return new Subtag(wild(name,Type.GRANDFATHERED), name);
     }
     
     public static Subtag grandfathered(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.GRANDFATHERED, name, prev);
+      return new Subtag(wild(name,Type.GRANDFATHERED), name, prev);
     }
    
     public static Subtag simple(String name) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SIMPLE, name);
+      return new Subtag(wild(name,Type.SIMPLE), name);
     }
     
     public static Subtag simple(String name, Subtag prev) {
-      return new Subtag(name.equals("*") ? Type.WILDCARD : Type.SIMPLE, name, prev);
+      return new Subtag(wild(name,Type.SIMPLE), name, prev);
     }
     
     public enum Type {
-        LANGUAGE,
-        EXTLANG,
-        SCRIPT,
-        REGION,
-        VARIANT,
-        SINGLETON,
-        EXTENSION,
-        PRIVATEUSE,
-        GRANDFATHERED,
-        WILDCARD,
-        SIMPLE
+      LANGUAGE,
+      EXTLANG,
+      SCRIPT,
+      REGION,
+      VARIANT,
+      SINGLETON,
+      EXTENSION,
+      PRIVATEUSE,
+      GRANDFATHERED,
+      WILDCARD,
+      SIMPLE
     }
 
     private final Type type;
@@ -132,34 +136,34 @@ public final class Subtag
     private Subtag root;
 
     public Subtag(
-        Type type, 
-        String name) {
-        this(
-            type, 
-            name, 
-            null);
+      Type type, 
+      String name) {
+      this(
+        type, 
+        name, 
+        null);
     }
 
     Subtag() {
-        this(
-            Type.WILDCARD, 
-            "*");
+      this(
+        Type.WILDCARD, 
+        "*");
     }
 
     /**
      * Create a Subtag
      */
     public Subtag(
-        Type type, 
-        String name, 
-        Subtag prev) {
-        this.type = type;
-        this.name = name;
-        this.prev = prev;
-        if (prev != null) {
-            prev.setNext(this);
-            this.root = prev.root();
-        } else this.root = null;
+      Type type, 
+      String name, 
+      Subtag prev) {
+      this.type = type;
+      this.name = name;
+      this.prev = prev;
+      if (prev != null) {
+        prev.setNext(this);
+        this.root = prev.root();
+      } else this.root = null;
     }
 
     Subtag(Subtag copy, Subtag parent) {
@@ -167,16 +171,16 @@ public final class Subtag
     }
     
     Subtag(
-        Type type, 
-        String name, 
-        Subtag prev, 
-        Subtag next,
-        Subtag root) {
-        this.type = type;
-        this.name = name;
-        this.prev = prev;
-        this.next = next;
-        this.root = root;
+      Type type, 
+      String name, 
+      Subtag prev, 
+      Subtag next,
+      Subtag root) {
+      this.type = type;
+      this.name = name;
+      this.prev = prev;
+      this.next = next;
+      this.root = root;
     }
 
     public Subtag root() {
@@ -210,24 +214,24 @@ public final class Subtag
     }
 
     public String toString() {
-        switch (type) {
-            case LANGUAGE:
-                return name.toLowerCase(Locale.US);
-            case REGION:
-                return name.toUpperCase(Locale.US);
-            case SCRIPT:
-                return toTitleCase(name);
-            default:
-                return name.toLowerCase(Locale.US);
-        }
+      switch (type) {
+        case LANGUAGE:
+          return name.toLowerCase(Locale.US);
+        case REGION:
+          return name.toUpperCase(Locale.US);
+        case SCRIPT:
+          return toTitleCase(name);
+        default:
+          return name.toLowerCase(Locale.US);
+      }
     }
 
     private static String toTitleCase(String string) {
-        if (string == null || string.length() == 0)
-            return string;
-        char[] chars = string.toLowerCase(Locale.US).toCharArray();
-        chars[0] = Character.toTitleCase(chars[0]);
-        return new String(chars);
+      if (string == null || string.length() == 0)
+        return string;
+      char[] chars = string.toLowerCase(Locale.US).toCharArray();
+      chars[0] = Character.toTitleCase(chars[0]);
+      return new String(chars);
     }
 
     public int hashCode() {

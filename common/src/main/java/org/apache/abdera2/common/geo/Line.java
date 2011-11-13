@@ -84,9 +84,7 @@ public class Line extends Multiple {
   
     public static class Builder extends Multiple.Builder<Line> {
       
-      public Builder() {
-        noDuplicates();
-      }
+      public Builder() {}
       
       public Line get() {
         return new Line(this);

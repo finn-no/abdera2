@@ -18,7 +18,6 @@
 package org.apache.abdera2.ext.bidi;
 
 import java.text.AttributedString;
-import java.util.Arrays;
 import java.util.Locale;
 
 import javax.xml.namespace.QName;
@@ -27,6 +26,8 @@ import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>
@@ -275,33 +276,36 @@ public final class BidiHelper {
       UNSPECIFIED, LTR, RTL
   };
 
-  private static final String[] RTL_LANGS = {"ar", "dv", "fa", "he", "ps", "syr", "ur", "yi"};
+  private static final ImmutableSet<String> RTL_LANGS = 
+    ImmutableSet.of("ar", "dv", "fa", "he", "ps", "syr", "ur", "yi");
 
-  private static final String[] RTL_SCRIPTS =
-      {"arab", "avst", "hebr", "hung", "lydi", "mand", "mani", "mero", "mong", "nkoo", "orkh", "phlv", "phnx",
-       "samr", "syrc", "syre", "syrj", "syrn", "tfng", "thaa"};
-  // charset encodings that one may typically expect to be RTL
-  private static final String[] RTL_ENCODINGS =
-      {"iso-8859-6", "iso-8859-6-bidi", "iso-8859-6-i", "iso-ir-127", "ecma-114", "asmo-708", "arabic",
+  private static final ImmutableSet<String> RTL_SCRIPTS =
+    ImmutableSet.of(
+       "arab", "avst", "hebr", "hung", "lydi", "mand", "mani", 
+       "mero", "mong", "nkoo", "orkh", "phlv", "phnx",
+       "samr", "syrc", "syre", "syrj", "syrn", "tfng", "thaa");
+
+  private static final ImmutableSet<String> RTL_ENCODINGS =
+     ImmutableSet.of("iso-8859-6", "iso-8859-6-bidi", "iso-8859-6-i", "iso-ir-127", "ecma-114", "asmo-708", "arabic",
        "csisolatinarabic", "windows-1256", "ibm-864", "macarabic", "macfarsi", "iso-8859-8-i", "iso-8859-8-bidi",
        "windows-1255", "iso-8859-8", "ibm-862", "machebrew", "asmo-449", "iso-9036", "arabic7", "iso-ir-89",
        "csiso89asmo449", "iso-unicode-ibm-1264", "csunicodeibm1264", "iso_8859-8:1988", "iso-ir-138", "hebrew",
-       "csisolatinhebrew", "iso-unicode-ibm-1265", "csunicodeibm1265", "cp862", "862", "cspc862latinhebrew"};
+       "csisolatinhebrew", "iso-unicode-ibm-1265", "csunicodeibm1265", "cp862", "862", "cspc862latinhebrew");
 
   /**
    * Algorithm that will determine text direction by looking at the characteristics of the language tag. If the tag
    * uses a language or script that is known to be RTL, then Direction.RTL will be returned
    */
   public static Direction guessDirectionFromLanguage(Lang lang) {
-      if (lang.script() != null) {
-          String script = lang.script().name();
-          if (Arrays.binarySearch(RTL_SCRIPTS, script.toLowerCase()) > -1)
-              return Direction.RTL;
-      }
-      String primary = lang.language().name();
-      if (Arrays.binarySearch(RTL_LANGS, primary.toLowerCase()) > -1)
+    if (lang.script() != null) {
+      String script = lang.script().name();
+      if (RTL_SCRIPTS.contains(script.toLowerCase()))
           return Direction.RTL;
-      return Direction.UNSPECIFIED;
+    }
+    String primary = lang.language().name();
+    if (RTL_LANGS.contains(primary.toLowerCase()))
+      return Direction.RTL;
+    return Direction.UNSPECIFIED;
   }
 
   /**
@@ -309,13 +313,12 @@ public final class BidiHelper {
    * typically used for RTL languages, Direction.RTL will be returned
    */
   public static Direction guessDirectionFromEncoding(String charset) {
-      if (charset == null)
-          return Direction.UNSPECIFIED;
-      charset = charset.replace('_', '-');
-      Arrays.sort(RTL_ENCODINGS);
-      if (Arrays.binarySearch(RTL_ENCODINGS, charset.toLowerCase()) > -1)
-          return Direction.RTL;
-      return Direction.UNSPECIFIED;
+    if (charset == null)
+        return Direction.UNSPECIFIED;
+    charset = charset.replace('_', '-');
+    if (RTL_ENCODINGS.contains(charset.toLowerCase()))
+        return Direction.RTL;
+    return Direction.UNSPECIFIED;
   }
 
   /**
@@ -323,22 +326,22 @@ public final class BidiHelper {
    * text are RTL characters, then Direction.RTL will be returned.
    */
   public static Direction guessDirectionFromTextProperties(String text) {
-      if (text != null && text.length() > 0) {
-          if (text.charAt(0) == 0x200F)
-              return Direction.RTL; // if using the unicode right-to-left mark
-          if (text.charAt(0) == 0x200E)
-              return Direction.LTR; // if using the unicode left-to-right mark
-          int c = 0;
-          for (int n = 0; n < text.length(); n++) {
-              char ch = text.charAt(n);
-              if (java.text.Bidi.requiresBidi(new char[] {ch}, 0, 1))
-                  c++;
-              else
-                  c--;
-          }
-          return c > 0 ? Direction.RTL : Direction.LTR;
-      }
-      return Direction.UNSPECIFIED;
+    if (text != null && text.length() > 0) {
+        if (text.charAt(0) == 0x200F)
+            return Direction.RTL; // if using the unicode right-to-left mark
+        if (text.charAt(0) == 0x200E)
+            return Direction.LTR; // if using the unicode left-to-right mark
+        int c = 0;
+        for (int n = 0; n < text.length(); n++) {
+            char ch = text.charAt(n);
+            if (java.text.Bidi.requiresBidi(new char[] {ch}, 0, 1))
+                c++;
+            else
+                c--;
+        }
+        return c > 0 ? Direction.RTL : Direction.LTR;
+    }
+    return Direction.UNSPECIFIED;
   }
 
   /**

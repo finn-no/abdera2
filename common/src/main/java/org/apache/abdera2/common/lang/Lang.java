@@ -17,9 +17,8 @@
  */
 package org.apache.abdera2.common.lang;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +29,7 @@ import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Implementation of RFC 4646 Language Tags. Instances are immutable and 
@@ -154,13 +153,13 @@ public final class Lang
     }
     
     public Iterable<Subtag> extensions() {
-      List<Subtag> list = new ArrayList<Subtag>();
+      ImmutableList.Builder<Subtag> list = ImmutableList.builder();
       Subtag extension = extension();
       while(extension != null) {
         list.add(extension);
         extension = nextExtension(extension);
       }
-      return Iterables.unmodifiableIterable(list);
+      return list.build();
     }
     
     public Subtag extension(String name) {

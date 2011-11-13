@@ -17,13 +17,11 @@ package org.apache.abdera2.common.misc;
  * directory of this distribution.
  */
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -36,7 +34,7 @@ public final class Chain<T,R>
 
     public Chain(Function<T,R> to, Task<T,R>... tasks) {
       this.to = to;
-      this.tasks = Arrays.asList(tasks).iterator();
+      this.tasks = ImmutableList.copyOf(tasks).iterator();
     }
     
     public Chain(Function<T,R> to, Iterable<Task<T,R>> tasks) {
@@ -62,8 +60,8 @@ public final class Chain<T,R>
     }
     
     public static class Builder<T,R> {
-      private final List<Task<T,R>> tasks = 
-        new ArrayList<Task<T,R>>();
+      private final ImmutableList.Builder<Task<T,R>> tasks = 
+        ImmutableList.builder();
       private Function<T,R> finalTask;
       private Builder() {}
       public Builder<T,R> to(Function<T,R> finalTask) {
@@ -96,7 +94,7 @@ public final class Chain<T,R>
       }
       public Chain<T,R> get() {
         checkNotNull(finalTask);
-        return new Chain<T,R>(finalTask,tasks);
+        return new Chain<T,R>(finalTask,tasks.build());
       }
     }
     

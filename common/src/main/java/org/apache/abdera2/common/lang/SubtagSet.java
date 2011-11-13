@@ -31,67 +31,67 @@ public abstract class SubtagSet
              Comparable<SubtagSet>{
 
   private static final long serialVersionUID = -1862650860527311777L;
-    protected final Subtag root;
+  protected final Subtag root;
 
-    protected SubtagSet(Subtag root) {
-        this.root = root;
-    }
+  protected SubtagSet(Subtag root) {
+    this.root = root;
+  }
 
-    public String toString() {
-        StringBuilder buf = 
-          new StringBuilder();
-        Iterator<Subtag> tags = 
-          iterator();
-        buf.append(
-            tags.next().name());
-        while(tags.hasNext())
-            buf.append('-')
-               .append(tags.next().name());
-        return buf.toString();
-    }
+  public String toString() {
+    StringBuilder buf = 
+      new StringBuilder();
+    Iterator<Subtag> tags = 
+      iterator();
+    buf.append(
+      tags.next().name());
+    while(tags.hasNext())
+      buf.append('-')
+         .append(tags.next().name());
+    return buf.toString();
+  }
 
-    public Iterator<Subtag> iterator() {
-        return new SubtagIterator(root);
-    }
+  public Iterator<Subtag> iterator() {
+    return new SubtagIterator(root);
+  }
 
-    public boolean contains(Subtag subtag) {
-        for (Subtag tag : this)
-            if (tag.equals(subtag))
-                return true;
-        return false;
-    }
+  public boolean contains(Subtag subtag) {
+    for (Subtag tag : this)
+      if (tag.equals(subtag))
+        return true;
+    return false;
+  }
 
-    public boolean contains(String tag) {
-        return contains(tag, Subtag.Type.SIMPLE);
-    }
+  public boolean contains(String tag) {
+    return contains(tag, Subtag.Type.SIMPLE);
+  }
 
-    public boolean contains(String tag, Subtag.Type type) {
-        return contains(new Subtag(type, tag));
-    }
+  public boolean contains(String tag, Subtag.Type type) {
+    return contains(new Subtag(type, tag));
+  }
     
-    public int length() {
-        return toString().length();
-    }
+  public int length() {
+    return toString().length();
+  }
 
-    @SuppressWarnings("unused")
-    public int size() {
-        int n = 0;
-        for (Subtag tag : this)
-            n++;
-        return n;
-    }
+  @SuppressWarnings("unused")
+  public int size() {
+    int n = 0;
+    for (Subtag tag : this)
+      n++;
+    return n;
+  }
 
-    public Subtag get(int index) {
-        if (index < 0)
-            throw new IndexOutOfBoundsException();
-        if (index == 0) return root;
-        Subtag tag = root.next();
-        while (tag != null && --index > 0)
-          tag = tag.next();
-        if (tag == null)
-          throw new IndexOutOfBoundsException();
-        return tag;
-    }
+  public Subtag get(int index) {
+    if (index < 0)
+      throw new IndexOutOfBoundsException();
+    if (index == 0) return root;
+    Subtag tag = root.next();
+    while (tag != null && --index > 0)
+      tag = tag.next();
+    if (tag == null)
+      throw new IndexOutOfBoundsException();
+    return tag;
+  }
 
     public static class SubtagIterator implements Iterator<Subtag> {
         private Subtag current;

@@ -45,11 +45,11 @@ public class ServiceObject
     }
   }
   
-  protected ServiceObject(Map<String,Object> map) {
+  public ServiceObject(Map<String,Object> map) {
     super(map,Builder.class,ServiceObject.class);
   }
   
-  protected <X extends ServiceObject, M extends ASObject.Builder<X,M>>ServiceObject(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
+  public <X extends ServiceObject, M extends ASObject.Builder<X,M>>ServiceObject(Map<String,Object> map, Class<M> _class, Class<X> _obj) {
     super(map,_class,_obj);
   }
 

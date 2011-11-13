@@ -137,10 +137,10 @@ public class ActivityToFeedConverter {
       summary(activity,writer);
       if (activity.getUpdated() != null)
         writer.writeUpdated(activity.getUpdated());
-      else writer.writeUpdated(DateTime.now());
+      else writer.writeUpdatedNow();
       if (activity.getPublished() != null)
         writer.writePublished(activity.getPublished());
-      else writer.writePublished(DateTime.now());
+      else writer.writePublishedNow();
       if (activity.getUrl() != null)
         writer.writeLink(activity.getUrl().toString());
       actor(activity,writer);

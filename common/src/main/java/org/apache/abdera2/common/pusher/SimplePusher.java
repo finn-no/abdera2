@@ -22,21 +22,20 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 
+import org.apache.abdera2.common.misc.MoreExecutors2;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class SimplePusher<T> 
   extends AbstractPusher<T> implements Pusher<T>, Receiver<T> {
 
-  private final static Log log = LogFactory.getLog(SimplePusher.class);
+  final static Log log = LogFactory.getLog(SimplePusher.class);
   
-  private final Queue<T> queue = new ConcurrentLinkedQueue<T>();
-  private final ThreadPoolExecutor exec = 
-    (ThreadPoolExecutor) Executors.newCachedThreadPool();
-  private final Set<Listener<T>> listeners = 
+  final Queue<T> queue = new ConcurrentLinkedQueue<T>();
+  final ExecutorService exec = MoreExecutors2.getExitingExecutor();
+  final Set<Listener<T>> listeners = 
     new HashSet<Listener<T>>();
   
   public void startListening(Listener<T> listener) {
@@ -99,8 +98,6 @@ public class SimplePusher<T>
   }
   
   public void shutdown() {
-    ThreadPoolExecutor exec = (ThreadPoolExecutor) this.exec;
-    exec.shutdown();
     for (Listener<?> listener : listeners)
       listener.afterItems();
     listeners.clear(); // remove all the listeners

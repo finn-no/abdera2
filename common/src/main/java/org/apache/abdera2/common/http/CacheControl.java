@@ -18,7 +18,6 @@
 package org.apache.abdera2.common.http;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +26,7 @@ import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class CacheControl implements Serializable {
 
-  private static final Set<String> reserved = 
+  static final Set<String> reserved = 
     ImmutableSet.of(
       "private","public","no-cache","no-store","no-transform","only-if-cached",
       "must-revalidate", "proxy-revalidate", "max-age", "max-stale", "min-fresh",
@@ -60,8 +60,8 @@ public final class CacheControl implements Serializable {
                    smax_age = -1,
                    staleiferror = -1,
                    stalewhilerevalidate = -1;
-    protected final Map<String,Object> exts =
-      new LinkedHashMap<String,Object>();
+    protected final ImmutableMap.Builder<String,Object> exts =
+      ImmutableMap.builder();
     
     public Builder() {
       defaults();
@@ -290,10 +290,9 @@ public final class CacheControl implements Serializable {
                  smax_age,
                  staleiferror,
                  stalewhilerevalidate;
-  protected final Map<String,Object> exts =
-    new LinkedHashMap<String,Object>();
+  protected final ImmutableMap<String,Object> exts;
   
-  private CacheControl(Builder builder) {
+  CacheControl(Builder builder) {
     this.flags = builder.flags;
     this.nocache_headers = 
       builder.nocache_headers != null ?
@@ -309,7 +308,7 @@ public final class CacheControl implements Serializable {
     this.smax_age = builder.smax_age;
     this.staleiferror = builder.staleiferror;
     this.stalewhilerevalidate = builder.stalewhilerevalidate;
-    this.exts.putAll(builder.exts);
+    this.exts = builder.exts.build();
   }
   
   public Object getExtension(String name) {
@@ -317,7 +316,7 @@ public final class CacheControl implements Serializable {
   }
   
   public Iterable<String> listExtensions() {
-    return Iterables.unmodifiableIterable(exts.keySet());
+    return exts.keySet();
   }
   
   protected boolean check(int flag) {

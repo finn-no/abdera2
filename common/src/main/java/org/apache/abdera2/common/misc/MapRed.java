@@ -33,8 +33,12 @@ import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 /**
  * Provides lightweight, standalone MapReduce functionality without
@@ -212,12 +216,13 @@ public final class MapRed {
     return new MapperFunction<K1,V1,K2,V2>() {
       public Iterable<Pair<K2,Iterable<V2>>> apply(Iterable<Pair<K1,V1>> input) {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls);
-        List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
+        ImmutableList.Builder<Pair<K2, Iterable<V2>>> list = 
+          ImmutableList.builder();
         for (Pair<K1, V1> entry : input)
           mapper.map(entry.first(), entry.second(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
           list.add(Pair.of(entry.getKey(), entry.getValue()));
-        return list;
+        return list.build();
       }      
     };
   }
@@ -229,12 +234,12 @@ public final class MapRed {
     return new MapperFunction<K1,V1,K2,V2>() {
       public Iterable<Pair<K2,Iterable<V2>>> apply(Iterable<Pair<K1,V1>> input) {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls,comparator);
-        List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
+        ImmutableList.Builder<Pair<K2, Iterable<V2>>> list = ImmutableList.builder();
         for (Pair<K1, V1> entry : input)
           mapper.map(entry.first(), entry.second(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
           list.add(Pair.of(entry.getKey(), entry.getValue()));
-        return list;
+        return list.build();
       }      
     };
   }
@@ -257,12 +262,12 @@ public final class MapRed {
     return new ReducerFunction<K1,V1,K2,V2>() {
       public Iterable<Pair<K2,Iterable<V2>>> apply(Iterable<Pair<K1,Iterable<V1>>> input) {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls, comparator);
-        List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
+        ImmutableList.Builder<Pair<K2, Iterable<V2>>> list = ImmutableList.builder();
         for (Pair<K1, Iterable<V1>> entry : input)
           reducer.reduce(entry.first(), entry.second().iterator(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
           list.add(Pair.of(entry.getKey(), entry.getValue()));
-        return list;
+        return list.build();
       }      
     };
   }
@@ -273,12 +278,12 @@ public final class MapRed {
     return new ReducerFunction<K1,V1,K2,V2>() {
       public Iterable<Pair<K2,Iterable<V2>>> apply(Iterable<Pair<K1,Iterable<V1>>> input) {
         SimpleCollector<K2,V2> context = new SimpleCollector<K2,V2>(nulls);
-        List<Pair<K2, Iterable<V2>>> list = new ArrayList<Pair<K2, Iterable<V2>>>();
+        ImmutableList.Builder<Pair<K2, Iterable<V2>>> list = ImmutableList.builder();
         for (Pair<K1, Iterable<V1>> entry : input)
           reducer.reduce(entry.first(), entry.second().iterator(), context);
         for (Map.Entry<K2, Iterable<V2>> entry : context.collected())
           list.add(Pair.of(entry.getKey(), entry.getValue()));
-        return list;
+        return list.build();
       }      
     };
   }
@@ -466,9 +471,10 @@ public final class MapRed {
     return new PartitionFunction<T>() {
       public Iterable<Iterable<T>> apply(Iterable<T> input) {
         Iterable<List<T>> i = Iterables.<T>partition(input, size);
-        List<Iterable<T>> l = new ArrayList<Iterable<T>>();
-        Iterables.addAll(l, i);
-        return Iterables.unmodifiableIterable(l);
+        ImmutableList.Builder<Iterable<T>> l = ImmutableList.builder();
+        for (List<T> list : i)
+          l.add(list);
+        return l.build();
       }
     };
   }
@@ -498,9 +504,7 @@ public final class MapRed {
     return new CombinerFunction<T>() {
       public Iterable<T> apply(Iterable<Iterable<T>> input) {
         Iterable<T> c = Iterables.concat(input);
-        LinkedHashSet<T> l = new LinkedHashSet<T>();
-        Iterables.addAll(l, c);
-        return l;
+        return ImmutableSet.copyOf(c);
       }      
     };
   }
@@ -517,11 +521,10 @@ public final class MapRed {
     return new CombinerFunction<T>() {
       public Iterable<T> apply(Iterable<Iterable<T>> input) {
         Iterable<T> i = Iterables.concat(input);
-        List<T> l = new ArrayList<T>();
-        Iterables.addAll(l, i);
+        List<T> l = Lists.newArrayList(i);
         if (order != null)
           Collections.sort(l,order);
-        return l;
+        return ImmutableList.copyOf(l);
       }      
     };
   }
@@ -537,8 +540,7 @@ public final class MapRed {
     return new CombinerFunction<T>() {
       public Iterable<T> apply(Iterable<Iterable<T>> input) {
         Iterable<T> i = Iterables.concat(input);
-        List<T> l = new ArrayList<T>();
-        Iterables.addAll(l, i);
+        List<T> l = Lists.newArrayList(i);
         Collections.<T>sort(l);
         return l;
       }      
@@ -642,7 +644,11 @@ public final class MapRed {
       set.add(val);
     }
     public Iterable<Map.Entry<K,Iterable<V>>> collected() {  
-      return Collections.<Map.Entry<K,Iterable<V>>>unmodifiableSet(map.entrySet());
+      ImmutableMap.Builder<K,Iterable<V>> builder = 
+        ImmutableMap.builder();
+      for (Map.Entry<K,Iterable<V>> entry : map.entrySet())
+        builder.put(entry.getKey(), ImmutableList.copyOf(entry.getValue()));
+      return builder.build().entrySet();
     }
   }
 }

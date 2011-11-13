@@ -20,26 +20,29 @@ package org.apache.abdera2.common.geo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import static com.google.common.base.Preconditions.*;
 @SuppressWarnings("unchecked")
-public abstract class Multiple extends Position implements Iterable<Coordinate> {
+public abstract class Multiple 
+  extends Position 
+  implements Iterable<Coordinate> {
   
-  public static abstract class Builder<X extends Multiple> extends Position.Builder<X> {
+  public static abstract class Builder<X extends Multiple> 
+    extends Position.Builder<X> {
 
-    protected Collection<Coordinate> coordinates = 
-      new ArrayList<Coordinate>();
+    protected ImmutableCollection.Builder<Coordinate> coordinates = 
+      ImmutableList.builder();
+    private int size = 0;
     protected int maxpoints = -1;
     
     public <P extends Builder<X>>P noDuplicates() {
-      this.coordinates = new LinkedHashSet<Coordinate>(coordinates);
+      this.coordinates = ImmutableSet.<Coordinate>builder().addAll(coordinates.build());
       return (P)this;
     }
     
@@ -50,31 +53,35 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
     public <P extends Builder<X>>P maximumCoordinates(int max) {
       checkArgument(max > -1, "Maximum must not be negative");
       this.maxpoints = max;
-      checkMaxPoints(coordinates.size(),max);
+      checkMaxPoints(size,max);
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(Coordinate coordinate) {
-      checkMaxPoints(coordinates.size()+1,maxpoints);
+      checkMaxPoints(size+1,maxpoints);
       this.coordinates.add(coordinate);
+      size++;
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(double latitude, double longitude) {
-      checkMaxPoints(coordinates.size()+1,maxpoints);
+      checkMaxPoints(size+1,maxpoints);
       this.coordinates.add(Coordinate.at(latitude,longitude));
+      size++;
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(String position) {
-      checkMaxPoints(coordinates.size()+1,maxpoints);
+      checkMaxPoints(size+1,maxpoints);
       this.coordinates.add(Coordinate.at(position));
+      size++;
       return (P)this;
     }
     
     public <P extends Builder<X>>P add(IsoPosition position) {
-      checkMaxPoints(coordinates.size()+1,maxpoints);
+      checkMaxPoints(size+1,maxpoints);
       this.coordinates.add(Coordinate.at(position));
+      size++;
       return (P)this;
     }
     
@@ -85,10 +92,7 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
 
     protected Multiple(Builder<?> builder) {
       super(builder);
-      this.coordinates = 
-        builder.coordinates instanceof Set ?
-          ImmutableSet.<Coordinate>copyOf(builder.coordinates) :
-        ImmutableList.<Coordinate>copyOf(builder.coordinates);
+      this.coordinates = builder.coordinates.build();
     }
 
     public Iterator<Coordinate> iterator() {

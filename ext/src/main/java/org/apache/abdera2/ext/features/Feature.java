@@ -20,9 +20,6 @@ package org.apache.abdera2.ext.features;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
 import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.common.anno.QName;
 import org.apache.abdera2.common.iri.IRI;
@@ -30,6 +27,7 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElementWrapper;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
 import static org.apache.abdera2.ext.features.FeaturesHelper.*;
+import static com.google.common.base.Preconditions.*;
 
 @QName(value="feature", 
     ns=FNS,
@@ -59,16 +57,14 @@ public class Feature extends ExtensibleElementWrapper {
     }
 
     public void setRef(String ref) {
-        if (ref == null)
-            throw new IllegalArgumentException();
-        setAttributeValue("ref", (new IRI(ref)).toString());
+      setAttributeValue("ref", (new IRI(checkNotNull(ref))).toString());
     }
 
     public void setHref(String href) {
-        if (href != null)
-            setAttributeValue("href", (new IRI(href)).toString());
-        else
-            removeAttribute("href");
+      if (href != null)
+        setAttributeValue("href", (new IRI(href)).toString());
+      else
+        removeAttribute("href");
     }
 
     public void setLabel(String label) {

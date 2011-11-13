@@ -36,7 +36,7 @@ public final class CacheControlUtil {
 
     private CacheControlUtil() {}
   
-    private static long value(String val) {
+    static long value(String val) {
         return (val != null) ? Long.parseLong(val) : -1;
     }
     

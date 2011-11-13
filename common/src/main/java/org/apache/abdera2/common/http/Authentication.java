@@ -21,12 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +41,9 @@ import org.apache.commons.codec.binary.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 /**
  * Implementation of the HTTP Challenge/Credentials Construct. This is helpful when 
@@ -71,18 +69,16 @@ public class Authentication implements Iterable<String>, Serializable {
     Pattern.compile("("+PARAM+")");
   
   private final static Set<String> ALWAYS = 
-    new HashSet<String>(
-      ImmutableSet.of(
-        "domain",
-        "nonce",
-        "opaque",
-        "qop",
-        "realm"));
+    Sets.newHashSet(
+      "domain",
+      "nonce",
+      "opaque",
+      "qop",
+      "realm");
   
   public static synchronized void alwaysQuote(String... names) {
-    checkNotNull(names);
     checkArgument(names.length > 0);
-    for (String name : names)
+    for (String name : checkNotNull(names))
       ALWAYS.add(name);
   }
   
@@ -125,12 +121,12 @@ public class Authentication implements Iterable<String>, Serializable {
 
   public static class Builder 
     implements Supplier<Authentication> {
-    private String scheme;
-    private String b64token;
-    private final Map<String,String> params = 
-      new LinkedHashMap<String,String>();
-    private final Set<String> quoted = 
-      new HashSet<String>();
+    String scheme;
+    String b64token;
+    final ImmutableMap.Builder<String,String> params = 
+      ImmutableMap.builder();
+    final ImmutableSet.Builder<String> quoted = 
+      ImmutableSet.builder();
     
     public Authentication get() {
       checkNotNull(scheme);
@@ -172,9 +168,8 @@ public class Authentication implements Iterable<String>, Serializable {
   
   private final String scheme;
   private final String b64token;
-  private final Map<String,String> params = 
-    new LinkedHashMap<String,String>();
-  private final Set<String> quoted;
+  private final ImmutableMap<String,String> params;
+  private final ImmutableSet<String> quoted;
     
   public Authentication(String scheme) {
     this(scheme,null);
@@ -184,14 +179,15 @@ public class Authentication implements Iterable<String>, Serializable {
     checkNotNull(scheme);
     this.scheme = scheme.toLowerCase(Locale.US);
     this.b64token = b64token;
+    this.params = ImmutableMap.<String,String>of();
     this.quoted = ImmutableSet.<String>of();
   }
   
-  private Authentication(Builder builder) {
+  Authentication(Builder builder) {
     this.scheme = builder.scheme;
     this.b64token = builder.b64token;
-    this.params.putAll(builder.params);
-    this.quoted = ImmutableSet.copyOf(builder.quoted);
+    this.params = builder.params.build();
+    this.quoted = builder.quoted.build();
   }
   
   public String getScheme() {
@@ -215,7 +211,7 @@ public class Authentication implements Iterable<String>, Serializable {
   }
   
   public Iterator<String> iterator() {
-    return Iterators.unmodifiableIterator(params.keySet().iterator());
+    return params.keySet().iterator();
   }
   
   private boolean isquoted(String param) {
@@ -249,7 +245,7 @@ public class Authentication implements Iterable<String>, Serializable {
 
   @Override
   public int hashCode() {
-    return MoreFunctions.genHashCode(1,b64token,params,scheme);
+    return MoreFunctions.genHashCode(1,b64token,params,scheme.toLowerCase());
   }
 
   @Override
@@ -274,7 +270,7 @@ public class Authentication implements Iterable<String>, Serializable {
     if (scheme == null) {
       if (other.scheme != null)
         return false;
-    } else if (!scheme.equals(other.scheme))
+    } else if (!scheme.equalsIgnoreCase(other.scheme))
       return false;
     return true;
   }

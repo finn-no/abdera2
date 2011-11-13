@@ -19,12 +19,7 @@ package org.apache.abdera2.common.http;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +36,9 @@ import org.apache.abdera2.common.text.CharUtils.Profile;
 import static com.google.common.base.Preconditions.*;
 
 import com.google.common.base.Supplier;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Implementation of the Prefer HTTP Header, e.g.
@@ -96,10 +93,10 @@ public class Preference implements Serializable {
   
   public static class Builder implements Supplier<Preference> {
 
-    private String token;
-    private String value;
-    private final Map<String,String> params = 
-      new LinkedHashMap<String,String>();
+    String token;
+    String value;
+    final ImmutableMap.Builder<String,String> params = 
+      ImmutableMap.builder();
     
     public Preference get() {
       return new Preference(this);
@@ -166,13 +163,12 @@ public class Preference implements Serializable {
   private static final long serialVersionUID = -6238673046322517740L;
   private final String token;
   private final String value;
-  private final Map<String,String> params = 
-    new HashMap<String,String>();
+  private final ImmutableMap<String,String> params;
   
-  private Preference(Builder builder) {
+  Preference(Builder builder) {
     this.token = builder.token;
     this.value = builder.value;
-    this.params.putAll(builder.params);
+    this.params = builder.params.build();
   }
   
   public Preference(String token) {
@@ -183,6 +179,7 @@ public class Preference implements Serializable {
     Profile.TOKEN.verify(token);
     this.token = token.toLowerCase(Locale.US);
     this.value = value;
+    this.params = ImmutableMap.<String,String>of();
   }
   
   public String getToken() {
@@ -209,10 +206,10 @@ public class Preference implements Serializable {
     return Boolean.parseBoolean(value);
   }
   
-  private static final Set<String> reserved = 
-    new HashSet<String>(); // no reserved yet
+  static final Set<String> reserved = 
+    ImmutableSet.<String>of(); // no reserved yet
   
-  private static boolean reserved(String name) {
+  static boolean reserved(String name) {
     return reserved.contains(name);
   }
   
@@ -307,7 +304,7 @@ public class Preference implements Serializable {
     Pattern.compile("("+PARAM+")");
   
   public static Iterable<Preference> parse(String text) {
-    List<Preference> prefs = new ArrayList<Preference>();
+    ImmutableList.Builder<Preference> prefs = ImmutableList.builder();
     Matcher matcher = pattern.matcher(text);
     while (matcher.find()) {
       String pref = matcher.group(1);
@@ -333,7 +330,7 @@ public class Preference implements Serializable {
       }
       prefs.add(maker.get());
     }
-    return Iterables.unmodifiableIterable(prefs);
+    return prefs.build();
   }
   
   public static String toString(

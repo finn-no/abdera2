@@ -30,8 +30,8 @@ public abstract class MapChannelManager
   implements ChannelManager {
 
   public static abstract class Channel {
-    private final Pusher<?> pusher;
-    private final Receiver<?> receiver;
+    final Pusher<?> pusher;
+    final Receiver<?> receiver;
     public Channel(Pusher<?> pusher, Receiver<?> receiver) {
       this.pusher = pusher;
       this.receiver = receiver;

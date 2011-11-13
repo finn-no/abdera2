@@ -223,7 +223,7 @@ public abstract class CodepointMatcher
     }
   }
   
-  private static boolean invset_contains(int[] set, int value) {
+  static boolean invset_contains(int[] set, int value) {
       int s = 0, e = set.length;
       while (e - s > 8) {
           int i = (e + s) >> 1;

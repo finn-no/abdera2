@@ -18,8 +18,6 @@
 package org.apache.abdera2.common.lang;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +26,7 @@ import org.apache.abdera2.common.lang.Subtag.Type;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 
 import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.base.Preconditions.*;
@@ -84,22 +82,21 @@ public final class Range
         if (root.type() == Subtag.Type.WILDCARD) {
             return new Range("*");
         } else {
-            List<Subtag> list = new LinkedList<Subtag>();
-            for (Subtag tag : this) {
-                if (tag.type() != Subtag.Type.WILDCARD)
-                    list.add(new Subtag(tag.type(),tag.name(),null));
-            }
+            ImmutableList.Builder<Subtag> list = ImmutableList.builder();
+            for (Subtag tag : this)
+              if (tag.type() != Subtag.Type.WILDCARD)
+                list.add(new Subtag(tag.type(),tag.name(),null));
             Subtag primary = null, current = null;
-            for (Subtag tag : list) {
-                tag.setNext(null);
-                tag.setPrevious(null);
-                if (primary == null) {
-                    primary = tag;
-                    current = primary;
-                } else {
-                    current.setNext(tag);
-                    current = tag;
-                }
+            for (Subtag tag : list.build()) {
+              tag.setNext(null);
+              tag.setPrevious(null);
+              if (primary == null) {
+                primary = tag;
+                current = primary;
+              } else {
+                checkNotNull(current).setNext(tag);
+                current = tag;
+              }
             }
             return new Range(primary);
         }
@@ -231,19 +228,21 @@ public final class Range
     }
     
     public Iterable<Lang> filter(Lang... lang) {
-        List<Lang> langs = new LinkedList<Lang>();
-        for (Lang l : lang)
-            if (matches(l))
-                langs.add(l);
-        return Iterables.unmodifiableIterable(langs);
+      ImmutableList.Builder<Lang> langs = 
+        ImmutableList.builder();
+      for (Lang l : lang)
+        if (matches(l))
+          langs.add(l);
+      return langs.build();
     }
 
     public Iterable<String> filter(String... lang) {
-        List<String> langs = new LinkedList<String>();
+      ImmutableList.Builder<String> langs = 
+        ImmutableList.builder();
         for (String l : lang)
-            if (matches(l))
-                langs.add(l);
-        return Iterables.unmodifiableIterable(langs);
+          if (matches(l))
+            langs.add(l);
+        return langs.build();
     }
 
     public static Iterable<Lang> filter(String range, Lang... lang) {

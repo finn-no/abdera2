@@ -546,7 +546,7 @@ public final class UrlEncoding {
             : (c >= 'a' && c <= 'f') ? c - 'a' + 10 : -1) & 0xf) << shift);
     }
 
-    private static byte decode(char c1, char c2) {
+    static byte decode(char c1, char c2) {
         return (byte)(decode(c1, 4) | decode(c2, 0));
     }
 

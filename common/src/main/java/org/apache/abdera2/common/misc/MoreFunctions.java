@@ -18,9 +18,7 @@
 package org.apache.abdera2.common.misc;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,13 +51,11 @@ public final class MoreFunctions {
   }
   
   public static <T,S>Set<S> immutableSetOf(T[] items, Function<T,S> transform, Class<S> _class) {
-    S[] set = each(items, transform, _class);
-    return ImmutableSet.<S>copyOf(set);
+    return ImmutableSet.<S>copyOf(each(items, transform, _class));
   }
   
   public static <T,S>List<S> immutableListOf(T[] items, Function<T,S> transform, Class<S> _class) {
-    S[] set = each(items, transform, _class);
-    return ImmutableList.<S>copyOf(set);
+    return ImmutableList.<S>copyOf(each(items, transform, _class));
   }
   
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -298,7 +294,7 @@ public final class MoreFunctions {
     return new Function<T[],T>() {
       public T apply(T[] input) {
         try {
-          return Iterables.<T>find(Arrays.asList(input), predicate);
+          return Iterables.<T>find(ImmutableList.copyOf(input), predicate);
         } catch (Throwable t) {
           return def;
         }
@@ -364,7 +360,7 @@ public final class MoreFunctions {
   }
   
   public static <T,X>Iterable<X> each(Iterable<T> i, Function<T,X> apply) {
-    List<X> list = new ArrayList<X>();
+    ImmutableList.Builder<X> list = ImmutableList.builder();
     for (T t : i) {
       try {
         list.add(apply.apply(t));
@@ -372,11 +368,11 @@ public final class MoreFunctions {
         throw ExceptionHelper.propogate(e);
       }
     }
-    return Iterables.<X>unmodifiableIterable(list);
+    return list.build();
   }
   
   public static <T,X>Iterable<X> each(Iterable<T> i, Function<T,X> apply, Predicate<T> test) {
-    List<X> list = new ArrayList<X>();
+    ImmutableList.Builder<X> list = ImmutableList.builder();
     for (T t : i) {
       try {
         if (test.apply(t))
@@ -385,16 +381,16 @@ public final class MoreFunctions {
         throw ExceptionHelper.propogate(e);
       }
     }
-    return Iterables.<X>unmodifiableIterable(list);
+    return list.build();
   }
   
   public static <T,X>X[] each(T[] i, Function<T,X> apply, Class<X> _class) {
-    Iterable<X> x = MoreFunctions.<T,X>each(Arrays.<T>asList(i),apply);
+    Iterable<X> x = MoreFunctions.<T,X>each(ImmutableList.copyOf(i),apply);
     return Iterables.<X>toArray(x, _class);
   }
   
   public static <T,X>X[] each(T[] i, Function<T,X> apply,Predicate<T> pred, Class<X> _class) {
-    Iterable<X> x = MoreFunctions.<T,X>each(Arrays.<T>asList(i),apply,pred);
+    Iterable<X> x = MoreFunctions.<T,X>each(ImmutableList.copyOf(i),apply,pred);
     return Iterables.<X>toArray(x, _class);
   }
   
@@ -403,8 +399,8 @@ public final class MoreFunctions {
   }
   
   public static class ChoiceGenerator<T,R> implements Supplier<Function<T,R>> {
-    final Set<Choice.Option<T,R>> options = 
-      new LinkedHashSet<Choice.Option<T,R>>();
+    final ImmutableSet.Builder<Choice.Option<T,R>> options = 
+      ImmutableSet.builder();
      Supplier<R> otherwise;
     public ChoiceGenerator<T,R> of(Choice.Option<T,R> option) {
       this.options.add(option);
@@ -424,18 +420,17 @@ public final class MoreFunctions {
       return otherwise(Suppliers.ofInstance(instance));
     }
     public Function<T,R> get() {
-      return new Choice<T,R>(options,otherwise);
+      return new Choice<T,R>(options.build(),otherwise);
     }
   }
   
   static class Choice<T,R> implements Function<T,R> {    
     public static interface Option<T,R>
     extends Predicate<T>, Supplier<R> {}
-    private final Set<Choice.Option<T,R>> options = 
-      new LinkedHashSet<Choice.Option<T,R>>();
+    private final ImmutableSet<Choice.Option<T,R>> options;
     private final Supplier<R> otherwise;
-    Choice(Set<Choice.Option<T,R>> options, Supplier<R> otherwise) {
-      this.options.addAll(options);
+    Choice(ImmutableSet<Choice.Option<T,R>> options, Supplier<R> otherwise) {
+      this.options = options;
       this.otherwise = otherwise;
     }
     public R apply(T input) {
