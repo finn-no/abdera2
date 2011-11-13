@@ -10,7 +10,7 @@ import com.google.common.collect.Iterables;
 
 public class CacheControlTest {
 
-  public static final String CC = "private=\"A\", public, no-cache=\"A\", no-store, no-transform, only-if-cached, must-revalidate, proxy-revalidate, max-age=10, max-stale=10, min-fresh=10, stale-if-error=10, stale-while-revalidate=10, a=\"b\"";
+  public static final String CC = "private=\"A\", public, no-cache=\"A\", no-store, no-transform, only-if-cached, must-revalidate, proxy-revalidate, max-age=10, max-stale=10, min-fresh=10, stale-if-error=10, stale-while-revalidate=10, a=b";
   
   @Test
   public void testCacheControl() {

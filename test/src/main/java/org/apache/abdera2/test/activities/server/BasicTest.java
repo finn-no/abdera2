@@ -124,7 +124,10 @@ public class BasicTest {
         resp.release();
         assertTrue(object instanceof Activity);
         Activity activity = (Activity) object;
-        activity = activity.<Activity,ActivityBuilder>template(withoutFields("title")).get();
+        activity = 
+          activity.<Activity,ActivityBuilder>template(withoutFields("title"))
+            .title("This is the modified title")
+            .get();
         ActivityEntity ae = new ActivityEntity(activity);
         resp = session.put("http://localhost:9002/sample/foo", ae);
         assertEquals(ResponseType.SUCCESSFUL, resp.getType());

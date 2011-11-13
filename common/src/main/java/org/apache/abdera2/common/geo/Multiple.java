@@ -44,7 +44,7 @@ public abstract class Multiple extends Position implements Iterable<Coordinate> 
     }
     
     private static void checkMaxPoints(int points, int max) {
-      checkState(points <= max, "Maximum coordinates exceeded", max);
+      checkState(max == -1 || points <= max, "Maximum coordinates exceeded", max);
     }
     
     public <P extends Builder<X>>P maximumCoordinates(int max) {

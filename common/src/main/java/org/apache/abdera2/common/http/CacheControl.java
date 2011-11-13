@@ -115,7 +115,7 @@ public final class CacheControl implements Serializable {
       for (Map.Entry<String, Object> entry : exts.entrySet()) {
         String name = entry.getKey().toLowerCase(Locale.US);
         checkReserved(name);
-        exts.put(
+        this.exts.put(
           name, 
           entry.getValue());
       }
@@ -220,12 +220,14 @@ public final class CacheControl implements Serializable {
     }
 
     public Builder privateHeaders(String... headers) {
+      if (headers == null) return this;
       this.private_headers = ImmutableSet.copyOf(headers);
       if (headers.length > 0) isPrivate();
       return this;
     }
 
     public Builder noCacheHeaders(String... headers) {
+      if (headers == null) return this;
       this.nocache_headers = ImmutableSet.copyOf(headers);
       if (headers.length > 0) noCache();
       return this;

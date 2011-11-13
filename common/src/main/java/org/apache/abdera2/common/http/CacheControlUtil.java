@@ -45,21 +45,21 @@ public final class CacheControlUtil {
      */
     public static String buildCacheControl(CacheControl cc) {
         StringBuilder buf = new StringBuilder();
-        appendif(cc.isPrivate(), buf, "private");
+        appendwithsepif(cc.isPrivate(), buf, "private");
         appendif(cc.isPrivate(), buf, cc.getPrivateHeaders());
-        appendif(cc.isPublic(), buf, "public");
-        appendif(cc.isNoCache(), buf, "no-cache");
+        appendwithsepif(cc.isPublic(), buf, "public");
+        appendwithsepif(cc.isNoCache(), buf, "no-cache");
         appendif(cc.isNoCache(), buf, cc.getNoCacheHeaders());  
-        appendif(cc.isNoStore(), buf, "no-store");
-        appendif(cc.isNoTransform(), buf, "no-transform");
-        appendif(cc.isOnlyIfCached(), buf, "only-if-cached");
-        appendif(cc.isMustRevalidate(), buf, "must-revalidate");
-        appendif(cc.isProxyRevalidate(), buf, "proxy-revalidate");
-        appendif(cc.getMaxAge() != -1, buf, "max-age=%d", cc.getMaxAge());
-        appendif (cc.getMaxStale() != -1, buf, "max-stale=%d", cc.getMaxStale());
-        appendif (cc.getMinFresh() != -1, buf, "min-fresh=%d", cc.getMinFresh());
-        appendif (cc.getStaleIfError() != -1, buf, "stale-if-error=%d", cc.getStaleIfError());
-        appendif (cc.getStaleWhileRevalidate() != -1, buf, "stale-while-revalidate=%d", cc.getStaleWhileRevalidate());
+        appendwithsepif(cc.isNoStore(), buf, "no-store");
+        appendwithsepif(cc.isNoTransform(), buf, "no-transform");
+        appendwithsepif(cc.isOnlyIfCached(), buf, "only-if-cached");
+        appendwithsepif(cc.isMustRevalidate(), buf, "must-revalidate");
+        appendwithsepif(cc.isProxyRevalidate(), buf, "proxy-revalidate");
+        appendwithsepif(cc.getMaxAge() != -1, buf, "max-age=%d", cc.getMaxAge());
+        appendwithsepif (cc.getMaxStale() != -1, buf, "max-stale=%d", cc.getMaxStale());
+        appendwithsepif (cc.getMinFresh() != -1, buf, "min-fresh=%d", cc.getMinFresh());
+        appendwithsepif (cc.getStaleIfError() != -1, buf, "stale-if-error=%d", cc.getStaleIfError());
+        appendwithsepif (cc.getStaleWhileRevalidate() != -1, buf, "stale-while-revalidate=%d", cc.getStaleWhileRevalidate());
         for (String ext : cc.listExtensions()) {
           append(buf, ext);
           Object val = cc.getExtension(ext); 
@@ -172,7 +172,7 @@ public final class CacheControlUtil {
       implements Iterable<Directive> {
 
         private static final String REGEX =
-            "\\s*([\\w\\-]+)\\s*(=)?\\s*(\\d+|\\\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)+\\\")?\\s*";
+            "\\s*([\\w\\-]+)\\s*(=)?\\s*(\\d+|\\\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)+\\\"|[^,]+)?\\s*";
 
         private static final Pattern pattern = Pattern.compile(REGEX);
 

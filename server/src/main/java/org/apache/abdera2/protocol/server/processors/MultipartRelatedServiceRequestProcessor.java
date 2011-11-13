@@ -62,7 +62,6 @@ public class MultipartRelatedServiceRequestProcessor
       final WorkspaceManager workspaceManager) {
         return new StreamWriterResponseContext(
             AbstractAtompubProvider.getAbdera(request)) {
-
             @Override
             protected void writeTo(StreamWriter sw) throws IOException {
                 sw.startDocument().startService();

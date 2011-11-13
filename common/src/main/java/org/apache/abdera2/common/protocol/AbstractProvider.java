@@ -187,7 +187,7 @@ public abstract class AbstractProvider
           CollectionAdapter,
           ? extends RequestProcessor>> 
             requestProcessors) {
-        requestProcessors.putAll(requestProcessors);
+        this.requestProcessors.putAll(requestProcessors);
     }
 
     public Map<TargetType, Function<CollectionAdapter,? extends RequestProcessor>> getRequestProcessors() {

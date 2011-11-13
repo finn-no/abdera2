@@ -381,10 +381,9 @@ public class AppTest {
 
     @Test
     public void testRequestOptions() throws Exception {
-        Client abderaClient = new BasicClient();
-        Session session = abderaClient.newSession();
+
         RequestOptions options = 
-          session.getDefaultRequestOptions()
+          RequestOptions.make()
             .ifModifiedSinceNow()
             .requestException4xx()
             .requestException5xx()
@@ -418,7 +417,7 @@ public class AppTest {
         assertNotNull(options.getIfModifiedSince());
         assertTrue(options.is4xxRequestException());
         assertTrue(options.is5xxRequestException());
-        abderaClient.shutdown();
+
     }
 
     @Test

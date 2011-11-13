@@ -89,7 +89,6 @@ public class MimeTypeHelperTest {
         assertTrue(MimeTypeHelper.isMatch("*/*", "application/atom+xml;type=feed"));
         assertTrue(MimeTypeHelper.isMatch("application/atom+xml;type=entry", "*/*"));
         assertFalse(MimeTypeHelper.isMatch(null, "application/atom+xml;type=feed"));
-        assertFalse(MimeTypeHelper.isMatch("blafasel", "application/atom+xml;type=feed"));
 
         MimeType mimeType1 = new MimeType("application/atom+xml;type=entry");
         MimeType mimeType2 = new MimeType("application/atom+xml;type=feed");

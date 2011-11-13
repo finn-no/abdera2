@@ -187,9 +187,13 @@ public final class CharUtils {
           buf.append(", ");
       buf.append(value);
   }
-  
+
+    public static void appendwithsepif(boolean exp, StringBuilder buf, String value, Object... args) {
+      if (exp) append(buf,format(value,args));
+    }
+    
   public static void appendif(boolean exp, StringBuilder buf, String value, Object... args) {
-    if (exp) append(buf, format(value,args));
+    if (exp) buf.append(format(value,args));
   }
 
   public static void appendif(boolean exp, StringBuilder buf, Iterable<String> items) {

@@ -92,6 +92,7 @@ public class FeatureTest {
             .select(
               service, 
               xpath()
+                .using(abdera.getXPath())
                 .path(String.format("f:features/f:feature[@ref='%s']",
                   FeaturesHelper.FEATURE_SUPPORTS_DRAFTS))
                 .with("f",FeaturesHelper.FNS)
