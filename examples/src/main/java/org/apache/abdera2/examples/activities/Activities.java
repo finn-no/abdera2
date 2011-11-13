@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.apache.abdera2.activities.model.Activity;
-import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import static org.apache.abdera2.activities.model.Verb.FOLLOW;
