@@ -22,9 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.MorePreconditions.*;
@@ -34,13 +32,14 @@ import org.apache.abdera2.common.templates.CachingContext;
 import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.anno.Name;
 
+import com.google.common.collect.ImmutableMap;
+
 @SuppressWarnings("unchecked")
 public final class ObjectContext extends CachingContext {
 
     private static final long serialVersionUID = -1387599933658718221L;
     private final Object target;
-    private final Map<String, AccessibleObject> accessors = 
-      new HashMap<String, AccessibleObject>();
+    private final ImmutableMap<String, AccessibleObject> accessors;
 
     public ObjectContext(Object object) {
       this(object, false);
@@ -50,49 +49,49 @@ public final class ObjectContext extends CachingContext {
       super(isiri);
       checkNotNull(object);
       this.target = object;
-      initMethods();
+      this.accessors = initMethods();
     }
     
-    private void initMethods() {
-        Class<?> _class = target.getClass();
-        checkArguments(!_class.isAnnotation(),
-                       !_class.isArray(),
-                       !_class.isEnum(),
-                       !_class.isPrimitive());
-        if (!_class.isInterface()) {
-            Field[] fields = _class.getFields();
-            for (Field field : fields) {
-                if (!Modifier.isPrivate(field.getModifiers())) {
-                    accessors.put(getName(field), field);
-                }
-            }
-        }
-        Method[] methods = _class.getMethods();
-        for (Method method : methods) {
-            String name = method.getName();
-            if (!Modifier.isPrivate(method.getModifiers()) && method.getParameterTypes().length == 0
-                && !method.getReturnType().equals(Void.class)
-                && !isReserved(name)) {
-                accessors.put(getName(method), method);
-            }
-        }
+    private ImmutableMap<String,AccessibleObject> initMethods() {
+      ImmutableMap.Builder<String, AccessibleObject> accessors = 
+        ImmutableMap.builder();
+      Class<?> _class = target.getClass();
+      checkArguments(!_class.isAnnotation(),
+                     !_class.isArray(),
+                     !_class.isEnum(),
+                     !_class.isPrimitive());
+      if (!_class.isInterface()) {
+        Field[] fields = _class.getFields();
+        for (Field field : fields)
+          if (!Modifier.isPrivate(field.getModifiers()))
+            accessors.put(getName(field), field);
+      }
+      Method[] methods = _class.getMethods();
+      for (Method method : methods) {
+        String name = method.getName();
+        if (!Modifier.isPrivate(method.getModifiers()) && method.getParameterTypes().length == 0
+            && !method.getReturnType().equals(Void.class)
+            && !isReserved(name))
+          accessors.put(getName(method), method);
+      }
+      return accessors.build();
     }
 
     private String getName(AccessibleObject object) {
-        String name = null;
-        Name varName = object.getAnnotation(Name.class);
-        if (varName != null)
-            return varName.value();
-        if (object instanceof Field) {
-            name = ((Field)object).getName().toLowerCase();
-        } else if (object instanceof Method) {
-            name = ((Method)object).getName().toLowerCase();
-            if (name.startsWith("get"))
-                name = name.substring(3);
-            else if (name.startsWith("is"))
-                name = name.substring(2);
-        }
-        return name;
+      String name = null;
+      Name varName = object.getAnnotation(Name.class);
+      if (varName != null)
+          return varName.value();
+      if (object instanceof Field)
+          name = ((Field)object).getName().toLowerCase();
+      else if (object instanceof Method) {
+        name = ((Method)object).getName().toLowerCase();
+        if (name.startsWith("get"))
+          name = name.substring(3);
+        else if (name.startsWith("is"))
+          name = name.substring(2);
+      }
+      return name;
     }
 
     private boolean isReserved(String name) {

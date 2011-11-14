@@ -25,6 +25,8 @@ import java.util.Map;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.misc.Pair;
 
+import com.google.common.collect.ImmutableMap;
+
 import static java.util.Collections.addAll;
 import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.collect.Lists.newArrayList;
@@ -90,7 +92,7 @@ public class QueryContext extends MapContext  {
     if (query != null)
       for (Pair<String,String> pair : Pair.from(query,"&"))
         setval(map,pair.first(),pair.second());
-    return map;
+    return ImmutableMap.copyOf(map);
   }
   
   @SuppressWarnings({ "rawtypes", "unchecked" })

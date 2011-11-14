@@ -17,11 +17,11 @@
  */
 package org.apache.abdera2.common.templates;
 import static com.google.common.base.Preconditions.*;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
+
+import com.google.common.collect.ImmutableSet;
 
 @SuppressWarnings("unchecked")
 public class DefaultingContext 
@@ -42,12 +42,12 @@ public class DefaultingContext
   }
 
   public Iterator<String> iterator() {
-    Set<String> set = new HashSet<String>();
+    ImmutableSet.Builder<String> set = ImmutableSet.builder();
     for (String name : subcontext)
       set.add(name);
     for (String name : defaults)
       set.add(name);
-    return set.iterator();
+    return set.build().iterator();
   }
   
   public boolean contains(String var) {

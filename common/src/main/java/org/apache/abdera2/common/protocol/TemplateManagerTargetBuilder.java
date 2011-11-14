@@ -28,6 +28,8 @@ import org.apache.abdera2.common.templates.ObjectContext;
 import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.common.templates.TemplateManager;
 
+import com.google.common.collect.ImmutableMap;
+
 public class TemplateManagerTargetBuilder<T> 
   extends TemplateManager<T>
   implements TargetBuilder<T> {
@@ -46,7 +48,7 @@ public class TemplateManagerTargetBuilder<T>
   public static class Builder<T> extends TemplateManager.Builder<T> {
     public TemplateManager<T> get() {
       return new TemplateManagerTargetBuilder<T>(
-        templates,isiri,base,defaultContexts.get());
+        templates.build(),isiri,base,defaultContexts.get());
     }
     public TemplateManagerTargetBuilder<T> getTargetBuilder() {
       return (TemplateManagerTargetBuilder<T>) get();
@@ -54,7 +56,7 @@ public class TemplateManagerTargetBuilder<T>
   }
   
   TemplateManagerTargetBuilder(
-      Map<T,Template> templates, 
+      ImmutableMap<T,Template> templates, 
       boolean isiri, 
       IRI base, 
       Context contextDefaults) {

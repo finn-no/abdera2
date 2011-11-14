@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.common.templates;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -25,6 +24,8 @@ import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
+
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.misc.MorePreconditions.*;
 @SuppressWarnings("unchecked")
@@ -37,8 +38,8 @@ public class TemplateManager<T>
   
   public static class Builder<T> {
     
-    protected final Map<T,Template> templates = 
-      new HashMap<T,Template>();
+    protected final ImmutableMap.Builder<T,Template> templates = 
+      ImmutableMap.builder();
     protected boolean isiri;
     protected IRI base;
     protected final MultiContext.Builder defaultContexts = 
@@ -47,24 +48,18 @@ public class TemplateManager<T>
     public Builder() {}
     
     public <M extends Builder<T>>M add(T key, Template template) {
-      checkNotNull(key);
-      checkNotNull(template);
-      this.templates.put(key,template);
+      this.templates.put(checkNotNull(key),checkNotNull(template));
       return (M)this;
     }
     
     public <M extends Builder<T>>M add(T key, String template) {
-      checkNotNull(key);
-      checkNotNull(template);
-      return (M)add(key, new Template(template));
+      return (M)add(checkNotNull(key), new Template(checkNotNull(template)));
     }
     
     public <M extends Builder<T>>M add(T key, Object template) {
-      checkNotNull(template);
-      checkNotNull(key);
-      checkArgumentTypes(template,Map.class,Collection.class);
+      checkArgumentTypes(checkNotNull(template),Map.class,Collection.class);
       if (template instanceof Supplier)
-        return add(key,((Supplier<?>)template).get());
+        return add(checkNotNull(key),((Supplier<?>)template).get());
       Template temp = 
         template instanceof Template ?
           (Template)template :
@@ -73,8 +68,7 @@ public class TemplateManager<T>
     }
     
     public <M extends Builder<T>>M add(Map<T,Object> templates) {
-      checkNotNull(templates);
-      for (Map.Entry<T,Object> entry : templates.entrySet())
+      for (Map.Entry<T,Object> entry : checkNotNull(templates).entrySet())
         add(entry.getKey(),entry.getValue());
       return (M)this;
     }
@@ -85,58 +79,51 @@ public class TemplateManager<T>
     }
     
     public <M extends Builder<T>>M withDefaults(Context context) {
-      checkNotNull(context);
-      this.defaultContexts.with(context);
+      this.defaultContexts.with(checkNotNull(context));
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(MapContext context) {
-      checkNotNull(context);
-      this.defaultContexts.with(context);
+      this.defaultContexts.with(checkNotNull(context));
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(Map<String,Object> map) {
-      checkNotNull(map);
-      this.defaultContexts.with(new MapContext(map));
+      this.defaultContexts.with(new MapContext(checkNotNull(map)));
       return (M)this;
     }
     
     public <M extends Builder<T>>M withDefaults(Object context) {
-      checkNotNull(context);
-      this.defaultContexts.with(new ObjectContext(context));
+      this.defaultContexts.with(new ObjectContext(checkNotNull(context)));
       return (M)this;
     }
     
-    public <M extends Builder<T>>M withBase(IRI iri) {
-      checkNotNull(iri);
-      this.base = iri;
+    public <M extends Builder<T>>M withBase(IRI iri) {;
+      this.base = checkNotNull(iri);
       return (M)this;
     }
     
     public <M extends Builder<T>>M withBase(String iri) {
-      checkNotNull(iri);
-      return (M)withBase(new IRI(iri));
+      return (M)withBase(new IRI(checkNotNull(iri)));
     }
     
     public TemplateManager<T> get() {
       return new TemplateManager<T>(
-        templates,isiri,base,defaultContexts.get());
+        templates.build(),isiri,base,defaultContexts.get());
     }
   }
   
-  private final Map<T,Template> templates = 
-    new HashMap<T,Template>();
+  private final ImmutableMap<T,Template> templates;
   private final boolean isiri;
   private final IRI base;
   private final Context contextDefaults;
 
   protected TemplateManager(
-    Map<T,Template> templates, 
+    ImmutableMap<T,Template> templates, 
     boolean isiri, 
     IRI base, 
     Context contextDefaults) {
-      this.templates.putAll(templates);
+      this.templates = templates;
       this.isiri = isiri;
       this.base = base;
       this.contextDefaults = contextDefaults;

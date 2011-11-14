@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.common.templates;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -84,11 +83,11 @@ public final class MultiContext
     return false;
   }
   public Iterator<String> iterator() {
-    Set<String> names = new HashSet<String>();
+    ImmutableSet.Builder<String> names = ImmutableSet.builder();
     for (Context context : contexts) 
       for (String name : context)
         names.add(name);
-    return names.iterator();
+    return names.build().iterator();
   }
   protected <T> T resolveActual(String var) {
     for (Context context : contexts)

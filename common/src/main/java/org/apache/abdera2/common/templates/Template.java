@@ -18,9 +18,7 @@
 package org.apache.abdera2.common.templates;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,8 +34,8 @@ import org.apache.abdera2.common.templates.Expression.VarSpec;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -109,7 +107,8 @@ public final class Template
      * Return the array of template variables
      */
     private Iterable<Expression> initExpressions() {
-      List<Expression> expressions = new ArrayList<Expression>();
+      ImmutableList.Builder<Expression> expressions = 
+        ImmutableList.builder();
       Matcher matcher = EXPRESSION.matcher(pattern);
       while (matcher.find()) {
         String token = matcher.group();
@@ -117,14 +116,14 @@ public final class Template
         Expression exp = new Expression(token);
         expressions.add(exp);
       }
-      return Iterables.unmodifiableIterable(expressions);
+      return expressions.build();
     }
 
     /**
      * Return the array of template variables
      */
     public Iterable<String> getVariables() {
-        return variables;
+      return variables;
     }
 
     /**
@@ -134,14 +133,14 @@ public final class Template
      * @return An expanded URI
      */
     public String expand(Context context) {
-        String pattern = this.pattern;
-        for (Expression exp : this)
-            pattern = 
-              replace(
-                pattern, 
-                exp, 
-                exp.evaluate(context));
-        return pattern;
+      String pattern = this.pattern;
+      for (Expression exp : this)
+          pattern = 
+            replace(
+              pattern, 
+              exp, 
+              exp.evaluate(context));
+      return pattern;
     }
 
     /**
