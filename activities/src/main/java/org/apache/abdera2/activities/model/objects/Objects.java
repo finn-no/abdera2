@@ -34,6 +34,16 @@ public final class Objects {
   public static final ASObject NETWORK = NETWORK().get();
   public static final ASObject ALL = ALL().get();
   public static final ASObject PUBLIC = PUBLIC().get();
+  public static final ASObject VIEWER = VIEWER().get();
+  public static final ASObject OWNER = OWNER().get();
+  
+  public static ASObjectBuilder VIEWER() {
+    return ASObject.makeObject("@viewer");
+  }
+  
+  public static ASObjectBuilder OWNER() {
+    return ASObject.makeObject("@owner");
+  }
   
   public static ASObjectBuilder SELF() {
     return ASObject.makeObject("@self");

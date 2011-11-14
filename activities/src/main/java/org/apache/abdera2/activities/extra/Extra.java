@@ -314,6 +314,70 @@ public final class Extra {
     return audienceHasPublicOr(Audience.BTO, obj);
   }
   
+  public static Selector<Activity> isToOwner() {
+    return audienceHasOwner(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToViewer() {
+    return audienceHasViewer(Audience.TO);
+  }
+  
+  public static Selector<Activity> isToOwnerOr(ASObject obj) {
+    return audienceHasOwnerOr(Audience.TO,obj);
+  }
+  
+  public static Selector<Activity> isToViewerOr(ASObject obj) {
+    return audienceHasViewerOr(Audience.TO,obj);
+  }
+  
+  public static Selector<Activity> isBtoOwner() {
+    return audienceHasOwner(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoViewer() {
+    return audienceHasViewer(Audience.BTO);
+  }
+  
+  public static Selector<Activity> isBtoOwnerOr(ASObject obj) {
+    return audienceHasOwnerOr(Audience.BTO,obj);
+  }
+  
+  public static Selector<Activity> isBtoViewerOr(ASObject obj) {
+    return audienceHasViewerOr(Audience.BTO,obj);
+  }
+  
+  public static Selector<Activity> isCcOwner() {
+    return audienceHasOwner(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcViewer() {
+    return audienceHasViewer(Audience.CC);
+  }
+  
+  public static Selector<Activity> isCcOwnerOr(ASObject obj) {
+    return audienceHasOwnerOr(Audience.CC,obj);
+  }
+  
+  public static Selector<Activity> isCcViewerOr(ASObject obj) {
+    return audienceHasViewerOr(Audience.CC,obj);
+  }
+
+  public static Selector<Activity> isBccOwner() {
+    return audienceHasOwner(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccViewer() {
+    return audienceHasViewer(Audience.BCC);
+  }
+  
+  public static Selector<Activity> isBccOwnerOr(ASObject obj) {
+    return audienceHasOwnerOr(Audience.BCC,obj);
+  }
+  
+  public static Selector<Activity> isBccViewerOr(ASObject obj) {
+    return audienceHasViewerOr(Audience.BCC,obj);
+  }
+  
   public static Selector<Activity> isToMe() {
     return audienceHasMe(Audience.TO);
   }
@@ -368,6 +432,22 @@ public final class Extra {
   
   public static Selector<Activity> isToPublicOr( ASObject obj) {
     return audienceHasPublicOr(Audience.TO, obj);
+  }
+  
+  public static Selector<Activity> actorIsViewer() {
+    return actorIs(Extra.<Activity>isViewer());
+  }
+  
+  public static Selector<Activity> actorIsViewerOr(ASObject object) {
+    return actorIs(Extra.<Activity>isViewerOr(object));
+  }
+  
+  public static Selector<Activity> actorIsOwner() {
+    return actorIs(Extra.<Activity>isOwner());
+  }
+  
+  public static Selector<Activity> actorIsOwnerOr(ASObject object) {
+    return actorIs(Extra.<Activity>isOwnerOr(object));
   }
   
   public static Selector<Activity> actorIsMe() {
@@ -433,6 +513,22 @@ public final class Extra {
             Activity.class, 
             "getActor", 
             pred);
+  }
+   
+  public static Selector<Activity> audienceHasViewer(Audience audience) {
+    return audienceHas(audience,isViewer());
+  }
+  
+  public static Selector<Activity> audienceHasOwner(Audience audience) {
+    return audienceHas(audience,isOwner());
+  }
+  
+  public static Selector<Activity> audienceHasViewerOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isViewerOr(obj));
+  }
+  
+  public static Selector<Activity> audienceHasOwnerOr(Audience audience, ASObject obj) {
+    return audienceHas(audience,isOwnerOr(obj));
   }
   
   public static Selector<Activity> audienceHasMe(Audience audience) {
@@ -506,6 +602,14 @@ public final class Extra {
   }
   
   
+  public static <X extends ASObject>Selector<X> isOwner() {
+    return (Selector<X>)sameIdentity(OWNER);
+  }
+  
+  public static <X extends ASObject>Selector<X> isViewer() {
+    return (Selector<X>)sameIdentity(VIEWER);
+  }
+  
   public static <X extends ASObject>Selector<X> isMe() {
     return (Selector<X>)sameIdentity(ME);
   }
@@ -532,6 +636,18 @@ public final class Extra {
   
   public static <X extends ASObject>Selector<X> isPublic() {
     return (Selector<X>)sameIdentity(PUBLIC);
+  }
+  
+  public static <X extends ASObject>Selector<X> isOwnerOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(OWNER);
+    return Selectors.<X>or(s1,s2);
+  }
+  
+  public static <X extends ASObject>Selector<X> isViewerOr(ASObject object) {
+    Selector<X> s1 = sameIdentity(object);
+    Selector<X> s2 = sameIdentity(VIEWER);
+    return Selectors.<X>or(s1,s2);
   }
   
   public static <X extends ASObject>Selector<X> isMeOr(ASObject object) {
