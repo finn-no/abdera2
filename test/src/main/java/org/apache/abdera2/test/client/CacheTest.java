@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.abdera2.common.http.CacheControl;
 import org.apache.abdera2.protocol.client.BasicCachingClient;
-import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.Client;
+import org.apache.abdera2.protocol.client.ClientResponse;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.abdera2.protocol.client.Session;
 import org.apache.abdera2.test.JettyUtil;

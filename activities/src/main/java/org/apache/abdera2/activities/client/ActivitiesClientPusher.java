@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.pusher.Pusher;
-import org.apache.abdera2.protocol.client.Session.Listener;
 import org.apache.abdera2.protocol.client.ClientResponse;
+import org.apache.abdera2.protocol.client.Session.Listener;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
