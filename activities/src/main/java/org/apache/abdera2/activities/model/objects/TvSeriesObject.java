@@ -121,21 +121,21 @@ public class TvSeriesObject extends CreativeWork {
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M actors(Supplier<ASObject> object) {
+    public M actors(Supplier<? extends ASObject> object) {
       return actors(object.get());
     }
     public M actors(ASObject obj) {
       set("actors",obj);
       return (M)this;
     }
-    public M director(Supplier<ASObject> object) {
+    public M director(Supplier<? extends ASObject> object) {
       return director(object.get());
     }
     public M director(ASObject obj) {
       set("director",obj);
       return (M)this;
     }
-    public M musicBy(Supplier<ASObject> object) {
+    public M musicBy(Supplier<? extends ASObject> object) {
       return musicBy(object.get());
     }
     public M musicBy(ASObject obj) {
@@ -149,28 +149,28 @@ public class TvSeriesObject extends CreativeWork {
       set("preview",obj);
       return (M)this;
     }
-    public M producer(Supplier<ASObject> object) {
+    public M producer(Supplier<? extends ASObject> object) {
       return producer(object.get());
     }
     public M producer(ASObject obj) {
       set("producer",obj);
       return (M)this;
     }
-    public M productionCompany(Supplier<ASObject> object) {
+    public M productionCompany(Supplier<? extends ASObject> object) {
       return productionCompany(object.get());
     }
     public M productionCompany(ASObject obj) {
       set("productionCompany",obj);
       return (M)this;
     }
-    public M episodes(Supplier<ASObject> object) {
+    public M episodes(Supplier<? extends ASObject> object) {
       return episodes(object.get());
     }
     public M episodes(ASObject obj) {
       set("episodes",obj);
       return (M)this;
     }
-    public M seasons(Supplier<ASObject> object) {
+    public M seasons(Supplier<? extends ASObject> object) {
       return seasons(object.get());
     }
     public M seasons(ASObject obj) {

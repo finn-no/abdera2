@@ -60,6 +60,10 @@ public class Collection<T extends ASObject>
     return Collection.<T>makeCollection().items(items).get();
   }
   
+  public static <T extends ASObject>Collection<T> makeCollection(Supplier<? extends T>... items) {
+    return Collection.<T>makeCollection().items(items).get();
+  }
+  
   @SuppressWarnings("unchecked")
   static <T extends ASObject>Class<Collection<T>> _class(Class<?> _class) {
     return (Class<Collection<T>>) _class;
@@ -108,7 +112,7 @@ public class Collection<T extends ASObject>
     public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
       super(map,_class,_builder);
     }
-    public M item(Supplier<T> item) {
+    public M item(Supplier<? extends T> item) {
       return item(item.get());
     }
     public M item(T item) {
@@ -117,9 +121,9 @@ public class Collection<T extends ASObject>
       items.add(item);
       return (M)this;
     } 
-    public M item(Supplier<T>... items) {
+    public M items(Supplier<? extends T>... items) {
       if (items == null) return (M)this;
-      for (Supplier<T> item : items)
+      for (Supplier<? extends T> item : items)
         item(item.get());
       return (M)this;
     }
@@ -129,7 +133,7 @@ public class Collection<T extends ASObject>
         item(item);
       return (M)this;
     }
-    public M items(Iterable<T> items) {
+    public M items(Iterable<? extends T> items) {
       for (T item : items)
         item(item);
       return (M)this;

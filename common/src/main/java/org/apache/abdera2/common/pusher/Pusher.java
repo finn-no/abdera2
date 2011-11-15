@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.pusher;
 
+import com.google.common.base.Supplier;
+
 /**
  * Used to push items into a channel. This will cause all registered
  * Listeners to receive notification of the item
@@ -24,6 +26,12 @@ package org.apache.abdera2.common.pusher;
 public interface Pusher<T> {
 
   void push(T t);
+  
+  void push(Supplier<? extends T> t);
+  
+  void pushAll(T... t);
+  
+  void pushAll(Supplier<? extends T>... t);
 
   void pushAll(Iterable<T> t);
   

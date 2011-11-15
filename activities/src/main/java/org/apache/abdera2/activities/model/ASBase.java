@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.Pair;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.common.selector.AbstractSelector;
 
@@ -36,6 +37,7 @@ import static org.apache.abdera2.common.misc.MoreFunctions.*;
 import static com.google.common.base.Preconditions.*;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -99,8 +101,45 @@ public class ASBase
       this.map.putAll(map);
     }
     public M set(String name, Object val) {
-      if (val != null)
-        map.put(name,val);
+      if (val != null) {
+        if (val instanceof Supplier)
+          val = ((Supplier<?>)val).get();
+        if (val instanceof Optional)
+          val = ((Optional<?>)val).get();
+        if (val != null)
+          map.put(name,val);
+      }
+      return (M)this;
+    }
+    public M set(Pair<String,? extends Object> pair) {
+      if (pair == null) return (M)this;
+      return set(pair.first(),pair.second());
+    }
+    public M set(Iterable<Pair<String,? extends Object>> pairs) {
+      if (pairs == null) return (M)this;
+      for (Pair<String,? extends Object> pair : pairs)
+        set(pair);
+      return (M)this;
+    }
+    public M set(Pair<String,? extends Object>... pairs) {
+      if (pairs == null) return (M)this;
+      for (Pair<String,? extends Object> pair : pairs)
+        set(pair);
+      return (M)this;
+    }
+    public M set(Map<String,? extends Object> map) {
+      if (map == null) return (M)this;
+      for (Map.Entry<String,? extends Object> entry : ImmutableMap.copyOf(map).entrySet())
+        set(entry);
+      return (M)this;
+    }
+    public M set(Map.Entry<String, ? extends Object> entry) {
+      if (entry == null) return (M)this;
+      return set(entry.getKey(),entry.getValue());
+    }
+    public M set(ASBase other) {
+      for (String field : other) 
+        set(field,other.getProperty(field));
       return (M)this;
     }
     public M lang(String lang) {

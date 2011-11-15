@@ -62,6 +62,18 @@ public class QuestionObject
   public static QuestionObject makeQuestion(
     String displayName,
     String summary, 
+    Supplier<? extends ASObject> author,
+    Supplier<? extends ASObject>... options) {
+    return makeQuestion()
+      .displayName(displayName)
+      .summary(summary)
+      .author(author)
+      .option(options).get();
+  }
+  
+  public static QuestionObject makeQuestion(
+    String displayName,
+    String summary, 
     ASObject author,
     Iterable<ASObject> options) {
     return makeQuestion()
@@ -105,15 +117,15 @@ public class QuestionObject
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M option(Iterable<ASObject> options) {
+    public M option(Iterable<? extends ASObject> options) {
       if (Iterables.isEmpty(options)) return (M)this;
       for (ASObject option : options)
         option(option);
       return (M)this;
     }
-    public M option(Supplier<ASObject>... options) {
+    public M option(Supplier<? extends ASObject>... options) {
       if (options == null) return (M)this;
-      for (Supplier<ASObject> option : options)
+      for (Supplier<? extends ASObject> option : options)
         option(option.get());
       return (M)this;
     }
@@ -123,7 +135,7 @@ public class QuestionObject
         option(option);
       return (M)this;
     }
-    public M option(Supplier<ASObject> object) {
+    public M option(Supplier<? extends ASObject> object) {
       return option(object.get());
     }
     public M option(ASObject object) {

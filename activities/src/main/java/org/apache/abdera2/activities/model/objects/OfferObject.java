@@ -111,14 +111,14 @@ public class OfferObject extends ASObject {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M availability(Supplier<ASObject> obj) {
+    public M availability(Supplier<? extends ASObject> obj) {
       return availability(obj.get());
     }
     public M availability(ASObject obj) {
       set("availability",obj);
       return (M)this;
     }
-    public M condition(Supplier<ASObject> obj) {
+    public M condition(Supplier<? extends ASObject> obj) {
       return condition(obj.get());
     }
     public M condition(ASObject obj) {
@@ -129,7 +129,7 @@ public class OfferObject extends ASObject {
       set("currency",obj);
       return (M)this;
     }
-    public M item(Supplier<ASObject> obj) {
+    public M item(Supplier<? extends ASObject> obj) {
       return item(obj.get());
     }
     public M item(ASObject obj) {
@@ -140,7 +140,7 @@ public class OfferObject extends ASObject {
       set("price",obj);
       return (M)this;
     }
-    public M restriction(Supplier<ASObject> obj) {
+    public M restriction(Supplier<? extends ASObject> obj) {
       return restriction(obj.get());
     }
     public M restriction(ASObject obj) {

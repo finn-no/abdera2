@@ -96,14 +96,14 @@ public class BookObject extends CreativeWork {
       set("edition",val);
       return (M)this;
     }
-    public M format(Supplier<ASObject> obj) {
+    public M format(Supplier<? extends ASObject> obj) {
       return format(obj.get());
     }
     public M format(ASObject obj) {
       set("format",obj);
       return (M)this;
     }
-    public M illustrator(Supplier<ASObject> obj) {
+    public M illustrator(Supplier<? extends ASObject> obj) {
       return illustrator(obj.get());
     }
     public M illustrator(ASObject obj) {

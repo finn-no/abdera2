@@ -98,14 +98,14 @@ public class TaskObject extends ASObject {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M object(Supplier<ASObject> object) {
+    public M object(Supplier<? extends ASObject> object) {
       return object(object.get());
     }
     public M object(ASObject object) {
       set("for",object);
       return (M)this;
     }
-    public M actor(Supplier<ASObject> object) {
+    public M actor(Supplier<? extends ASObject> object) {
       return actor(object.get());
     }
     public M actor(ASObject object) {

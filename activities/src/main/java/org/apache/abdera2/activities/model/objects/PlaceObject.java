@@ -76,6 +76,10 @@ public class PlaceObject
     return makePlace().displayName(displayName).address(address).get();
   }
   
+  public static PlaceObject makePlace(String displayName, Supplier<? extends Address> address) {
+    return makePlace().displayName(displayName).address(address).get();
+  }
+  
   @Name("place")
   public static final class PlaceBuilder extends Builder<PlaceObject,PlaceBuilder> {
 
@@ -118,7 +122,7 @@ public class PlaceObject
     public M position(Point point) {
       return position(IsoPosition.at(point));
     }
-    public M address(Supplier<Address> address) {
+    public M address(Supplier<? extends Address> address) {
       return address(address.get());
     }
     public M address(Address address) {

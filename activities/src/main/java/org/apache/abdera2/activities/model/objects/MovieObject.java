@@ -108,14 +108,14 @@ public class MovieObject extends CreativeWork {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M actors(Supplier<ASObject> obj) {
+    public M actors(Supplier<? extends ASObject> obj) {
       return actors(obj.get());
     }
     public M actors(ASObject obj) {
       set("actors",obj);
       return (M)this;
     }
-    public M director(Supplier<ASObject> obj) {
+    public M director(Supplier<? extends ASObject> obj) {
       return director(obj.get());
     }
     public M director(ASObject obj) {
@@ -126,7 +126,7 @@ public class MovieObject extends CreativeWork {
       set("duration",obj);
       return (M)this;
     }
-    public M musicBy(Supplier<ASObject> obj) {
+    public M musicBy(Supplier<? extends ASObject> obj) {
       return musicBy(obj.get());
     }
     public M musicBy(ASObject obj) {
@@ -140,14 +140,14 @@ public class MovieObject extends CreativeWork {
       set("preview",obj);
       return (M)this;
     }
-    public M producer(Supplier<ASObject> obj) {
+    public M producer(Supplier<? extends ASObject> obj) {
       return producer(obj.get());
     }
     public M producer(ASObject obj) {
       set("producer",obj);
       return (M)this;
     }
-    public M productionCompany(Supplier<ASObject> obj) {
+    public M productionCompany(Supplier<? extends ASObject> obj) {
       return productionCompany(obj.get());
     }
     public M productionCompany(ASObject obj) {

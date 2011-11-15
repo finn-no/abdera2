@@ -23,6 +23,8 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 
+import com.google.common.base.Supplier;
+
 public class AudioObject 
   extends ASObject {
 
@@ -77,6 +79,9 @@ public class AudioObject
     public M embedCode(String code) {
       set(EMBEDCODE,code);
       return (M)this;
+    }
+    public M stream(Supplier<MediaLink> stream) {
+      return stream(stream.get());
     }
     public M stream(MediaLink stream) {
       set(STREAM,stream);

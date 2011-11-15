@@ -48,11 +48,11 @@ public interface AdditionalEventProperties
     Builder superEvent(ASObject superEvent);
     Builder performers(ASObject performers);
     
-    Builder host(Supplier<ASObject> host);
-    Builder offers(Supplier<ASObject> offers);
-    Builder subEvents(Supplier<ASObject> subEvents);
-    Builder superEvent(Supplier<ASObject> superEvent);
-    Builder performers(Supplier<ASObject> performers);
+    Builder host(Supplier<? extends ASObject> host);
+    Builder offers(Supplier<? extends ASObject> offers);
+    Builder subEvents(Supplier<? extends ASObject> subEvents);
+    Builder superEvent(Supplier<? extends ASObject> superEvent);
+    Builder performers(Supplier<? extends ASObject> performers);
   }
   
 }

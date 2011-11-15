@@ -104,7 +104,7 @@ public class EventObject
       super(map,_class,_builder);
     }
     
-    public <T extends ASObject>M attending(Supplier<Collection<T>> col) {
+    public <T extends ASObject>M attending(Supplier<? extends Collection<T>> col) {
       return attending(col.get());
     }
 
@@ -118,7 +118,7 @@ public class EventObject
       return (M)this;
     }
     
-    public <T extends ASObject>M maybeAttending(Supplier<Collection<T>> col) {
+    public <T extends ASObject>M maybeAttending(Supplier<? extends Collection<T>> col) {
       return maybeAttending(col.get());
     }
     
@@ -127,7 +127,7 @@ public class EventObject
       return (M)this;
     }
     
-    public <T extends ASObject>M notAttending(Supplier<Collection<T>> col) {
+    public <T extends ASObject>M notAttending(Supplier<? extends Collection<T>> col) {
       return notAttending(col.get());
     }
     

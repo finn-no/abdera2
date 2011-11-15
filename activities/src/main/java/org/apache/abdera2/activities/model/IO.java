@@ -25,8 +25,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.abdera2.activities.io.gson.GsonIO;
 import org.apache.abdera2.common.anno.DefaultImplementation;
@@ -249,7 +249,7 @@ public abstract class IO {
     }
   }
   private static final Map<CacheKey,IO> map = 
-    new HashMap<CacheKey,IO>();
+    new ConcurrentHashMap<CacheKey,IO>();
   
   private static synchronized IO get_cached(TypeAdapter<?>... adapters) {
     return map.get(new CacheKey(adapters));

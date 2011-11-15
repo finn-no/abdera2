@@ -26,6 +26,10 @@ import org.apache.abdera2.protocol.client.Session.Listener;
 import org.apache.abdera2.protocol.client.RequestOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+
 import static org.apache.abdera2.common.misc.MoreExecutors2.getExitingExecutor;
 
 /**
@@ -121,6 +125,27 @@ public class ActivitiesClientPusher<T extends ASObject>
 
   public void onResponse(ClientResponse resp) {
     resp.release();
+  }
+
+  public void push(Supplier<? extends T> t) {
+    if (t == null) return;
+    T i = t.get();
+    if (i != null) push(i);
+  }
+
+  public void pushAll(T... t) {
+    if (t == null) return;
+    pushAll(ImmutableList.copyOf(t));
+  }
+
+  public void pushAll(Supplier<? extends T>... t) {
+    ImmutableList.Builder<T> list = ImmutableList.builder();
+    for (Supplier<? extends T> s : t) {
+      T i = s.get();
+      if (i != null)
+        list.add(i);
+    }
+    pushAll(list.build());
   }
 
 }

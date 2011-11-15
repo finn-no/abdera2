@@ -13,14 +13,13 @@ public class RepliesAndTargetingExample {
     
     Activity activity = 
       Activity.makeActivity()
-        .to(makePerson().displayName("bob").get())
-        .cc(FRIENDS("Colleagues").get())
-        .bto(makePerson().displayName("sally").get())
+        .to(makePerson("bob"))
+        .cc(FRIENDS("Colleagues"))
+        .bto(makePerson("sally"))
         .bcc(NETWORK)
         .inReplyTo(
           makeNote()
-            .id("urn:foo:note:1")
-          .get())
+            .id("urn:foo:note:1"))
         .get();
     
     activity.writeTo(System.out);

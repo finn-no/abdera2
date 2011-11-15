@@ -174,7 +174,7 @@ public class PersonObject
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M account(Supplier<AccountObject> object) {
+    public M account(Supplier<? extends AccountObject> object) {
       return account(object.get());
     }
     public M account(AccountObject object) {
@@ -183,9 +183,9 @@ public class PersonObject
       accounts.add(object);
       return (M)this;
     }
-    public M account(Supplier<AccountObject>... objects) {
+    public M account(Supplier<? extends AccountObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<AccountObject> object : objects)
+      for (Supplier<? extends AccountObject> object : objects)
         account(object.get());
       return (M)this;
     }
@@ -195,13 +195,13 @@ public class PersonObject
         account(object);
       return (M)this;
     }
-    public M account(Iterable<AccountObject> objects) {
+    public M account(Iterable<? extends AccountObject> objects) {
       if (Iterables.isEmpty(objects)) return (M)this;
       for (AccountObject object : objects)
         account(object);
       return (M)this;
     }
-    public M address(Supplier<Address> object) {
+    public M address(Supplier<? extends Address> object) {
       return address(object.get());
     }
     public M address(Address object) {
@@ -210,9 +210,9 @@ public class PersonObject
       addresses.add(object);
       return (M)this;
     }
-    public M address(Supplier<Address>... objects) {
+    public M address(Supplier<? extends Address>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<Address> object : objects)
+      for (Supplier<? extends Address> object : objects)
         address(object.get());
       return (M)this;
     }
@@ -222,13 +222,13 @@ public class PersonObject
         address(object);
       return (M)this;
     }
-    public M address(Iterable<Address> objects) {
+    public M address(Iterable<? extends Address> objects) {
       if (Iterables.isEmpty(objects)) return (M)this;
       for (Address object : objects)
         address(object);
       return (M)this;
     }
-    public M alternateName(Supplier<NameObject> name) {
+    public M alternateName(Supplier<? extends NameObject> name) {
       return alternateName(name.get());
     }
     public M alternateName(NameObject name) {
@@ -237,9 +237,9 @@ public class PersonObject
       altnames.add(name);
       return (M)this;
     }
-    public M alternateName(Supplier<NameObject>... objects) {
+    public M alternateName(Supplier<? extends NameObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<NameObject> object : objects)
+      for (Supplier<? extends NameObject> object : objects)
         alternateName(object.get());
       return (M)this;
     }
@@ -249,7 +249,7 @@ public class PersonObject
         alternateName(object);
       return (M)this;
     }
-    public M alternateName(Iterable<NameObject> objects) {
+    public M alternateName(Iterable<? extends NameObject> objects) {
       if (Iterables.isEmpty(objects)) return (M)this;
       for (NameObject object : objects)
         alternateName(object);
@@ -291,7 +291,7 @@ public class PersonObject
         im(object);
       return (M)this;
     }
-    public M organization(Supplier<OrganizationObject> object) {
+    public M organization(Supplier<? extends OrganizationObject> object) {
       return organization(object.get());
     }
     public M organization(OrganizationObject object) {
@@ -300,9 +300,9 @@ public class PersonObject
       orgs.add(object);
       return (M)this;
     }
-    public M organization(Supplier<OrganizationObject>... objects) {
+    public M organization(Supplier<? extends OrganizationObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<OrganizationObject> object : objects)
+      for (Supplier<? extends OrganizationObject> object : objects)
         organization(object.get());
       return (M)this;
     }
@@ -312,7 +312,7 @@ public class PersonObject
         organization(object);
       return (M)this;
     }
-    public M organization(Iterable<OrganizationObject> objects) {
+    public M organization(Iterable<? extends OrganizationObject> objects) {
       if (Iterables.isEmpty(objects)) return (M)this;
       for (OrganizationObject object : objects)
         organization(object);
@@ -376,21 +376,21 @@ public class PersonObject
       set("dn",val);
       return (M)this;
     }
-    public M name(Supplier<NameObject> val) {
+    public M name(Supplier<? extends NameObject> val) {
       return name(val.get());
     }
     public M name(NameObject val) {
       set("name",val);
       return (M)this;
     }
-    public M nativeName(Supplier<NameObject> object) {
+    public M nativeName(Supplier<? extends NameObject> object) {
       return nativeName(object.get());
     }
     public M nativeName(NameObject val) {
       set("nativeName",val);
       return (M)this;
     }
-    public M preferredName(Supplier<NameObject> object) {
+    public M preferredName(Supplier<? extends NameObject> object) {
       return preferredName(object.get());
     }
     public M preferredName(NameObject val) {

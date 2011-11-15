@@ -17,6 +17,8 @@
  */
 package org.apache.abdera2.common.pusher;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 public abstract class AbstractPusher<T> 
@@ -27,4 +29,25 @@ public abstract class AbstractPusher<T>
       push(i);
   }
 
+  public void push(Supplier<? extends T> t) {
+    if (t == null) return;
+    T i = t.get();
+    if (i != null) 
+      push(i);
+  }
+  
+  public void pushAll(T... t) {
+    if (t == null) return;
+    pushAll(ImmutableList.copyOf(t));
+  }
+  
+  public void pushAll(Supplier<? extends T>... t) {
+    ImmutableList.Builder<T> list = ImmutableList.builder();
+    for (Supplier<? extends T> s : t) {
+      T i = s.get();
+      if (i != null)
+        list.add(i);
+    }
+    pushAll(list.build());
+  }
 }

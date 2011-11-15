@@ -125,7 +125,7 @@ public class OrganizationObject extends ASObject {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M address(Supplier<Address> obj) {
+    public M address(Supplier<? extends Address> obj) {
       return address(obj.get());
     }
     public M address(Address address) {

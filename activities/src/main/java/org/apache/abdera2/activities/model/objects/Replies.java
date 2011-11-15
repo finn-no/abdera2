@@ -49,20 +49,20 @@ public interface Replies extends ExtensionObject {
     <X extends ASObject>Builder saves(Collection<X> collection);
     <X extends ASObject>Builder shares(Collection<X> collection);
     
-    <X extends ASObject>Builder attending(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder followers(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder following(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder friends(Supplier<Collection<X>> collection);
+    <X extends ASObject>Builder attending(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder followers(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder following(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder friends(Supplier<? extends Collection<X>> collection);
     @Name("friend-requests") 
-    <X extends ASObject>Builder friendRequests(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder likes(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder notAttending(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder maybeAttending(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder members(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder replies(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder reviews(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder saves(Supplier<Collection<X>> collection);
-    <X extends ASObject>Builder shares(Supplier<Collection<X>> collection);
+    <X extends ASObject>Builder friendRequests(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder likes(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder notAttending(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder maybeAttending(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder members(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder replies(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder reviews(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder saves(Supplier<? extends Collection<X>> collection);
+    <X extends ASObject>Builder shares(Supplier<? extends Collection<X>> collection);
     
   }
   

@@ -110,7 +110,7 @@ public class ASObject extends ASBase {
       super(map,_class,_builder);
     }
     
-    public M reaction(Supplier<TaskObject> object) {
+    public M reaction(Supplier<? extends TaskObject> object) {
       return reaction(object.get());
     }
     
@@ -121,9 +121,9 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M reaction(Supplier<TaskObject>... objects) {
+    public M reaction(Supplier<? extends TaskObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<TaskObject> object : objects)
+      for (Supplier<? extends TaskObject> object : objects)
         reaction(object.get());
       return (M)this;
     }
@@ -135,16 +135,16 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M reaction(Iterable<TaskObject> objects) {
+    public M reaction(Iterable<? extends TaskObject> objects) {
       if (objects == null) return (M)this;
       for (TaskObject obj : objects)
         reaction(obj);
       return (M)this;
     }
     
-    public M attachment(Supplier<ASObject>... objects) {
+    public M attachment(Supplier<? extends ASObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<ASObject> object : objects)
+      for (Supplier<? extends ASObject> object : objects)
         attachment(object.get());
       return (M)this;
     }
@@ -156,14 +156,14 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M attachment(Iterable<ASObject> objects) {
+    public M attachment(Iterable<? extends ASObject> objects) {
       if (objects == null) return (M)this;
       for (ASObject obj : objects)
         attachment(obj);
       return (M)this;
     }
     
-    public M attachment(Supplier<ASObject> object) {
+    public M attachment(Supplier<? extends ASObject> object) {
       return attachment(object.get());
     }
     
@@ -195,7 +195,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M inReplyTo(Supplier<ASObject> object) {
+    public M inReplyTo(Supplier<? extends ASObject> object) {
       return inReplyTo(object.get());
     }
     
@@ -206,9 +206,9 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M inReplyTo(Supplier<ASObject>... objects) {
+    public M inReplyTo(Supplier<? extends ASObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<ASObject> object : objects)
+      for (Supplier<? extends ASObject> object : objects)
         inReplyTo(object.get());
       return (M)this;
     }
@@ -227,9 +227,9 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M tag(Supplier<ASObject>... objects) {
+    public M tag(Supplier<? extends ASObject>... objects) {
       if (objects == null) return (M)this;
-      for (Supplier<ASObject>object : objects )
+      for (Supplier<? extends ASObject>object : objects )
         tag(object.get());
       return (M)this;
     }
@@ -241,14 +241,14 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M tag(Iterable<ASObject> objects) {
+    public M tag(Iterable<? extends ASObject> objects) {
       if (objects == null) return (M)this;
       for (ASObject obj : objects)
         tag(obj);
       return (M)this;
     }
     
-    public M tag(Supplier<ASObject> object) {
+    public M tag(Supplier<? extends ASObject> object) {
       return tag(object.get());
     }
     
@@ -280,7 +280,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M author(Supplier<ASObject> object) {
+    public M author(Supplier<? extends ASObject> object) {
       return author(object.get());
     }
     
@@ -299,7 +299,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M embed(Supplier<ASObject> object) {
+    public M embed(Supplier<? extends ASObject> object) {
       return embed(object.get());
     }
     
@@ -308,7 +308,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M embeddedExperience(Supplier<EmbeddedExperience> object) {
+    public M embeddedExperience(Supplier<? extends EmbeddedExperience> object) {
       return embeddedExperience(object.get());
     }
     
@@ -337,7 +337,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M location(Supplier<PlaceObject> object) {
+    public M location(Supplier<? extends PlaceObject> object) {
       return location(object.get());
     }
     
@@ -374,7 +374,7 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
-    public M source(Supplier<ASObject> object) {
+    public M source(Supplier<? extends ASObject> object) {
       return source(object.get());
     }
     

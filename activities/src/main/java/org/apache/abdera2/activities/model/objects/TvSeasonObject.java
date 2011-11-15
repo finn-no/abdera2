@@ -124,14 +124,14 @@ public class TvSeasonObject extends CreativeWork {
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M actors(Supplier<ASObject> object) {
+    public M actors(Supplier<? extends ASObject> object) {
       return actors(object.get());
     }
     public M actors(ASObject obj) {
       set("actors",obj);
       return (M)this;
     }
-    public M director(Supplier<ASObject> object) {
+    public M director(Supplier<? extends ASObject> object) {
       return director(object.get());
     }
     public M director(ASObject obj) {
@@ -142,14 +142,14 @@ public class TvSeasonObject extends CreativeWork {
       set("seasonNumber",n);
       return (M)this;
     }
-    public M series(Supplier<ASObject> object) {
+    public M series(Supplier<? extends ASObject> object) {
       return series(object.get());
     }
     public M series(ASObject obj) {
       set("series",obj);
       return (M)this;
     }
-    public M musicBy(Supplier<ASObject> object) {
+    public M musicBy(Supplier<? extends ASObject> object) {
       return musicBy(object.get());
     }
     public M musicBy(ASObject obj) {
@@ -163,14 +163,14 @@ public class TvSeasonObject extends CreativeWork {
       set("preview",obj);
       return (M)this;
     }
-    public M producer(Supplier<ASObject> object) {
+    public M producer(Supplier<? extends ASObject> object) {
       return producer(object.get());
     }
     public M producer(ASObject obj) {
       set("producer",obj);
       return (M)this;
     }
-    public M productionCompany(Supplier<ASObject> object) {
+    public M productionCompany(Supplier<? extends ASObject> object) {
       return productionCompany(object.get());
     }
     public M productionCompany(ASObject obj) {
@@ -185,7 +185,7 @@ public class TvSeasonObject extends CreativeWork {
       set("endDate",dt);
       return (M)this;
     }
-    public M episodes(Supplier<ASObject> object) {
+    public M episodes(Supplier<? extends ASObject> object) {
       return episodes(object.get());
     }
     public M episodes(ASObject obj) {

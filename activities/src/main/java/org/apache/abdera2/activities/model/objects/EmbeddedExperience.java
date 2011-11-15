@@ -160,7 +160,7 @@ public final class EmbeddedExperience
       super(map,EmbeddedExperience.class,Builder.class);
     }
 
-    public Builder context(Supplier<ASBase> object) {
+    public Builder context(Supplier<? extends ASBase> object) {
       return context(object.get());
     }
     

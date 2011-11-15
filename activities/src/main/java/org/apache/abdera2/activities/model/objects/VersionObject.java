@@ -103,7 +103,7 @@ public class VersionObject
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
-    public M active(Supplier<VersionObject> object) {
+    public M active(Supplier<? extends VersionObject> object) {
       return active(object.get());
     }
     public M active(VersionObject object) {
@@ -126,28 +126,28 @@ public class VersionObject
       set("status",status.name().toLowerCase());
       return (M)this;
     }
-    public M next(Supplier<VersionObject> object) {
+    public M next(Supplier<? extends VersionObject> object) {
       return next(object.get());
     }
     public M next(VersionObject val) {
       set("nextVersion",val);
       return (M)this;
     }
-    public M of(Supplier<VersionObject> object) {
+    public M of(Supplier<? extends VersionObject> object) {
       return of(object.get());
     }
     public M of(ASObject val) {
       set("of",val);
       return (M)this;
     }
-    public M previous(Supplier<VersionObject> object) {
+    public M previous(Supplier<? extends VersionObject> object) {
       return previous(object.get());
     }
     public M previous(VersionObject val) {
       set("previousVersion",val);
       return (M)this;
     }
-    public M stable(Supplier<VersionObject> object) {
+    public M stable(Supplier<? extends VersionObject> object) {
       return stable(object.get());
     }
     public M stable(VersionObject val) {

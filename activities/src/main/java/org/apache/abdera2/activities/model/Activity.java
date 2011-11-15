@@ -117,7 +117,7 @@ public class Activity extends ASObject {
       super(map,_class,_builder);
     }
     
-    public M to(Supplier<ASObject> object) {
+    public M to(Supplier<? extends ASObject> object) {
       return to(object.get());
     }
     public M to(ASObject object) {
@@ -125,7 +125,7 @@ public class Activity extends ASObject {
       to.add(object);
       return (M)this;
     }
-    public M cc(Supplier<ASObject> object) {
+    public M cc(Supplier<? extends ASObject> object) {
       return cc(object.get());
     }
     public M cc(ASObject object) {
@@ -133,7 +133,7 @@ public class Activity extends ASObject {
       cc.add(object);
       return (M)this;
     }
-    public M bcc(Supplier<ASObject> object) {
+    public M bcc(Supplier<? extends ASObject> object) {
       return bcc(object.get());
     }
     public M bcc(ASObject object) {
@@ -141,7 +141,7 @@ public class Activity extends ASObject {
       bcc.add(object);
       return (M)this;
     }
-    public M bto(Supplier<ASObject> object) {
+    public M bto(Supplier<? extends ASObject> object) {
       return bto(object.get());
     }
     public M bto(ASObject object) {
@@ -149,14 +149,14 @@ public class Activity extends ASObject {
       bto.add(object);
       return (M)this;
     }
-    public M actor(Supplier<ASObject> object) {
+    public M actor(Supplier<? extends ASObject> object) {
       return actor(object.get());
     }
     public M actor(ASObject object) {
       set(ACTOR,object);
       return (M)this;
     }
-    public M generator(Supplier<ASObject> object) {
+    public M generator(Supplier<? extends ASObject> object) {
       return generator(object.get());
     }
     public M generator(ASObject object) {
@@ -170,21 +170,21 @@ public class Activity extends ASObject {
       set(ICON,link);
       return (M)this;
     }
-    public M object(Supplier<ASObject> object) {
+    public M object(Supplier<? extends ASObject> object) {
       return object(object.get());
     }
     public M object(ASObject object) {
       set(OBJECT,object);
       return (M)this;
     }
-    public M provider(Supplier<ASObject> object) {
+    public M provider(Supplier<? extends ASObject> object) {
       return provider(object.get());
     }
     public M provider(ASObject object) {
       set(PROVIDER,object);
       return (M)this;
     }
-    public M target(Supplier<ASObject> object) {
+    public M target(Supplier<? extends ASObject> object) {
       return target(object.get());
     }
     public M target(ASObject object) {
@@ -210,7 +210,7 @@ public class Activity extends ASObject {
       icon(link);
       return (M)this;
     }
-    public M author(Supplier<ASObject> object) {
+    public M author(Supplier<? extends ASObject> object) {
       return author(object.get());
     }
     public M author(ASObject author) {

@@ -6,12 +6,14 @@ import static org.apache.abdera2.activities.model.objects.NoteObject.makeNote;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
 import org.apache.abdera2.activities.model.Verb;
+import static org.apache.abdera2.common.misc.MoreExecutors2.getExitingExecutor;
 import org.apache.abdera2.common.pusher.ChannelManager;
 import org.apache.abdera2.common.pusher.Pusher;
 import org.apache.abdera2.common.pusher.Receiver;
@@ -28,7 +30,7 @@ public class PusherExample {
   public static void main(String... args) throws Exception {
     
     final ChannelManager cm = new SimpleChannelManager();
-    ThreadPoolExecutor exec = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+    ExecutorService exec = getExitingExecutor();
     final CountDownLatch latch = new CountDownLatch(3);
     exec.execute(
       new Runnable() {
@@ -52,14 +54,11 @@ public class PusherExample {
         gen.template()
           .set("object",
             makeNote()
-              .displayName(format("My note #%d",n+1))
-              .get())
-          .get()
+              .displayName(format("My note #%d",n+1)))
         );
     
     latch.await();
     cm.shutdown();
-    exec.shutdown();
     
   }
   
