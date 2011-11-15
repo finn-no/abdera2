@@ -28,7 +28,7 @@ public final class Mood extends ASBase {
   public static final String IMAGE = "image";
   public static final String DISPLAYNAME = "displayName";
   
-  protected Mood(Map<String,Object> map) {
+  public Mood(Map<String,Object> map) {
     super(map,Builder.class,Mood.class);
   }
   

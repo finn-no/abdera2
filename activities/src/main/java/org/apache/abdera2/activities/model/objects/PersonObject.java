@@ -374,6 +374,7 @@ public class PersonObject
       return (M)this;
     }
     public void preGet() {
+      super.preGet();
       if (a) set("accounts",accounts.build());
       if (b) set("addresses",addresses.build());
       if (c) set("alternateNames",altnames.build());

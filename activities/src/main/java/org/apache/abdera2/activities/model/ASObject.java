@@ -29,6 +29,7 @@ import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.objects.EmbeddedExperience;
 import org.apache.abdera2.activities.model.objects.Mood;
 import org.apache.abdera2.activities.model.objects.PlaceObject;
+import org.apache.abdera2.activities.model.objects.TaskObject;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
@@ -55,6 +56,7 @@ public class ASObject extends ASBase {
   public static final String UPDATED = "updated";
   public static final String UPSTREAMDUPLICATES = "upstreamDuplicates";
   public static final String URL = "url";
+  public static final String REACTIONS = "reactions";
   
   public static final String INREPLYTO = "inReplyTo";
   public static final String LOCATION = "location";
@@ -93,7 +95,8 @@ public class ASObject extends ASBase {
     private ImmutableSet.Builder<ASObject> replies = ImmutableSet.builder();
     private ImmutableSet.Builder<String> downdups = ImmutableSet.builder();
     private ImmutableSet.Builder<String> updups = ImmutableSet.builder();
-    private boolean a,t,r,d,u;
+    private ImmutableSet.Builder<TaskObject> tasks = ImmutableSet.builder();
+    private boolean a,t,r,d,u,z;
     
     public Builder(String objectType, Class<X> _class, Class<M> _builder) {
       super(_class,_builder);
@@ -105,37 +108,116 @@ public class ASObject extends ASBase {
     public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
       super(map,_class,_builder);
     }
+    
+    public M reaction(TaskObject object) {
+      if (object == null) return (M)this;
+      z = true;
+      tasks.add(object);
+      return (M)this;
+    }
+    
+    public M reaction(TaskObject... objects) {
+      if (objects == null) return (M)this;
+      for (TaskObject obj : objects)
+        reaction(obj);
+      return (M)this;
+    }
+    
+    public M reaction(Iterable<TaskObject> objects) {
+      if (objects == null) return (M)this;
+      for (TaskObject obj : objects)
+        reaction(obj);
+      return (M)this;
+    }
+    
+    
+    public M attachment(ASObject... objects) {
+      if (objects == null) return (M)this;
+      for (ASObject obj : objects)
+        attachment(obj);
+      return (M)this;
+    }
+    
+    public M attachment(Iterable<ASObject> objects) {
+      if (objects == null) return (M)this;
+      for (ASObject obj : objects)
+        attachment(obj);
+      return (M)this;
+    }
+    
     public M attachment(ASObject object) {
       if (object == null) return (M)this;
-      if (!a)a=true;
+      a = true;
       attachments.add(object);
+      return (M)this;
+    }
+    
+    public M downstreamDuplicate(String... objects) {
+      if (objects == null) return (M)this;
+      for (String obj : objects)
+        downstreamDuplicate(obj);
+      return (M)this;
+    }
+    
+    public M downstreamDuplicate(Iterable<String> objects) {
+      if (objects == null) return (M)this;
+      for (String obj : objects)
+        downstreamDuplicate(obj);
       return (M)this;
     }
     
     public M downstreamDuplicate(String id) {
       if (id == null) return (M)this;
-      if (!d)d=true;
+      d = true;
       downdups.add(id);
       return (M)this;
     }
     
     public M inReplyTo(ASObject object) {
       if (object == null) return (M)this;
-      if (!r)r=true;
+      r = true;
       replies.add(object);
+      return (M)this;
+    }
+    
+    public M tag(ASObject... objects) {
+      if (objects == null) return (M)this;
+      for (ASObject obj : objects)
+        tag(obj);
+      return (M)this;
+    }
+    
+    public M tag(Iterable<ASObject> objects) {
+      if (objects == null) return (M)this;
+      for (ASObject obj : objects)
+        tag(obj);
       return (M)this;
     }
     
     public M tag(ASObject object) {
       if (object == null) return (M)this;
-      if (!t)t=true;
+      t = true;
       tags.add(object);
+      return (M)this;
+    }
+    
+    public M upstreamDuplicate(String... objects) {
+      if (objects == null) return (M)this;
+      for (String obj : objects)
+        upstreamDuplicate(obj);
+      return (M)this;
+    }
+    
+    public M upstreamDuplicate(Iterable<String> objects) {
+      if (objects == null) return (M)this;
+      for (String obj : objects)
+        upstreamDuplicate(obj);
       return (M)this;
     }
     
     public M upstreamDuplicate(String id) {
       if (id == null) return (M)this;
-      if (!u)u=true;
+      u = true;
       updups.add(id);
       return (M)this;
     }
@@ -239,11 +321,13 @@ public class ASObject extends ASBase {
     }
     
     public void preGet() {
+      super.preGet();
       if (a) set(ATTACHMENTS, attachments.build());
       if (t) set(TAGS, tags.build());
       if (r) set(INREPLYTO, replies.build());
       if (d) set(DOWNSTREAMDUPLICATES, downdups.build());
       if (u) set(UPSTREAMDUPLICATES, updups.build());
+      if (z) set(REACTIONS, tasks.build());
     }
     
   }
@@ -294,7 +378,11 @@ public class ASObject extends ASBase {
    * duplication detection easier
    */
   public Iterable<String> getDownstreamDuplicates() {
-    return checkEmpty((Iterable<String>)getProperty(DOWNSTREAMDUPLICATES));
+    return checkEmpty(this.<Iterable<String>>getProperty(DOWNSTREAMDUPLICATES));
+  }
+  
+  public Iterable<TaskObject> getReactions() {
+    return checkEmpty(this.<Iterable<TaskObject>>getProperty(REACTIONS));
   }
   
   /**

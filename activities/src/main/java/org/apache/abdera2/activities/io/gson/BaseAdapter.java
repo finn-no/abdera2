@@ -58,6 +58,7 @@ import org.apache.abdera2.activities.model.objects.ProductObject;
 import org.apache.abdera2.activities.model.objects.QuestionObject;
 import org.apache.abdera2.activities.model.objects.ReviewObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
+import org.apache.abdera2.activities.model.objects.TaskObject;
 import org.apache.abdera2.activities.model.objects.TvEpisodeObject;
 import org.apache.abdera2.activities.model.objects.TvSeasonObject;
 import org.apache.abdera2.activities.model.objects.TvSeriesObject;
@@ -106,6 +107,7 @@ final class BaseAdapter
     map.put("duration", Integer.class);
     map.put("height", Integer.class);
     map.put("location", PlaceObject.class);
+    map.put("reactions", TaskObject.class);
     map.put("mood", Mood.class);
     map.put("address", Address.class);
     map.put("stream", MediaLink.class);
@@ -166,7 +168,8 @@ final class BaseAdapter
       TvSeasonObject.TvSeasonBuilder.class,
       TvSeriesObject.TvSeriesBuilder.class,
       VersionObject.VersionBuilder.class,
-      BinaryObject.BinaryBuilder.class
+      BinaryObject.BinaryBuilder.class,
+      TaskObject.TaskBuilder.class
     );
   }
   

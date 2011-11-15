@@ -136,6 +136,7 @@ public class Collection<T extends ASObject>
       return (M)this;
     }
     public void preGet() {
+      super.preGet();
       Set<T> i = items.build();
       if(b) set(OBJECT_TYPES, types.build());
       if(a) {

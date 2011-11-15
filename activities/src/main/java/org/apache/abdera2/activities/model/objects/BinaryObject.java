@@ -249,6 +249,7 @@ public class BinaryObject extends FileObject {
     }
     
     public void preGet() {
+      super.preGet();
       if (!a)  mimeType("application/octet-stream");
     }
   }

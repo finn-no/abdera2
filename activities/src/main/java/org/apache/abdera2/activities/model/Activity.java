@@ -181,6 +181,7 @@ public class Activity extends ASObject {
       return (M)this;
     }
     public void preGet() {
+      super.preGet();
       if (a) set(Audience.TO.label(),to.build());
       if (b) set(Audience.CC.label(),cc.build());
       if (c) set(Audience.BCC.label(),bcc.build());

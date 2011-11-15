@@ -123,6 +123,7 @@ public class QuestionObject
       return (M)this;
     }
     public void preGet() {
+      super.preGet();
       if (a) set(OPTIONS, options.build());
     }
   }
