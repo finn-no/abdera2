@@ -25,6 +25,8 @@ import org.apache.abdera2.common.geo.Coordinate;
 import org.apache.abdera2.common.geo.IsoPosition;
 import org.apache.abdera2.common.geo.Point;
 
+import com.google.common.base.Supplier;
+
 public class PlaceObject 
   extends ASObject {
   public static final String ADDRESS = "address";
@@ -115,6 +117,9 @@ public class PlaceObject
     }
     public M position(Point point) {
       return position(IsoPosition.at(point));
+    }
+    public M address(Supplier<Address> address) {
+      return address(address.get());
     }
     public M address(Address address) {
       set(ADDRESS,address);

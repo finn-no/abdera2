@@ -25,6 +25,7 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -173,10 +174,19 @@ public class PersonObject
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M account(Supplier<AccountObject> object) {
+      return account(object.get());
+    }
     public M account(AccountObject object) {
       if (object == null) return (M)this;
       a = true;
       accounts.add(object);
+      return (M)this;
+    }
+    public M account(Supplier<AccountObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<AccountObject> object : objects)
+        account(object.get());
       return (M)this;
     }
     public M account(AccountObject... objects) {
@@ -191,10 +201,19 @@ public class PersonObject
         account(object);
       return (M)this;
     }
+    public M address(Supplier<Address> object) {
+      return address(object.get());
+    }
     public M address(Address object) {
       if (object == null) return (M)this;
       b = true;
       addresses.add(object);
+      return (M)this;
+    }
+    public M address(Supplier<Address>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<Address> object : objects)
+        address(object.get());
       return (M)this;
     }
     public M address(Address... objects) {
@@ -209,10 +228,19 @@ public class PersonObject
         address(object);
       return (M)this;
     }
+    public M alternateName(Supplier<NameObject> name) {
+      return alternateName(name.get());
+    }
     public M alternateName(NameObject name) {
       if (name == null) return (M)this;
       c = true;
       altnames.add(name);
+      return (M)this;
+    }
+    public M alternateName(Supplier<NameObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<NameObject> object : objects)
+        alternateName(object.get());
       return (M)this;
     }
     public M alternateName(NameObject... objects) {
@@ -263,10 +291,19 @@ public class PersonObject
         im(object);
       return (M)this;
     }
+    public M organization(Supplier<OrganizationObject> object) {
+      return organization(object.get());
+    }
     public M organization(OrganizationObject object) {
       if (object == null) return (M)this;
       f = true;
       orgs.add(object);
+      return (M)this;
+    }
+    public M organization(Supplier<OrganizationObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<OrganizationObject> object : objects)
+        organization(object.get());
       return (M)this;
     }
     public M organization(OrganizationObject... objects) {
@@ -339,13 +376,22 @@ public class PersonObject
       set("dn",val);
       return (M)this;
     }
+    public M name(Supplier<NameObject> val) {
+      return name(val.get());
+    }
     public M name(NameObject val) {
       set("name",val);
       return (M)this;
     }
+    public M nativeName(Supplier<NameObject> object) {
+      return nativeName(object.get());
+    }
     public M nativeName(NameObject val) {
       set("nativeName",val);
       return (M)this;
+    }
+    public M preferredName(Supplier<NameObject> object) {
+      return preferredName(object.get());
     }
     public M preferredName(NameObject val) {
       set("preferredName",val);

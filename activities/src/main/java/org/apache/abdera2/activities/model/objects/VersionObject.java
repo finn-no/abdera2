@@ -25,6 +25,8 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.anno.Version;
 
+import com.google.common.base.Supplier;
+
 /**
  * Activity Stream object that represents a description of a Version 
  * of a referenced object. "objectType":"version"... The basic use 
@@ -101,6 +103,9 @@ public class VersionObject
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M active(Supplier<VersionObject> object) {
+      return active(object.get());
+    }
     public M active(VersionObject object) {
       set("activeVersion",object);
       return (M)this;
@@ -121,17 +126,29 @@ public class VersionObject
       set("status",status.name().toLowerCase());
       return (M)this;
     }
+    public M next(Supplier<VersionObject> object) {
+      return next(object.get());
+    }
     public M next(VersionObject val) {
       set("nextVersion",val);
       return (M)this;
+    }
+    public M of(Supplier<VersionObject> object) {
+      return of(object.get());
     }
     public M of(ASObject val) {
       set("of",val);
       return (M)this;
     }
+    public M previous(Supplier<VersionObject> object) {
+      return previous(object.get());
+    }
     public M previous(VersionObject val) {
       set("previousVersion",val);
       return (M)this;
+    }
+    public M stable(Supplier<VersionObject> object) {
+      return stable(object.get());
     }
     public M stable(VersionObject val) {
       set("stableVersion",val);

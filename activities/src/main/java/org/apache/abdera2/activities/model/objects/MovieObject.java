@@ -26,6 +26,8 @@ import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.Duration;
 
+import com.google.common.base.Supplier;
+
 /**
  * A simple "objectType":"movie" object that serves primarily as an 
  * example of creating new ASObject types.
@@ -106,9 +108,15 @@ public class MovieObject extends CreativeWork {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M actors(Supplier<ASObject> obj) {
+      return actors(obj.get());
+    }
     public M actors(ASObject obj) {
       set("actors",obj);
       return (M)this;
+    }
+    public M director(Supplier<ASObject> obj) {
+      return director(obj.get());
     }
     public M director(ASObject obj) {
       set("director",obj);
@@ -118,17 +126,29 @@ public class MovieObject extends CreativeWork {
       set("duration",obj);
       return (M)this;
     }
+    public M musicBy(Supplier<ASObject> obj) {
+      return musicBy(obj.get());
+    }
     public M musicBy(ASObject obj) {
       set("musicBy",obj);
       return (M)this;
+    }
+    public M preview(Supplier<MediaLink> obj) {
+      return preview(obj.get());
     }
     public M preview(MediaLink obj) {
       set("preview",obj);
       return (M)this;
     }
+    public M producer(Supplier<ASObject> obj) {
+      return producer(obj.get());
+    }
     public M producer(ASObject obj) {
       set("producer",obj);
       return (M)this;
+    }
+    public M productionCompany(Supplier<ASObject> obj) {
+      return productionCompany(obj.get());
     }
     public M productionCompany(ASObject obj) {
       set("productionCompany",obj);

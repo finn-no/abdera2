@@ -12,6 +12,7 @@ import org.apache.abdera2.common.iri.IRI;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -97,9 +98,15 @@ public class TaskObject extends ASObject {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M object(Supplier<ASObject> object) {
+      return object(object.get());
+    }
     public M object(ASObject object) {
       set("for",object);
       return (M)this;
+    }
+    public M actor(Supplier<ASObject> object) {
+      return actor(object.get());
     }
     public M actor(ASObject object) {
       set("actor",object);

@@ -23,6 +23,8 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 
+import com.google.common.base.Supplier;
+
 public class ProductObject 
   extends ASObject {
   public static final String FULLIMAGE = "fullImage";
@@ -71,6 +73,9 @@ public class ProductObject
     }
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
+    }
+    public M fullImage(Supplier<MediaLink> fullImage) {
+      return fullImage(fullImage.get());
     }
     public M fullImage(MediaLink fullImage) {
       set(FULLIMAGE,fullImage);

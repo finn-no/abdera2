@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -110,11 +111,20 @@ public class QuestionObject
         option(option);
       return (M)this;
     }
+    public M option(Supplier<ASObject>... options) {
+      if (options == null) return (M)this;
+      for (Supplier<ASObject> option : options)
+        option(option.get());
+      return (M)this;
+    }
     public M option(ASObject... options) {
-      if (options.length == 0) return (M)this;
+      if (options == null) return (M)this;
       for (ASObject option : options)
         option(option);
       return (M)this;
+    }
+    public M option(Supplier<ASObject> object) {
+      return option(object.get());
     }
     public M option(ASObject object) {
       if (object == null) return (M)this;

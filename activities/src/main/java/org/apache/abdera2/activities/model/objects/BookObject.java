@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+import com.google.common.base.Supplier;
+
 /**
  * A simple "objectType":"book" object that serves primarily as an 
  * example of creating new ASObject types.
@@ -94,9 +96,15 @@ public class BookObject extends CreativeWork {
       set("edition",val);
       return (M)this;
     }
+    public M format(Supplier<ASObject> obj) {
+      return format(obj.get());
+    }
     public M format(ASObject obj) {
       set("format",obj);
       return (M)this;
+    }
+    public M illustrator(Supplier<ASObject> obj) {
+      return illustrator(obj.get());
     }
     public M illustrator(ASObject obj) {
       set("illustrator",obj);

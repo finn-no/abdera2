@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.common.iri.IRI;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -159,6 +160,10 @@ public final class EmbeddedExperience
       super(map,EmbeddedExperience.class,Builder.class);
     }
 
+    public Builder context(Supplier<ASBase> object) {
+      return context(object.get());
+    }
+    
     public Builder context(ASBase object) {
       set("context", object);
       return this;

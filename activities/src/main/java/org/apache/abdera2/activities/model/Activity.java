@@ -27,6 +27,7 @@ import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -116,45 +117,75 @@ public class Activity extends ASObject {
       super(map,_class,_builder);
     }
     
+    public M to(Supplier<ASObject> object) {
+      return to(object.get());
+    }
     public M to(ASObject object) {
       a = true;
       to.add(object);
       return (M)this;
+    }
+    public M cc(Supplier<ASObject> object) {
+      return cc(object.get());
     }
     public M cc(ASObject object) {
       b = true;
       cc.add(object);
       return (M)this;
     }
+    public M bcc(Supplier<ASObject> object) {
+      return bcc(object.get());
+    }
     public M bcc(ASObject object) {
       c = true;
       bcc.add(object);
       return (M)this;
+    }
+    public M bto(Supplier<ASObject> object) {
+      return bto(object.get());
     }
     public M bto(ASObject object) {
       d = true;
       bto.add(object);
       return (M)this;
     }
+    public M actor(Supplier<ASObject> object) {
+      return actor(object.get());
+    }
     public M actor(ASObject object) {
       set(ACTOR,object);
       return (M)this;
+    }
+    public M generator(Supplier<ASObject> object) {
+      return generator(object.get());
     }
     public M generator(ASObject object) {
       set(GENERATOR,object);
       return (M)this;
     }
+    public M icon(Supplier<MediaLink> object) {
+      return icon(object.get());
+    }
     public M icon(MediaLink link) {
       set(ICON,link);
       return (M)this;
+    }
+    public M object(Supplier<ASObject> object) {
+      return object(object.get());
     }
     public M object(ASObject object) {
       set(OBJECT,object);
       return (M)this;
     }
+    public M provider(Supplier<ASObject> object) {
+      return provider(object.get());
+    }
     public M provider(ASObject object) {
       set(PROVIDER,object);
       return (M)this;
+    }
+    public M target(Supplier<ASObject> object) {
+      return target(object.get());
     }
     public M target(ASObject object) {
       set(TARGET,object);
@@ -172,9 +203,15 @@ public class Activity extends ASObject {
       title(displayName);
       return (M)this;
     }
+    public M image(Supplier<MediaLink> object) {
+      return image(object.get());
+    }
     public M image(MediaLink link) {
       icon(link);
       return (M)this;
+    }
+    public M author(Supplier<ASObject> object) {
+      return author(object.get());
     }
     public M author(ASObject author) {
       actor(author);

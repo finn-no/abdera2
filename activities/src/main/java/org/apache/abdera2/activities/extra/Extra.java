@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Predicates.*;
@@ -893,7 +894,10 @@ public final class Extra {
         if (setter) {
           if (args.length != 1)
             throw new UnsupportedOperationException();
-          builder.set(name,args[0]);
+          if (args[0] instanceof Supplier) 
+            builder.set(name,((Supplier)args[0]).get());
+          else 
+            builder.set(name,args[0]);
           return method.getReturnType().isAssignableFrom(type) ?
             obj : null; 
         } else {

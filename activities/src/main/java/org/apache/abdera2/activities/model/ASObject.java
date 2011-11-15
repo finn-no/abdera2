@@ -34,6 +34,7 @@ import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -109,10 +110,21 @@ public class ASObject extends ASBase {
       super(map,_class,_builder);
     }
     
+    public M reaction(Supplier<TaskObject> object) {
+      return reaction(object.get());
+    }
+    
     public M reaction(TaskObject object) {
       if (object == null) return (M)this;
       z = true;
       tasks.add(object);
+      return (M)this;
+    }
+    
+    public M reaction(Supplier<TaskObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<TaskObject> object : objects)
+        reaction(object.get());
       return (M)this;
     }
     
@@ -130,6 +142,12 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M attachment(Supplier<ASObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<ASObject> object : objects)
+        attachment(object.get());
+      return (M)this;
+    }
     
     public M attachment(ASObject... objects) {
       if (objects == null) return (M)this;
@@ -143,6 +161,10 @@ public class ASObject extends ASBase {
       for (ASObject obj : objects)
         attachment(obj);
       return (M)this;
+    }
+    
+    public M attachment(Supplier<ASObject> object) {
+      return attachment(object.get());
     }
     
     public M attachment(ASObject object) {
@@ -173,10 +195,42 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M inReplyTo(Supplier<ASObject> object) {
+      return inReplyTo(object.get());
+    }
+    
     public M inReplyTo(ASObject object) {
       if (object == null) return (M)this;
       r = true;
       replies.add(object);
+      return (M)this;
+    }
+    
+    public M inReplyTo(Supplier<ASObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<ASObject> object : objects)
+        inReplyTo(object.get());
+      return (M)this;
+    }
+    
+    public M inReplyTo(ASObject... objects) {
+      if (objects == null) return (M)this;
+      for (ASObject object : objects)
+        inReplyTo(object);
+      return (M)this;
+    }
+    
+    public M inReplyTo(Iterable<ASObject> objects) {
+      if (objects == null) return (M)this;
+      for (ASObject object : objects)
+        inReplyTo(object);
+      return (M)this;
+    }
+    
+    public M tag(Supplier<ASObject>... objects) {
+      if (objects == null) return (M)this;
+      for (Supplier<ASObject>object : objects )
+        tag(object.get());
       return (M)this;
     }
     
@@ -192,6 +246,10 @@ public class ASObject extends ASBase {
       for (ASObject obj : objects)
         tag(obj);
       return (M)this;
+    }
+    
+    public M tag(Supplier<ASObject> object) {
+      return tag(object.get());
     }
     
     public M tag(ASObject object) {
@@ -222,6 +280,10 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M author(Supplier<ASObject> object) {
+      return author(object.get());
+    }
+    
     public M author(ASObject object) {
       set(AUTHOR,object);
       return (M)this;
@@ -237,9 +299,17 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M embed(Supplier<ASObject> object) {
+      return embed(object.get());
+    }
+    
     public M embed(ASObject object) {
       set(EMBED,object);
       return (M)this;
+    }
+    
+    public M embeddedExperience(Supplier<EmbeddedExperience> object) {
+      return embeddedExperience(object.get());
     }
     
     public M embeddedExperience(EmbeddedExperience ee) {
@@ -258,14 +328,26 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M image(Supplier<MediaLink> object) {
+      return image(object.get());
+    }
+    
     public M image(MediaLink link) {
       set(IMAGE,link);
       return (M)this;
     }
     
+    public M location(Supplier<PlaceObject> object) {
+      return location(object.get());
+    }
+    
     public M location(PlaceObject object) {
       set(LOCATION,object);
       return (M)this;
+    }
+    
+    public M mood(Supplier<Mood> object) {
+      return mood(object.get());
     }
     
     public M mood(Mood mood) {
@@ -290,6 +372,10 @@ public class ASObject extends ASBase {
     public M rating(double rating) {
       set(RATING,rating);
       return (M)this;
+    }
+    
+    public M source(Supplier<ASObject> object) {
+      return source(object.get());
     }
     
     public M source(ASObject object) {

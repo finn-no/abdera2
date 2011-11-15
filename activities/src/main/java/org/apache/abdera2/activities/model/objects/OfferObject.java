@@ -25,6 +25,8 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
+
 /**
  * A simple "objectType":"offer" object that serves primarily as an 
  * example of creating new ASObject types.
@@ -109,9 +111,15 @@ public class OfferObject extends ASObject {
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M availability(Supplier<ASObject> obj) {
+      return availability(obj.get());
+    }
     public M availability(ASObject obj) {
       set("availability",obj);
       return (M)this;
+    }
+    public M condition(Supplier<ASObject> obj) {
+      return condition(obj.get());
     }
     public M condition(ASObject obj) {
       set("condition",obj);
@@ -121,6 +129,9 @@ public class OfferObject extends ASObject {
       set("currency",obj);
       return (M)this;
     }
+    public M item(Supplier<ASObject> obj) {
+      return item(obj.get());
+    }
     public M item(ASObject obj) {
       set("item",obj);
       return (M)this;
@@ -128,6 +139,9 @@ public class OfferObject extends ASObject {
     public M price(String obj) {
       set("price",obj);
       return (M)this;
+    }
+    public M restriction(Supplier<ASObject> obj) {
+      return restriction(obj.get());
     }
     public M restriction(ASObject obj) {
       set("restriction",obj);

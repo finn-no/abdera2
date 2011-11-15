@@ -20,6 +20,8 @@ package org.apache.abdera2.activities.model.objects;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.extra.Extra.ExtensionObject;
 import org.apache.abdera2.activities.extra.Extra.ExtensionBuilder;
+
+import com.google.common.base.Supplier;
 /**
  * Additional extension properties for the EventObject...
  * attach this interface to an EventObject using the 
@@ -45,6 +47,12 @@ public interface AdditionalEventProperties
     Builder subEvents(ASObject subEvents);
     Builder superEvent(ASObject superEvent);
     Builder performers(ASObject performers);
+    
+    Builder host(Supplier<ASObject> host);
+    Builder offers(Supplier<ASObject> offers);
+    Builder subEvents(Supplier<ASObject> subEvents);
+    Builder superEvent(Supplier<ASObject> superEvent);
+    Builder performers(Supplier<ASObject> performers);
   }
   
 }

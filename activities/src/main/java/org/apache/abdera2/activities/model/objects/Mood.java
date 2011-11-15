@@ -23,6 +23,8 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.iri.IRI;
 
+import com.google.common.base.Supplier;
+
 public final class Mood extends ASBase {
 
   public static final String IMAGE = "image";
@@ -70,6 +72,9 @@ public final class Mood extends ASBase {
     public Builder displayName(String dn) {
       set(DISPLAYNAME,dn);
       return this;
+    }
+    public Builder image(Supplier<MediaLink> link) {
+      return image(link.get());
     }
     public Builder image(MediaLink link) {
       set(IMAGE, link);

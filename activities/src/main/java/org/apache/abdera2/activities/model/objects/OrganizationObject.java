@@ -27,6 +27,8 @@ import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
+
 public class OrganizationObject extends ASObject {
 
   public OrganizationObject(Map<String,Object> map) {
@@ -122,6 +124,9 @@ public class OrganizationObject extends ASObject {
     }
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
+    }
+    public M address(Supplier<Address> obj) {
+      return address(obj.get());
     }
     public M address(Address address) {
       set("address",address);

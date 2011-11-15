@@ -26,6 +26,7 @@ import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.selector.Selector;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -98,14 +99,17 @@ public class Collection<T extends ASObject>
     private final ImmutableSet.Builder<String> types = 
       ImmutableSet.builder();
     boolean a,b,c;
-    protected Builder(Class<X> _class, Class<M> _builder) {
+    public Builder(Class<X> _class, Class<M> _builder) {
       super(_class,_builder);
     }
-    protected Builder(String objectType,Class<X> _class, Class<M> _builder) {
+    public Builder(String objectType,Class<X> _class, Class<M> _builder) {
       super(objectType,_class,_builder);
     }
-    protected Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
+    public Builder(Map<String,Object> map,Class<X> _class, Class<M> _builder) {
       super(map,_class,_builder);
+    }
+    public M item(Supplier<T> item) {
+      return item(item.get());
     }
     public M item(T item) {
       if (item == null) return (M)this;
@@ -113,7 +117,14 @@ public class Collection<T extends ASObject>
       items.add(item);
       return (M)this;
     } 
+    public M item(Supplier<T>... items) {
+      if (items == null) return (M)this;
+      for (Supplier<T> item : items)
+        item(item.get());
+      return (M)this;
+    }
     public M items(T... items) {
+      if (items == null) return (M)this;
       for (T item : items)
         item(item);
       return (M)this;

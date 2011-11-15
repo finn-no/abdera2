@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.apache.abdera2.activities.model.ASObject;
 
+import com.google.common.base.Supplier;
+
 /**
  * Abstract base class for several extension ASObject types
  */
@@ -67,25 +69,43 @@ public abstract class CreativeWork extends ASObject {
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M about(Supplier<ASObject> obj) {
+      return about(obj.get());
+    }
     public M about(ASObject object) {
       set("about",object);
       return (M)this;
+    }
+    public M contributor(Supplier<ASObject> obj) {
+      return contributor(obj.get());
     }
     public M contributor(ASObject object) {
       set("contributor",object);
       return (M)this;
     }
+    public M editor(Supplier<ASObject> obj) {
+      return editor(obj.get());
+    }
     public M editor(ASObject object) {
       set("editor",object);
       return (M)this;
+    }
+    public M genre(Supplier<ASObject> obj) {
+      return genre(obj.get());
     }
     public M genre(ASObject object) {
       set("genre",object);
       return (M)this;
     }
+    public M provider(Supplier<ASObject> obj) {
+      return provider(obj.get());
+    }
     public M provider(ASObject object) {
       set("provider",object);
       return (M)this;
+    }
+    public M publisher(Supplier<ASObject> obj) {
+      return publisher(obj.get());
     }
     public M publisher(ASObject object) {
       set("publisher",object);

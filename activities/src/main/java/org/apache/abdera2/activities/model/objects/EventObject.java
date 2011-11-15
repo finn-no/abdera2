@@ -24,6 +24,8 @@ import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
+
 public class EventObject 
   extends ASObject {
 
@@ -101,6 +103,10 @@ public class EventObject
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    
+    public <T extends ASObject>M attending(Supplier<Collection<T>> col) {
+      return attending(col.get());
+    }
 
     public <T extends ASObject>M attending(Collection<T> col) {
       set(ATTENDING, col);
@@ -112,9 +118,17 @@ public class EventObject
       return (M)this;
     }
     
+    public <T extends ASObject>M maybeAttending(Supplier<Collection<T>> col) {
+      return maybeAttending(col.get());
+    }
+    
     public <T extends ASObject>M maybeAttending(Collection<T> col) {
       set(MAYBEATTENDING, col);
       return (M)this;
+    }
+    
+    public <T extends ASObject>M notAttending(Supplier<Collection<T>> col) {
+      return notAttending(col.get());
     }
     
     public <T extends ASObject>M notAttending(Collection<T> col) {

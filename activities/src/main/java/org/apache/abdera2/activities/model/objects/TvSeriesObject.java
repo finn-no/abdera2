@@ -26,6 +26,8 @@ import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.common.anno.Name;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Supplier;
+
 /**
  * A simple "objectType":"tv-series" object that serves primarily as an 
  * example of creating new ASObject types.
@@ -119,33 +121,57 @@ public class TvSeriesObject extends CreativeWork {
     protected Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
     }
+    public M actors(Supplier<ASObject> object) {
+      return actors(object.get());
+    }
     public M actors(ASObject obj) {
       set("actors",obj);
       return (M)this;
+    }
+    public M director(Supplier<ASObject> object) {
+      return director(object.get());
     }
     public M director(ASObject obj) {
       set("director",obj);
       return (M)this;
     }
+    public M musicBy(Supplier<ASObject> object) {
+      return musicBy(object.get());
+    }
     public M musicBy(ASObject obj) {
       set("musicBy",obj);
       return (M)this;
+    }
+    public M preview(Supplier<MediaLink> object) {
+      return preview(object.get());
     }
     public M preview(MediaLink obj) {
       set("preview",obj);
       return (M)this;
     }
+    public M producer(Supplier<ASObject> object) {
+      return producer(object.get());
+    }
     public M producer(ASObject obj) {
       set("producer",obj);
       return (M)this;
+    }
+    public M productionCompany(Supplier<ASObject> object) {
+      return productionCompany(object.get());
     }
     public M productionCompany(ASObject obj) {
       set("productionCompany",obj);
       return (M)this;
     }
+    public M episodes(Supplier<ASObject> object) {
+      return episodes(object.get());
+    }
     public M episodes(ASObject obj) {
       set("episodes",obj);
       return (M)this;
+    }
+    public M seasons(Supplier<ASObject> object) {
+      return seasons(object.get());
     }
     public M seasons(ASObject obj) {
       set("seasons",obj);
