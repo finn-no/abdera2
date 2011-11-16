@@ -26,13 +26,20 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.abdera2.activities.io.gson.GsonIO;
 import org.apache.abdera2.common.anno.DefaultImplementation;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Primary interface for serializing/deserializing Activity objects. 
@@ -141,7 +148,7 @@ public abstract class IO {
     Appendable writer);
   
   public void write(ASBase base, OutputStream out) {
-    write(base,out,null);
+    write(base,out,(String)null);
   }
   
   public void write(ASBase base, OutputStream out, String charset) {
@@ -300,4 +307,571 @@ public abstract class IO {
   }
   
   public abstract CollectionWriter getCollectionWriter(Writer out);
+  
+  
+  
+  
+  
+  public static interface Listener<X> {
+    void onComplete(X item);
+  }
+
+  public <X extends ASBase>void read(
+    final Reader reader, 
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> read(
+    final Reader reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(reader);
+          }
+        });
+  }
+  
+  public <X extends ASBase>void readAs(
+    final Reader reader, 
+    final Class<X> _class,
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(reader,_class);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> readAs(
+    final Reader reader, 
+    final Class<X> _class,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(reader,_class);
+          }
+        });
+  }
+  
+  
+  public <X extends ASBase>void read(
+     
+    final String reader, 
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> read(
+     
+    final String reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(reader);
+          }
+        });
+  }
+  
+  public <X extends ASBase>void readAs(
+     
+    final String reader, 
+    final Class<X> _class,
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(reader,_class);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> readAs(
+     
+    final String reader, 
+    final Class<X> _class,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(reader,_class);
+          }
+        });
+  }
+  
+  public <X extends ASBase>void read(
+     
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(in,charset);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> read(
+     
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return read(in,charset);
+          }
+        });
+  }
+  
+  public <X extends ASBase>void readAs(
+     
+    final InputStream in,
+    final String charset,
+    final Class<X> _class,
+    final ExecutorService exec, 
+    final Listener<X> listener) {
+      process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(in,charset,_class);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASBase>Future<X> readAs(
+     
+    final InputStream in,
+    final String charset,
+    final Class<X> _class,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<X>() {
+          public X call() throws Exception {
+            return readAs(in,charset,_class);
+          }
+        });
+  }
+  
+  
+  //---
+  
+  public void readActivity(
+     
+    final Reader reader, 
+    final ExecutorService exec, 
+    final Listener<Activity> listener) {
+      process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<Activity> readActivity(
+     
+    final Reader reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(reader);
+          }
+        });
+  }
+  
+  public void readActivity(
+     
+    final String reader, 
+    final ExecutorService exec, 
+    final Listener<Activity> listener) {
+      process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<Activity> readActivity(
+     
+    final String reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(reader);
+          }
+        });
+  }
+    
+  public void readActivity(
+     
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec, 
+    final Listener<Activity> listener) {
+      process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(in,charset);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<Activity> readActivity(
+     
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Activity>() {
+          public Activity call() throws Exception {
+            return readActivity(in,charset);
+          }
+        });
+  }
+ 
+  //---
+
+  public void readMediaLink(
+     
+    final Reader reader, 
+    final ExecutorService exec, 
+    final Listener<MediaLink> listener) {
+      process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<MediaLink> readMediaLink(
+    final Reader reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(reader);
+          }
+        });
+  }
+  
+  public void readMediaLink(
+    final String reader, 
+    final ExecutorService exec, 
+    final Listener<MediaLink> listener) {
+      process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<MediaLink> readMediaLink(
+    final String reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(reader);
+          }
+        });
+  }
+    
+  public void readMediaLink(
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec, 
+    final Listener<MediaLink> listener) {
+      process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(in,charset);
+          }
+        }, 
+        listener);
+  }
+  
+  public Future<MediaLink> readMediaLink(
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<MediaLink>() {
+          public MediaLink call() throws Exception {
+            return readMediaLink(in,charset);
+          }
+        });
+  }
+  
+  // --
+
+  public <X extends ASObject>void readCollection(
+    final Reader reader, 
+    final ExecutorService exec, 
+    final Listener<Collection<X>> listener) {
+      process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASObject>Future<Collection<X>> readCollection(
+    final Reader reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(reader);
+          }
+        });
+  }
+  
+  public <X extends ASObject>void readCollection(
+    final String reader, 
+    final ExecutorService exec, 
+    final Listener<Collection<X>> listener) {
+      process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(reader);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASObject>Future<Collection<X>> readCollection(
+    final String reader, 
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(reader);
+          }
+        });
+  }
+    
+  public <X extends ASObject>void readCollection(
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec, 
+    final Listener<Collection<X>> listener) {
+      process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(in,charset);
+          }
+        }, 
+        listener);
+  }
+  
+  public <X extends ASObject>Future<Collection<X>> readCollection(
+    final InputStream in,
+    final String charset,
+    final ExecutorService exec) {
+      return process(
+        exec,
+        new Callable<Collection<X>>() {
+          public Collection<X> call() throws Exception {
+            return readCollection(in,charset);
+          }
+        });
+  }
+  
+  // --
+  
+  public void write(
+    final ASBase base, 
+    final ExecutorService exec,
+    final Listener<String> listener) {
+    process(
+      exec, 
+      new Callable<String>() {
+        public String call() throws Exception {
+          return write(base);
+        }
+      }, 
+      listener);
+  }
+  
+  public Future<String> write(
+    final ASBase base, 
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<String>() {
+        public String call() throws Exception {
+          return write(base);
+        }
+      });
+  }
+  
+  public Future<Void> write(
+    final ASBase base, 
+    final Appendable out,
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<Void>() {
+        public Void call() {
+          write(base,out);
+          return null;
+        }
+      });
+  }
+  
+  public Future<Void> write(
+    final ASBase base, 
+    final OutputStream out,
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<Void>() {
+        public Void call() {
+          write(base,out);
+          return null;
+        }
+      });
+  }  
+  
+  public Future<Void> write(
+    final ASBase base, 
+    final OutputStream out,
+    final String charset,
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<Void>() {
+        public Void call() {
+          write(base,out,charset);
+          return null;
+        }
+      });
+  } 
+  
+  public Future<Void> writeCollection(
+    final Writer out, 
+    final ASBase header, 
+    final Iterable<ASObject> objects, 
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<Void>() {
+        public Void call() throws Exception {
+          writeCollection(out,header,objects);
+          return null;
+        }});
+  }
+  
+  public Future<Void> writeCollection(
+    final OutputStream out,
+    final String charset,
+    final ASBase header, 
+    final Iterable<ASObject> objects, 
+    final ExecutorService exec) {
+    return process(
+      exec, 
+      new Callable<Void>() {
+        public Void call() throws Exception {
+          writeCollection(out,charset,header,objects);
+          return null;
+        }});
+  }
+
+  private <X>Future<X> process(
+    ExecutorService executor, 
+    Callable<X> resp) {
+      ListeningExecutorService exec = 
+        MoreExecutors.listeningDecorator(executor);
+      return exec.submit(resp);
+  }
+  
+  private <X>void process(
+    ExecutorService executor, 
+    Callable<X> resp, 
+    final Listener<X> listener) {
+      ListeningExecutorService exec = MoreExecutors.listeningDecorator(executor);
+      final ListenableFuture<X> lf = exec.submit(resp);
+      lf.addListener(
+        new Runnable() {
+          public void run() {
+            try {
+              listener.onComplete(lf.get());
+            } catch (Throwable t) {
+              t.printStackTrace();
+              throw ExceptionHelper.propogate(t);
+            }
+          }
+        }, 
+        executor);
+  }
+  
+  
 }

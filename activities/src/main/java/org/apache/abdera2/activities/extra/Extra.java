@@ -17,10 +17,13 @@
  */
 package org.apache.abdera2.activities.extra;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
-
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -29,6 +32,9 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.Audience;
+import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.IO;
+import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
@@ -40,8 +46,10 @@ import org.joda.time.DateTime;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Equivalence;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Predicates.*;
@@ -973,4 +981,406 @@ public final class Extra {
     }
     return name;
   }
+  
+  public static <T extends ASBase>Function<InputStream,T> readFromInputStream(
+    final String charset) {
+    return readFromInputStream(IO.get(),charset);
+  }
+  
+  public static <T extends ASBase>Function<InputStream,T> readFromInputStream(
+    final IO io, 
+    final String charset) {
+    return new Function<InputStream,T>() {
+      public T apply(InputStream input) {
+        return io.read(input,charset);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<Reader,T> readFromReader() {
+    return readFromReader(IO.get());
+  }
+  
+  public static <T extends ASBase>Function<Reader,T> readFromReader(
+    final IO io) {
+    return new Function<Reader,T>() {
+      public T apply(Reader input) {
+        return io.read(input);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<String,T> readFromString() {
+    return readFromString(IO.get());
+  }
+  
+  public static <T extends ASBase>Function<String,T> readFromString(
+    final IO io) {
+    return new Function<String,T>() {
+      public T apply(String input) {
+        return io.read(input);
+      }
+    };
+  }
+ 
+  public static <T extends ASBase>Function<InputStream,T> readFromInputStreamAs(
+      final String charset, 
+      final Class<T> _class) {
+    return readFromInputStreamAs(IO.get(),charset,_class);
+  }
+  
+  public static <T extends ASBase>Function<InputStream,T> readFromInputStreamAs(
+    final IO io, 
+    final String charset, 
+    final Class<T> _class) {
+    return new Function<InputStream,T>() {
+      public T apply(InputStream input) {
+        return io.readAs(input,charset,_class);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<Reader,T> readFromReaderAs(
+      final Class<T> _class) {
+    return readFromReaderAs(IO.get(),_class);
+  }
+  
+  public static <T extends ASBase>Function<Reader,T> readFromReaderAs(
+    final IO io,
+    final Class<T> _class) {
+    return new Function<Reader,T>() {
+      public T apply(Reader input) {
+        return io.readAs(input,_class);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<String,T> readFromStringAs(
+      final Class<T> _class) {
+    return readFromStringAs(IO.get(),_class);
+  }
+  
+  public static <T extends ASBase>Function<String,T> readFromStringAs(
+    final IO io,
+    final Class<T> _class) {
+    return new Function<String,T>() {
+      public T apply(String input) {
+        return io.readAs(input,_class);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<InputStream,T> readObjectFromInputStream(
+      final String charset) {
+    return readObjectFromInputStream(IO.get(),charset);
+  }
+  
+  public static <T extends ASObject>Function<InputStream,T> readObjectFromInputStream(
+    final IO io, 
+    final String charset) {
+    return new Function<InputStream,T>() {
+      public T apply(InputStream input) {
+        return io.readObject(input,charset);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<Reader,T> readObjectFromReader() {
+    return readObjectFromReader(IO.get());
+  }
+      
+  public static <T extends ASObject>Function<Reader,T> readObjectFromReader(
+    final IO io) {
+    return new Function<Reader,T>() {
+      public T apply(Reader input) {
+        return io.readObject(input);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<String,T> readObjectFromString() {
+    return readObjectFromString(IO.get());
+  }
+  
+  public static <T extends ASObject>Function<String,T> readObjectFromString(
+    final IO io) {
+    return new Function<String,T>() {
+      public T apply(String input) {
+        return io.readObject(input);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<InputStream,T> readObjectFromInputStreamAs(
+      final String charset, 
+      final Class<T> _class) {
+    return readObjectFromInputStreamAs(IO.get(),charset,_class);
+  }
+  
+  public static <T extends ASObject>Function<InputStream,T> readObjectFromInputStreamAs(
+    final IO io, 
+    final String charset, 
+    final Class<T> _class) {
+    return new Function<InputStream,T>() {
+      public T apply(InputStream input) {
+        return io.readObjectAs(input,charset,_class);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<Reader,T> readObjectFromReaderAs(
+      final Class<T> _class) {
+    return readObjectFromReaderAs(IO.get(),_class);
+  }
+  
+  public static <T extends ASObject>Function<Reader,T> readObjectFromReaderAs(
+    final IO io,
+    final Class<T> _class) {
+    return new Function<Reader,T>() {
+      public T apply(Reader input) {
+        return io.readObjectAs(input,_class);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<String,T> readObjectFromStringAs(final Class<T> _class) {
+    return readObjectFromStringAs(IO.get(),_class);
+  }
+  
+  public static <T extends ASObject>Function<String,T> readObjectFromStringAs(
+    final IO io,
+    final Class<T> _class) {
+    return new Function<String,T>() {
+      public T apply(String input) {
+        return io.readObjectAs(input,_class);
+      }
+    };
+  }
+  
+  public static Function<InputStream,Activity> readActivityFromInputStream(
+    final String charset) {
+    return readActivityFromInputStream(IO.get(),charset);
+  }
+  
+  public static Function<InputStream,Activity> readActivityFromInputStream(
+    final IO io, 
+    final String charset) {
+    return new Function<InputStream,Activity>() {
+      public Activity apply(InputStream input) {
+        return io.readActivity(input,charset);
+      }
+    };
+  }
+  
+  public static Function<Reader,Activity> readActivityFromReader() {
+    return readActivityFromReader(IO.get());
+  }
+  
+  public static Function<Reader,Activity> readActivityFromReader(
+    final IO io) {
+    return new Function<Reader,Activity>() {
+      public Activity apply(Reader input) {
+        return io.readActivity(input);
+      }
+    };
+  }
+  
+  public static Function<String,Activity> readActivityFromString() {
+    return readActivityFromString(IO.get());
+  }
+  
+  public static Function<String,Activity> readActivityFromString(
+    final IO io) {
+    return new Function<String,Activity>() {
+      public Activity apply(String input) {
+        return io.readActivity(input);
+      }
+    };
+  }
+  
+  public static Function<InputStream,MediaLink> readMediaLinkFromInputStream(
+    final String charset) {
+    return readMediaLinkFromInputStream(IO.get(),charset);
+  }
+  
+  public static Function<InputStream,MediaLink> readMediaLinkFromInputStream(
+    final IO io, 
+    final String charset) {
+    return new Function<InputStream,MediaLink>() {
+      public MediaLink apply(InputStream input) {
+        return io.readMediaLink(input,charset);
+      }
+    };
+  }
+  
+  public static Function<Reader,MediaLink> readMediaLinkFromReader() {
+    return readMediaLinkFromReader(IO.get());
+  }
+  
+  public static Function<Reader,MediaLink> readMediaLinkFromReader(
+    final IO io) {
+    return new Function<Reader,MediaLink>() {
+      public MediaLink apply(Reader input) {
+        return io.readMediaLink(input);
+      }
+    };
+  }
+  
+  public static Function<String,MediaLink> readMediaLinkFromString() {
+    return readMediaLinkFromString(IO.get());
+  }
+  
+  public static Function<String,MediaLink> readMediaLinkFromString(
+    final IO io) {
+    return new Function<String,MediaLink>() {
+      public MediaLink apply(String input) {
+        return io.readMediaLink(input);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<InputStream,Collection<T>> readCollectionFromInputStream(
+    final String charset) {
+    return readCollectionFromInputStream(IO.get(),charset);
+  }
+  
+  public static <T extends ASObject>Function<InputStream,Collection<T>> readCollectionFromInputStream(
+    final IO io, 
+    final String charset) {
+    return new Function<InputStream,Collection<T>>() {
+      public Collection<T> apply(InputStream input) {
+        return io.readCollection(input,charset);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<Reader,Collection<T>> readCollectionFromReader() {
+    return readCollectionFromReader(IO.get());
+  }
+  
+  public static <T extends ASObject>Function<Reader,Collection<T>> readCollectionFromReader(
+    final IO io) {
+    return new Function<Reader,Collection<T>>() {
+      public Collection<T> apply(Reader input) {
+        return io.readCollection(input);
+      }
+    };
+  }
+  
+  public static <T extends ASObject>Function<String,Collection<T>> readCollectionFromString() {
+    return readCollectionFromString(IO.get());
+  }
+  
+  public static <T extends ASObject>Function<String,Collection<T>> readCollectionFromString(
+    final IO io) {
+    return new Function<String,Collection<T>>() {
+      public Collection<T> apply(String input) {
+        return io.readCollection(input);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<T,String> write(final IO io) {
+    return new Function<T,String>() {
+      public String apply(T input) {
+        return io.write(input);
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<T,String> write() {
+    return write(IO.get());
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final IO io, 
+    final Appendable out) {
+    return new Function<T,Void>() {
+      public Void apply(T input) {
+        io.write(input,out);
+        return null;
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final Appendable out) {
+    return writeTo(IO.get(),out);
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final IO io, 
+    final OutputStream out) {
+    return new Function<T,Void>() {
+      public Void apply(T input) {
+        io.write(input,out);
+        return null;
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final OutputStream out) {
+    return writeTo(IO.get(),out);
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final IO io, 
+    final OutputStream out,
+    final String charset) {
+    return new Function<T,Void>() {
+      public Void apply(T input) {
+        io.write(input,out,charset);
+        return null;
+      }
+    };
+  }
+  
+  public static <T extends ASBase>Function<T,Void> writeTo(
+    final OutputStream out,
+    final String charset) {
+    return writeTo(IO.get(),out,charset);
+  }
+  
+  public static <T extends ASBase,M extends ASBase>Function<T,M> as(
+    final Class<M> _class) {
+      return new Function<T,M>() {
+        public M apply(T input) {
+          return input.as(_class);
+        }
+      };
+  }
+  
+  public static <T extends ASBase,M extends ASBase>Function<T,M> as(
+    final Class<M> _class,
+    final ASBase other) {
+      return new Function<T,M>() {
+        public M apply(T input) {
+          return input.as(_class,other);
+        }
+      };
+  }
+  
+  public static <T extends ASBase,M extends ASBase>Function<T,M> as(
+    final Class<M> _class,
+    final Map<String,Object> other) {
+      final ImmutableMap<String,Object> map = 
+        ImmutableMap.copyOf(other);
+      return new Function<T,M>() {
+        public M apply(T input) {
+          return input.as(_class,map);
+        }
+      };
+  }
+  
+  public static <T extends ASBase,M extends ASBase>Function<T,M> as(
+    final Class<M> _class,
+    final Selector<Map.Entry<String,Object>> filter) {
+      return new Function<T,M>() {
+        public M apply(T input) {
+          return input.as(_class,filter);
+        }
+      };
+  }
+  
 }

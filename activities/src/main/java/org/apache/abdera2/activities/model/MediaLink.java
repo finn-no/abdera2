@@ -105,7 +105,7 @@ public final class MediaLink extends ASBase {
     }
   }
   
-  MediaLink(Map<String,Object> map) {
+  public MediaLink(Map<String,Object> map) {
     super(map,Builder.class,MediaLink.class);
   }
   
