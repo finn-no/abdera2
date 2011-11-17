@@ -445,7 +445,7 @@ public abstract class Operation implements Serializable {
             for (VarSpec varspec : exp) {
               String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
-                if (!first) buf.append('&');
+                if (!first && val != null) buf.append('&');
                 if ((val != null && !varspec.isExplode()) || varspec.isNoval()) {
                   buf.append(varspec.getName());
                 }
