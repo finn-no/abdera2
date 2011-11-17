@@ -234,9 +234,9 @@ public abstract class IO {
     return readObject(json).as(_class);
   }
   
-  private static class CacheKey {
+  public static class CacheKey {
     private final int hash;
-    CacheKey(TypeAdapter<?>[] adapters) {
+    public CacheKey(TypeAdapter<?>[] adapters) {
       this.hash = Arrays.hashCode(adapters);
     }
     public int hashCode() {
@@ -255,6 +255,7 @@ public abstract class IO {
       return true;
     }
   }
+  
   private static final Map<CacheKey,IO> map = 
     new ConcurrentHashMap<CacheKey,IO>();
   
