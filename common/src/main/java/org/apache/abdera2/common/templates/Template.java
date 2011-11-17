@@ -142,12 +142,20 @@ public final class Template
               exp.evaluate(context));
       return pattern;
     }
+    
+    public String expand(Supplier<Context> context) {
+      if (context == null) return null;
+      return expand(context.get());
+    }
 
     /**
      * Expand the URI Template using the non-private fields and methods of the specified object to resolve the template
      * tokens
      */
     public String expand(Object object) {
+      if (object == null) return null;
+      if (object instanceof Supplier)
+        object = ((Supplier<?>)object).get();
         return expand(object, false);
     }
 
@@ -156,7 +164,10 @@ public final class Template
      * tokens. If isiri is true, IRI escaping rules will be used.
      */
     public String expand(Object object, boolean isiri) {
-        return expand(asContext(object,isiri));
+      if (object == null) return null;
+      if (object instanceof Supplier)
+        object = ((Supplier<?>)object).get();
+      return expand(asContext(object,isiri));
     }
 
     private String replace(String pattern, Expression exp, String value) {
@@ -190,6 +201,12 @@ public final class Template
         return pattern;
     }
 
+    public static String expand(String pattern, Supplier<Context> context) {
+      checkNotNull(pattern);
+      checkNotNull(context);
+      return expand(pattern,context.get());
+    }
+    
     public static String expand(String pattern, Context context) {
         checkNotNull(context);
         checkNotNull(pattern);

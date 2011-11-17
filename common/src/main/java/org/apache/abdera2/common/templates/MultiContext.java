@@ -58,7 +58,9 @@ public final class MultiContext
           (Context)object :
           object instanceof Map ?
             new MapContext((Map<String,Object>)object) :
-            new ObjectContext(object)
+            object instanceof Supplier ?
+              new ObjectContext(((Supplier<?>)object).get()) :
+              new ObjectContext(object)
       );
       return this;
     }
