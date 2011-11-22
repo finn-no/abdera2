@@ -19,6 +19,7 @@ package org.apache.abdera2.common.selector;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -138,6 +139,15 @@ public final class Selectors {
         return !selector.select(item);
       }
     };
+  }
+  
+  /**
+   * Returns a Selector<X> for the given Equivalence
+   */
+  public static <X>Selector<X> equivalentTo(
+    final Equivalence<X> equivalence,
+    final X item) {
+      return forPredicate(equivalence.equivalentTo(item));
   }
   
   /**

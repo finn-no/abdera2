@@ -755,9 +755,9 @@ public final class Extra {
    * the downstreamDuplicates and upstreamDuplicates properties
    * into account when determining equivalence.
    */
-  private static Equivalence<ASObject> identity() {
-    return new Equivalence<ASObject>() {
-      protected boolean doEquivalent(ASObject a, ASObject b) {
+  public static <X extends ASObject>Equivalence<X> identity() {
+    return new Equivalence<X>() {
+      protected boolean doEquivalent(X a, X b) {
         Selector<Map.Entry<String,Object>> filter = 
           ASBase.withFields("id","alias","objectType");
         Map<String,Object> map1 = Maps.transformEntries(a.toMap(filter),lower_val);
@@ -778,9 +778,9 @@ public final class Extra {
     };
   }
   
-  private static Equivalence<ASObject> identityWithDuplicates() {
-    return new Equivalence<ASObject>() {
-      protected boolean doEquivalent(ASObject a, ASObject b) {
+  public static <X extends ASObject>Equivalence<X> identityWithDuplicates() {
+    return new Equivalence<X>() {
+      protected boolean doEquivalent(X a, X b) {
         if (IDENTITY_EQUIVALENCE.equivalent(a, b)) 
           return true;
         Iterable<String> aids = a.getKnownIds();
@@ -801,22 +801,30 @@ public final class Extra {
   }
   
   public static final Comparator<ASObject> UPDATED_COMPARATOR = 
-    new UpdatedComparator();
+    new UpdatedComparator<ASObject>();
   public static final Comparator<ASObject> PUBLISHED_COMPARATOR = 
-    new PublishedComparator();
+    new PublishedComparator<ASObject>();
   
-  static class UpdatedComparator 
-    extends DateTimes.DateTimeComparator<ASObject> {
-      public int compare(ASObject a1, ASObject a2) {
+  public static <X extends ASObject>Comparator<X> updatedComparator() {
+    return new UpdatedComparator<X>();
+  }
+  
+  public static <X extends ASObject>Comparator<X> publishedComparator() {
+    return new PublishedComparator<X>();
+  }
+  
+  static class UpdatedComparator<X extends ASObject>
+    extends DateTimes.DateTimeComparator<X> {
+      public int compare(X a1, X a2) {
         DateTime d1 = a1.getUpdated();
         DateTime d2 = a2.getUpdated();
         return innerCompare(d1,d2);
       }
   }
   
-  static class PublishedComparator 
-    extends DateTimes.DateTimeComparator<ASObject> {
-      public int compare(ASObject a1, ASObject a2) {
+  static class PublishedComparator<X extends ASObject>
+    extends DateTimes.DateTimeComparator<X> {
+      public int compare(X a1, X a2) {
         return innerCompare(
           a1.getPublished(), 
           a2.getPublished());
