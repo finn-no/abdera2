@@ -71,6 +71,10 @@ public class Pair<K,V> {
     return from(pairs.split(String.format("\\s*%s\\s*",delim)));
   }
   
+  public Object[] toArray() {
+    return new Object[] {first(),second()};
+  }
+  
   @Override
   public int hashCode() {
     return MoreFunctions.genHashCode(1, k,v);
@@ -97,6 +101,17 @@ public class Pair<K,V> {
     } else if (!v.equals(other.v))
       return false;
     return true;
+  }
+  
+  public String toString() {
+    return 
+    new StringBuilder()
+      .append('[')
+      .append(first())
+      .append(',')
+      .append(second())
+      .append(']')
+      .toString();
   }
   
   public static <K,V>PairBuilder<K,V> make() {

@@ -20,10 +20,8 @@ package org.apache.abdera2.activities.model;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.objects.EmbeddedExperience;
@@ -36,7 +34,6 @@ import org.apache.abdera2.common.selector.Selector;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 
 /**
  * Base class for all Activity Streams Objects.
@@ -665,14 +662,16 @@ public class ASObject extends ASBase {
    * properties
    */
   public Iterable<String> getKnownIds() {
-    Set<String> list = new LinkedHashSet<String>();
+    ImmutableSet.Builder<String> list = ImmutableSet.builder();
     if (has("id")) list.add(getId());
-    Iterables.addAll(list, checkEmpty(getDownstreamDuplicates()));
-    Iterables.addAll(list, checkEmpty(getUpstreamDuplicates()));
-    return list;
+    list.addAll(checkEmpty(getDownstreamDuplicates()));
+    list.addAll(checkEmpty(getUpstreamDuplicates()));
+    return list.build();
   }
   
-  public <T extends ASObject,M extends Builder<T,M>>T as(Class<T> type, String newObjectType) {
+  public <T extends ASObject,M extends Builder<T,M>>T as(
+    Class<T> type, 
+    String newObjectType) {
     return (T)as(type,withoutFields("objectType"))
       .<T,M>template()
         .objectType(newObjectType).get();

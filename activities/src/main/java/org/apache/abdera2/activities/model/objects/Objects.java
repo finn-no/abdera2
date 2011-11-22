@@ -36,17 +36,26 @@ public final class Objects {
   public static final ASObject PUBLIC = PUBLIC().get();
   public static final ASObject VIEWER = VIEWER().get();
   public static final ASObject OWNER = OWNER().get();
+  public static final ASObject FOLLOWERS = FOLLOWERS().get();
+  
+  public static ASObjectBuilder ALIASED(String alias) {
+    return ASObject.makeObject().set("alias",alias);
+  }
+  
+  public static ASObjectBuilder FOLLOWERS() {
+    return ALIASED("@followers");
+  }
   
   public static ASObjectBuilder VIEWER() {
-    return ASObject.makeObject("@viewer");
+    return ALIASED("@viewer");
   }
   
   public static ASObjectBuilder OWNER() {
-    return ASObject.makeObject("@owner");
+    return ALIASED("@owner");
   }
   
   public static ASObjectBuilder SELF() {
-    return ASObject.makeObject("@self");
+    return ALIASED("@self");
   }
   
   /**
@@ -54,7 +63,7 @@ public final class Objects {
    * synonymous with @self
    */
   public static ASObjectBuilder ME() {
-    return ASObject.makeObject("@me");
+    return ALIASED("@me");
   }
   
   /**
@@ -62,7 +71,7 @@ public final class Objects {
    * collection of direct contacts
    */
   public static ASObjectBuilder FRIENDS() {
-    return ASObject.makeObject("@friends");
+    return ALIASED("@friends");
   }
   
   /**
@@ -70,7 +79,7 @@ public final class Objects {
    * collection of direct contacts
    */
   public static ASObjectBuilder FRIENDS(String id) {
-    return ASObject.makeObject("@friends").id(id);
+    return ALIASED("@friends").id(id);
   }
   
   /**
@@ -78,21 +87,21 @@ public final class Objects {
    * of extended contacts (e.g. friends of friends)
    */
   public static ASObjectBuilder NETWORK() {
-    return ASObject.makeObject("@network");
+    return ALIASED("@network");
   }
   
   /**
    * Special AS Object that represents everyone. synonymous with @public
    */
   public static ASObjectBuilder ALL() {
-    return ASObject.makeObject("@all");
+    return ALIASED("@all");
   }
   
   /**
    * Special AS Object that represents everyone
    */
   public static ASObjectBuilder PUBLIC() {
-    return ASObject.makeObject("@public");
+    return ALIASED("@public");
   }
   
   /**

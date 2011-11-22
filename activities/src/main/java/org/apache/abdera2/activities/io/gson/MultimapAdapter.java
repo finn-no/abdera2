@@ -24,6 +24,8 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -49,6 +51,29 @@ class MultimapAdapter
       return context.serialize(src.asMap(), Map.class);
   }
 
+  protected static ImmutableList<Object> arraydes(
+    JsonArray array,
+    JsonDeserializationContext context) {
+    ImmutableList.Builder<Object> builder = 
+      ImmutableList.builder();
+    for (JsonElement child : array)
+      if (child.isJsonArray())
+        builder.add(arraydes(child.getAsJsonArray(),context));
+      else if (child.isJsonObject())
+        builder.add(context.deserialize(child, ASBase.class));
+      else if (child.isJsonPrimitive())
+        builder.add(primdes(child.getAsJsonPrimitive()));
+    return builder.build();
+  }
+  
+  protected static Object primdes(JsonPrimitive prim) {
+    if (prim.isBoolean())
+      return prim.getAsBoolean();
+    else if (prim.isNumber())
+      return prim.getAsNumber();
+    else return prim.getAsString();
+  }
+  
   public Multimap deserialize(
     JsonElement json, 
     Type typeOfT,
@@ -59,33 +84,28 @@ class MultimapAdapter
     for (Map.Entry<String,JsonElement> entry : obj.entrySet()) {
       String key = entry.getKey();
       JsonElement val = entry.getValue();
-      if (val.isJsonArray()) {
-        JsonArray array = val.getAsJsonArray();
-        for (JsonElement el : array) {
-          if (el.isJsonArray()) {       
-          } else if (el.isJsonObject()) {
+      if (val.isJsonArray())
+        for (JsonElement el : val.getAsJsonArray())
+          if (el.isJsonArray())
+            mm.put(key, arraydes(el.getAsJsonArray(),context));
+          else if (el.isJsonObject())
             mm.put(key, context.deserialize(el, ASBase.class));
-          } else if (el.isJsonNull()) {
+          else if (el.isJsonNull())
             mm.put(key, null);
-          } else if (el.isJsonPrimitive()) {
-            JsonPrimitive jp = el.getAsJsonPrimitive();
-            if (jp.isBoolean()) {
-              mm.put(key, jp.getAsBoolean());
-            } else if (jp.isNumber()) {
-              mm.put(key, jp.getAsNumber());
-            } else if (jp.isString()) {
-              mm.put(key, jp.getAsString());
-            }
-          }
-        }
-      }
+          else if (el.isJsonPrimitive())
+            mm.put(key,primdes(el.getAsJsonPrimitive()));
+      else if (val.isJsonObject()) 
+        mm.put(key, context.deserialize(val, ASBase.class));
+      else if (val.isJsonPrimitive())
+        mm.put(key, primdes(val.getAsJsonPrimitive()));
     }
     return mm;
   }  
   
   private static Multimap create(Type typeOfT) {
     try {
-      Class<Multimap> _class = (Class<Multimap>)typeOfT;
+      Class<? extends Multimap> _class = (Class<? extends Multimap>)typeOfT;
+      if (_class == Multimap.class) _class = LinkedHashMultimap.class;
       Method method = _class.getMethod("create");
       return (Multimap) method.invoke(_class);
     } catch (Throwable t) {

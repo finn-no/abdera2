@@ -24,6 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 
+import static com.google.common.base.Preconditions.*;
+
 public abstract class SimpleAdapter<T>
   implements GsonTypeAdapter<T> {
 
@@ -35,10 +37,9 @@ public abstract class SimpleAdapter<T>
   
   @SuppressWarnings("unchecked")
   private static <T>Class<T> _getAdaptedClass(Class<?> _class) {
-    if (_class.isAnnotationPresent(AdaptedType.class)) {
-      AdaptedType at = _class.getAnnotation(AdaptedType.class);
-      return (Class<T>) at.value();
-    } else throw new IllegalArgumentException();
+    checkArgument(_class.isAnnotationPresent(AdaptedType.class));
+    AdaptedType at = _class.getAnnotation(AdaptedType.class);
+    return (Class<T>) at.value();
   }
   
   public SimpleAdapter(Class<T> _class) {

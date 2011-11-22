@@ -49,5 +49,5 @@ public class NoteObject
   public <X extends NoteObject, M extends ASObject.Builder<X,M>>NoteObject(Map<String,Object> map,Class<M> _class,Class<X>_obj) {
     super(map,_class,_obj);
   }
-  
+
 }

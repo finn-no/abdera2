@@ -24,7 +24,7 @@ import org.apache.abdera2.activities.model.CollectionWriter;
 import org.apache.abdera2.common.pusher.Pusher;
 
 /**
- * Simple CollectionWriter implemention that wraps a Pusher object. 
+ * Simple CollectionWriter implementation that wraps a Pusher object. 
  * Calls to writeObject/writeObjects are sent through to the pusher.push 
  * and pusher.pushAll methods. The writeHeader and complete methods are 
  * ignored.

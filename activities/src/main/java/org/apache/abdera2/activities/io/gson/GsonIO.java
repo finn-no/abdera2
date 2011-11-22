@@ -84,32 +84,30 @@ public class GsonIO extends IO {
   }
   
   static Gson gson(Boolean pretty, BaseAdapter asbs, Iterable<TypeAdapter<?>> adapters) {
-    GsonBuilder gb = new GsonBuilder();    
-    gb.registerTypeHierarchyAdapter(Verb.class, new VerbAdapter());
-    gb.registerTypeHierarchyAdapter(Lang.class, new LangAdapter());
-    gb.registerTypeHierarchyAdapter(ASBase.class,  asbs);  
-    gb.registerTypeHierarchyAdapter(Multimap.class, new MultimapAdapter());
-    gb.registerTypeHierarchyAdapter(MimeType.class, new MimeTypeAdapter());
-    gb.registerTypeAdapter(ASBase.class, asbs);
-    gb.registerTypeAdapter(Date.class, new DateAdapter());
-    gb.registerTypeAdapter(DateTime.class, new DateTimeAdapter());
-    gb.registerTypeAdapter(Duration.class, new DurationAdapter());
-    gb.registerTypeAdapter(Interval.class, new IntervalAdapter());
-    gb.registerTypeAdapter(Activity.class,  asbs);
-    gb.registerTypeAdapter(PlaceObject.class, asbs);
-    gb.registerTypeAdapter(Mood.class, asbs);
-    gb.registerTypeAdapter(Address.class, asbs);
-    gb.registerTypeAdapter(IRI.class, new IriAdapter());
-    gb.registerTypeAdapter(IsoPosition.class, new PositionAdapter());
-    gb.registerTypeAdapter(EntityTag.class, new EntityTagAdapter());
-    gb.registerTypeAdapter(Template.class, new TemplateAdapter());
-    gb.registerTypeAdapter(MimeType.class, new MimeTypeAdapter());
-    for(TypeAdapter<?> adapter : adapters) {
-      if (adapter instanceof GsonTypeAdapter) {
+    GsonBuilder gb = new GsonBuilder()   
+      .registerTypeHierarchyAdapter(Verb.class, new VerbAdapter())
+      .registerTypeHierarchyAdapter(Lang.class, new LangAdapter())
+      .registerTypeHierarchyAdapter(ASBase.class,  asbs)
+      .registerTypeHierarchyAdapter(Multimap.class, new MultimapAdapter())
+      .registerTypeHierarchyAdapter(MimeType.class, new MimeTypeAdapter())
+      .registerTypeAdapter(ASBase.class, asbs)
+      .registerTypeAdapter(Date.class, new DateAdapter())
+      .registerTypeAdapter(DateTime.class, new DateTimeAdapter())
+      .registerTypeAdapter(Duration.class, new DurationAdapter())
+      .registerTypeAdapter(Interval.class, new IntervalAdapter())
+      .registerTypeAdapter(Activity.class,  asbs)
+      .registerTypeAdapter(PlaceObject.class, asbs)
+      .registerTypeAdapter(Mood.class, asbs)
+      .registerTypeAdapter(Address.class, asbs)
+      .registerTypeAdapter(IRI.class, new IriAdapter())
+      .registerTypeAdapter(IsoPosition.class, new PositionAdapter())
+      .registerTypeAdapter(EntityTag.class, new EntityTagAdapter())
+      .registerTypeAdapter(Template.class, new TemplateAdapter())
+      .registerTypeAdapter(MimeType.class, new MimeTypeAdapter());
+    for(TypeAdapter<?> adapter : adapters)
+      if (adapter instanceof GsonTypeAdapter)
         gb.registerTypeAdapter(
           adapter.getAdaptedClass(), adapter);
-      }
-    }
     gb.enableComplexMapKeySerialization();
     if (pretty)
       gb.setPrettyPrinting();
@@ -132,11 +130,11 @@ public class GsonIO extends IO {
   }
 
   public <T extends ASBase>T read(Reader reader) {
-    return (T)gson.fromJson(reader, ASBase.class);
+    return gson.<T>fromJson(reader, ASBase.class);
   }
   
   public <T extends ASBase>T read(String json) {
-    return (T)gson.fromJson(json, ASBase.class);
+    return gson.<T>fromJson(json, ASBase.class);
   }
   
   public Activity readActivity(Reader reader) {
@@ -156,11 +154,11 @@ public class GsonIO extends IO {
   }
   
   public <T extends ASObject>T readObject(Reader reader) {
-    return (T)gson.fromJson(reader, ASObject.class);
+    return gson.<T>fromJson(reader, ASObject.class);
   }
   
   public <T extends ASObject>T readObject(String json) {
-    return (T)gson.fromJson(json, ASObject.class);
+    return gson.<T>fromJson(json, ASObject.class);
   }
   
   public MediaLink readMediaLink(Reader reader) {
@@ -190,25 +188,26 @@ public class GsonIO extends IO {
     ASBase header,
     Iterable<ASObject> objects) {
     try {
-      JsonWriter writer = new JsonWriter(out);
-      writer.beginObject();
+      JsonWriter writer = 
+        new JsonWriter(out)
+          .beginObject();
       if (header != null) {
         for (String name : header) {
           Object val = header.getProperty(name);
-          writer.name(name);
           if (val != null) {
+            writer.name(name);
             gson.toJson(val,val.getClass(),writer);
-          } else writer.nullValue();
+          }
+          else writer.nullValue();
         }
       }
-      writer.name("items");
-      writer.beginArray();
-      for (ASObject obj : objects) {
+      writer.name("items")
+            .beginArray();
+      for (ASObject obj : objects)
         gson.toJson(obj,ASBase.class,writer);
-      }
-      writer.endArray();
-      writer.endObject();
-      writer.flush();
+      writer.endArray()
+            .endObject()
+            .flush();
       if (autoclose)
         writer.close();
     } catch (IOException t) {
@@ -240,8 +239,8 @@ public class GsonIO extends IO {
     public void complete() {
       try {
         if (_items) writer.endArray();
-        writer.endObject();
-        writer.flush();
+        writer.endObject()
+              .flush();
         if (autoclose) 
           writer.close();
       } catch (IOException e) {
@@ -252,9 +251,9 @@ public class GsonIO extends IO {
     protected void write(String name, Object val) {
       try {
         writer.name(name);
-        if (val != null) {
+        if (val != null)
           gson.toJson(val,val.getClass(),writer);
-        } else writer.nullValue();
+        else writer.nullValue();
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -262,8 +261,8 @@ public class GsonIO extends IO {
     @Override
     protected void startItems() {
       try {
-        writer.name("items");
-        writer.beginArray();
+        writer.name("items")
+              .beginArray();
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

@@ -28,11 +28,14 @@ import org.apache.abdera2.common.templates.AbstractContext;
  * of an Activity Streams object. For example:
  * 
  * Template template = new Template("{?nextPageToken}"};
- * ASObject obj = new ASObject();
- * obj.setProperty("nextPageToken");
- * ASContext ctx = new ASContext(obj);
- * String the_new_iri = template.expand(ctx);
+ * String the_new_iri = 
+ *   template.expand(
+ *     ASContext.create(
+ *       ASObject
+ *         .makeObject()
+ *         .set("nextPageToken","..."));
  * 
+ * Instances are immutable and threadsafe
  */
 public final class ASContext 
   extends AbstractContext {

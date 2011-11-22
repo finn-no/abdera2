@@ -38,6 +38,7 @@ import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
+import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
@@ -50,11 +51,14 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Maps.EntryTransformer;
 
 import static com.google.common.base.Predicates.*;
 import static org.apache.abdera2.activities.model.objects.Objects.*;
-import static org.apache.abdera2.common.misc.Comparisons.*;
 import static org.apache.abdera2.common.misc.MorePredicates.*;
 import static com.google.common.base.Preconditions.*;
 
@@ -724,9 +728,25 @@ public final class Extra {
   
   /**
    * Equivalence instance that can be used to check the equivalence of two
-   * ASObjects
+   * ASObjects. This version also checks the downstreamDuplicates and 
+   * upstreamDuplicates values to determine identity equivalence.
    */
   public static final Equivalence<ASObject> IDENTITY_WITH_DUPLICATES_EQUIVALENCE = identityWithDuplicates();
+  
+  static final EntryTransformer<String,Object,Object> lower_val = 
+    caseTransform("alias","objectType");
+  
+  public static EntryTransformer<String,Object,Object> caseTransform(
+    final String... lowerFields) {
+    final ImmutableSet<String> fields = ImmutableSet.copyOf(lowerFields);
+    return new EntryTransformer<String,Object,Object>() {
+      public Object transformEntry(String key, Object value) {
+        return fields.contains(key) ?
+          value.toString().toLowerCase() :
+          value;
+      }
+    };
+  }
   
   /**
    * Two ASObject's are considered equivalent in identity if 
@@ -738,36 +758,22 @@ public final class Extra {
   private static Equivalence<ASObject> identity() {
     return new Equivalence<ASObject>() {
       protected boolean doEquivalent(ASObject a, ASObject b) {
-        if (bothAreNull(a,b)) return true;
-        if (onlyOneIsNull(a,b)) return false;
-        String aot = a.getObjectType();
-        String bot = b.getObjectType();
-        if (bothAreNull(aot,bot)) return true;
-        if (onlyOneIsNull(aot,bot)) return false;
-        if (!aot.equalsIgnoreCase(bot)) return false;
-        String aid = a.getId();
-        String bid = b.getId();
-        if (onlyOneIsNull(aid,bid)) return false;
-        if (neitherIsNull(aid,bid)) {
-          if (aid.equals(bid)) return true;
-          else return false;
-        }
-        String adn = a.getDisplayName();
-        String bdn = b.getDisplayName();
-        if (bothAreNull(adn,bdn)) return true;
-        if (onlyOneIsNull(adn,bdn)) return false;
-        if (!adn.equals(bdn)) return false;
-        return true;
+        Selector<Map.Entry<String,Object>> filter = 
+          ASBase.withFields("id","alias","objectType");
+        Map<String,Object> map1 = Maps.transformEntries(a.toMap(filter),lower_val);
+        Map<String,Object> map2 = Maps.transformEntries(b.toMap(filter),lower_val);
+        MapDifference<String,Object> diff = 
+          Maps.difference(map1, map2);
+        return ((diff.entriesInCommon().containsKey("alias") ||
+            diff.entriesInCommon().containsKey("id")) && 
+            !diff.entriesDiffering().containsKey("objectType") && 
+            !diff.entriesDiffering().containsKey("id"));
       }
       protected int doHash(ASObject t) {
-        String id = t.getId();
-        String objectType = t.getObjectType();
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result
-            + ((objectType == null) ? 0 : objectType.hashCode());
-        return result;
+        return MoreFunctions.genHashCode(
+          1, t.getId(), 
+          t.getProperty("alias"), 
+          t.getObjectType());
       }
     };
   }
@@ -779,22 +785,17 @@ public final class Extra {
           return true;
         Iterable<String> aids = a.getKnownIds();
         Iterable<String> bids = b.getKnownIds();
-        Iterable<String> cids = 
+        // if is empty, it's not a duplicate, so return false
+        // if isn't empty, they are likely duplicates, return true
+        return !Iterables.isEmpty(
           Iterables.filter(
-            aids, in((Set<String>)bids));
-        // if cids is empty, it's not a duplicate, so return false
-        // if cids isn't empty, they are likely duplicates, return true
-        return !Iterables.isEmpty(cids);
+            aids, in((Set<String>)bids)));
       }
       protected int doHash(ASObject t) {
-        String id = t.getId();
-        String objectType = t.getObjectType();
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result
-            + ((objectType == null) ? 0 : objectType.hashCode());
-        return result;
+        return MoreFunctions.genHashCode(
+            1, t.getId(), 
+            t.getProperty("alias"), 
+            t.getObjectType());
       }
     };
   }

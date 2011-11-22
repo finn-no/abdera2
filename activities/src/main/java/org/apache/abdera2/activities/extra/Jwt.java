@@ -27,6 +27,9 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.common.security.HashHelper;
 import org.apache.commons.codec.binary.Base64;
+
+import com.google.common.base.Supplier;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -88,6 +91,10 @@ public final class Jwt {
     
   }
 
+  public static String generate(Key key, byte[] claim, Supplier<ASBase> header) {
+    return generate(key,claim,checkNotNull(header).get());
+  }
+  
   public static String generate(Key key, byte[] claim, ASBase header) {
     return generate(Alg.HS256, key, claim, header);
   }
@@ -122,7 +129,12 @@ public final class Jwt {
   
   public static String generate(IO io, Alg alg, Key key, ASBase claim, ASBase header) {
     try {
-      return generate(io,alg,key,io.write(claim).getBytes("UTF-8"),header);
+      return generate(
+        io,
+        alg,
+        key,
+        checkNotNull(io).write(checkNotNull(claim)).getBytes("UTF-8"),
+        header);
     } catch (Throwable t) {
       if (t instanceof RuntimeException)
         throw (RuntimeException)t;
@@ -143,7 +155,8 @@ public final class Jwt {
       checkNotNull(header);
       checkNotNull(header.getProperty("alg"));
       StringBuilder buf = new StringBuilder();
-      String _header = Base64.encodeBase64URLSafeString(io.write(header).getBytes("UTF-8"));
+      String _header = Base64.encodeBase64URLSafeString(
+        checkNotNull(io).write(header).getBytes("UTF-8"));
       String _claim = Base64.encodeBase64URLSafeString(claim);
       buf.append(_header).append('.').append(_claim);
       String mat = buf.toString();

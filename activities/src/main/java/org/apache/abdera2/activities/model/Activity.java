@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.activities.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.lang.Iterable;
 
@@ -29,6 +27,7 @@ import org.joda.time.DateTime;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 /**
  * An Activity. Represents some action that has been taken. At it's core,
@@ -367,12 +366,10 @@ public class Activity extends ASObject {
    * can be used, for instance, to quickly determine if a particular 
    * entity is included in the audience of the activity
    */
-  public Iterable<ASObject> getAudience(Audience audience, Selector<ASObject> selector) {
-    List<ASObject> list = new ArrayList<ASObject>();
-    for (ASObject obj : getAudience(audience))
-      if (selector.apply(obj))
-        list.add(obj);
-    return list;
+  public Iterable<ASObject> getAudience(
+    Audience audience, 
+    Selector<ASObject> selector) {
+    return Iterables.filter(getAudience(audience), selector);
   }  
   
 }

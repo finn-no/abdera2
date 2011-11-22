@@ -20,12 +20,16 @@ package org.apache.abdera2.activities.model;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
+import org.apache.abdera2.activities.extra.Difference;
 import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.misc.ExceptionHelper;
@@ -41,6 +45,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+
 import static com.google.common.collect.Maps.filterEntries;
 
 /**
@@ -100,15 +106,34 @@ public class ASBase
       this(_class,_builder);
       this.map.putAll(map);
     }
+    
+    public Object val(Object val) {
+      if (val == null) return null;
+      else if (val instanceof Supplier)
+        return val(((Supplier<?>)val).get());
+      else if (val instanceof Optional)
+        return val(((Optional<?>)val).get());
+      else if (val instanceof Future) {
+        try {
+          return val(((Future<?>)val).get());
+        } catch (Throwable t) {
+          throw ExceptionHelper.propogate(t);
+        }
+      } else if (val instanceof Callable) {
+        try {
+          return val(((Callable<?>)val).call());
+        } catch (Throwable t) {
+          throw ExceptionHelper.propogate(t);
+        }
+      } else if (val instanceof Reference) {
+        return val(((Reference<?>)val).get());
+      } else return val;
+    }
+    
     public M set(String name, Object val) {
-      if (val != null) {
-        if (val instanceof Supplier)
-          val = ((Supplier<?>)val).get();
-        if (val instanceof Optional)
-          val = ((Optional<?>)val).get();
-        if (val != null)
-          map.put(name,val);
-      }
+      val = val(val);
+      if (val != null)
+        map.put(name,val);
       return (M)this;
     }
     public M set(Pair<String,? extends Object> pair) {
@@ -433,6 +458,19 @@ public class ASBase
   @SuppressWarnings("rawtypes")
   public Object clone() throws CloneNotSupportedException {
     return this.<ASBase,Builder>template().get();
+  }
+  
+  public Map<String,Object> toMap() {
+    return exts;
+  }
+  
+  public Map<String,Object> toMap(
+    Selector<Map.Entry<String,Object>> filter) {
+      return Maps.filterEntries(exts, filter);
+  }
+  
+  public Difference diff(ASBase other) {
+    return Difference.diff(this,other);
   }
 }
 
