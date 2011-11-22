@@ -21,7 +21,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.util.AbstractSet;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import net.sf.cglib.proxy.Enhancer;
@@ -52,9 +55,11 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Maps.EntryTransformer;
 
 import static com.google.common.base.Predicates.*;
@@ -805,6 +810,14 @@ public final class Extra {
   public static final Comparator<ASObject> PUBLISHED_COMPARATOR = 
     new PublishedComparator<ASObject>();
   
+  public static <X extends ASObject>Comparator<X> reversedUpdatedComparator() {
+    return Collections.<X>reverseOrder(Extra.<X>updatedComparator());
+  }
+  
+  public static <X extends ASObject>Comparator<X> reversedPublishedComparator() {
+    return Collections.<X>reverseOrder(Extra.<X>publishedComparator());
+  }
+  
   public static <X extends ASObject>Comparator<X> updatedComparator() {
     return new UpdatedComparator<X>();
   }
@@ -1392,4 +1405,92 @@ public final class Extra {
       };
   }
   
+  
+  
+  
+  public static <T extends ASObject>Iterable<T> filterUpdatedIdentityEquivalent(Iterable<T> items) {
+    return filterEquivalent(items, Extra.<T>identity(),Extra.<T>reversedUpdatedComparator());
+  }
+  
+  public static <T extends ASObject>Iterable<T> filterPublishedIdentityEquivalent(Iterable<T> items) {
+    return filterEquivalent(items, Extra.<T>identity(),Extra.<T>reversedPublishedComparator());
+  }
+  
+  public static <T extends ASObject>Iterable<T> filterUpdatedIdentityWithDuplicatesEquivalent(Iterable<T> items) {
+    return filterEquivalent(items, Extra.<T>identityWithDuplicates(),Extra.<T>reversedUpdatedComparator());
+  }
+  
+  public static <T extends ASObject>Iterable<T> filterPublishedIdentityWithDuplicatesEquivalent(Iterable<T> items) {
+    return filterEquivalent(items, Extra.<T>identityWithDuplicates(),Extra.<T>reversedPublishedComparator());
+  }
+  
+  public static <T extends ASBase>Iterable<T> filterEquivalent(
+    Iterable<T> items, 
+    Equivalence<? super T> equiv, 
+    Comparator<T> comp) {
+    EquivalenceSet<T> a = 
+      new EquivalenceSet<T>(equiv);
+    Iterables.addAll(
+      a,sorted(items,comp));
+    return Iterables.unmodifiableIterable(a);
+  }
+  
+  public static <T extends ASBase>Iterable<T> filterEquivalent(
+    Iterable<T> items, 
+    Equivalence<? super T> equiv) {
+    EquivalenceSet<T> a = 
+      new EquivalenceSet<T>(equiv);
+    Iterables.addAll(
+      a,items);
+    return Iterables.unmodifiableIterable(a);
+  }
+  
+  public static <T extends Comparable<T>>Iterable<T> sorted(Iterable<? extends T> items) {
+    return ImmutableSortedSet.<T>naturalOrder().addAll(items).build();
+  }
+  
+  public static <T>Iterable<T> sorted(Iterable<? extends T> items, Comparator<T> comp) {
+    return ImmutableSortedSet.<T>orderedBy(comp).addAll(items).build();
+  }
+  
+  public static class EquivalenceSet<T> 
+    extends AbstractSet<T> {
+
+    private final Set<T> set;
+    private final Equivalence<? super T> equiv;
+    
+    public EquivalenceSet(Comparator<? super T> order, Equivalence<? super T> equiv) {
+      this.set = Sets.newTreeSet(order);
+      this.equiv = equiv;
+    }
+    
+    public EquivalenceSet(Equivalence<? super T> equiv) {
+      this.set = Sets.newLinkedHashSet();
+      this.equiv = equiv;
+    }
+    
+    @Override
+    public boolean add(T o) {
+      if (set.isEmpty()) return set.add(o);
+      else {
+        Iterable<T> filtered = 
+          Iterables.filter(
+            set, equiv.equivalentTo(o));
+        if (Iterables.isEmpty(filtered))
+          return set.add(o);
+        else return false;
+      }
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+      return set.iterator();
+    }
+
+    @Override
+    public int size() {
+      return set.size();
+    }
+    
+  }
 }

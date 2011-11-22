@@ -311,8 +311,9 @@ public final class DateTimes {
     public int innerCompare(DateTime d1, DateTime d2) {
       if (onlySecondIsNull(d1,d2)) return 1;
       if (onlyFirstIsNull(d1,d2)) return -1;
-      if (bothAreNull(d1,d2)) return 0;
-      return d1.compareTo(d2);
+      if (bothAreNull(d1,d2)) return -1;
+      int ret = d1.compareTo(d2);
+      return ret == 0 ? -1 : ret;
     }
   }
 
