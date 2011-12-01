@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 
 import org.apache.abdera2.activities.extra.Difference;
 import org.apache.abdera2.activities.extra.Extra;
+import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.Pair;
@@ -171,7 +172,14 @@ public class ASBase
       return lang(new Lang(lang));
     }
     public M lang(Lang lang) {
-      set("lang",lang);
+      set("@language",lang);
+      return (M)this;
+    }
+    public M base(String iri) {
+      return base(new IRI(checkNotNull(iri)));
+    }
+    public M base(IRI iri) {
+      set("@base",iri);
       return (M)this;
     }
     protected void preGet() {}
@@ -202,7 +210,11 @@ public class ASBase
   }
   
   public Lang getLang() {
-    return getProperty("lang");
+    return getProperty("@language");
+  }
+  
+  public IRI getBase() {
+    return getProperty("@base");
   }
   
   public <T>T getProperty(String name) {

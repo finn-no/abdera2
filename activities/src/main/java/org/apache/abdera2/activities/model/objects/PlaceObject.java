@@ -27,6 +27,11 @@ import org.apache.abdera2.common.geo.Point;
 
 import com.google.common.base.Supplier;
 
+/**
+ * Represents a location... can be logical or physical. At a minimum, the 
+ * place can be described in terms of a geological coordinates, an address, 
+ * or a name. 
+ */
 public class PlaceObject 
   extends ASObject {
   public static final String ADDRESS = "address";

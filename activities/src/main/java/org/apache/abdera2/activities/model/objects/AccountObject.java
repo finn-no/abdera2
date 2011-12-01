@@ -22,9 +22,12 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+/**
+ * Represents a user account, generally specified in terms of a unique 
+ * user id, username and domain. 
+ */
 public class AccountObject 
   extends ServiceObject {
-
 
   public AccountObject(Map<String,Object> map) {
     super(map,AccountBuilder.class,AccountObject.class);

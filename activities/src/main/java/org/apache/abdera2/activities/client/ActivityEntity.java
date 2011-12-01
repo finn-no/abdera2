@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.activation.MimeType;
+
+import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.ASBase;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -46,7 +49,7 @@ public class ActivityEntity
      * element passed in.
      */
     public ActivityEntity(ASBase base) {
-      this(base,false,null);
+      this(base,false,(String)null);
     }
     
     /**
@@ -59,6 +62,10 @@ public class ActivityEntity
       this(base,false,contentType);
     }
     
+    public ActivityEntity(ASBase base, MimeType contentType) {
+      this(base,false,contentType);
+    }
+    
     /**
      * Create the entity using the specified Activity document or element.
      * The content length will be automatically calculated if the 
@@ -66,7 +73,7 @@ public class ActivityEntity
      * detected based on the type of element passed in.
      */
     public ActivityEntity(ASBase base, boolean calclen) {
-      this(base,calclen,null);
+      this(base,calclen,(String)null);
     }
     
     /**
@@ -80,7 +87,9 @@ public class ActivityEntity
         this.base = base;
         this.ct = new BasicHeader(
           "Content-Type", 
-          contentType!=null?contentType:"application/json");
+          contentType!=null?
+            contentType:
+            Extra.getMediaType(base).toString());
         if (calclen) {
           ByteArrayOutputStream out = 
             new ByteArrayOutputStream();
@@ -90,6 +99,10 @@ public class ActivityEntity
         } else len = -1;
     }
 
+    public ActivityEntity(ASBase base, boolean calclen, MimeType contentType) {
+      this(base,calclen,contentType.toString());
+    }
+    
     public boolean isRepeatable() {
         return true;
     }

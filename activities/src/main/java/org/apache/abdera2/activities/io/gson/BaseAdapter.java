@@ -101,6 +101,9 @@ final class BaseAdapter
     map.put("updated", DateTime.class);
     map.put("published", DateTime.class);
     map.put("lang", Lang.class);
+    map.put("@language", Lang.class);
+    map.put("@base", IRI.class);
+    map.put("$ref", IRI.class); // for JSON Reference...
     map.put("icon", MediaLink.class);
     map.put("image", MediaLink.class);
     map.put("totalItems", Integer.class);

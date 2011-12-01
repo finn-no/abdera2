@@ -22,6 +22,9 @@ import java.util.Map;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.common.anno.Name;
 
+/**
+ * Represents a mailing address. 
+ */
 public class Address extends ASObject {
 
   public static final String FORMATTED = "formatted";
@@ -30,6 +33,8 @@ public class Address extends ASObject {
   public static final String REGION = "region";
   public static final String POSTALCODE = "postalCode";
   public static final String COUNTRY = "country";
+  public static final String BUILDING = "building";
+  public static final String FLOOR = "floor";
   
   public Address(Map<String,Object> map) {
     super(map,AddressBuilder.class,Address.class);
@@ -61,6 +66,14 @@ public class Address extends ASObject {
   
   public String getCountry() {
     return getProperty(COUNTRY);
+  }
+  
+  public String getBuilding() {
+    return getProperty(BUILDING);
+  }
+  
+  public String getFloor() {
+    return getProperty(FLOOR);
   }
   
   public String toString() {
@@ -120,6 +133,14 @@ public class Address extends ASObject {
     }
     public M region(String region) {
       set(REGION, region);
+      return (M)this;
+    }
+    public M building(String building) {
+      set(BUILDING,building);
+      return (M)this;
+    }
+    public M floor(String floor) {
+      set(FLOOR,floor);
       return (M)this;
     }
     public M streetAddress(String address) {

@@ -27,6 +27,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.activation.MimeType;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -41,6 +44,7 @@ import org.apache.abdera2.activities.model.MediaLink;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
@@ -51,6 +55,7 @@ import org.joda.time.DateTime;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
@@ -1492,5 +1497,36 @@ public final class Extra {
       return set.size();
     }
     
+  }
+  
+  private static final Joiner types_joiner = Joiner.on(' ');
+  
+  public static MimeType getMediaType(ASBase base) {
+    MimeType mt = null;
+    try {
+      mt = new MimeType("application/json");
+      if (base instanceof ASObject) {
+        ASObject obj = (ASObject) base;
+        String otype = obj.getObjectType();
+        if (otype != null)
+          mt.setParameter("type", otype);
+      }
+      if (base instanceof Collection) {
+        Collection<?> col = (Collection<?>) base;
+        Iterable<String> otypes = col.getObjectTypes();
+        if (!Iterables.isEmpty(otypes))
+          mt.setParameter("items", types_joiner.join(otypes));
+        else if (!Iterables.isEmpty(col.getItems())) {
+          ImmutableSet.Builder<String> set = ImmutableSet.builder();
+          for (ASObject obj : col.getItems())
+            if (obj.has("objectType"))
+              set.add(obj.getObjectType());
+          mt.setParameter("items", types_joiner.join(set.build()));
+        }
+      }
+    } catch (Throwable t) {
+      throw ExceptionHelper.propogate(t);
+    }
+    return mt;
   }
 }
