@@ -7,8 +7,6 @@ import static org.apache.abdera2.activities.model.objects.PersonObject.makePerso
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
