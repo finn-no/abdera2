@@ -18,7 +18,6 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ import org.apache.abdera2.common.templates.Route;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * This is a largely experimental implementation of a Target Resolver and Target Builder based on URL patterns similar
@@ -228,7 +227,7 @@ public class RouteManager<T,X extends RequestContext,R>
         return null;
       }
       public Iterator<String> iterator() {
-        return Iterators.<String>empty();
+        return ImmutableSet.<String>of().iterator();
       }
     }
 
