@@ -70,7 +70,7 @@ public abstract class Verb {
  public static final Verb UNSAVE = new Verb("unsave") {};
  public static final Verb UPDATE = new Verb("update") {};
  
- 
+ public static final Verb COMMENT = new Verb("comment") {};
  public static final Verb PURCHASE = new Verb("purchase") {};  
  public static final Verb CONSUME = new Verb("consume") {};
  public static final Verb HOST = new Verb("host") {};

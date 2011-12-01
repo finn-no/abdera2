@@ -107,8 +107,12 @@ public final class Objects {
   /**
    * Create an anonymous AS Object (no objectType property)
    */
-  public static ASObjectBuilder anonymousObject(String id) {
+  public static ASObjectBuilder untypedObject(String id) {
     return ASObject.makeObject().id(id);
+  }
+  
+  public static ASObjectBuilder untypedObject(String id, String displayName) {
+    return ASObject.makeObject().id(id).displayName(displayName);
   }
   
   public static final ASObject DISCONTINUED = DISCONTINUED().get();
@@ -126,55 +130,55 @@ public final class Objects {
   public static final ASObject USED = USED().get();
   
   public static ASObjectBuilder DISCONTINUED() {
-    return anonymousObject("discontinued");
+    return untypedObject("discontinued");
   }
   
   public static ASObjectBuilder INSTOCK() {
-    return anonymousObject("in-stock");
+    return untypedObject("in-stock");
   }
   
   public static ASObjectBuilder INSTOREONLY() {
-    return anonymousObject("in-store-only");
+    return untypedObject("in-store-only");
   }
   
   public static ASObjectBuilder ONLINEONLY() {
-    return anonymousObject("online-only");
+    return untypedObject("online-only");
   }
   
   public static ASObjectBuilder OUTOFSTOCK() {
-    return anonymousObject("out-of-stock");
+    return untypedObject("out-of-stock");
   }
   
   public static ASObjectBuilder PREORDER() {
-    return anonymousObject("pre-order");
+    return untypedObject("pre-order");
   }
   
   public static ASObjectBuilder EBOOK() {
-    return anonymousObject("ebook");
+    return untypedObject("ebook");
   }
   
   public static ASObjectBuilder HARDCOVER() {
-    return anonymousObject("hardcover");
+    return untypedObject("hardcover");
   }
   
   public static ASObjectBuilder PAPERBACK() {
-    return anonymousObject("paperback");
+    return untypedObject("paperback");
   }
   
   public static ASObjectBuilder DAMAGED() {
-    return anonymousObject("damaged");
+    return untypedObject("damaged");
   }
   
   public static ASObjectBuilder NEW() {
-    return anonymousObject("new");
+    return untypedObject("new");
   }
   
   public static ASObjectBuilder REFURBISHED() {
-    return anonymousObject("refurbished");
+    return untypedObject("refurbished");
   }
   
   public static ASObjectBuilder USED() {
-    return anonymousObject("used");
+    return untypedObject("used");
   }
   
 }

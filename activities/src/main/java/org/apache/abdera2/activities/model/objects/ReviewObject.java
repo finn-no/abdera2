@@ -41,6 +41,10 @@ public class ReviewObject
     public Builder(Map<String,Object> map) {
       super(map,ReviewObject.class,Builder.class);
     }
+    public Builder of(ASObject obj) {
+      set("of",obj);
+      return this;
+    }
     public Builder template() {
       return new Builder(map.build());
     }
@@ -52,5 +56,9 @@ public class ReviewObject
   
   public <X extends ReviewObject, M extends ASObject.Builder<X,M>>ReviewObject(Map<String,Object> map,Class<M> _class,Class<X>_obj) {
     super(map,_class,_obj);
+  }
+  
+  public <X extends ASObject>X getOf() {
+    return this.<X>getProperty("of");
   }
 }
