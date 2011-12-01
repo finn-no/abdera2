@@ -97,6 +97,10 @@ public final class MediaLink extends ASBase {
     
     public Builder url(IRI iri) {
       set(URL,iri);
+      try {
+        if (isExperimentalEnabled())
+          link("alternate",iri);
+      } catch (IllegalStateException e) {}
       return this;
     }
     

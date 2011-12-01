@@ -35,6 +35,8 @@ import org.apache.abdera2.common.selector.Selector;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 
+import static com.google.common.base.Preconditions.*;
+
 /**
  * Base class for all Activity Streams Objects.
  */
@@ -107,32 +109,57 @@ public class ASObject extends ASBase {
       super(map,_class,_builder);
     }
     
+    /**
+     * Add a new reaction to the object. You must call experimental() before
+     * calling this method.
+     */
     public M reaction(Supplier<? extends TaskObject> object) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
       return reaction(object.get());
     }
     
+    /**
+     * Add a new reaction to the object. You must call experimental() before
+     * calling this method.
+     */
     public M reaction(TaskObject object) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
       if (object == null) return (M)this;
       z = true;
       tasks.add(object);
       return (M)this;
     }
     
+    /**
+     * Add a new reaction to the object. You must call experimental() before
+     * calling this method.
+     */
     public M reaction(Supplier<? extends TaskObject>... objects) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
       if (objects == null) return (M)this;
       for (Supplier<? extends TaskObject> object : objects)
         reaction(object.get());
       return (M)this;
     }
     
+    /**
+     * Add a new reaction to the object. You must call experimental() before
+     * calling this method.
+     */
     public M reaction(TaskObject... objects) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
       if (objects == null) return (M)this;
       for (TaskObject obj : objects)
         reaction(obj);
       return (M)this;
     }
     
+    /**
+     * Add a new reaction to the object. You must call experimental() before
+     * calling this method.
+     */
     public M reaction(Iterable<? extends TaskObject> objects) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
       if (objects == null) return (M)this;
       for (TaskObject obj : objects)
         reaction(obj);
@@ -325,6 +352,11 @@ public class ASObject extends ASBase {
       return (M)this;
     }
     
+    public M id(IRI id) {
+      set(ID,checkNotNull(id).toString());
+      return (M)this;
+    }
+    
     public M image(Supplier<MediaLink> object) {
       return image(object.get());
     }
@@ -396,6 +428,10 @@ public class ASObject extends ASBase {
     
     public M url(IRI url) {
       set(URL,url);
+      try {
+        if (isExperimentalEnabled())
+          link("alternate",url);
+      } catch (IllegalStateException t) {}
       return (M)this;
     }
     

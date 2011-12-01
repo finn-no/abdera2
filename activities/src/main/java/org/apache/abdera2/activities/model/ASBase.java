@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import org.apache.abdera2.activities.extra.Difference;
 import org.apache.abdera2.activities.extra.Extra;
@@ -45,7 +46,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import static com.google.common.collect.Maps.filterEntries;
@@ -57,6 +60,8 @@ import static com.google.common.collect.Maps.filterEntries;
 @SuppressWarnings("unchecked")
 public class ASBase 
   implements Iterable<String>, Cloneable {
+  
+  public static Logger log = Logger.getLogger(ASBase.class.getName());
   
   public static ASBuilder make() {
     return new ASBuilder();
@@ -97,6 +102,9 @@ public class ASBase
       ImmutableMap.builder();
     private final Function<Object[],X> con;
     private final Function<Object[],M> bld;
+    private boolean experimental = false; // true if experimental extensions have been enabled on this builder
+    private ImmutableMultimap.Builder<String, IRI> links = ImmutableMultimap.builder();
+    private boolean y = false;
     
     protected Builder(Class<X> _class, Class<M> _builder) {
       con = createInstance(_class, Map.class);
@@ -108,7 +116,28 @@ public class ASBase
       this.map.putAll(map);
     }
     
-    public Object val(Object val) {
+    /**
+     * Enables experimental features on the builder. Abdera supports a number
+     * of non-standard, experimental features such as object reactions, $rel
+     * links and metadata conventions that are not a part of the core Activity
+     * Streams specification. In order to use the builder to work with these
+     * extensions, you must first call the experimental() method on the builder
+     * to enable them. 
+     */
+    public M experimental() {
+      log.warning(
+        String.format(
+          "Non-standard, experimental features have been enabled in a builder instance. [%s]", 
+          getClass().getSimpleName()));
+      this.experimental = true;
+      return (M)this;
+    }
+    
+    protected boolean isExperimentalEnabled() {
+      return experimental;
+    }
+    
+    protected Object val(Object val) {
       if (val == null) return null;
       else if (val instanceof Supplier)
         return val(((Supplier<?>)val).get());
@@ -182,7 +211,58 @@ public class ASBase
       set("@base",iri);
       return (M)this;
     }
-    protected void preGet() {}
+    /**
+     * Add a new $rel style link field to the object. This is an
+     * experimental feature. You must call experimental() before
+     * calling this method
+     */
+    public M link(String rel, IRI url) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
+      y = true;
+      links.put(rel, url);
+      return (M)this;
+    }
+
+    /**
+     * Add a new $rel style link field to the object. This is an
+     * experimental feature. You must call experimental() before
+     * calling this method
+     */
+    public M link(String rel, String url) {
+      return link(rel, new IRI(checkNotNull(url)));
+    }
+    /**
+     * Add a new metadata field to the object. This is an 
+     * experimental feature. You must call experimental() before
+     * calling this method
+     */
+    public M meta(String token, Object val) {
+      return meta(token,val,false);
+    }
+    /**
+     * Add a new metadata field to the object. This is an 
+     * experimental feature. You must call experimental() before
+     * calling this method
+     */
+    public M meta(String token, Object val, boolean isPrivate) {
+      checkState(isExperimentalEnabled(),"Experimental features not yet enabled. Call experimental() first.");
+      set(String.format("%s%s",isPrivate?"_":"@",token),val);
+      return (M)this;
+    }
+    protected void preGet() {
+      if (y && isExperimentalEnabled()) {
+        ImmutableMultimap<String,IRI> map = links.build();
+        for (String key : map.keySet()) {
+          Iterable<IRI> links = map.get(key);
+          if (links == null) continue;
+          int s = Iterables.size(links);
+          set(String.format("$%s",key.toLowerCase()),
+            s == 1 ? 
+              links.iterator().next() : 
+              links.iterator());
+        }
+      }
+    }
     public X get() {
       preGet();
       return con.apply(array(map.build()));
@@ -210,11 +290,13 @@ public class ASBase
   }
   
   public Lang getLang() {
-    return getProperty("@language");
+    Object lang = getProperty("@language");
+    return lang instanceof Lang ? (Lang)lang : new Lang(lang.toString());
   }
   
   public IRI getBase() {
-    return getProperty("@base");
+    Object base = getProperty("@base");
+    return base instanceof IRI ? (IRI)base : new IRI(base.toString());
   }
   
   public <T>T getProperty(String name) {

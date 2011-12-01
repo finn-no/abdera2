@@ -91,12 +91,15 @@ public class TaskObject extends ASObject {
     
     public Builder(Class<X>_class,Class<M>_builder) {
       super(_class,_builder);
+      experimental();
     }
     public Builder(String objectType,Class<X>_class,Class<M>_builder) {
       super(objectType,_class,_builder);
+      experimental();
     }
     public Builder(Map<String,Object> map,Class<X>_class,Class<M>_builder) {
       super(map,_class,_builder);
+      experimental();
     }
     public M object(Supplier<? extends ASObject> object) {
       return object(object.get());
@@ -134,6 +137,7 @@ public class TaskObject extends ASObject {
     }
     public M selfLink(IRI iri) {
       set("selfLink", iri);
+      link("self",iri);
       return (M)this;
     }
     public M selfLink(String iri) {
@@ -145,6 +149,7 @@ public class TaskObject extends ASObject {
     }
     public M resourceLink(IRI iri) {
       set("resourceLink",iri);
+      link("alternate",iri);
       return (M)this;
     }
     public M resourceLink(String iri) {

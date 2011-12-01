@@ -123,6 +123,10 @@ public class FileObject
     }
     public M fileUrl(IRI iri) {
       set(FILEURL,iri);
+      try {
+        if (isExperimentalEnabled())
+          link("enclosure",iri);
+      } catch (IllegalStateException e) {}
       return (M)this;
     }
     public M fileUrl(String uri) {

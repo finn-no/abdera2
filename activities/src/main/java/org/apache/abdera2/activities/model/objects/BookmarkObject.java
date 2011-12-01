@@ -83,6 +83,10 @@ public class BookmarkObject
     }
     public M targetUrl(IRI uri) {
       set(TARGETURL,uri);
+      try {
+        if (isExperimentalEnabled())
+          link("bookmark",uri);
+      } catch (IllegalStateException e) {}
       return (M)this;
     }    
   }
