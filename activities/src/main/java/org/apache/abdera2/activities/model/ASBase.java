@@ -67,6 +67,13 @@ public class ASBase
     return new ASBuilder();
   }
   
+  public static ASBuilder make(boolean experimental) {
+    ASBuilder builder = make();
+    return experimental ?
+      builder.experimental() :
+      builder;
+  }
+  
   public static class ASBuilder extends Builder<ASBase,ASBuilder> {
     public ASBuilder() {
       super(ASBase.class,ASBuilder.class);
