@@ -42,6 +42,10 @@ public final class MoreFunctions {
   
   private MoreFunctions() {}
   
+  public static <K>Function<K,Void> alwaysVoid() {
+    return MoreFunctions.<K,Void>alwaysNull();
+  }
+  
   public static <K,V>Function<K,V> alwaysNull() {
     return new Function<K,V>() {
       public V apply(K input) {
