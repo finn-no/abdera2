@@ -2,7 +2,7 @@ package org.apache.abdera2.examples.activities;
 
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Activity.ActivityBuilder;
-import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
+import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 
 import static org.apache.abdera2.activities.model.Verb.SAVE;
@@ -12,7 +12,6 @@ import static org.apache.abdera2.activities.model.objects.Objects.HARDCOVER;
 import static org.apache.abdera2.activities.model.Activity.makeActivity;
 import static org.apache.abdera2.activities.model.objects.BookObject.makeBook;
 import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
-import static org.apache.abdera2.activities.model.Collection.makeCollection;
 
 /**
  * Example that shows a simple practical use of an activity stream
@@ -28,41 +27,32 @@ public class ReadingListExample {
     // Building an activity stream for a reading list
     IO io = IO.get();
     
-    ActivityBuilder gen = 
+    ActivityBuilder a = 
       makeActivity()
-        .actor(
-          makePerson()
-            .displayName("James")
-            .get());
-
-    CollectionBuilder<Activity> builder = 
-      makeCollection();
+        .actor(makePerson("James"));
+ 
+    Collection.<Activity>makeCollection()
     
     // Add a book we want to read
-    builder.item(
-      gen.template()
-         .set("verb", SAVE)
-         .set("object", 
-           makeBook()
-             .displayName("The Cat in the Hat")
-             .get())
-         .set("format", EBOOK())
-         .get());
+    .item(
+      a.template()
+       .set("verb", SAVE)
+       .set("object", 
+         makeBook()
+           .displayName("The Cat in the Hat"))
+       .set("format", EBOOK))
     
     // Add a book we just finished
-    builder.item(
-      gen.template()
-         .set("verb", CONSUME)
-         .set("object", 
-           makeBook()
-             .displayName("Meditations on the Method")
-             .author(
-               makePerson("Rene Descartes").get())
-             .get())
-         .set("format", HARDCOVER())
-         .get());
+    .item(
+      a.template()
+       .set("verb", CONSUME)
+       .set("object", 
+         makeBook()
+           .displayName("Meditations on the Method")
+           .author(makePerson("Rene Descartes")))
+       .set("format", HARDCOVER))
     
-    builder.get().writeTo(io,System.out);
+    .get().writeTo(io,System.out);
     
   }
   

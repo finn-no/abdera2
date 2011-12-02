@@ -56,7 +56,7 @@ public class MiscellaneousExamples {
     // All of the Activity objects are immutable thread-safe instances,
     // which means editing the data in an object is a bit more difficult 
     // that just calling a setter...
-    // support we want to add a property to one of the activities
+    // suppose we want to add a property to one of the activities
     // we created above... we can do so by using the activity as a template
     // for creating a new Activity object
     
@@ -81,7 +81,7 @@ public class MiscellaneousExamples {
     // the Google+ API specifies a "nextPageToken" property
     // within the root collection object that is used to
     // construct the URL for the next page in a paged 
-    // collection of stream documents. Using Misc.ASContext,
+    // collection of stream documents. Using ASContext,
     // it's a simple matter to pull that out and construct
     // the url for the next page.
     
@@ -96,7 +96,6 @@ public class MiscellaneousExamples {
     System.out.println(
       template.expand(
         new ASContext(collection)));
-    
     
   }
   

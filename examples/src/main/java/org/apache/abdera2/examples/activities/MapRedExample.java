@@ -86,7 +86,9 @@ public class MapRedExample {
         Iterable<Pair<Integer,Iterable<String>>>>futureFunction(f3,exec);
   
   public static void main(String... args) throws Exception {
-    // Read the Atom Feed
+    // Read an Atom Feed... this part isn't required.. the mapred stuff
+    // works on any activity stream source, this just gives us some 
+    // interesting input material
     Abdera abdera = Abdera.getInstance();
     URL url = new URL("http://planet.intertwingly.net/atom.xml");
     Parser parser = abdera.getParser();
@@ -97,19 +99,26 @@ public class MapRedExample {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     feed.writeTo("activity", out);
     
-    // Converted it to an Activity Stream
+    // Convert it to an Activity Stream
     String r = new String(out.toByteArray(),"UTF-8");
     Collection<Activity> col = IO.get().readCollection(new StringReader(r));
     
-    // Prepare the input data
+    // Prepare the input data.. here's where the interesting bit starts...
+    // this first step indexes the collection of activities into a Iterable 
+    // of Pair objects. A Pair object is essentially a tuple with two elements,
+    // called first() and second(). The first() is used as the key in the 
+    // Map function, while second() is used as the value. In this particular
+    // case, we're using a null key on the input...
     PairBuilder<Void,Activity> gen = 
       Pair.<Void,Activity>make()
-        .index(MoreFunctions.<Activity,Void>alwaysNull(), col.getItems());
+        .index(MoreFunctions.<Activity>alwaysVoid(), col.getItems());
         
     // The Function ff is asynchronous... we apply it, then call get on
-    // the returned Future to wait the result. The mapreduce operation
+    // the returned Future to wait for the result. The mapreduce operation
     // occurs in a different thread and sets the value of the Future 
-    // when it is complete
+    // when it is complete... once it does, we iterate through the collection
+    // of Pairs it kicks out.. which in this case, is a listing of actors 
+    // in the stream sorted by number of activities each.
     for (Pair<Integer,Iterable<String>> entry : ff.apply(gen).get())
       System.out.println(
         entry.first() + "=" + entry.second());

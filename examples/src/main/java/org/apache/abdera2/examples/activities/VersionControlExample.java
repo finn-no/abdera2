@@ -39,7 +39,8 @@ public class VersionControlExample {
     // first, indicate that we created a document
     FileObject file = 
       makeFile()
-        .id("http://example.org/presentation.ppt")
+        .id("urn:example:file/presentation")
+        .fileUrl("http://example.org/presentation.ppt")
         .displayName("presentation.ppt")
         .get();
     
@@ -103,8 +104,8 @@ public class VersionControlExample {
     {
       "verb":"post",
       "object": {
-
-        "id":"http://example.org/presentation.ppt",
+        "id":"urn:example:file/presentation",
+        "fileUrl":"http://example.org/presentation.ppt",
         "displayName":"presentation.ppt",
         "objectType":"file"},
       "actor":{
@@ -117,7 +118,8 @@ public class VersionControlExample {
       "verb":"post",
       "object":{
         "of":{
-          "id":"http://example.org/presentation.ppt",
+          "id":"urn:example:file/presentation",
+          "fileUrl":"http://example.org/presentation.ppt",
           "displayName":"presentation.ppt",
           "objectType":"file"},
         "objectType":"version",
@@ -131,7 +133,8 @@ public class VersionControlExample {
       "verb":"reject",
       "object":{
         "of":{
-          "id":"http://example.org/presentation.ppt",
+          "id":"urn:example:file/presentation",
+          "fileUrl":"http://example.org/presentation.ppt",
           "displayName":"presentation.ppt",
           "objectType":"file"},
         "objectType":"version",
@@ -144,12 +147,14 @@ public class VersionControlExample {
       "verb":"post",
       "object":{
         "of":{
-          "id":"http://example.org/presentation.ppt",
+          "id":"urn:example:file/presentation",
+          "fileUrl":"http://example.org/presentation.ppt",
           "displayName":"presentation.ppt",
           "objectType":"file"},
         "previousVersion":{
           "of":{
-            "id":"http://example.org/presentation.ppt",
+            "id":"urn:example:file/presentation",
+            "fileUrl":"http://example.org/presentation.ppt",
             "displayName":"presentation.ppt",
             "objectType":"file"},
           "objectType":"version",
@@ -164,12 +169,14 @@ public class VersionControlExample {
       "verb":"approve",
       "object":{
         "of":{
-          "id":"http://example.org/presentation.ppt",
+          "id":"urn:example:file/presentation",
+          "fileUrl":"http://example.org/presentation.ppt",
           "displayName":"presentation.ppt",
           "objectType":"file"},
         "previousVersion":{
           "of":{
-            "id":"http://example.org/presentation.ppt", 
+            "id":"urn:example:file/presentation",
+            "fileUrl":"http://example.org/presentation.ppt", 
             "displayName":"presentation.ppt",
             "objectType":"file"},
           "objectType":"version",
