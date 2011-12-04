@@ -57,7 +57,6 @@ public class FOMService extends FOMExtensibleElement implements Service {
 
     public FOMService(QName qname, OMContainer parent, OMFactory factory, OMXMLParserWrapper builder) {
         super(qname, parent, factory, builder);
-        declareAtomNs();
     }
 
     public FOMService(OMContainer parent, OMFactory factory) throws OMException {
@@ -67,7 +66,6 @@ public class FOMService extends FOMExtensibleElement implements Service {
 
     public FOMService(OMContainer parent, OMFactory factory, OMXMLParserWrapper builder) throws OMException {
         super(SERVICE, parent, factory, builder);
-        declareAtomNs();
     }
 
     private void declareAtomNs() {
