@@ -180,7 +180,7 @@ public final class EmbeddedExperience
     }
     
     public Builder gadget(String iri) {
-      return gadget(iri);
+      return gadget(new IRI(iri));
     }
     
     public Builder previewImage(IRI iri) {
