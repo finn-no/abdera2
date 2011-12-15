@@ -59,7 +59,7 @@ public class TemplateManager<T>
     public <M extends Builder<T>>M add(T key, Object template) {
       checkArgumentTypes(checkNotNull(template),Map.class,Collection.class);
       if (template instanceof Supplier)
-        return add(checkNotNull(key),((Supplier<?>)template).get());
+        return (M) add(checkNotNull(key),((Supplier<?>)template).get());
       Template temp = 
         template instanceof Template ?
           (Template)template :

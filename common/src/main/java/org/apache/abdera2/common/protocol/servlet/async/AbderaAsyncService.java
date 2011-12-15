@@ -212,17 +212,19 @@ public class AbderaAsyncService
       while(exec.isRunning()) {
         if (processor.hasNext()) {
           final AbderaTask task = processor.next();
-          log.debug(String.format("Processing New AbderaTask (%s)...",task.getId())); 
-          exec.execute(new Runnable() {
-            public void run() {
-              try {
-                task.invoke();
-              } catch (Throwable t) {
-                log.error(String.format("Error invoking AbderaTask (%s)",task.getId()),t);
-              }
-              log.debug(String.format("AbderaTask (%s) is complete",task.getId()));
-            }
-          });
+          if (task != null) {
+              log.debug(String.format("Processing New AbderaTask (%s)...",task.getId())); 
+              exec.execute(new Runnable() {
+                public void run() {
+                  try {
+                    task.invoke();
+                  } catch (Throwable t) {
+                    log.error(String.format("Error invoking AbderaTask (%s)",task.getId()),t);
+                  }
+                  log.debug(String.format("AbderaTask (%s) is complete",task.getId()));
+                }
+              });
+          }
         }
       }
     }

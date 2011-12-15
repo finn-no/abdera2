@@ -249,7 +249,7 @@ public abstract class AbstractResponseContext extends AbstractResponse implement
           setHeader("Location", uri));
     }
     public <T extends ResponseContext>T setLocation(IRI iri) {
-      return setLocation(iri == null ? null : iri.toString());
+      return (T)setLocation(iri == null ? null : iri.toString());
     }
 
     public int getStatus() {
