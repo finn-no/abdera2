@@ -93,7 +93,7 @@ public class Session {
       final String uri) {
       return new Callable<T>() {
         public T call() throws Exception {
-          return get(uri);
+          return (T) get(uri);
         }
       };
     }
@@ -103,7 +103,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return get(uri,options);
+            return (T) get(uri,options);
           }
         };
     }
@@ -127,7 +127,7 @@ public class Session {
       final HttpEntity entity) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return post(uri,entity);
+            return (T) post(uri,entity);
           }
         };
     }
@@ -138,7 +138,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return post(uri,entity,options);
+            return (T) post(uri,entity,options);
           }
         };
     }
@@ -159,7 +159,7 @@ public class Session {
       final InputStream in) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return post(uri,in);
+            return (T) post(uri,in);
           }
         };
     }
@@ -170,7 +170,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return post(uri,in,options);
+            return (T) post(uri,in,options);
           }
         };
     }
@@ -191,7 +191,7 @@ public class Session {
       final HttpEntity entity) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return put(uri,entity);
+            return (T) put(uri,entity);
           }
         };
     }
@@ -202,7 +202,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return put(uri,entity,options);
+            return (T) put(uri,entity,options);
           }
         };
     }
@@ -223,7 +223,7 @@ public class Session {
         final InputStream in) {
           return new Callable<T>() {
             public T call() throws Exception {
-              return put(uri,in);
+              return (T) put(uri,in);
             }
           };
       }
@@ -234,7 +234,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return put(uri,in,options);
+            return (T) put(uri,in,options);
           }
         };
     }
@@ -253,7 +253,7 @@ public class Session {
       final String uri) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return delete(uri);
+            return (T) delete(uri);
           }
         };
     }
@@ -263,7 +263,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return delete(uri,options);
+            return (T) delete(uri,options);
           }
         };
     }
@@ -281,7 +281,7 @@ public class Session {
         final String uri) {
           return new Callable<T>() {
             public T call() throws Exception {
-              return head(uri);
+              return (T) head(uri);
             }
           };
       }
@@ -291,7 +291,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return head(uri,options);
+            return (T) head(uri,options);
           }
         };
     }
@@ -394,7 +394,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return execute(method,uri,in,options);
+            return (T) execute(method,uri,in,options);
           }
         };
     }
@@ -423,7 +423,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return execute(method,uri,in,options);
+            return (T) execute(method,uri,in,options);
           }
         };
     }
@@ -443,7 +443,7 @@ public class Session {
       final RequestOptions options) {
         return new Callable<T>() {
           public T call() throws Exception {
-            return execute(method,uri,entity,options);
+            return (T) execute(method,uri,entity,options);
           }
         };
     }
@@ -491,7 +491,7 @@ public class Session {
       final RequestOptions options) {
        return new Callable<T>() {
           public T call() throws Exception {
-            return execute(method,uri,entity,options);
+            return (T) execute(method,uri,entity,options);
           }
         };
     }
