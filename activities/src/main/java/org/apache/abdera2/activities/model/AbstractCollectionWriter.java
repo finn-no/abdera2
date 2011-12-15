@@ -39,7 +39,7 @@ public abstract class AbstractCollectionWriter
   public abstract void complete();
   
   public <X extends CollectionWriter>X writeHeader(ASBase.Builder<?,?> base) {
-    return writeHeader(base.get());
+    return (X) writeHeader(base.get());
   }
   
   public <X extends CollectionWriter>X writeHeader(ASBase base) {
@@ -59,7 +59,7 @@ public abstract class AbstractCollectionWriter
   }
   
   public <X extends CollectionWriter>X writeObject(ASObject.Builder<?, ?> object) {
-    return writeObject(object.get());
+    return (X) writeObject(object.get());
   }
   
   public <X extends CollectionWriter>X writeObject(ASObject object) {

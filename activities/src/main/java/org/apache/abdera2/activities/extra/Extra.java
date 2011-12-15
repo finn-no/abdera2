@@ -1019,7 +1019,7 @@ public final class Extra {
     final String charset) {
     return new Function<InputStream,T>() {
       public T apply(InputStream input) {
-        return io.read(input,charset);
+        return (T) io.read(input,charset);
       }
     };
   }
@@ -1032,7 +1032,7 @@ public final class Extra {
     final IO io) {
     return new Function<Reader,T>() {
       public T apply(Reader input) {
-        return io.read(input);
+        return (T) io.read(input);
       }
     };
   }
@@ -1045,7 +1045,7 @@ public final class Extra {
     final IO io) {
     return new Function<String,T>() {
       public T apply(String input) {
-        return io.read(input);
+        return (T) io.read(input);
       }
     };
   }
@@ -1107,7 +1107,7 @@ public final class Extra {
     final String charset) {
     return new Function<InputStream,T>() {
       public T apply(InputStream input) {
-        return io.readObject(input,charset);
+        return (T) io.readObject(input,charset);
       }
     };
   }
@@ -1120,7 +1120,7 @@ public final class Extra {
     final IO io) {
     return new Function<Reader,T>() {
       public T apply(Reader input) {
-        return io.readObject(input);
+        return (T) io.readObject(input);
       }
     };
   }
@@ -1133,7 +1133,7 @@ public final class Extra {
     final IO io) {
     return new Function<String,T>() {
       public T apply(String input) {
-        return io.readObject(input);
+        return (T) io.readObject(input);
       }
     };
   }

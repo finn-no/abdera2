@@ -276,7 +276,7 @@ public class ASBase
     }
     public <N>N extend(Class<N> as) {
       checkArgument(as.isInterface(),"Extension is not an interface!");
-      return Extra.extendBuilder(this,as);
+      return (N) Extra.extendBuilder(this,as);
     }
     public M template() {
       return bld.apply(array(map.build()));
@@ -494,7 +494,7 @@ public class ASBase
    */
   public <T>T extend(Class<T> as) {
     checkArgument(as.isInterface(),"Extension is not an interface!");
-    return Extra.extend(this,as);
+    return (T) Extra.extend(this,as);
   }
  
   public boolean has(String name) {

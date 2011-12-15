@@ -71,12 +71,12 @@ public final class PusherCollectionWriter
   }
 
   public <X extends CollectionWriter> X writeHeader(Builder<?, ?> base) {
-    return writeHeader(base.get());
+    return (X) writeHeader(base.get());
   }
 
   public <X extends CollectionWriter> X writeObject(
       ASObject.Builder<?, ?> object) {
-    return writeObject(object.get());
+    return (X) writeObject(object.get());
   }
   
 }

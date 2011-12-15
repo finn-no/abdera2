@@ -79,7 +79,7 @@ public class ActivitiesSession
     final ASBase base) {
     return new Callable<T>() {
       public T call() throws Exception {
-        return post(uri,base);
+        return (T) post(uri,base);
       }
     };
   }
@@ -90,7 +90,7 @@ public class ActivitiesSession
     final RequestOptions options) {
     return new Callable<T>() {
       public T call() throws Exception {
-        return post(uri,base,options);
+        return (T) post(uri,base,options);
       }
     };
   }
@@ -105,7 +105,7 @@ public class ActivitiesSession
     final ASBase base) {
     return new Callable<T>() {
       public T call() throws Exception {
-        return put(uri,base);
+        return (T) put(uri,base);
       }
     };
   }
@@ -116,7 +116,7 @@ public class ActivitiesSession
     final RequestOptions options) {
     return new Callable<T>() {
       public T call() throws Exception {
-        return put(uri,base,options);
+        return (T) put(uri,base,options);
       }
     };
   }

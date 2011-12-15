@@ -325,7 +325,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(reader);
+            return (X) read(reader);
           }
         }, 
         listener);
@@ -338,7 +338,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(reader);
+            return (X) read(reader);
           }
         });
   }
@@ -352,7 +352,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(reader,_class);
+            return (X) readAs(reader,_class);
           }
         }, 
         listener);
@@ -366,7 +366,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(reader,_class);
+            return (X) readAs(reader,_class);
           }
         });
   }
@@ -381,7 +381,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(reader);
+            return (X) read(reader);
           }
         }, 
         listener);
@@ -395,7 +395,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(reader);
+            return (X) read(reader);
           }
         });
   }
@@ -410,7 +410,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(reader,_class);
+            return (X) readAs(reader,_class);
           }
         }, 
         listener);
@@ -425,7 +425,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(reader,_class);
+            return (X) readAs(reader,_class);
           }
         });
   }
@@ -440,7 +440,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(in,charset);
+            return (X) read(in,charset);
           }
         }, 
         listener);
@@ -455,7 +455,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return read(in,charset);
+            return (X) read(in,charset);
           }
         });
   }
@@ -471,7 +471,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(in,charset,_class);
+            return (X) readAs(in,charset,_class);
           }
         }, 
         listener);
@@ -487,7 +487,7 @@ public abstract class IO {
         exec,
         new Callable<X>() {
           public X call() throws Exception {
-            return readAs(in,charset,_class);
+            return (X) readAs(in,charset,_class);
           }
         });
   }
