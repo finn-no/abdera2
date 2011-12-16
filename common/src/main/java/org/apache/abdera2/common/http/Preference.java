@@ -47,11 +47,16 @@ import com.google.common.collect.ImmutableSet;
  */
 public class Preference implements Serializable {
   
-  public static final String RETURN_NO_CONTENT = "return-no-content";
+  public static final String RETURN_MINIMAL = "return-minimal";
   public static final String RETURN_ACCEPTED = "return-accepted";
-  public static final String RETURN_CONTENT = "return-content";
-  public static final String RETURN_STATUS = "return-status";
+  public static final String RETURN_REPRESENTATION = "return-representation";
   public static final String WAIT = "wait";
+  public static final String STRICT= "strict";
+  public static final String LENIENT = "lenient";
+  
+  public static final Preference PREF_STRICT = new Preference(STRICT);
+  
+  public static final Preference PREF_LENIENT = new Preference(LENIENT);
   
   /** 
    * The "return-no-content" token indicates that the client prefers that
@@ -60,8 +65,8 @@ public class Preference implements Serializable {
    * status code as defined in Section 10.2.5 of [RFC2616], but other
    * status codes can be used as appropriate.
    */
-  public static final Preference PREF_RETURN_NO_CONTENT = 
-    new Preference(RETURN_NO_CONTENT);
+  public static final Preference PREF_RETURN_MINIMAL = 
+    new Preference(RETURN_MINIMAL);
   
   /**
    * The "return-accepted" token indicates that the client prefers that
@@ -76,8 +81,8 @@ public class Preference implements Serializable {
    * server include an entity representing the current state of the
    * resource in the response to a successful request.
    */
-  public static final Preference PREF_RETURN_CONTENT =
-    new Preference(RETURN_CONTENT);
+  public static final Preference PREF_RETURN_REPRESENTATION =
+    new Preference(RETURN_REPRESENTATION);
   
   public static Preference WAIT(long millis) {
     return 
@@ -151,14 +156,6 @@ public class Preference implements Serializable {
     }
     
   }
-  
-  /**
-   * The "return-status" token indicates that the client prefers that the
-   * server include an entity describing the status of the request in the
-   * response to a successful request.
-   */
-  public static final Preference PREF_RETURN_STATUS = 
-    new Preference(RETURN_STATUS);
   
   private static final long serialVersionUID = -6238673046322517740L;
   private final String token;
