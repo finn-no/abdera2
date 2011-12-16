@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<?xml-stylesheet type='text/xsl' href='./rfc2629.xslt' ?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="3"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<?rfc private=" "?>
+<?rfc authorship="no"?>
+<rfc docName="whatsnew" ipr="none">
+  <front>
+    <title abbrev="Activity Streams">Abdera2 - Activity Streams</title>
+    <author fullname="James M Snell" initials="J.M." surname="Snell">
+      <organization></organization>
+    </author>
+    <date month="December" year="2011" />
+    <abstract>
+      <t>TBD</t>
+    </abstract>
+  </front>
+  <middle>
+
+  <section title="Introduction">
+  
+  <t></t>
+    
+  </section>
+    
+  <section title="A Simple Activity">
+  
+  <t>An Activity represents an event that has occurred and consists of four 
+  primary components:</t>
+  
+  <t><list style="hanging">
+    <t hangText="Actor">Identifies the entity that performed the action.</t>
+    <t hangText="Verb">Identifies the action that was taken.</t>
+    <t hangText="Object">Identifies the object that was acted upon.</t>
+    <t hangText="Target">Identifies the object to which the action was directed.</t>
+  </list></t>
+  
+  <t>For instance, given the sentence, "Joe posted a link to Sally's Profile", 
+  "Joe" is the Actor, "posted" is the verb, "a link" is the object, and 
+  "Sally's Profile" is the target.</t>
+  
+  <t>To represent this activity using the JSON Activity Streams Format using 
+  Abdera2, we would use the following code:</t>
+  
+  <figure><artwork>
+Activity activity =
+  makeActivity()
+    .actor(makePerson("Joe"))
+    .verb(POST)
+    .object(makeBookmark("http://example.org"))
+    .target(makeService().displayName("Sally's Wall"))
+    .get();
+  </artwork></figure>
+  
+  <t>Once created, we can serialize the activity to the standardized JSON 
+  format simply by calling the writeTo method on the activity:</t>
+  
+  <figure><artwork>
+IO io = IO.make().prettyPrint().get();
+activity.writeTo(io, System.out);
+  </artwork></figure>
+  
+  <t>For now, ignore the code that creates the IO object, we'll get back to
+  the IO object in a bit. By calling writeTo in this way, however, Abdera2 
+  will print out a nicely formatted JSON object:</t>
+  
+  <figure><artwork>
+{
+  "objectType": "activity",
+  "actor": {
+    "objectType": "person",
+    "displayName": "Joe"
+  },
+  "verb": "post",
+  "object": {
+    "objectType": "bookmark",
+    "targetUrl": "http://example.org"
+  },
+  "target": {
+    "objectType": "service",
+    "displayName": "Sally\u0027s Wall"
+  }
+}
+  </artwork></figure>
+  
+  <t>So now we have an Activity, but we do not quite yet have an Activity *Stream*.
+  For that, we need to create a stream that contains the activity. If you're
+  familiar with the Atom Syndication Format and RSS, Activities and Streams are
+  the logical equivalent to Entries and Feeds.</t>
+  
+  <figure><artwork><![CDATA[
+    Collection<Activity> stream = 
+      Collection.<Activity>makeCollection()
+      .item(activity)
+      .get();
+  ]]></artwork></figure>
+  
+  <t>Once the activity has been added to the stream, we can use the writeTo
+  method (and the IO object we created) to output the results:</t>
+  
+  <figure><artwork>
+{
+  "objectType": "collection",
+  "totalItems": 1,
+  "items": [
+    {
+      "objectType": "activity",
+      "actor": {
+        "objectType": "person",
+        "displayName": "Joe"
+      },
+      "verb": "post",
+      "object": {
+        "objectType": "bookmark",
+        "targetUrl": "http://example.org"
+      },
+      "target": {
+        "objectType": "service",
+        "displayName": "Sally\u0027s Wall"
+      }
+    }
+  ]
+}
+  </artwork></figure>
+
+  <t>We now have a simple Activity Stream containing exactly one Activity.</t>
+
+  <t>Note that the code example above uses a variety of objects and functions
+  that have been statically imported to improve code readability. The imports
+  used are shown below. In particular, note the static import of the various
+  factory methods (e.g. makeCollection, makeActivity, etc). We'll touch more
+  on the Factory API a bit later.</t>
+  
+  <figure><artwork>
+import static org.apache.abdera2.activities.model.Collection.makeCollection;
+import static org.apache.abdera2.activities.model.Activity.makeActivity;
+import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
+import static org.apache.abdera2.activities.model.objects.ServiceObject.makeService;
+import static org.apache.abdera2.activities.model.objects.BookmarkObject.makeBookmark;
+import static org.apache.abdera2.activities.model.Verb.POST;
+import org.apache.abdera2.activities.model.Activity;
+import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.IO;
+  </artwork></figure>
+  
+  </section>
+  
+  <section title="Reading the Activity Stream">
+  
+  <t>Reading the Activity Stream is as equally straightforward. Let's
+  assume that our Activity Stream has been handed to us in the form of a
+  Reader, parsing the stream is as simple as:</t>
+  
+  <figure><artwork><![CDATA[
+Reader reader = ...
+Collection<Activity> stream = io.readCollection(reader);
+  ]]></artwork></figure>
+  
+  <t>Note that we're just reusing the IO object from the previous example.</t>
+  
+  <t>The readCollection method gives us back a Collection object that we can
+  then iterate over to extract the Activity:</t>
+  
+  <figure><artwork>
+for (Activity a : stream.getItems()) {
+  System.out.println(a.getActor().getDisplayName());
+  System.out.println(a.getVerb());
+  System.out.println(a.getObject().getObjectType());
+  System.out.println(a.getTarget().getDisplayName());
+}
+  </artwork></figure>
+  
+  </section>
+  
+  <section title="The IO Object">
+  
+  <t>The IO object is the primary interface through which Activity Streams
+  are Serialized and Deserialized. It handles all the details of converting
+  between JSON and the Java Objects.</t>
+  
+  <t>Every IO object is created using a simple factory pattern that is leveraged
+  extensively throughout the entire Activity Streams implementation. Once created,
+  IO objects are immutable and threadsafe.</t>
+  
+  <t>There are two basic ways of creating an IO object. The first is to call
+  the static get() method on the IO class, which returns an IO object that 
+  uses default configuration parameters. One or more TypeAdapters can be 
+  passed in as arguments to the get() method, but we'll address TypeAdapters
+  later.</t>
+  
+  <figure><artwork>
+IO io = IO.get(); // create default, immutable IO object
+  </artwork></figure>
+  
+  <t>The second way of creating IO is to use the static IO.make() method to 
+  create an IO Factory used to configure the IO will non-default options.
+  You've already seen one example of using make() in the previous examples.</t>
+  
+  <figure><artwork>
+IO io = IO.make()
+  .prettyPrint()
+  .autoClose()
+  .get();
+  </artwork></figure>
+  
+  <t>Using the IO Factory is most useful when dealing with custom object 
+  serializations, which will be covered in more detail later.</t>
+  
+  <section title="Serializing Objects using IO">
+  
+    <t>Using the IO object to serialize Activity objects is as simple as
+    calling an appropriate write() method. There are a variety of options
+    depending on the specific needs of your application:</t>
+    
+    <figure><preamble>Serialize to a String:</preamble><artwork>
+String s = io.write(stream);
+    </artwork></figure>
+    
+    <figure><preamble>Serialize to a Writer</preamble><artwork>
+Writer writer = ...
+io.write(stream, writer);
+    </artwork></figure>
+    
+    <figure><preamble>Serialize to an OutputStream</preamble><artwork>
+OutputStream out = ...
+io.write(stream, out);
+    </artwork></figure>
+  
+    <t>One of the more advanced features of the IO object is the ability
+    to perform nonblocking serialization and deserialization. This is 
+    done by integrating with the mechanisms provided by the 
+    java.util.concurrent.* package:</t>
+    
+    <figure><preamble>Nonblocking Serialization</preamble><artwork>
+OutputStream out = ...
+ExecutorService exec = MoreExecutors2.getExitingExecutor();
+io.write(stream, out, exec);
+    </artwork></figure>
+    
+  </section>
+  
+  <section title="Deserializing Object using IO">
+  
+    <t>Using the IO object to deserialize Activity objects is just
+    a slightly more complicated in that, because of the typeless 
+    nature of JSON Documents, you have to be reasonably sure in 
+    advance what exactly it is you're parsing (e.g. individual 
+    Activity or a Stream). Calling the io.read() method, IO will
+    attempt to make a best guess based on heuristic analysis of the 
+    objects content to determine what kind of object is being parsed
+    but it doesn't always get it right. Accordingly, if you know 
+    that you're parsing a Stream, you should use the appropriate
+    readCollection methods. If you know you're parsing an individual
+    Activity object, then use the readActivity method.</t>
+    
+    <figure><preamble>Reading from a String</preamble><artwork><![CDATA[
+String s = ...
+Collection<Activity>stream = io.readCollection(s)
+    ]]></artwork></figure>
+    
+    <figure><preamble>Reading from a Reader</preamble><artwork><![CDATA[
+Reader reader = ...
+Collection<Activity>stream = io.readCollection(reader)
+    ]]></artwork></figure>
+    
+    <figure><preamble>Reading from an InputStream</preamble><artwork><![CDATA[
+InputStream in = ...
+Collection<Activity>stream = io.readCollection(in)
+    ]]></artwork></figure>
+  
+    <t>Non-blocking deserialization is also possible:</t>
+    
+    <figure><artwork><![CDATA[
+Reader reader = ...
+ExecutorService exec = MoreExecutors2.getExitingExecutor();
+io.readCollection(
+  reader, 
+  exec, 
+  new Listener<Collection<Activity>>() {
+    public void onComplete(Collection<Activity> stream) {
+      // do something with the stream
+    }        
+  });
+    ]]></artwork></figure>
+    
+    <t>You can also use a Future to wait for the result:</t>
+    
+    <figure><artwork><![CDATA[
+Future<Collection<Activity>> future =
+  io.readCollection(
+  s, 
+  MoreExecutors2.getExitingExecutor());
+  
+Collection<Activity> stream = future.get();
+    ]]></artwork></figure>
+  
+  </section>
+  
+  </section>
+  
+  <section title="Creating Objects">
+  
+  <t>All Activity objects are created using a simple factory pattern. Created
+  instances are all Immutable and Threadsafe. Let's look back at the very 
+  first example and break it down:</t>
+  
+    <figure><artwork>
+Activity activity =
+  makeActivity()
+    .actor(makePerson("Joe"))
+    .verb(POST)
+    .object(makeBookmark("http://example.org"))
+    .target(makeService().displayName("Sally's Wall"))
+    .get();
+  </artwork></figure>
+  
+  <t>The first thing you should notice is that the factory uses what is known
+  as a <eref target="http://en.wikipedia.org/wiki/Fluent_interface">"Fluent" API</eref>. 
+  Another name for this is "method chaining". This pattern is utilized extensively
+  throughout Abdera2. If you've never used a Fluent API before, it can take 
+  some getting used to, but with some practice it becomes very natural to use.</t>
+  
+  <t>The makeActivity() method is statically imported from the 
+  org.apache.abdera2.activities.model.Activity object:</t>
+  
+  <figure><artwork>
+import static org.apache.abdera2.activities.model.Activity.makeActivity;
+  </artwork></figure>
+  
+  <t>It returns an ActivityBuilder object that is used to construct our 
+  activity. The methods of this object reflect all the various properties
+  of the Activity. The call to "actor()" sets the value of the Activities
+  "actor" property, etc. Notice how calls to other statically imported
+  factory methods are mixed in. Each of these returns builders for their
+  own respective types of objects. The makePerson method, for instance, 
+  returns a PersonBuilder, whilch makeBookmark returns a BookmarkBuilder.
+  The final call to get() triggers the ActivityBuilder to build the immutable
+  Activity object using the specified properties.</t>
+  
+  <t>Let's take a look at another example.</t>
+  
+  <figure><preamble>Creating a Person Object</preamble><artwork>
+PersonObject person = 
+  makePerson()
+    .displayName("John Doe")
+    .email("john.doe@example.org")
+    .id("acct:john.doe@example.org")
+    .name(makeName()
+      .givenName("John")
+      .familyName("Doe"))
+    .set("foo","bar")
+    .get();
+  </artwork></figure>
+  
+  <t>If we call the writeTo method on the person object we can get an 
+  idea of the JSON produced by this code:</t>
+  
+  <figure><artwork>
+{
+  "objectType": "person",
+  "displayName": "John Doe",
+  "id": "acct:john.doe@example.org",
+  "name": {
+    "objectType": "name",
+    "givenName": "John",
+    "familyName": "Doe"
+  },
+  "foo": "bar",
+  "emails": [
+    "john.doe@example.org"
+  ]
+}
+  </artwork></figure>
+  
+  <t>The Activity Streams implementation supports a broad range of specific
+  object types like PersonObject that will be discussed shortly. These are 
+  designed to be composed together with Activities as the values of the 
+  actor, object and target properties.</t>
+  
+    <section title="Object Templates">
+    
+    <t>All Activity Objects, once created, are immutable. To modify the 
+    properties of an object, we need to use it as a template to create
+    a new object entirely.</t>
+    
+    <t>Suppose, for example, that we wish to add a property to the 
+    person object example given previously:</t>
+    
+    <figure><artwork><![CDATA[
+person = 
+ person.<PersonObject,PersonBuilder>template()
+ .aboutMe("This is John Doe")
+ .get();
+    ]]></artwork></figure>
+    
+    <t>The template() method is available on all objects and returns a
+    builder object appropriate for that type. By default, the builder 
+    will have all the properties of the original object set. If you 
+    wish to change the value of an existing property, you must create 
+    a template that filters out the value to be modified:</t>
+    
+    <figure><artwork><![CDATA[
+import static org.apache.abdera2.activities.model.ASBase.withoutFields;
+//....    
+person = 
+  person.<PersonObject,PersonBuilder>template(withoutFields("emails"))
+  .email("john.doe@example2.org")
+  .get();
+    ]]></artwork></figure>
+    
+    </section>
+    
+    <section title="Changing Object Types">
+    
+    <t>There are occasions, albeit rare, that you'll need to treat one
+    kind of object as if it were another type. This is most common when 
+    IO ends up generating the wrong kind of object during parse. Every
+    object supports an as() method that creates a new instance of the 
+    desired type with a copy of the source objects properties.</t>
+    
+    <figure><artwork>
+ServiceObject service = person.as(ServiceObject.class);
+    </artwork></figure>
+    
+    <t>The ability to convert objects like this leads to some rather 
+    interesting advanced capabilities that are beyond the scope of 
+    this getting started guide. Advanced topics will be covered 
+    separately.</t>
+    
+    </section>
+    
+    <section title="Type-Safe Extension">
+    
+    <t>Activity Stream objects are arbitrarily extensible. That is, new 
+    properties can be added to any object type at any time. The basic 
+    builder for each object supports a generic set property whose arguments
+    take a string and any arbitrary object as the value. This is useful, 
+    but it's not typesafe. For instance, suppose our application requires
+    that a Person have an extension property named "friendCount" whose 
+    value must be a integer. Using set, there's no way for us to enforce 
+    that constraint:</t>
+    
+    <figure><artwork>
+PersonObject person = 
+  makePerson()
+    .displayName("John Doe")
+    .set("friendCount","1")
+    .get();
+    </artwork></figure>
+    
+    <t>To enforce type-safety constraints, Abdera2 supports an alternative. 
+    First, let's define an extension interface:</t>
+    
+    <figure><artwork>
+public static interface MyExt extends Extra.ExtensionBuilder {
+  MyExt friendCount(int i);
+}
+    </artwork></figure>
+    
+    <t>Then, let's extend the PersonBuilder dynamically,</t>
+    
+    <figure><artwork><![CDATA[
+PersonObject person = 
+  makePerson()
+    .displayName("John Doe")
+    .extend(MyExt.class)
+    .friendCount(10)
+    .<PersonBuilder>unwrap()
+    .get();
+    ]]></artwork></figure>
+    
+    <t>Note that "friendCount" is now set in a manner that is completely
+    type-safe, and we maintain our Fluent API pattern.</t>
+    
+    <t>The objects themselves can also be extended in similar fashion:</t>
+    
+    <figure><artwork>
+public static interface MyExt2 extends Extra.ExtensionObject {
+  int getFriendCount();
+}
+
+int fc = person.extend(MyExt2.class).getFriendCount();
+    </artwork></figure>
+    
+    </section>
+  
+  </section>
+  
+  <section title="Using CollectionWriter">
+  
+  <t>The CollectionWriter interface provides a simplified interface for
+  streaming serialization of collections of Activity objects.</t>
+  
+  <figure><artwork>
+CollectionWriter cw = 
+  io.getCollectionWriter(System.out, "UTF-8");
+cw.writeObject(
+  makeActivity()
+    .verb(POST)
+    .actor(makePerson("Joe"))
+    .object(makeBookmark("http://example.org")));
+  </artwork></figure>
+  
+  </section>
+    
+  <section title="Custom Type Adapters and Property Mappings">
+    <t>TBD</t>
+  </section>
+  
+  <section title="Object Types">
+    <t>TBD</t>
+  </section>
+  
+  <section title="Audience Targeting">
+    <t>TBD</t>
+  </section>
+  
+  <section title="Converting Activities to and from Atom">
+    <t>TBD</t>
+  </section>
+  
+  <section title="Miscellaneous">
+    <t>TBD</t>
+  </section>
+    
+  </middle>
+  <back></back>
+</rfc>
