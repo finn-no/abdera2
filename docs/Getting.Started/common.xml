@@ -28,14 +28,46 @@
 
     <section title="Date-Time Handling">
     
-      <t>TBD</t>
+      <t>Date and Time Handling within Abdera2 extensively leverages the 
+      capabilities of both the 
+      <eref target="http://joda-time.sourceforge.net/">Joda-Time</eref> and 
+      <eref target="http://code.google.com/p/guava-libraries/">Guava Libraries</eref>.</t>
+      
+      <t>Specifically, Joda-Time handles all operations with regards to the 
+      handling of the ISO-8601 formatted timestamps required by both the 
+      Atom Syndication Format and JSON Activity Streams standards. The 
+      Guava Library is used as the foundation for a range of utilities 
+      that make working with those dates easier, and more fluid within 
+      the Abdera2 API. Use of the Date-Time utilities provided by the 
+      Common Library is driven deep and extensively throughout the Abdera2
+      API for both the Atom Syndication Format and Activity Streams implementations.</t>
     
-    </section>
-    
-    <section title="Geo">
-    
-      <t>TBD</t>
-    
+      <t>For example, suppose we have a stream of Activity objects and we 
+      want to iterate only those published before the current date and time:</t>
+      
+      <figure><artwork>
+import static org.apache.abdera2.activities.extra.Extra.activityPublished;
+import static org.apache.abdera2.common.date.DateTimes.beforeNow;
+//...
+
+col.getItems(activityPublished(beforeNow()));
+      </artwork></figure>  
+      
+      <t>The response to getItems() called this way will be an Iterable whose
+      items specify published property values are date-times occurring before
+      now. Obviously, this is a bit of a contrived example given that, typically,
+      all items in the stream will be published before the current date and time,
+      but you should get the basic idea.</t>
+      
+      <t>In the following example, we ask only for the activities that have 
+      been published within the last 60 seconds:</t>
+      
+      <figure><artwork>
+DateTime now = now();
+DateTime before = now().minusSeconds(60);
+col.getItems(activityPublished(atOrBetween(before,now)));
+      </artwork></figure>
+      
     </section>
     
     <section title="HTTP Headers">
