@@ -27,7 +27,7 @@ public class MorePredicates {
       }
   };
   
-  private static boolean is_media(Content content) {
+  static boolean is_media(Content content) {
     return content.getSrc() != null || 
            content.getContentType() == Content.Type.MEDIA;
   }
@@ -49,10 +49,11 @@ public class MorePredicates {
           if (entry.getAuthorInherited() == null)
               return false;
           Content content = entry.getContentElement();
-          if (content == null)
-            if (entry.getAlternateLink() == null)
+          if (content == null) {
+            if (entry.getAlternateLink() == null) {
               return false;
-          else
+            }
+          } else
             if (is_media(content) && !entry.has(Constants.SUMMARY))
               return false;
         } catch (Exception e) {

@@ -260,7 +260,7 @@ public class ServletRequestContext
       case AUTHTYPE:
           return request.getAuthType();
       case CONTENTLENGTH:
-          return new Integer(request.getContentLength());
+          return Integer.valueOf(request.getContentLength());
       case CONTENTTYPE:
           return request.getContentType();
       case CONTEXTPATH:

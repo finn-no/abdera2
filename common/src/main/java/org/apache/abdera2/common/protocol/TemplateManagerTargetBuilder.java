@@ -81,7 +81,7 @@ public class TemplateManagerTargetBuilder<T>
         } else {
             context = new ObjectContext(param, true);
         }
-    }
+    } else context = new MapContext();
     return new RequestTemplateContext(request, context);
   }
 }

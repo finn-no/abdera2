@@ -62,7 +62,7 @@ public class TemplateTest {
       return 1;
     }
     public Integer getB() {
-      return new Integer(2);
+      return Integer.valueOf(2);
     }
     public Integer getC() {
       return 3;

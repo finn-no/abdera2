@@ -81,26 +81,25 @@ public class MultipartRelatedEntityTest {
 
         byte[] line = new byte[BUFF_SIZE];
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        while (input.read(line) != -1) {
+        while (input.read(line) != -1)
             output.write(line);
-        }
+        input.close();
 
         Base64 base64 = new Base64();
         byte[] encoded = base64.encode(output.toByteArray());
-        ByteArrayInputStream bi = new ByteArrayInputStream(base64.decode(encoded));
+        ByteArrayInputStream bi = 
+          new ByteArrayInputStream(base64.decode(encoded));
 
         File f = new File("info-out.png");
         if (f.exists())
-            f.delete();
-        f.createNewFile();
-        FileOutputStream fo = new FileOutputStream(f);
-
-        int end;
-        while ((end = bi.read(line)) != -1) {
+          f.delete();
+        if (f.createNewFile()) {
+          FileOutputStream fo = new FileOutputStream(f);
+          int end;
+          while ((end = bi.read(line)) != -1)
             fo.write(line, 0, end);
+          fo.flush();
+          fo.close();
         }
-
-        fo.flush();
-        fo.close();
     }
 }

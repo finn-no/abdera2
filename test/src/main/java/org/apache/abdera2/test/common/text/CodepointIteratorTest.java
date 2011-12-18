@@ -14,11 +14,11 @@ public class CodepointIteratorTest {
     // test supplemental codepoints...
     char[] chars = {'A','B',0xD800,0xDEB7,'C','D'};
     CodepointIterator ci = CodepointIterator.getInstance(chars);
-    assertEquals(new Integer(65),ci.next());
-    assertEquals(new Integer(66),ci.next());
-    assertEquals(new Integer(66231),ci.next());
-    assertEquals(new Integer(67),ci.next());
-    assertEquals(new Integer(68),ci.next());
+    assertEquals(Integer.valueOf(65),ci.next());
+    assertEquals(Integer.valueOf(66),ci.next());
+    assertEquals(Integer.valueOf(66231),ci.next());
+    assertEquals(Integer.valueOf(67),ci.next());
+    assertEquals(Integer.valueOf(68),ci.next());
     ci.next(); // will throw exception
   }
   

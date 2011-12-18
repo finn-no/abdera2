@@ -51,7 +51,9 @@ public final class KeyHelper {
   
     public static void saveKeystore(KeyStore ks, String file, String password) throws KeyStoreException,
         NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
-        ks.store(new FileOutputStream(file), password.toCharArray());
+        FileOutputStream out = new FileOutputStream(file);
+        ks.store(out, password.toCharArray());
+        out.close();
     }
 
     public static KeyStore loadKeystore(String file, String pass) throws KeyStoreException, NoSuchAlgorithmException,

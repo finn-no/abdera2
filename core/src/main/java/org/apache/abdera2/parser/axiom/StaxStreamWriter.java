@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.annotation.Nullable;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -165,7 +166,7 @@ public class StaxStreamWriter extends AbstractStreamWriter {
         return this;
     }
 
-    private void writeNamespace(String prefix, String namespace, boolean attr) throws XMLStreamException {
+    private void writeNamespace(@Nullable String prefix, String namespace, boolean attr) throws XMLStreamException {
         prefix = prefix != null ? prefix : "";
         if (!declared(prefix, namespace)) {
             if (attr && (namespace == null || "".equals(namespace)))

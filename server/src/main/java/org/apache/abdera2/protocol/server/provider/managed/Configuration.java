@@ -26,7 +26,9 @@ public abstract class Configuration {
 
     static Properties loadFileAsProperties(String fileLocation) throws IOException {
         Properties props = new Properties();
-        props.load(new FileInputStream(fileLocation));
+        FileInputStream in = new FileInputStream(fileLocation);
+        props.load(in);
+        in.close();
         return props;
     }
 

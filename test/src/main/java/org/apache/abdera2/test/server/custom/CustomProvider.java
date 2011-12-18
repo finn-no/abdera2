@@ -68,7 +68,7 @@ public class CustomProvider extends AbstractAtompubWorkspaceProvider {
         return adapter;
     }
 
-    public class SimpleFilter implements Task<RequestContext,ResponseContext> {
+    public static class SimpleFilter implements Task<RequestContext,ResponseContext> {
         public ResponseContext apply(RequestContext request, Chain<RequestContext,ResponseContext> chain) {
             BaseRequestContextWrapper rcw = new BaseRequestContextWrapper(request);
             rcw.setAttribute("offset", 10);

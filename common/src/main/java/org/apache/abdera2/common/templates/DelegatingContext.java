@@ -26,7 +26,7 @@ public abstract class DelegatingContext extends AbstractContext {
     protected final Context subcontext;
 
     protected DelegatingContext(Context subcontext) {
-      super(subcontext != null ? subcontext.isIri() : false);
+      super(subcontext.isIri());
       checkNotNull(subcontext);
       this.subcontext = subcontext;
     }
