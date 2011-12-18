@@ -64,6 +64,9 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.impl.llom.factory.OMLinkedListImplFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 @SuppressWarnings( {"unchecked", "deprecation"})
 public class FOMFactory extends OMLinkedListImplFactory 
     implements Factory, Constants, ExtensionFactory {
@@ -98,11 +101,82 @@ public class FOMFactory extends OMLinkedListImplFactory
      * every qname on every iteration... albeit, at a cost of a bit more 
      * complexity
      */
+    
     private static java.util.Map<QName,java.lang.reflect.Constructor<?>> conmap =
-      new java.util.HashMap<QName,java.lang.reflect.Constructor<?>>();
+      ImmutableMap.<QName,java.lang.reflect.Constructor<?>>builder()
+      .put(FEED, confrom(FOMFeed.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(SERVICE, confrom(FOMService.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .put(PRE_RFC_SERVICE, confrom(FOMService.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(ENTRY, confrom(FOMEntry.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(AUTHOR, confrom(FOMPerson.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(CATEGORY, confrom(FOMCategory.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(CONTENT, confrom(FOMContent.class, String.class, OMNamespace.class, Content.Type.class, OMContainer.class, OMFactory.class)) 
+      .put(CONTRIBUTOR, confrom(FOMPerson.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(GENERATOR, confrom(FOMGenerator.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(ICON, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(ID, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(LOGO, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(LINK, confrom(FOMLink.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(PUBLISHED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(SOURCE, confrom(FOMSource.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(RIGHTS, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(SUBTITLE, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(SUMMARY, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(TITLE, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(UPDATED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(WORKSPACE, confrom(FOMWorkspace.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(PRE_RFC_WORKSPACE, confrom(FOMWorkspace.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(COLLECTION, confrom(FOMCollection.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(PRE_RFC_COLLECTION, confrom(FOMCollection.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(NAME, confrom(FOMElement.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(EMAIL, confrom(FOMElement.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(URI, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(CONTROL, confrom(FOMControl.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .put(PRE_RFC_CONTROL, confrom(FOMControl.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)) 
+      .put(DIV, confrom(FOMDiv.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .put(CATEGORIES, confrom(FOMCategories.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .put(PRE_RFC_CATEGORIES, confrom(FOMCategories.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .put(EDITED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class))
+      .build();
+    
     private static java.util.Map<QName,java.lang.reflect.Constructor<?>> conmap2 =
-      new java.util.HashMap<QName,java.lang.reflect.Constructor<?>>();
-    private static java.util.Set<QName> textset = new java.util.HashSet<QName>();
+      ImmutableMap.<QName,java.lang.reflect.Constructor<?>>builder()
+      .put(FEED, confrom(FOMFeed.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(SERVICE, confrom(FOMService.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class))
+      .put(PRE_RFC_SERVICE, confrom(FOMService.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(ENTRY, confrom(FOMEntry.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(AUTHOR, confrom(FOMPerson.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(CATEGORY, confrom(FOMCategory.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(CONTENT, confrom(FOMContent.class, QName.class, Content.Type.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(CONTRIBUTOR, confrom(FOMPerson.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(GENERATOR, confrom(FOMGenerator.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(ICON, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(ID, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(LOGO, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(LINK, confrom(FOMLink.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(PUBLISHED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(SOURCE, confrom(FOMSource.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(RIGHTS, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(SUBTITLE, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(SUMMARY, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(TITLE, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(UPDATED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(WORKSPACE, confrom(FOMWorkspace.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(PRE_RFC_WORKSPACE, confrom(FOMWorkspace.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(COLLECTION, confrom(FOMCollection.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(PRE_RFC_COLLECTION, confrom(FOMCollection.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(URI, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(CONTROL, confrom(FOMControl.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class))
+      .put(PRE_RFC_CONTROL, confrom(FOMControl.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(DIV, confrom(FOMDiv.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(CATEGORIES, confrom(FOMCategories.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(PRE_RFC_CATEGORIES, confrom(FOMCategories.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(EDITED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(NAME, confrom(FOMElement.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .put(EMAIL, confrom(FOMElement.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)) 
+      .build();
+
+    private static java.util.Set<QName> textset = ImmutableSet.of(RIGHTS,SUBTITLE,SUMMARY,TITLE);
     private static java.lang.reflect.Constructor<?> confrom(Class<?> _class, Class<?>... _types) {
       try {
         return _class.getConstructor(_types);
@@ -132,81 +206,6 @@ public class FOMFactory extends OMLinkedListImplFactory
     }
     private static boolean is_text(QName qname) {
       return textset.contains(qname);
-    }
-    static {
-      // these are text elements.. they'll have a different constructor
-      textset.add(RIGHTS);
-      textset.add(SUBTITLE);
-      textset.add(SUMMARY);
-      textset.add(TITLE);
-      
-      conmap.put(FEED, confrom(FOMFeed.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(SERVICE, confrom(FOMService.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class));
-      conmap.put(PRE_RFC_SERVICE, confrom(FOMService.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(ENTRY, confrom(FOMEntry.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(AUTHOR, confrom(FOMPerson.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(CATEGORY, confrom(FOMCategory.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(CONTENT, confrom(FOMContent.class, String.class, OMNamespace.class, Content.Type.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(CONTRIBUTOR, confrom(FOMPerson.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(GENERATOR, confrom(FOMGenerator.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(ICON, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(ID, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(LOGO, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(LINK, confrom(FOMLink.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(PUBLISHED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(SOURCE, confrom(FOMSource.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(RIGHTS, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(SUBTITLE, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(SUMMARY, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(TITLE, confrom(FOMText.class, Text.Type.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(UPDATED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(WORKSPACE, confrom(FOMWorkspace.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(PRE_RFC_WORKSPACE, confrom(FOMWorkspace.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(COLLECTION, confrom(FOMCollection.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(PRE_RFC_COLLECTION, confrom(FOMCollection.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(NAME, confrom(FOMElement.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(EMAIL, confrom(FOMElement.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(URI, confrom(FOMIRI.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(CONTROL, confrom(FOMControl.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class));
-      conmap.put(PRE_RFC_CONTROL, confrom(FOMControl.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(DIV, confrom(FOMDiv.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(CATEGORIES, confrom(FOMCategories.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(PRE_RFC_CATEGORIES, confrom(FOMCategories.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-      conmap.put(EDITED, confrom(FOMDateTime.class, String.class, OMNamespace.class, OMContainer.class, OMFactory.class)); 
-
-      conmap2.put(FEED, confrom(FOMFeed.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(SERVICE, confrom(FOMService.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class));
-      conmap2.put(PRE_RFC_SERVICE, confrom(FOMService.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(ENTRY, confrom(FOMEntry.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(AUTHOR, confrom(FOMPerson.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(CATEGORY, confrom(FOMCategory.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(CONTENT, confrom(FOMContent.class, QName.class, Content.Type.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(CONTRIBUTOR, confrom(FOMPerson.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(GENERATOR, confrom(FOMGenerator.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(ICON, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(ID, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(LOGO, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(LINK, confrom(FOMLink.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(PUBLISHED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(SOURCE, confrom(FOMSource.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(RIGHTS, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(SUBTITLE, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(SUMMARY, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(TITLE, confrom(FOMText.class, Text.Type.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(UPDATED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(WORKSPACE, confrom(FOMWorkspace.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(PRE_RFC_WORKSPACE, confrom(FOMWorkspace.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(COLLECTION, confrom(FOMCollection.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(PRE_RFC_COLLECTION, confrom(FOMCollection.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(URI, confrom(FOMIRI.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(CONTROL, confrom(FOMControl.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class));
-      conmap2.put(PRE_RFC_CONTROL, confrom(FOMControl.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(DIV, confrom(FOMDiv.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(CATEGORIES, confrom(FOMCategories.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(PRE_RFC_CATEGORIES, confrom(FOMCategories.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(EDITED, confrom(FOMDateTime.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(NAME, confrom(FOMElement.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
-      conmap2.put(EMAIL, confrom(FOMElement.class, QName.class, OMContainer.class, OMFactory.class, OMXMLParserWrapper.class)); 
     }
     
     /***********************************************************************/
