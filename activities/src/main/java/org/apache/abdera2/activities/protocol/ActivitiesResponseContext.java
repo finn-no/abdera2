@@ -53,6 +53,8 @@ public class ActivitiesResponseContext<T extends ASBase>
           type.setParameter("charset", "UTF-8");
         setContentType(type.toString());
     } catch (Exception e) {
+      // it's ok to ignore this exception
+      log.debug("Error setting charset parameter",e);
     }
     log.debug(String.format("Content-Type: %s", getContentType()));
   }

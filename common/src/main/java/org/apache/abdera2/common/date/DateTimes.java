@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.common.date;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -307,7 +308,10 @@ public final class DateTimes {
   /**
    * Convenience Utility for Comparing DateTime instances
    */
-  public static abstract class DateTimeComparator<X> implements Comparator<X> {
+  public static abstract class DateTimeComparator<X> 
+    implements Comparator<X>, Serializable {
+    private static final long serialVersionUID = -3081540045542491405L;
+
     public int innerCompare(DateTime d1, DateTime d2) {
       if (onlySecondIsNull(d1,d2)) return 1;
       if (onlyFirstIsNull(d1,d2)) return -1;

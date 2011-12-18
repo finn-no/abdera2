@@ -23,7 +23,7 @@ import org.apache.abdera2.common.misc.MoreFunctions;
 public class ProtocolException extends RuntimeException {
 
     private static final long serialVersionUID = 1017447143200419489L;
-    private final ErrorObject error;
+    private final transient ErrorObject error;
 
     public ProtocolException(ErrorObject error) {
         super(String.format("%d::%s",error.getCode(),error.getDisplayName()));

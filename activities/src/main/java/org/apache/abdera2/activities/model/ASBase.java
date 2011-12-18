@@ -557,6 +557,11 @@ public class ASBase
   }
   
   @SuppressWarnings("rawtypes")
+  /**
+   * ASBase.clone() differs from the standard implementation of 
+   * Object.clone() in that it uses the ASBase objects template()
+   * method to create a new immutable copy of this object.
+   */
   public Object clone() throws CloneNotSupportedException {
     return this.<ASBase,Builder>template().get();
   }

@@ -20,6 +20,7 @@ package org.apache.abdera2.activities.extra;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.AbstractSet;
 import java.util.Collections;
@@ -832,7 +833,10 @@ public final class Extra {
   }
   
   static class UpdatedComparator<X extends ASObject>
-    extends DateTimes.DateTimeComparator<X> {
+    extends DateTimes.DateTimeComparator<X>
+    implements Serializable {
+      private static final long serialVersionUID = 6821667653694869403L;
+
       public int compare(X a1, X a2) {
         DateTime d1 = a1.getUpdated();
         DateTime d2 = a2.getUpdated();
@@ -841,7 +845,10 @@ public final class Extra {
   }
   
   static class PublishedComparator<X extends ASObject>
-    extends DateTimes.DateTimeComparator<X> {
+    extends DateTimes.DateTimeComparator<X>
+    implements Serializable {
+      private static final long serialVersionUID = -8381760915617994979L;
+
       public int compare(X a1, X a2) {
         return innerCompare(
           a1.getPublished(), 

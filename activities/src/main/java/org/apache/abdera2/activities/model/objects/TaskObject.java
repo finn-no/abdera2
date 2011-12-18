@@ -35,11 +35,11 @@ public class TaskObject extends ASObject {
   }
   
   public <X extends ASObject>X getObject() {
-    return (X) getProperty("for");
+    return this.<X>getProperty("for");
   }
   
   public <X extends ASObject>X getActor() {
-    return (X) getProperty("actor");
+    return this.<X>getProperty("actor");
   }
   
   public Iterable<String> getSupersedes() {

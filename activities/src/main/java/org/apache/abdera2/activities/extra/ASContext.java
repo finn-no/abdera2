@@ -40,7 +40,7 @@ import org.apache.abdera2.common.templates.AbstractContext;
 public final class ASContext 
   extends AbstractContext {
   private static final long serialVersionUID = 4445623432125049535L;
-  private final ASBase base;
+  private final transient ASBase base;
   
   public static ASContext create(ASBase base) {
     return new ASContext(base);

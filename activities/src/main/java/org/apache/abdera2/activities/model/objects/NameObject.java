@@ -127,7 +127,7 @@ public class NameObject
       return (M)this;
     }
     public M pronunciationUrl(String fn) {
-      return pronunciationUrl(fn);
+      return pronunciationUrl(new IRI(fn));
     }
     public M pronunciationUrl(IRI fn) {
       set("pronunciationUrl",fn);
