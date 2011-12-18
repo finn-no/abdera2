@@ -655,12 +655,9 @@ public class RssItem extends ExtensibleElementWrapper implements Entry, IRIEleme
       return person;
     }
     
-    @SuppressWarnings("unused")
     private boolean is_empty(List<?> list) {
       if (list == null) return true;
-      for (Object o : list)
-        return false;
-      return true;
+      return list.isEmpty();
     }
     
     public List<Person> getAuthorsInherited() {

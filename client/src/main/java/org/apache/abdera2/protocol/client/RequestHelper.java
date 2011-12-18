@@ -90,8 +90,8 @@ public final class RequestHelper {
           httpMethod = new HttpOptions(uri);
         else if (m == TRACE)
           httpMethod = new HttpTrace(uri);
-        else if (m == PATCH)
-          httpMethod = new ExtensionRequest(m.name(),uri,entity);
+//        else if (m == PATCH)
+//          httpMethod = new ExtensionRequest(m.name(),uri,entity);
         else
           httpMethod = new ExtensionRequest(m.name(),uri,entity);
         if (actual != null) {

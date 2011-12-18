@@ -35,6 +35,11 @@ public interface Client {
   public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 100;
   public static final int DEFAULT_MAX_REDIRECTS = 10;
   public static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 2;
+  
+  // note... findbugs rightfully flags this as a possible bug 
+  // because it's a superclass referencing a static method on 
+  // a subclass, but because of the way the codes written, things
+  // work out.
   public static final String DEFAULT_USER_AGENT = BasicClient.getDefaultUserAgent();
 
   <T extends Client>T addRequestInterceptor(HttpRequestInterceptor i,

@@ -44,7 +44,7 @@ public class RssSkipDays extends ExtensibleElementWrapper {
         for (Element d : days) {
             try {
                 Day check = Day.valueOf(d.getText().toUpperCase());
-                if (d.equals(check))
+                if (day.equals(check))
                     return true;
             } catch (Exception e) {
             }

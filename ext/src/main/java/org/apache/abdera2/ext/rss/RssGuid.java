@@ -60,7 +60,8 @@ public class RssGuid extends ExtensibleElementWrapper implements IRIElement, Lin
     public boolean isPermalink() {
         String v = getAttributeValue("isPermaLink");
         if (v == null)
-            getAttributeValue("ispermalink");
+          v = getAttributeValue("ispermalink");
+        if (v == null) return false;
         return (v.equalsIgnoreCase("true") || v.equalsIgnoreCase("yes"));
     }
 

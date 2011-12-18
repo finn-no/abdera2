@@ -268,7 +268,7 @@ public abstract class AbstractMultipartCollectionAdapter
         return false;
     }
 
-    protected class MultipartRelatedPost {
+    protected static class MultipartRelatedPost {
         private final Document<Entry> entry;
         private final InputStream data;
         private final Map<String, String> entryHeaders;

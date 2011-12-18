@@ -26,6 +26,7 @@ import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Source;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 /**
  * Implementation of the Atom License Extension, RFC 4946
@@ -59,12 +60,9 @@ public final class LicenseHelper {
         return links == null ? Collections.EMPTY_SET : links;
     }
 
-    @SuppressWarnings("unused")
     private static boolean contains(Iterable<Link> list) {
       if (list == null) return false;
-      for (Link link : list)
-        return true;
-      return false;
+      return !Iterables.isEmpty(list);
     }
     
     public static Iterable<Link> getLicense(Base base) {
@@ -144,9 +142,7 @@ public final class LicenseHelper {
 
     public static boolean hasLicense(Base base, boolean inherited) {
         Iterable<Link> links = getLicense(base, inherited);
-        for (@SuppressWarnings("unused") Link link : links)
-          return true; // if there's one... we're good
-        return false;
+        return !Iterables.isEmpty(links);
     }
 
     public static boolean hasLicense(Base base) {

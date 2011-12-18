@@ -52,7 +52,7 @@ public class JSONFilter implements Task<RequestContext,ResponseContext> {
         return ProviderHelper.isPreferred(request, "application/json", type);
     }
 
-    private class JsonResponseContext extends ResponseContextWrapper {
+    private static class JsonResponseContext extends ResponseContextWrapper {
 
         private final Abdera abdera;
 

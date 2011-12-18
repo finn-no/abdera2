@@ -53,6 +53,8 @@ import org.apache.abdera2.model.TextValue;
 import org.apache.abdera2.model.Workspace;
 import org.apache.abdera2.xpath.XPath;
 
+import com.google.common.collect.Iterables;
+
 public class JSONUtil {
 
     public static void toJson(Base base, Writer writer) throws IOException {
@@ -524,9 +526,7 @@ public class JSONUtil {
     }
 
     private static boolean is_empty(Iterable<?> list) {
-      for (@SuppressWarnings("unused") Object obj : list)
-        return false;
-      return true;
+      return Iterables.isEmpty(list);
     }
     
     private static boolean writeList(String name, Iterable<?> list, JSONStream jstream) throws IOException {
