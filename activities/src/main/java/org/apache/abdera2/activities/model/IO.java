@@ -58,6 +58,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  * is to use two separate IO instances each configured with the 
  * appropriate property and object type mappings.
  */
+@SuppressWarnings("unchecked")
 public abstract class IO {
 
   @DefaultImplementation("org.apache.abdera2.activities.io.gson.GsonIO.Builder")
@@ -163,7 +164,6 @@ public abstract class IO {
     }
   }
   
-  @SuppressWarnings("unchecked")
   public <T extends ASBase>T read(InputStream in, String charset) {
     try {
       return (T)read(new InputStreamReader(in,charset));
@@ -190,7 +190,7 @@ public abstract class IO {
       throw new RuntimeException(t);
     }
   }
-  @SuppressWarnings("unchecked")
+
   public <T extends ASObject> T readObject(InputStream in, String charset) {
     try {
       return (T)readObject(new InputStreamReader(in,charset));
