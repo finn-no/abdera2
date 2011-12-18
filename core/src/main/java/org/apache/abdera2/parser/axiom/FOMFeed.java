@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.parser.axiom;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -160,8 +161,10 @@ public class FOMFeed extends FOMSource implements Feed {
         return this;
     }
 
-    private static class EditedComparator implements Comparator<Entry> {
-        private boolean new_first = true;
+    private static class EditedComparator 
+      implements Comparator<Entry>, Serializable {
+        private static final long serialVersionUID = -6721982957226015713L;
+        private final boolean new_first;
 
         EditedComparator(boolean new_first) {
             this.new_first = new_first;
@@ -185,8 +188,10 @@ public class FOMFeed extends FOMSource implements Feed {
         }
     };
 
-    private static class UpdatedComparator implements Comparator<Entry> {
-        private boolean new_first = true;
+    private static class UpdatedComparator 
+      implements Comparator<Entry>, Serializable {
+        private static final long serialVersionUID = 8969184110080320529L;
+        private final boolean new_first;
 
         UpdatedComparator(boolean new_first) {
             this.new_first = new_first;

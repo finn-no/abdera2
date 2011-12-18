@@ -227,6 +227,6 @@ public class FOMExtensibleElement extends FOMElement implements ExtensibleElemen
       QName qname = AnnoUtil.getQName(_class);
       if (qname == null)
         throw new IllegalArgumentException();
-      return (T)addExtension(_class,before);
+      return (T)addExtension(qname,before);
     }
 }

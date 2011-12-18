@@ -123,13 +123,15 @@ public class FOMMultipartCollection extends FOMCollection {
         if (mediaRanges != null) {
             for (Map.Entry<String, String> entry : mediaRanges.entrySet()) {
                 if (!accepts(entry.getKey())) {
-                    try {
-                        Element accept = addSimpleExtension(ACCEPT, new MimeType(entry.getKey()).toString());
-                        if (entry.getValue() != null) {
-                            accept.setAttributeValue(ALTERNATE, entry.getValue());
-                        }
-                    } catch (Exception e) {
-                    }
+                    Element accept = 
+                      addSimpleExtension(
+                        ACCEPT,
+                        MimeTypeHelper.create(
+                          entry.getKey()).toString());
+                    if (entry.getValue() != null)
+                      accept.setAttributeValue(
+                        ALTERNATE, 
+                        entry.getValue());
                 }
             }
         }

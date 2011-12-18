@@ -802,7 +802,7 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             writeTo("prettyxml", out);
             return new String(out.toByteArray(), "UTF-8");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return toString();
         }
     }

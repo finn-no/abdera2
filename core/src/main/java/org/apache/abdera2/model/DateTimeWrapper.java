@@ -92,12 +92,12 @@ public abstract class DateTimeWrapper extends ElementWrapper implements DateTime
 
     public Calendar getCalendar() {
         org.joda.time.DateTime ad = getValue();
-        return (ad != null) ? ad.toCalendar(Locale.getDefault()) : null;
+        return ad != null ? ad.toCalendar(Locale.getDefault()) : null;
     }
 
     public long getTime() {
         org.joda.time.DateTime ad = getValue();
-        return (ad != null) ? ad.getMillis() : null;
+        return ad != null ? ad.getMillis() : 0;
     }
 
     public String getString() {

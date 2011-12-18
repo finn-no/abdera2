@@ -55,6 +55,8 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
 
+import com.google.common.collect.Iterables;
+
 import static com.google.common.base.Preconditions.*;
 
 @SuppressWarnings({"deprecation","rawtypes"})
@@ -101,12 +103,9 @@ public class FOMEntry extends FOMExtensibleElement implements Entry {
       return person;
     }
     
-    @SuppressWarnings("unused")
     private boolean is_empty(List<?> list) {
       if (list == null) return true;
-      for (Object o : list)
-        return false;
-      return true;
+      return list.isEmpty();
     }
     
     public List<Person> getAuthorsInherited() {

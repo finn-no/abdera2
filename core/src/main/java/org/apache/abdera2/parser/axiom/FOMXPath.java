@@ -86,20 +86,22 @@ public class FOMXPath extends AbstractXPath {
     private static FunctionContext getFunctionContext(Map<QName, Function> functions, SimpleFunctionContext context) {
         if (context == null)
             context = new SimpleFunctionContext();
-        for (QName qname : functions.keySet()) {
-            Function function = functions.get(qname);
-            context.registerFunction(qname.getNamespaceURI(), qname.getLocalPart(), function);
-        }
+        for (Map.Entry<QName,Function> qname : functions.entrySet())
+          context.registerFunction(
+            qname.getKey().getNamespaceURI(), 
+            qname.getKey().getLocalPart(), 
+            qname.getValue());
         return context;
     }
 
     private static VariableContext getVariableContext(Map<QName, Object> variables, SimpleVariableContext context) {
         if (context == null)
             context = new SimpleVariableContext();
-        for (QName qname : variables.keySet()) {
-            Object value = variables.get(qname);
-            context.setVariableValue(qname.getNamespaceURI(), qname.getLocalPart(), value);
-        }
+        for (Map.Entry<QName,Object> entry : variables.entrySet())
+          context.setVariableValue(
+            entry.getKey().getNamespaceURI(), 
+            entry.getKey().getLocalPart(), 
+            entry.getValue());
         return context;
     }
 
@@ -248,7 +250,7 @@ public class FOMXPath extends AbstractXPath {
         return numericValueOf(path, base, namespaces, functions, variables);
     }
 
-    public Map<QName, Function> getDefaultFunctions() {
+    public synchronized Map<QName, Function> getDefaultFunctions() {
         return new HashMap<QName, Function>(functions);
     }
 
@@ -257,7 +259,7 @@ public class FOMXPath extends AbstractXPath {
         this.functions.putAll(functions);
     }
 
-    public Map<QName, Object> getDefaultVariables() {
+    public synchronized Map<QName, Object> getDefaultVariables() {
         return new HashMap<QName, Object>(variables);
     }
 

@@ -36,6 +36,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMXMLParserWrapper;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class FOMDiv extends FOMExtensibleElement implements Div {
 
@@ -116,7 +117,7 @@ public class FOMDiv extends FOMExtensibleElement implements Div {
             } catch (Exception e) {
             }
             List<Object> list = new ArrayList<Object>();
-            for (Iterator<?> i = element.getChildren(); i.hasNext();)
+            for (Iterator<?> i = checkNotNull(element).getChildren(); i.hasNext();)
                 list.add(i.next());
             for (Object o : list) {
               OMNode node = (OMNode)o;
@@ -137,7 +138,8 @@ public class FOMDiv extends FOMExtensibleElement implements Div {
             }
             writer.writeEndElement(); 
             return out.getBuffer().toString().substring(2);
-        } catch (Exception e) {
+        } catch (Throwable e) {
+          // ok to ignore
         }
         return "";
     }

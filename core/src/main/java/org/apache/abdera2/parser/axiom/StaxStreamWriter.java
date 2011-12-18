@@ -298,8 +298,7 @@ public class StaxStreamWriter extends AbstractStreamWriter {
                 writer.writeAttribute(prefix, namespace, name, value);
             } else if (namespace != null) {
                 if (!namespace.equals(Constants.XML_NS))
-                    ;
-                writeNamespace(prefix, namespace, true);
+                  writeNamespace(prefix, namespace, true);
                 writer.writeAttribute(namespace, name, value);
             } else {
                 writer.writeAttribute(name, value);

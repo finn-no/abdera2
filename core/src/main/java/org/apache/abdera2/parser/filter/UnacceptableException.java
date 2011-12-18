@@ -3,6 +3,7 @@ package org.apache.abdera2.parser.filter;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UnacceptableException extends RuntimeException {
 
@@ -31,11 +32,11 @@ public class UnacceptableException extends RuntimeException {
     else if (attribute == null)
       return String.format(
         "Unacceptable element [%s]", 
-        element.toString());
+        checkNotNull(element).toString());
     else 
       return String.format(
         "Unacceptable element [%s,%s]", 
-        element.toString(), 
+        checkNotNull(element).toString(), 
         attribute.toString());
   }
 

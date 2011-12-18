@@ -45,7 +45,7 @@ public abstract class AbstractWriter implements Writer {
         this.formats.add(format);
     }
 
-    public WriterOptions getDefaultWriterOptions() {
+    public synchronized WriterOptions getDefaultWriterOptions() {
         if (options == null)
             options = initDefaultWriterOptions();
 
