@@ -35,7 +35,7 @@ public abstract class AbstractWorkspaceManager
       new LinkedHashSet<WorkspaceInfo>();
     public static final String COLLECTION_ADAPTER_ATTRIBUTE = "collectionProvider";
 
-    public Collection<WorkspaceInfo> getWorkspaces(RequestContext request) {
+    public synchronized Collection<WorkspaceInfo> getWorkspaces(RequestContext request) {
         return workspaces;
     }
 

@@ -117,7 +117,7 @@ public final class IsoPosition
       Integer m1, 
       Integer s1, 
       Double f1) {
-    double d = Math.abs(d1);
+    double d = d1 != null ? Math.abs(d1) : 0;
     double m = m1 != null ? m1 : 0.0;
     double s = s1 != null ? s1 : 0.0;
     if (s1 != null && f1 != null)
@@ -127,7 +127,7 @@ public final class IsoPosition
     else if (f1 != null)
       d += f1;
     double ret = d + (m/60) + (s/3600);
-    return d1 < 0 ? -ret : ret;
+    return d1 != null && d1 < 0 ? -ret : ret;
   }
   
   public static IsoPosition parse(String val) {

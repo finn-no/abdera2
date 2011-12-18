@@ -20,7 +20,7 @@ public class RequestTemplateContext
 
   private static final long serialVersionUID = 4332356546022014897L;
 
-  private final RequestContext request;
+  private final transient RequestContext request;
 
   public RequestTemplateContext(
     RequestContext request, 

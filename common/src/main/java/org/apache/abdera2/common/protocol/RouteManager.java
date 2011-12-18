@@ -267,5 +267,37 @@ public class RouteManager<T,X extends RequestContext,R>
                 names.add(name);
             return names;
         }
+
+        @Override
+        public int hashCode() {
+          final int prime = 31;
+          int result = super.hashCode();
+          result = prime * result + ((params == null) ? 0 : params.hashCode());
+          result = prime * result + ((route == null) ? 0 : route.hashCode());
+          return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+          if (this == obj)
+            return true;
+          if (!super.equals(obj))
+            return false;
+          if (getClass() != obj.getClass())
+            return false;
+          RouteTarget other = (RouteTarget) obj;
+          if (params == null) {
+            if (other.params != null)
+              return false;
+          } else if (!params.equals(other.params))
+            return false;
+          if (route == null) {
+            if (other.route != null)
+              return false;
+          } else if (!route.equals(other.route))
+            return false;
+          return true;
+        }
+       
     }
 }

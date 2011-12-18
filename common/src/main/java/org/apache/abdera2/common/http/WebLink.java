@@ -375,9 +375,9 @@ public class WebLink implements Serializable {
     buf.append('<')
        .append(iri.toASCIIString())
        .append('>');
-    appendif(anchor != null,buf,";anchor=<%s>",anchor.toASCIIString());
-    appendif(lang != null,buf,";hreflang=%s",lang.toString());
-    appendif(mediaType != null,buf,";type=%s",quotedIfNotToken(mediaType.toString()));
+    appendif(anchor != null,buf,";anchor=<%s>",anchor!=null?anchor.toASCIIString():"");
+    appendif(lang != null,buf,";hreflang=%s",lang!=null?lang.toString():"");
+    appendif(mediaType != null,buf,";type=%s",mediaType!=null?quotedIfNotToken(mediaType.toString()):"");
     append(rel,"rel",buf);
     append(rev,"rev",buf);
     append(media,"media",buf);

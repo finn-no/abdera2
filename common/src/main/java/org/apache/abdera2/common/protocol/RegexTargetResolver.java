@@ -69,10 +69,8 @@ public class RegexTargetResolver<R extends RequestContext>
 
     public RegexTargetResolver(Map<String, TargetType> patterns) {
         this.patterns = new HashMap<Pattern, TargetType>();
-        for (String p : patterns.keySet()) {
-            TargetType type = patterns.get(p);
-            setPattern(p, type);
-        }
+        for (Map.Entry<String,TargetType> entry : patterns.entrySet())
+            setPattern(entry.getKey(), entry.getValue());
     }
 
     public RegexTargetResolver<R> setPattern(String pattern, TargetType type) {

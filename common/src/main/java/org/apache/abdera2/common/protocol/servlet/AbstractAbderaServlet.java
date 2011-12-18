@@ -111,7 +111,9 @@ public abstract class AbstractAbderaServlet
                 MimeType ct = context.getContentType();
                 if (ct != null)
                     response.setContentType(ct.toString());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              // ok to ignore the error
+            }
             Iterable<String> names = context.getHeaderNames();
             for (String name : names) {
                 Iterable<Object> headers = context.getHeaders(name);

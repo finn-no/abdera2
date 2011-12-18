@@ -339,8 +339,9 @@ public final class UrlEncoding {
     }
 
     public static String decode(String e, String enc) throws UnsupportedEncodingException {
+      DecodingInputStream r = null;
       try {
-        DecodingInputStream r = new DecodingInputStream(e.getBytes(enc));
+        r = new DecodingInputStream(e.getBytes(enc));
         StringBuilder builder = new StringBuilder();
         byte[] buf = new byte[100];
         int i = -1;
@@ -349,6 +350,12 @@ public final class UrlEncoding {
         return builder.toString();
       } catch (IOException i) {
         throw new RuntimeException(i);
+      } finally {
+        try {
+          if (r != null) r.close();
+        } catch (IOException t) {
+          // ok to ignore
+        }
       }
     }
 

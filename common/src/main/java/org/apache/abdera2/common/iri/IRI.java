@@ -473,13 +473,13 @@ public final class IRI implements Serializable, Cloneable {
     private static String resolve(String bpath, String cpath) {
         if (bpath == null && cpath == null)
             return null;
-        if (bpath == null && cpath != null) {
+        if (bpath == null && cpath != null)
             return (!cpath.startsWith("/")) ? "/" + cpath : cpath;
-        }
         if (bpath != null && cpath == null)
             return bpath;
-        if (bpath.equals(cpath))
+        if (bpath != null && bpath.equals(cpath))
           return bpath;
+        if (bpath == null) return null;
         StringBuilder buf = new StringBuilder("");
         int n = bpath.lastIndexOf('/');
         if (n > -1)

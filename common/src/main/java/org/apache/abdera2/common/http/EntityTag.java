@@ -33,6 +33,7 @@ import org.apache.abdera2.common.text.UrlEncoding;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 
 import static com.google.common.base.Preconditions.*;
 import static org.apache.abdera2.common.text.CharUtils.*;
@@ -145,10 +146,8 @@ public class EntityTag
         return matchesAny(tag1, tags, false);
     }
 
-    @SuppressWarnings("unused")
     private static boolean empty(Iterable<EntityTag> tags) {
-      for (EntityTag e : tags) return false;
-      return true;
+      return Iterables.isEmpty(tags);
     }
     
     public static boolean matchesAny(EntityTag tag1, Iterable<EntityTag> tags, boolean weak) {

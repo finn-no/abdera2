@@ -92,26 +92,29 @@ public class SimpleSubjectResolver
 
     }
 
-    public static final class AnonymousPrincipal implements Principal, Serializable {
+    final static String name = "Anonymous";
+    public static final class AnonymousPrincipal 
+      implements Principal, Serializable {
         private static final long serialVersionUID = -5050930075733261944L;
-        final String name = "Anonymous";
-
         public String getName() {
-            return name;
+          return name;
         }
-
         public String toString() {
-            return name;
+          return name;
         }
-
-        public boolean equals(Object other) {
-            if (other == null)
-                return false;
-            return this == other;
-        }
-
         public int hashCode() {
           return MoreFunctions.genHashCode(1, name);
         }
+        @Override
+        public boolean equals(Object obj) {
+          if (this == obj)
+            return true;
+          if (obj == null)
+            return false;
+          if (getClass() != obj.getClass())
+            return false;
+          return true;
+        }
+        
     }
 }

@@ -42,7 +42,9 @@ public class XmlVersionInputStream extends FilterInputStream {
       this.peek_ahead = peek_ahead;
       try {
         version = detectVersion();
-      } catch (IOException e) {}
+      } catch (IOException e) {
+        // ok to ignore the error, we'll assume the default
+      }
     }
     
     public XmlVersionInputStream(InputStream in) {
@@ -65,7 +67,8 @@ public class XmlVersionInputStream extends FilterInputStream {
             String v = xmlreader.getVersion();
             if (v != null)
                 version = v;
-        } catch (Exception e) {
+        } catch (Throwable e) {
+          // ok to ignore the error, we'll assume the default
         }
         return XMLVersion.get(version);
     }

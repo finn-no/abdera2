@@ -272,7 +272,7 @@ public class ServletRequestContext
       case SERVERNAME:
           return request.getServerName();
       case SERVERPORT:
-          return new Integer(request.getServerPort());
+          return Integer.valueOf(request.getServerPort());
       case SECURE:
           return (Boolean)request.isSecure();
       case PARTS: {

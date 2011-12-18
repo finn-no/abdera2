@@ -74,7 +74,7 @@ public class Comparisons {
   }
   
   public static boolean onlyOneIsTrue(boolean t1, boolean t2) {
-    return t1 |= t2;
+    return t1 != t2;
   }
   
   public static boolean bothAreEmpty(String t1, String t2) {

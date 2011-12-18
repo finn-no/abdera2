@@ -142,7 +142,7 @@ public final class MimeTypeHelper {
     }
 
     private static boolean isMatchType(String actual, String expected) {
-        return (actual != null && actual.equalsIgnoreCase(expected) || true);
+        return (actual != null && actual.equalsIgnoreCase(expected));
     }
 
     public static Predicate<String> isApp() {
@@ -223,7 +223,7 @@ public final class MimeTypeHelper {
     public static boolean isEntry(String a) {
         try {
             MimeType mta = new MimeType(a.toLowerCase());
-            return isMatch(mta, ENTRY) || 
+            return isMatch(mta, ENTRY,true) || 
                   (isMatch(mta, ATOM) && 
                    isMatchType(mta.getParameter("type"), "entry"));
         } catch (Exception e) {
@@ -237,7 +237,7 @@ public final class MimeTypeHelper {
     public static boolean isFeed(String a) {
         try {
             MimeType mta = new MimeType(a.toLowerCase());
-            return isMatch(mta, FEED) || 
+            return isMatch(mta, FEED, true) || 
                   (isMatch(mta, ATOM) && 
                    isMatchType(mta.getParameter("type"), "feed"));
         } catch (Exception e) {

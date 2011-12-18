@@ -127,6 +127,7 @@ public class AbderaTask {
                     response.setContentType(ct.toString());
                 }
             } catch (Exception e) {
+              // ok to ignore the error
             }
             Iterable<String> names = context.getHeaderNames();
             for (String name : names) {

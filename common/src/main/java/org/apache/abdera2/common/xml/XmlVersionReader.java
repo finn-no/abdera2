@@ -59,7 +59,8 @@ public class XmlVersionReader extends PushbackReader {
             if (v != null)
                 version = v;
             unread(p, 0, r);
-        } catch (Exception e) {
+        } catch (Throwable e) {
+          // ok to ignore the error... we'll just assume the default
         }
         return XMLVersion.get(version);
     }

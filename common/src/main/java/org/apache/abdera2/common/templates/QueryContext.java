@@ -140,7 +140,7 @@ public class QueryContext extends MapContext  {
   }
   
   public static String baseFromQuery(String query) {
-    IRI iri = new IRI(checkNotNull(query));
+    IRI iri = new IRI(checkNotNull(query)).normalize();
     String s = iri.resolve(iri.getPath()).toString();
     return s;
   }
@@ -163,6 +163,8 @@ public class QueryContext extends MapContext  {
     QueryContext qc = new QueryContext(checkNotNull(query));
     DefaultingContext dc = new DefaultingContext(checkNotNull(context),qc);
     Template temp = QueryContext.templateFromQuery(query, false, qc);
-    return temp.extend(checkNotNull(extender)).expand(dc);
+    return extender != null ?
+      temp.extend(extender).expand(dc) :
+      temp.expand(dc);
   }
 }

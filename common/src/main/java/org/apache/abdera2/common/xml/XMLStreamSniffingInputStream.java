@@ -50,7 +50,8 @@ public class XMLStreamSniffingInputStream extends CharsetSniffingInputStream {
               String cs = xmlreader.getCharacterEncodingScheme();
               if (cs != null)
                   charset = cs;
-          } catch (Exception e) {
+          } catch (Throwable e) {
+            // Ok to ignore the exception
           }
         }
         return charset;

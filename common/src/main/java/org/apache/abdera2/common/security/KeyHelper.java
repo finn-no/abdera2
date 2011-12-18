@@ -61,6 +61,7 @@ public final class KeyHelper {
         if (in == null)
             in = new FileInputStream(file);
         ks.load(in, pass.toCharArray());
+        in.close();
         return ks;
     }
 
@@ -71,6 +72,7 @@ public final class KeyHelper {
         if (in == null)
             in = new FileInputStream(file);
         ks.load(in, pass.toCharArray());
+        in.close();
         return ks;
     }
 

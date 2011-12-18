@@ -63,7 +63,7 @@ public abstract class AbstractWorkspaceProvider
         this.targetResolver = targetResolver;
     }
 
-    public Collection<WorkspaceInfo> getWorkspaces(RequestContext request) {
+    public synchronized Collection<WorkspaceInfo> getWorkspaces(RequestContext request) {
         return workspaces;
     }
 

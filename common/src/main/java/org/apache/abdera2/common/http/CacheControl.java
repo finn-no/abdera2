@@ -130,7 +130,7 @@ public final class CacheControl implements Serializable {
     
     public Builder extension(String name) {
       checkReserved(name);
-      exts.put(name.toLowerCase(Locale.US),null);
+      exts.put(name.toLowerCase(Locale.US),"");
       return this;
     }
     

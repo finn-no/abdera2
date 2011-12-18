@@ -336,7 +336,7 @@ public final class Range
               current = Subtag.simple(name, current);
             }
           }
-          return new Range(primary);
+          return new Range(checkNotNull(primary));
         } else {
             Subtag primary = null;
             Matcher m = p_grandfathered.matcher(range);
