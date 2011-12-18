@@ -366,14 +366,14 @@ public class EntityTag
       };
     }
     
-    public static Function<String, EntityTag> parser = 
+    public final static Function<String, EntityTag> parser = 
       new Function<String,EntityTag>() {
         public EntityTag apply(String input) {
           return input != null ? parse(input) : null;
         }
     };
     
-    public static Function<String, Iterable<EntityTag>> parseMultiple = 
+    public final static Function<String, Iterable<EntityTag>> parseMultiple = 
       new Function<String,Iterable<EntityTag>>() {
         public Iterable<EntityTag> apply(String input) {
           return input != null ? 

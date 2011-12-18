@@ -34,7 +34,7 @@ public class MyActivitiesAdapter extends BasicAdapter {
 
     private static final String ERROR_INVALID_ENTRY = "No Such Entry in the Feed";
 
-    public static Logger logger = Logger.getLogger(MyActivitiesAdapter.class.getName());
+    public final static Logger logger = Logger.getLogger(MyActivitiesAdapter.class.getName());
     protected List<Item> entries = new LinkedList<Item>();
 
     private static class Item {

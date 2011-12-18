@@ -61,7 +61,7 @@ import static com.google.common.collect.Maps.filterEntries;
 public class ASBase 
   implements Iterable<String>, Cloneable {
   
-  public static Logger log = Logger.getLogger(ASBase.class.getName());
+  public final static Logger log = Logger.getLogger(ASBase.class.getName());
   
   public static ASBuilder make() {
     return new ASBuilder();

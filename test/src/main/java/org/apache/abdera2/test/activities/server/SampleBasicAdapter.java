@@ -33,7 +33,7 @@ public class SampleBasicAdapter extends BasicAdapter {
 
     private static final String ERROR_INVALID_ENTRY = "No Such Entry in the Feed";
 
-    public static Logger logger = Logger.getLogger(SampleBasicAdapter.class.getName());
+    public final static Logger logger = Logger.getLogger(SampleBasicAdapter.class.getName());
     protected List<Item> entries = new LinkedList<Item>();
 
     private static class Item {

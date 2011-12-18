@@ -43,7 +43,7 @@ import com.google.common.base.Function;
  */
 public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
-    public static Logger logger = 
+    public final static Logger logger = 
       Logger.getLogger(BasicAdapter.class.getName());
 
     protected BasicAdapter(Abdera abdera, FeedConfiguration config) {

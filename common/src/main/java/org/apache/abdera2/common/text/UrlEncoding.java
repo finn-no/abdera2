@@ -43,7 +43,7 @@ import com.google.common.base.Function;
 public final class UrlEncoding {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
-    public final static char[] HEX = 
+    private final static char[] HEX = 
       {'0', '1', '2', '3', '4', '5', '6', '7', 
        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 

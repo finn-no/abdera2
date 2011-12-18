@@ -39,7 +39,7 @@ public class SampleBasicAdapter extends BasicAdapter {
     private static final String ERROR_DUP_ENTRY = "Entry Already Exists";
     private static final String ERROR_INVALID_ENTRY = "No Such Entry in the Feed";
 
-    public static Logger logger = Logger.getLogger(SampleBasicAdapter.class.getName());
+    public final static Logger logger = Logger.getLogger(SampleBasicAdapter.class.getName());
     protected HashMap<String, byte[]> entries = new HashMap<String, byte[]>();
 
     public SampleBasicAdapter(Abdera abdera, FeedConfiguration config) {

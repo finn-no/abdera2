@@ -31,10 +31,10 @@ import org.apache.abdera2.common.protocol.CollectionAdapter;
 
 public class CollectionAdapterManager {
 
-    public static Logger logger = Logger.getLogger(CollectionAdapterManager.class.getName());
+    public final static Logger logger = Logger.getLogger(CollectionAdapterManager.class.getName());
 
     // maps a feed id to an adapter instance
-    protected static Map<String, CollectionAdapter> adapterInstanceMap = 
+    protected final static Map<String, CollectionAdapter> adapterInstanceMap = 
       new HashMap<String, CollectionAdapter>();
 
     protected final Abdera abdera;

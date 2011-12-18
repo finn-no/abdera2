@@ -374,6 +374,18 @@ public final class MoreFunctions {
     }
     return list.build();
   }
+
+  public static <T,X>Set<X> seteach(T[] i, Function<T,X> apply) {
+    ImmutableSet.Builder<X> list = ImmutableSet.builder();
+    for (T t : i) {
+      try {
+        list.add(apply.apply(t));
+      } catch (Throwable e) {
+        throw ExceptionHelper.propogate(e);
+      }
+    }
+    return list.build();
+  }
   
   public static <T,X>Iterable<X> each(Iterable<T> i, Function<T,X> apply, Predicate<T> test) {
     ImmutableList.Builder<X> list = ImmutableList.builder();

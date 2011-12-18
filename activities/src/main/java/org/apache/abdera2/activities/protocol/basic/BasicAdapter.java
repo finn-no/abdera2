@@ -53,7 +53,7 @@ import static org.apache.abdera2.common.protocol.ProviderHelper.*;
 @SuppressWarnings("unchecked")
 public abstract class BasicAdapter extends ManagedCollectionAdapter {
 
-    public static Logger logger = Logger.getLogger(BasicAdapter.class.getName());
+    public final static Logger logger = Logger.getLogger(BasicAdapter.class.getName());
 
     protected BasicAdapter(FeedConfiguration config) {
         super(config);

@@ -55,7 +55,7 @@ class AbderaResponseHandler
   
   public AbderaResponseHandler(Abdera abdera, ParserOptions options) {
     this.abdera = abdera;
-    this.options = null;
+    this.options = options;
   }
   
   public Document<? extends Element> handleResponse(HttpResponse response) throws ClientProtocolException,

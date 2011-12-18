@@ -209,7 +209,7 @@ public abstract class AbstractCollectionAdapter
         }
     };
     
-    public static Predicate<RequestContext> HAS_NO_ENTITY = 
+    public final static Predicate<RequestContext> HAS_NO_ENTITY = 
       new Predicate<RequestContext>() {
         public boolean apply(RequestContext input) {
           String method = input.getMethod();

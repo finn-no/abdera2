@@ -93,7 +93,7 @@ public class ExtensionIterator implements Iterator<Element> {
 
     private boolean isQNamesMatch(QName elementQName, String namespace) {
         String elns = elementQName == null ? "" : elementQName.getNamespaceURI();
-        boolean namespaceURIMatch = (namespace == null) || (namespace == "") || elns.equals(namespace);
+        boolean namespaceURIMatch = (namespace == null) || ("".equals(namespace)) || elns.equals(namespace);
         if (!namespaceURIMatch && extns != null && !elns.equals(extns))
             return false;
         else

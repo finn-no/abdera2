@@ -121,7 +121,7 @@ public class FOMBuilder extends StAXOMBuilder implements Constants {
             ctype = Content.Type.typeFromString(type);
             if (ctype == null)
                 throw new FOMUnsupportedContentTypeException(type);
-        } else if (type == null && src != null) {
+        } else if (src != null) {
             ctype = Content.Type.MEDIA;
         }
         return ctype;

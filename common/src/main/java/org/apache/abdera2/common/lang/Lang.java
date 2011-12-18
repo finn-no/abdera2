@@ -20,10 +20,13 @@ package org.apache.abdera2.common.lang;
 //import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import static org.apache.abdera2.common.misc.MoreFunctions.*;
 import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -331,17 +334,16 @@ public final class Lang
       return new Lang(Locale.getDefault());
     }
     
-    private static Lang[] available_langs = 
-      each(
+    private final static Set<Lang> available_langs = 
+      MoreFunctions.<Locale,Lang>seteach(
         Locale.getAvailableLocales(), 
         new Function<Locale,Lang>() {
           public Lang apply(Locale input) {
             return new Lang(input);
           }
-        },
-        Lang.class);
+        });
     
-    public static Lang[] getAvailableLangs() {
+    public static Set<Lang> getAvailableLangs() {
       return available_langs;
     }
     

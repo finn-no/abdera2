@@ -111,7 +111,7 @@ public final class MorePredicates {
     return in(_class,method,Arrays.asList(items));
   }
   
-  public static Selector<Long> longNotNegativeOrNull = 
+  public final static Selector<Long> longNotNegativeOrNull = 
     new AbstractSelector<Long>() {
       public boolean select(Object item) {
         if (item == null) return false;
@@ -121,7 +121,7 @@ public final class MorePredicates {
       }
   };
   
-  public static Selector<Integer> intNotNegativeOrNull = 
+  public final static Selector<Integer> intNotNegativeOrNull = 
     new AbstractSelector<Integer>() {
       public boolean select(Object item) {
         if (item == null) return false;
@@ -131,7 +131,7 @@ public final class MorePredicates {
       }
   };
   
-  public static Selector<Short> shortNotNegativeOrNull = 
+  public final static Selector<Short> shortNotNegativeOrNull = 
     new AbstractSelector<Short>() {
       public boolean select(Object item) {
         if (item == null) return false;

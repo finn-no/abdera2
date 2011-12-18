@@ -240,7 +240,7 @@ public class ServletRequestContext
       case SESSIONACCESSED:
           return (session != null) ? new Date(session.getLastAccessedTime()) : null;
       case SESSIONTIMEOUT:
-          return (session != null) ? new Integer(session.getMaxInactiveInterval()) : new Integer((-1));
+          return (session != null) ? Integer.valueOf(session.getMaxInactiveInterval()) : Integer.valueOf((-1));
       case CHARACTERENCODING:
           return request.getCharacterEncoding();
       case LOCALES:

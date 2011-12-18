@@ -201,7 +201,7 @@ public final class Jwt {
   }
   
   public static byte[] getDataIfValid(Key key, String jwt) throws IOException {
-    if (!validate(key,jwt)) return null;
+    if (!validate(key,jwt)) return new byte[0];
     String[] parts = jwt.split("\\.",3);
     return Base64.decodeBase64(parts[1].getBytes("UTF-8"));
   }

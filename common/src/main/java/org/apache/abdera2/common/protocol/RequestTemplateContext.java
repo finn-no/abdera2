@@ -31,7 +31,7 @@ public class RequestTemplateContext
   
   private String[] split(String val) {
       if (val.equals(""))
-          return null;
+          return new String[0];
       String[] segments = val.split("/");
       return segments.length > 0 ? segments : null;
   }
