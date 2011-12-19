@@ -136,6 +136,5 @@ public class AbderaClient extends ClientWrapper {
   public <T extends Session>T newSession() {
     return (T)new AbderaSession(this);
   }
-
   
 }

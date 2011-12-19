@@ -48,10 +48,10 @@ import com.google.common.collect.ImmutableSet;
 public class Preference implements Serializable {
   
   public static final String RETURN_MINIMAL = "return-minimal";
-  public static final String RETURN_ACCEPTED = "return-accepted";
+  public static final String RETURN_ASYNCH = "return-asynch";
   public static final String RETURN_REPRESENTATION = "return-representation";
   public static final String WAIT = "wait";
-  public static final String STRICT= "strict";
+  public static final String STRICT = "strict";
   public static final String LENIENT = "lenient";
   
   public static final Preference PREF_STRICT = new Preference(STRICT);
@@ -73,8 +73,8 @@ public class Preference implements Serializable {
    * the server respond with a 202 Accepted response indicating that the
    * request has been accepted for processing.
    */
-  public static final Preference PREF_RETURN_ACCEPTED =
-    new Preference(RETURN_ACCEPTED);
+  public static final Preference PREF_RETURN_ASYNCH =
+    new Preference(RETURN_ASYNCH);
   
   /**
    * The "return-content" token indicates that the client prefers that the
@@ -364,6 +364,14 @@ public class Preference implements Serializable {
       if (pref.matches(token))
         return true;
     return false;
+  }
+  
+  public static Iterable<Preference> concat(Preference pref, Preference... prefs) {
+    return ImmutableSet
+      .<Preference>builder()
+      .add(pref)
+      .add(prefs)
+      .build();
   }
   
   /**

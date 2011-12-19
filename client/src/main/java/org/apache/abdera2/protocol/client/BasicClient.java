@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.protocol.client;
 
+import java.io.IOException;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +27,9 @@ import java.util.List;
 
 import org.apache.abdera2.common.anno.AnnoUtil;
 import org.apache.abdera2.common.anno.Version;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.auth.AuthScope;
@@ -49,9 +52,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
 
 @Version(value="v2.0-SNAPSHOT",
     name="Abdera",
@@ -559,5 +564,19 @@ public class BasicClient implements Client {
   public static String getDefaultUserAgent() {
     Version version = AnnoUtil.getVersion(BasicClient.class);
     return String.format("%s/%s",version.name(),version.value());
+  }
+  
+  public void includeRequestDateHeader() {
+    this.addRequestInterceptor(
+      new HttpRequestInterceptor() {
+        public void process(
+          HttpRequest request, 
+          HttpContext context)
+            throws HttpException, IOException {
+          request.setHeader(
+            "Date", 
+            DateUtils.formatDate(new Date()));
+        }}, 
+      -1);
   }
 }

@@ -240,5 +240,13 @@ public interface Client {
   <T extends Session>T newSession();
 
   void shutdown();
+  
+  /**
+   * Registers a request interceptor that adds 
+   * the Date header to the request. This header
+   * needs to reflect as accurately as possible
+   * the time when the request is actually sent.
+   */
+  void includeRequestDateHeader();
 
 }

@@ -225,4 +225,8 @@ public abstract class ClientWrapper
     internal.shutdown();
   }
 
+  public void includeRequestDateHeader() {
+    internal.includeRequestDateHeader();
+  }
+
 }
