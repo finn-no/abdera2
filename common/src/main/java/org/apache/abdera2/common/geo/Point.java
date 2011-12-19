@@ -59,7 +59,7 @@ public class Point extends Position {
   
     public static class Builder extends Position.Builder<Point> {
 
-      private Coordinate coordinate;
+      Coordinate coordinate;
       
       public Builder at(Coordinate coordinate) {
         this.coordinate = coordinate;
@@ -91,7 +91,7 @@ public class Point extends Position {
 
     private final Coordinate coordinate;
 
-    private Point(Builder builder) {
+    Point(Builder builder) {
       super(builder);
       this.coordinate = builder.coordinate;
     }

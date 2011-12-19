@@ -33,9 +33,9 @@ public class SimpleCategoryInfo implements AtompubCategoryInfo, Serializable {
     }
   
     public static class Generator implements Supplier<AtompubCategoryInfo> {
-      private String label;
-      private String term;
-      private String scheme;
+      String label;
+      String term;
+      String scheme;
       public Generator label(String label) {
         this.label = label;
         return this;

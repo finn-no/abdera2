@@ -108,7 +108,7 @@ public class CharsetSniffingInputStream extends FilterInputStream {
         return (PeekAheadInputStream)in;
     }
 
-    private static boolean equals(byte[] a1, int len, byte[] a2) {
+    static boolean equals(byte[] a1, int len, byte[] a2) {
         for (int n = 0, i = 0; n < len; n++, i++) {
             if (a1[n] != a2[i])
                 return false;

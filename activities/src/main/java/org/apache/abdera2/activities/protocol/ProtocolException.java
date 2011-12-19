@@ -20,6 +20,8 @@ package org.apache.abdera2.activities.protocol;
 import org.apache.abdera2.activities.model.objects.ErrorObject;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
+import static org.apache.abdera2.activities.model.objects.ErrorObject.makeError;
+
 public class ProtocolException extends RuntimeException {
 
     private static final long serialVersionUID = 1017447143200419489L;
@@ -32,8 +34,8 @@ public class ProtocolException extends RuntimeException {
 
     public ProtocolException(int code, String message) {
         super(String.format("%d::%s",code,message));
-        this.error = ErrorObject
-          .makeError()
+        this.error = 
+          makeError()
             .code(code)
             .displayName(message)
           .get();
@@ -64,12 +66,12 @@ public class ProtocolException extends RuntimeException {
         String omessage = other.error != null ? other.error.getDisplayName() : null;
         int ocode = other.error != null ? other.error.getCode() : 0;
         if (message == null) {
-            if (omessage != null)
-                return false;
+          if (omessage != null)
+            return false;
         } else if (!message.equals(omessage))
-            return false;
+          return false;
         if (code != ocode)
-            return false;
+          return false;
         return true;
     }
 

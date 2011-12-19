@@ -1,14 +1,14 @@
 package org.apache.abdera2.common.protocol;
 
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Set;
 
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.apache.abdera2.common.templates.Context;
 import org.apache.abdera2.common.templates.DelegatingContext;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * A Template Context implementation based on a RequestContext object.
@@ -92,31 +92,30 @@ public class RequestTemplateContext
 
   @Override
   public Iterator<String> iterator() {
-      Set<String> vars = new HashSet<String>();
-      for (String var : subcontext)
-          vars.add(var);
-      for (String var : request.getParameterNames())
-          vars.add(toVar(Variable.REQUEST_PARAMETER, var));
-      for (String var : request.getAttributeNames(Scope.SESSION))
-          vars.add(toVar(Variable.SESSION_ATTRIBUTE, var));
-      for (String var : request.getAttributeNames(Scope.REQUEST))
-          vars.add(toVar(Variable.REQUEST_ATTRIBUTE, var));
-      for (String var : request.getHeaderNames())
-          vars.add(toVar(Variable.REQUEST_HEADER, var));
-      Target target = request.getTarget();
-      for (String var : target.getParameterNames())
-          vars.add(toVar(Variable.TARGET_PARAMETER, var));
-      vars.add(Variable.REQUEST_CONTEXT_PATH.name().toLowerCase());
-      vars.add(Variable.REQUEST_CONTENT_TYPE.name().toLowerCase());
-      vars.add(Variable.REQUEST_URI.name().toLowerCase());
-      vars.add(Variable.REQUEST_RESOLVED_URI.name().toLowerCase());
-      vars.add(Variable.REQUEST_LANGUAGE.name().toLowerCase());
-      vars.add(Variable.REQUEST_CHARSET.name().toLowerCase());
-      vars.add(Variable.REQUEST_USER.name().toLowerCase());
-      vars.add(Variable.TARGET_IDENTITY.name().toLowerCase());
-      vars.add(Variable.TARGET_PATH.name().toLowerCase());
-      vars.add(Variable.TARGET_BASE.name().toLowerCase());
-      return vars.iterator();
+    ImmutableSet.Builder<String> vars = ImmutableSet.builder();
+    vars.addAll(subcontext);
+    for (String var : request.getParameterNames())
+        vars.add(toVar(Variable.REQUEST_PARAMETER, var));
+    for (String var : request.getAttributeNames(Scope.SESSION))
+        vars.add(toVar(Variable.SESSION_ATTRIBUTE, var));
+    for (String var : request.getAttributeNames(Scope.REQUEST))
+        vars.add(toVar(Variable.REQUEST_ATTRIBUTE, var));
+    for (String var : request.getHeaderNames())
+        vars.add(toVar(Variable.REQUEST_HEADER, var));
+    Target target = request.getTarget();
+    for (String var : target.getParameterNames())
+        vars.add(toVar(Variable.TARGET_PARAMETER, var));
+    vars.add(Variable.REQUEST_CONTEXT_PATH.name().toLowerCase());
+    vars.add(Variable.REQUEST_CONTENT_TYPE.name().toLowerCase());
+    vars.add(Variable.REQUEST_URI.name().toLowerCase());
+    vars.add(Variable.REQUEST_RESOLVED_URI.name().toLowerCase());
+    vars.add(Variable.REQUEST_LANGUAGE.name().toLowerCase());
+    vars.add(Variable.REQUEST_CHARSET.name().toLowerCase());
+    vars.add(Variable.REQUEST_USER.name().toLowerCase());
+    vars.add(Variable.TARGET_IDENTITY.name().toLowerCase());
+    vars.add(Variable.TARGET_PATH.name().toLowerCase());
+    vars.add(Variable.TARGET_BASE.name().toLowerCase());
+    return vars.build().iterator();
   }
   
   private static String toVar(Variable variable, String label) {

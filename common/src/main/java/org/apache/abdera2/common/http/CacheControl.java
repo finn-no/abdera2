@@ -280,17 +280,17 @@ public final class CacheControl implements Serializable {
                           REVALIDATE = 32,
                           PROXYREVALIDATE = 64,
                           ONLYIFCACHED = 128;
-  private final int flags;
-  private final Iterable<String> 
+  final int flags;
+  final Iterable<String> 
     nocache_headers,
     private_headers;
-  private final long max_age,
+  final long max_age,
                  max_stale,
                  min_fresh,
                  smax_age,
                  staleiferror,
                  stalewhilerevalidate;
-  private final ImmutableMap<String,Object> exts;
+  final ImmutableMap<String,Object> exts;
   
   CacheControl(Builder builder) {
     this.flags = builder.flags;

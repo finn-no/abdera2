@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.parser.axiom;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.iri.IRI;
-import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.misc.ArrayBuilder;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Categories;
 import org.apache.abdera2.model.Category;
@@ -39,6 +38,7 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
+import static org.apache.abdera2.common.mediatype.MimeTypeHelper.*;
 
 import com.google.common.collect.Iterables;
 
@@ -46,7 +46,6 @@ import com.google.common.collect.Iterables;
 public class FOMCollection extends FOMExtensibleElement implements Collection {
 
     private static final String[] ENTRY = {"application/atom+xml;type=\"entry\""};
-    private static final String[] EMPTY = new String[0];
 
     private static final long serialVersionUID = -5291734055253987136L;
 
@@ -126,23 +125,17 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
     }
 
     public String[] getAccept() {
-        List<String> accept = new ArrayList<String>();
-        Iterator<?> i = getChildrenWithName(ACCEPT);
-        if (i == null || !i.hasNext())
-            i = getChildrenWithName(PRE_RFC_ACCEPT);
-        while (i.hasNext()) {
-            Element e = (Element)i.next();
-            String t = e.getText();
-            if (t != null) {
-                accept.add(t.trim());
-            }
-        }
-        if (accept.size() > 0) {
-            String[] list = accept.toArray(new String[accept.size()]);
-            return MimeTypeHelper.condense(list);
-        } else {
-            return EMPTY;
-        }
+      ArrayBuilder<String> accept = ArrayBuilder.list(String.class);
+      Iterator<?> i = getChildrenWithName(ACCEPT);
+      if (i == null || !i.hasNext())
+          i = getChildrenWithName(PRE_RFC_ACCEPT);
+      while (i.hasNext()) {
+          Element e = (Element)i.next();
+          String t = e.getText();
+          if (t != null)
+            accept.add(t.trim());
+      }
+      return condense(accept.build());
     }
 
     public Collection setAccept(String mediaRange) {
@@ -159,20 +152,16 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
             _removeChildren(ACCEPT, true);
             _removeChildren(PRE_RFC_ACCEPT, true);
             if (mediaRanges.length == 1 && mediaRanges[0].equals("")) {
-                addExtension(ACCEPT);
+              addExtension(ACCEPT);
             } else {
-                mediaRanges = MimeTypeHelper.condense(mediaRanges);
-                for (String type : mediaRanges) {
-                    if (type.equalsIgnoreCase("entry")) {
-                        addSimpleExtension(ACCEPT, "application/atom+xml;type=entry");
-                    } else {
-                        try {
-                            addSimpleExtension(ACCEPT, new MimeType(type).toString());
-                        } catch (javax.activation.MimeTypeParseException e) {
-                            throw new org.apache.abdera2.common.mediatype.MimeTypeParseException(e);
-                        }
-                    }
+              mediaRanges = condense(mediaRanges);
+              for (String type : mediaRanges) {
+                if (type.equalsIgnoreCase("entry")) {
+                  addSimpleExtension(ACCEPT, "application/atom+xml;type=entry");
+                } else {
+                  addSimpleExtension(ACCEPT, unmodifiableMimeType(type).toString());
                 }
+              }
             }
         } else {
             _removeChildren(ACCEPT, true);
@@ -192,7 +181,7 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
             if (!accepts(type))
               addSimpleExtension(
                 ACCEPT, 
-                MimeTypeHelper.unmodifiableMimeType(type).toString());
+                unmodifiableMimeType(type).toString());
         return this;
     }
 
@@ -219,11 +208,10 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
     public boolean accepts(String mediaType) {
         String[] accept = getAccept();
         if (accept.length == 0)
-            accept = ENTRY;
-        for (String a : accept) {
-            if (MimeTypeHelper.isMatch(a, mediaType))
-                return true;
-        }
+          accept = ENTRY;
+        for (String a : accept)
+          if (isMatch(a, mediaType))
+            return true;
         return false;
     }
 
@@ -243,26 +231,24 @@ public class FOMCollection extends FOMExtensibleElement implements Collection {
     }
 
     public Categories addCategories(String href) {
-        complete();
-        Categories cats = ((FOMFactory)factory).newCategories();
-        cats.setHref(href);
-        addCategories(cats);
-        return cats;
+      complete();
+      Categories cats = ((FOMFactory)factory).newCategories();
+      cats.setHref(href);
+      addCategories(cats);
+      return cats;
     }
 
     public Categories addCategories(List<Category> categories, boolean fixed, String scheme) {
-        complete();
-        Categories cats = ((FOMFactory)factory).newCategories();
-        cats.setFixed(fixed);
-        if (scheme != null)
-            cats.setScheme(scheme);
-        if (categories != null) {
-            for (Category category : categories) {
-                cats.addCategory(category);
-            }
-        }
-        addCategories(cats);
-        return cats;
+      complete();
+      Categories cats = ((FOMFactory)factory).newCategories();
+      cats.setFixed(fixed);
+      if (scheme != null)
+          cats.setScheme(scheme);
+      if (categories != null)
+        for (Category category : categories)
+          cats.addCategory(category);
+      addCategories(cats);
+      return cats;
     }
 
     public List<Categories> getCategories() {

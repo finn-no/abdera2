@@ -17,10 +17,9 @@
  */
 package org.apache.abdera2.parser.filter;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
-
 import javax.xml.namespace.QName;
+import com.google.common.collect.ImmutableSet;
 
 
 /**
@@ -103,11 +102,12 @@ public class CompoundParseFilter
       return new Builder();
     }
     
-    public static class Builder extends AbstractParseFilter.Builder<CompoundParseFilter> {
+    public static class Builder 
+      extends AbstractParseFilter.Builder<CompoundParseFilter> {
 
-      private Condition condition;
-      private final Set<ParseFilter> filters = 
-        new LinkedHashSet<ParseFilter>();
+      Condition condition;
+      final ImmutableSet.Builder<ParseFilter> filters = 
+        ImmutableSet.builder();
       
       public CompoundParseFilter get() {
         return new CompoundParseFilter(this);
@@ -131,13 +131,12 @@ public class CompoundParseFilter
     }
 
     protected final Condition condition;
-    protected final Set<ParseFilter> filters = 
-      new LinkedHashSet<ParseFilter>();
+    protected final Set<ParseFilter> filters;
 
     protected CompoundParseFilter(Builder builder) {
       super(builder);
       this.condition = builder.condition;
-      this.filters.addAll(builder.filters);
+      this.filters = builder.filters.build();
     }
 
     private Iterable<ParseFilter> getFilters() {
@@ -145,27 +144,27 @@ public class CompoundParseFilter
     }
 
     public boolean acceptable(QName qname) {
-        for (ParseFilter filter : getFilters()) {
-            switch (condition.evaluate(filter.acceptable(qname))) {
-                case 1:
-                    return true;
-                case -1:
-                    return checkThrow(false,qname,null);
-            }
+      for (ParseFilter filter : getFilters()) {
+        switch (condition.evaluate(filter.acceptable(qname))) {
+          case 1:
+            return true;
+          case -1:
+            return checkThrow(false,qname,null);
         }
-        return true;
+      }
+      return true;
     }
 
     public boolean acceptable(QName qname, QName attribute) {
-        for (ParseFilter filter : getFilters()) {
-            switch (condition.evaluate(filter.acceptable(qname, attribute))) {
-                case 1:
-                    return true;
-                case -1:
-                    return checkThrow(false,qname,attribute);
-            }
+      for (ParseFilter filter : getFilters()) {
+        switch (condition.evaluate(filter.acceptable(qname, attribute))) {
+          case 1:
+            return true;
+          case -1:
+            return checkThrow(false,qname,attribute);
         }
-        return true;
+      }
+      return true;
     }
 
     public Object clone() throws CloneNotSupportedException {

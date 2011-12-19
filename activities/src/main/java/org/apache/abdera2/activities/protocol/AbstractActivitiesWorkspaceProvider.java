@@ -33,6 +33,7 @@ import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
+import static org.apache.abdera2.activities.model.objects.ErrorObject.makeError;
 
 import com.google.common.base.Predicate;
 
@@ -85,8 +86,7 @@ public abstract class AbstractActivitiesWorkspaceProvider
     Throwable t) {
       return 
         new ActivitiesResponseContext<ErrorObject>(
-          ErrorObject
-            .makeError()
+          makeError()
             .code(code)
             .displayName(message))
         .setStatus(code)

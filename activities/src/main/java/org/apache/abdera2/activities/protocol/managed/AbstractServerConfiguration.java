@@ -65,10 +65,9 @@ public abstract class AbstractServerConfiguration
         StringBuilder buf = new StringBuilder();
         buf.append(secure ? "https://" : "http://");
         buf.append(host);
-        if (port != 80) {
-            buf.append(":");
-            buf.append(port);
-        }
+        if (port != 80)
+          buf.append(":")
+             .append(port);
         return buf.toString();
     }
 

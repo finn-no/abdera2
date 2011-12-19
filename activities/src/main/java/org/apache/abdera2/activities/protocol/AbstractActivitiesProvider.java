@@ -32,8 +32,8 @@ import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.activities.model.TypeAdapter;
 import org.apache.abdera2.activities.model.objects.ErrorObject;
-import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.http.EntityTag;
+import org.apache.abdera2.common.misc.ArrayBuilder;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.AbstractProvider;
 import org.apache.abdera2.common.protocol.CollectionRequestProcessor;
@@ -44,6 +44,11 @@ import org.apache.abdera2.common.protocol.TargetType;
 import org.apache.abdera2.common.protocol.WorkspaceManager;
 import org.apache.abdera2.common.protocol.RequestContext.Scope;
 import org.joda.time.DateTime;
+import static org.apache.abdera2.activities.model.objects.ErrorObject.makeError;
+import static org.apache.abdera2.common.date.DateTimes.format;
+import static org.apache.abdera2.common.date.DateTimes.formatNow;
+import static org.apache.abdera2.common.http.EntityTag.generate;
+import static java.util.UUID.randomUUID;
 
 public abstract class AbstractActivitiesProvider 
   extends AbstractProvider
@@ -86,8 +91,7 @@ public abstract class AbstractActivitiesProvider
     Throwable t) {
       return
         new ActivitiesResponseContext<ErrorObject>(
-            ErrorObject
-            .makeError()
+          makeError()
             .code(code)
             .displayName(message))
         .setStatus(code)
@@ -100,25 +104,25 @@ public abstract class AbstractActivitiesProvider
     if (base instanceof Activity) {
         Activity ac = (Activity)base;
         id = ac.getId();
-        modified = DateTimes.format(
+        modified = format(
           ac.getUpdated() != null ? 
             ac.getUpdated() : 
             ac.getPublished());
     } else if (base instanceof Collection) {
         Collection<?> col = (Collection<?>)base;
         id = col.getProperty("id");
-        if (id == null) id = java.util.UUID.randomUUID().toString();
+        if (id == null) id = randomUUID().toString();
         modified = col.getProperty("updated");
     } else if (base instanceof ASObject) {
         ASObject as = (ASObject)base;
         id = as.getId().toString();
-        modified = DateTimes.format(
+        modified = format(
           as.getUpdated() != null ? 
             as.getUpdated() : 
             as.getPublished());
     }
-    if (modified == null) modified = DateTimes.formatNow();
-    return EntityTag.generate(id, modified);
+    if (modified == null) modified = formatNow();
+    return generate(id, modified);
   }
   
   public static String getEditUriFromEntry(ASObject object) {
@@ -126,16 +130,14 @@ public abstract class AbstractActivitiesProvider
     return editLink;
   }
   
-  
-  
   public static IO getIO(
     ActivitiesProvider provider, 
     TypeAdapter<?>... adapters) {
-    Set<TypeAdapter<?>> as = 
-      new HashSet<TypeAdapter<?>>(provider.getTypeAdapters());
-    for (TypeAdapter<?> ta : adapters)
-      as.add(ta);
-    return IO.get(as.toArray(new TypeAdapter[as.size()]));
+    return IO.get(
+      ArrayBuilder.<TypeAdapter<?>>set(TypeAdapter.class)
+        .addAll(provider.getTypeAdapters())
+        .add(adapters)
+        .build());
   }
   
   @SuppressWarnings("unchecked")
@@ -143,7 +145,7 @@ public abstract class AbstractActivitiesProvider
     RequestContext context) 
       throws IOException {
     ASBase entity = context.getAttribute(Scope.REQUEST, ASBase.class.getName());
-      try {
+    try {
       if (entity == null) {
         Reader reader = context.getReader();
         IO io = getIO(context.<ActivitiesProvider>getProvider());
@@ -152,9 +154,9 @@ public abstract class AbstractActivitiesProvider
         else // try input stream, but this should've worked
           entity = io.read(context.getInputStream(), "UTF-8");
       }
-      } catch (Throwable t) {
-        throw ExceptionHelper.propogate(t);
-      }
+    } catch (Throwable t) {
+      throw ExceptionHelper.propogate(t);
+    }
     if (entity != null)
       context.setAttribute(ASBase.class.getName(), getDoc(entity,context));
     return (T)entity;
@@ -165,19 +167,19 @@ public abstract class AbstractActivitiesProvider
       ASDocument.make(base);
     String etag = context.getHeader("ETag");
     if (etag != null)
-        builder.entityTag(etag);
+      builder.entityTag(etag);
     DateTime lm = context.getDateHeader("Last-Modified");
     if (lm != null)
-        builder.lastModified(lm);
+      builder.lastModified(lm);
     MimeType mt = context.getContentType();
     if (mt != null)
-        builder.contentType(mt.toString());
+      builder.contentType(mt.toString());
     String language = context.getContentLanguage();
     if (language != null)
-        builder.language(language);
+      builder.language(language);
     String slug = context.getSlug();
     if (slug != null)
-        builder.slug(slug);
+      builder.slug(slug);
     return builder.get();
   }
 }

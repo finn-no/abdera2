@@ -27,6 +27,9 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 
 /**
  * ParseFilter's determine which elements and attributes are acceptable 
@@ -44,9 +47,9 @@ public abstract class AbstractSetParseFilter
     public static abstract class Builder<E extends AbstractSetParseFilter> 
       extends AbstractParseFilter.Builder<E> {
       
-      private transient Set<QName> 
+      transient Set<QName> 
         qnames = new HashSet<QName>();
-      private transient Map<QName, Set<QName>> 
+      transient Map<QName, Set<QName>> 
         attributes = new HashMap<QName, Set<QName>>();     
       
       public <X extends Builder<E>>X add(QName qname) {
@@ -72,15 +75,13 @@ public abstract class AbstractSetParseFilter
   
     private static final long serialVersionUID = -758691949740569208L;
 
-    private transient final Set<QName> 
-      qnames = new HashSet<QName>();
-    private transient final Map<QName, Set<QName>> 
-      attributes = new HashMap<QName, Set<QName>>();
+    private transient final Set<QName> qnames;
+    private transient final Map<QName, Set<QName>> attributes;
 
     protected AbstractSetParseFilter(Builder<?> builder) {
       super(builder);
-      this.qnames.addAll(builder.qnames);
-      this.attributes.putAll(builder.attributes);
+      this.qnames = ImmutableSet.copyOf(builder.qnames);
+      this.attributes = ImmutableMap.copyOf(builder.attributes);
     }
     
     public Object clone() throws CloneNotSupportedException {
@@ -91,13 +92,10 @@ public abstract class AbstractSetParseFilter
       return qnames.contains(qname);
     }
 
-    public boolean contains(QName qname, QName attribute) {
-        if (attributes.containsKey(qname)) {
-            Set<QName> attrs = attributes.get(qname);
-            return attrs.contains(attribute);
-        } else {
-            return false;
-        }
+    public boolean contains(QName qname, QName attribute) {  
+      return attributes.containsKey(qname) ?
+        attributes.get(qname).contains(attribute) : 
+        false;
     }
 
     public abstract boolean acceptable(QName qname);
@@ -123,9 +121,8 @@ public abstract class AbstractSetParseFilter
             final Set<QName> v = e.getValue();
             assert v != null;
             out.writeInt(v.size());
-            for (QName q : v) {
-                out.writeObject(q);
-            }
+            for (QName q : v)
+              out.writeObject(q);
         }
     }
 
@@ -135,9 +132,8 @@ public abstract class AbstractSetParseFilter
         // qnames field
         final int qnamesSize = in.readInt();
         //qnames = new HashSet<QName>(qnamesSize);
-        for (int i = 0; i < qnamesSize; i++) {
-            qnames.add((QName)in.readObject());
-        }
+        for (int i = 0; i < qnamesSize; i++)
+          qnames.add((QName)in.readObject());
 
         // attributes field
         final int attributesSize = in.readInt();
@@ -146,9 +142,8 @@ public abstract class AbstractSetParseFilter
             final QName k = (QName)in.readObject();
             final int vSize = in.readInt();
             final Set<QName> v = new HashSet<QName>(vSize);
-            for (int j = 0; j < vSize; j++) {
+            for (int j = 0; j < vSize; j++)
                 v.add((QName)in.readObject());
-            }
             attributes.put(k, v);
         }
     }

@@ -46,11 +46,11 @@ public class ProviderHelper {
         public Integer apply(RequestContext input) {
           int size = def;
           try {
-              String _ps = input.getParameter(param);
-              size = (_ps != null) ? 
-                Math.min(
-                  Math.max(Integer.parseInt(_ps), 0), def) : 
-                  def;
+            String _ps = input.getParameter(param);
+            size = (_ps != null) ? 
+              Math.min(
+                Math.max(Integer.parseInt(_ps), 0), def) : 
+                def;
           } catch (Exception e) {}
           log.debug(Localizer.sprintf("PAGE.SIZE", size));
           return size;

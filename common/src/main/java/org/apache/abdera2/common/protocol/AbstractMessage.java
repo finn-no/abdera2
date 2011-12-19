@@ -17,9 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.activation.MimeType;
 
 import org.apache.abdera2.common.http.CacheControl;
@@ -32,7 +29,7 @@ import org.apache.abdera2.common.text.UrlEncoding;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 
 import static com.google.common.base.Preconditions.*;
 /**
@@ -49,10 +46,10 @@ public abstract class AbstractMessage
     
     public <T>Iterable<T> getHeaders(String name, Function<String,T> transform) {
       Iterable<Object> objs = this.getHeaders(name);
-      List<T> list = new ArrayList<T>();
+      ImmutableList.Builder<T> list = ImmutableList.builder();
       for (Object obj : objs)
         list.add(transform.apply(obj.toString()));
-      return Iterables.unmodifiableIterable(list);
+      return list.build();
     }
   
     public CacheControl getCacheControl() {
@@ -87,29 +84,27 @@ public abstract class AbstractMessage
     }
 
     public String getSlug() {
-        return getDecodedHeader("Slug");
+      return getDecodedHeader("Slug");
     }
 
     public Iterable<WebLink> getWebLinks() {
-      List<WebLink> links = new ArrayList<WebLink>();
+      ImmutableList.Builder<WebLink> links = ImmutableList.builder();
       Iterable<Object> headers = this.getHeaders("Link");      
-      for (Object obj : headers) {
-        Iterable<WebLink> list = WebLink.parse(obj.toString());
-        for (WebLink link : list)
-          links.add(link);
-      }
-      return links;
+      for (Object obj : headers)
+        links.addAll(
+          WebLink.parse(
+            obj.toString()));
+      return links.build();
     }
     
     public Iterable<Preference> getPrefer() {
-      List<Preference> links = new ArrayList<Preference>();
+      ImmutableList.Builder<Preference> links = ImmutableList.builder();
       Iterable<Object> headers = this.getHeaders("Prefer");
-      for (Object obj : headers) {
-        Iterable<Preference> list = Preference.parse(obj.toString());
-        for (Preference link : list)
-          links.add(link);
-      }
-      return links;
+      for (Object obj : headers)
+        links.addAll(
+          Preference.parse(
+             obj.toString()));
+      return links.build();
     }
 
 }

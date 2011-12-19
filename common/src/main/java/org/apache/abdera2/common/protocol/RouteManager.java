@@ -17,7 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +32,8 @@ import org.apache.abdera2.common.templates.Route;
 
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -58,12 +59,12 @@ public class RouteManager<T,X extends RequestContext,R>
     public static class Generator<T, X extends RequestContext,R> 
       implements Supplier<RouteManager<T,X,R>> {
 
-      protected final List<RouteTargetType<R>> targets = 
-        new ArrayList<RouteTargetType<R>>();
-      protected final Map<R, Route<R>> routes = 
-        new HashMap<R, Route<R>>();
-      protected final Map<Route<R>, CollectionAdapter> route2CA = 
-        new HashMap<Route<R>, CollectionAdapter>();
+      protected final ImmutableList.Builder<RouteTargetType<R>> targets = 
+        ImmutableList.builder();
+      protected final ImmutableMap.Builder<R, Route<R>> routes = 
+        ImmutableMap.builder();
+      protected final ImmutableMap.Builder<Route<R>, CollectionAdapter> route2CA = 
+        ImmutableMap.builder();
       public Generator<T,X,R> withAll(RouteManager<T,X,R> other) {
         this.targets.addAll(other.targets);
         this.routes.putAll(other.routes);
@@ -121,17 +122,14 @@ public class RouteManager<T,X extends RequestContext,R>
       }
     }
 
-    protected final List<RouteTargetType<R>> targets = 
-      new ArrayList<RouteTargetType<R>>();
-    protected final Map<R, Route<R>> routes = 
-      new HashMap<R, Route<R>>();
-    protected final Map<Route<R>, CollectionAdapter> route2CA = 
-      new HashMap<Route<R>, CollectionAdapter>();
+    protected final List<RouteTargetType<R>> targets;
+    protected final Map<R, Route<R>> routes;
+    protected final Map<Route<R>, CollectionAdapter> route2CA;;
 
-    private RouteManager(Generator<T,X,R> gen) {
-      this.targets.addAll(gen.targets);
-      this.routes.putAll(gen.routes);
-      this.route2CA.putAll(gen.route2CA);
+    RouteManager(Generator<T,X,R> gen) {
+      this.targets = gen.targets.build();
+      this.routes = gen.routes.build();
+      this.route2CA = gen.route2CA.build();
     }
     
     public Target apply(X request) {

@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.lang.Lang;
+import org.apache.abdera2.common.misc.ArrayBuilder;
 import org.apache.abdera2.common.xml.XMLVersion;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.factory.Factory;
@@ -230,16 +231,16 @@ public class FOMDocument<T extends Element> extends OMDocumentImpl implements Do
     }
 
     public String[] getProcessingInstruction(String target) {
-        List<String> values = new ArrayList<String>();
+        ArrayBuilder<String> values = ArrayBuilder.list(String.class);
         for (Iterator<OMNode> i = getChildren(); i.hasNext();) {
-            OMNode node = i.next();
-            if (node.getType() == OMNode.PI_NODE) {
-                OMProcessingInstruction pi = (OMProcessingInstruction)node;
-                if (pi.getTarget().equalsIgnoreCase(target))
-                    values.add(pi.getValue());
-            }
+          OMNode node = i.next();
+          if (node.getType() == OMNode.PI_NODE) {
+            OMProcessingInstruction pi = (OMProcessingInstruction)node;
+            if (pi.getTarget().equalsIgnoreCase(target))
+                values.add(pi.getValue());
+          }
         }
-        return values.toArray(new String[values.size()]);
+        return values.build();
     }
 
     public Document<T> addProcessingInstruction(String target, String value) {

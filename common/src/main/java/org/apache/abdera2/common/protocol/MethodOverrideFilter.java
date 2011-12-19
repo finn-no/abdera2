@@ -18,11 +18,15 @@
 package org.apache.abdera2.common.protocol;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.Chain;
 import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.misc.Task;
+
+import com.google.common.collect.ImmutableSet;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Abdera Filter implementation that supports the use of the X-HTTP-Method-Override header used by GData.
@@ -37,18 +41,15 @@ public class MethodOverrideFilter
     }
 
     public MethodOverrideFilter(String... methods) {
-        setMethods(methods);
+      for (int n = 0; n < checkNotNull(methods).length; n++)
+        methods[n] = methods[n].toUpperCase(Locale.US);
+      this.methods = ImmutableSet.copyOf(methods);
     }
 
     public Iterable<String> getMethods() {
-        return methods;
+      return methods;
     }
-
-    public void setMethods(String... methods) {
-        for (String method : methods)
-          this.methods.add(method);
-    }
-
+    
     public ResponseContext apply(
       RequestContext request, 
       Chain<RequestContext,ResponseContext> chain) {

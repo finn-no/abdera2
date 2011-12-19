@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.common.protocol;
 
-import java.lang.reflect.Constructor;
-
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.MoreFunctions;
 

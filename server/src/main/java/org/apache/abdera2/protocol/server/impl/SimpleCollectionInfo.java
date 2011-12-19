@@ -18,9 +18,6 @@
 package org.apache.abdera2.protocol.server.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
@@ -31,7 +28,7 @@ import org.apache.abdera2.model.Collection;
 import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCollectionInfo;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableSet;
 
 public class SimpleCollectionInfo 
   extends BasicCollectionInfo
@@ -45,8 +42,8 @@ public class SimpleCollectionInfo
     }
     
     public static class Generator extends BasicCollectionInfo.Generator {
-      private final Set<AtompubCategoriesInfo> catinfos =
-        new LinkedHashSet<AtompubCategoriesInfo>();
+      final ImmutableSet.Builder<AtompubCategoriesInfo> catinfos =
+        ImmutableSet.builder();
       public Generator category(AtompubCategoriesInfo info) {
         this.catinfos.add(info);
         return this;
@@ -56,16 +53,15 @@ public class SimpleCollectionInfo
       }
     }
     
-    private final List<AtompubCategoriesInfo> catinfos = 
-      new ArrayList<AtompubCategoriesInfo>();
+    private final Set<AtompubCategoriesInfo> catinfos;
 
     protected SimpleCollectionInfo(Generator generator) {
       super(generator);
-      this.catinfos.addAll(generator.catinfos);
+      this.catinfos = generator.catinfos.build();
     }
 
     public Iterable<AtompubCategoriesInfo> getCategoriesInfo(RequestContext request) {
-        return Iterables.<AtompubCategoriesInfo>unmodifiableIterable(catinfos);
+        return catinfos;
     }
 
     @Override
@@ -91,7 +87,11 @@ public class SimpleCollectionInfo
     }
 
     public Collection asCollectionElement(RequestContext request) {
-      Collection collection = AbstractAtompubProvider.getAbdera(request).getFactory().newCollection();
+      Collection collection = 
+        AbstractAtompubProvider
+          .getAbdera(request)
+          .getFactory()
+          .newCollection();
       collection.setHref(getHref(request));
       collection.setTitle(getTitle(request));
       collection.setAccept(getAccepts(request));

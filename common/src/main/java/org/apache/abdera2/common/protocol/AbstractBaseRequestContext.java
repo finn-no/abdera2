@@ -20,10 +20,13 @@ package org.apache.abdera2.common.protocol;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 
 import org.apache.abdera2.common.iri.IRI;
+
+import com.google.common.collect.ImmutableSet;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractBaseRequestContext 
@@ -112,7 +115,9 @@ public abstract class AbstractBaseRequestContext
         return getResolvedUri().resolve(urlFor(key, param)).toString();
     }
 
+    private static final Set<Property> properties = 
+      ImmutableSet.copyOf(Property.values());
     public Iterator<Property> iterator() {
-      return Arrays.asList(Property.values()).iterator();
+      return properties.iterator();
     }
 }

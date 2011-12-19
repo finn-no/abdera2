@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.apache.abdera2.common.Constants;
 import org.apache.abdera2.common.http.EntityTag;
-import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.RequestContext;
 import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.CollectionAdapter;

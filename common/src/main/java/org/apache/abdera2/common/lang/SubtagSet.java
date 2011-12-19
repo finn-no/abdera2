@@ -18,12 +18,13 @@
 package org.apache.abdera2.common.lang;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.abdera2.common.lang.Subtag.Type;
+import org.apache.abdera2.common.misc.ArrayBuilder;
+
+import com.google.common.collect.ImmutableList;
 
 public abstract class SubtagSet 
   implements Serializable, 
@@ -143,15 +144,14 @@ public abstract class SubtagSet
     }
 
     public Subtag[] toArray() {
-        List<Subtag> tags = 
-          new LinkedList<Subtag>();
-        for (Subtag tag : this)
-            tags.add(tag);
-        return tags.toArray(new Subtag[tags.size()]);
+      return ArrayBuilder.list(Subtag.class)
+        .addAll(this).build();
     }
 
     public List<Subtag> asList() {
-        return Arrays.asList(toArray());
+      return ImmutableList
+        .<Subtag>builder()
+        .addAll(this).build();
     }
 
     public int compareTo(SubtagSet o) {

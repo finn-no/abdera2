@@ -96,7 +96,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
                                 Content content,
                                 RequestContext request) throws ResponseContextException;
 
-    private Function<RequestContext,ResponseContext> postMedia() {
+    Function<RequestContext,ResponseContext> postMedia() {
       return new Function<RequestContext,ResponseContext>() {
         public ResponseContext apply(RequestContext input) {
           return createMediaEntry(input);
@@ -136,7 +136,7 @@ public abstract class AbstractEntityCollectionAdapter<T>
         throw new ResponseContextException(ProviderHelper.notallowed(request));
     }
 
-    private Function<RequestContext,ResponseContext> postItem() {
+    Function<RequestContext,ResponseContext> postItem() {
       return new Function<RequestContext,ResponseContext>() {
         public ResponseContext apply(RequestContext input) {
           return createNonMediaEntry(input);

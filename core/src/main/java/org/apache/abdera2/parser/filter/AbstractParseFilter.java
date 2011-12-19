@@ -31,7 +31,7 @@ public abstract class AbstractParseFilter
   public static abstract class Builder<E extends ParseFilter> implements Supplier<E> {
     
     protected byte flags = 0;
-    private Class<? extends UnacceptableException> _throw;
+    Class<? extends UnacceptableException> _throw;
 
     public <X extends Builder<E>>X throwOnUnacceptable() {
       return (X)throwOnUnacceptable(UnacceptableException.class);

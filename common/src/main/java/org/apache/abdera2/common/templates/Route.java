@@ -18,16 +18,15 @@
 package org.apache.abdera2.common.templates;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.anno.URIRoute;
+import org.apache.abdera2.common.misc.ArrayBuilder;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 /**
@@ -69,50 +68,42 @@ public class Route<T> implements Iterable<String>, Cloneable, Serializable {
     }
 
     private String[] initTokens() {
-        Matcher matcher = VARIABLE.matcher(pattern);
-        List<String> tokens = new ArrayList<String>();
-        while (matcher.find()) {
-            String token = matcher.group();
-            if (!tokens.contains(token))
-                tokens.add(token);
-        }
-        return tokens.toArray(new String[tokens.size()]);
+      Matcher matcher = VARIABLE.matcher(pattern);
+      ArrayBuilder<String> tokens = 
+        ArrayBuilder.set(String.class);
+      while (matcher.find()) 
+        tokens.add(matcher.group());
+      return tokens.build();
     }
 
     private String[] initVariables() {
-        List<String> list = new ArrayList<String>();
-        for (String token : this) {
-            String var = var(token);
-            if (!list.contains(var))
-                list.add(var);
-        }
-        String[] vars = list.toArray(new String[list.size()]);
-        Arrays.sort(vars);
-        return vars;
+      ArrayBuilder<String> list = 
+        ArrayBuilder.sortedSet(String.class);
+      for (String token : this)
+        list.add(var(token));
+      return list.build();
     }
 
     private Pattern initRegexMatch() {
-        StringBuffer match = new StringBuffer();
-        int cnt = 0;
-        for (String part : VARIABLE.split(pattern)) {
-            match.append(Pattern.quote(part));
-            if (cnt++ < tokens.length) {
-                match.append(VARIABLE_CONTENT_MATCH);
-            }
-        }
-        return Pattern.compile(match.toString());
+      StringBuffer match = new StringBuffer();
+      int cnt = 0;
+      for (String part : VARIABLE.split(pattern)) {
+        match.append(Pattern.quote(part));
+        if (cnt++ < tokens.length)
+          match.append(VARIABLE_CONTENT_MATCH);
+      }
+      return Pattern.compile(match.toString());
     }
 
     private Pattern initRegexParse() {
-        StringBuffer parse = new StringBuffer();
-        int cnt = 0;
-        for (String part : VARIABLE.split(pattern)) {
-            parse.append(Pattern.quote(part));
-            if (cnt++ < tokens.length) {
-                parse.append(VARIABLE_CONTENT_PARSE);
-            }
-        }
-        return Pattern.compile(parse.toString());
+      StringBuffer parse = new StringBuffer();
+      int cnt = 0;
+      for (String part : VARIABLE.split(pattern)) {
+        parse.append(Pattern.quote(part));
+        if (cnt++ < tokens.length)
+          parse.append(VARIABLE_CONTENT_PARSE);
+      }
+      return Pattern.compile(parse.toString());
     }
 
     /**
@@ -126,15 +117,14 @@ public class Route<T> implements Iterable<String>, Cloneable, Serializable {
      * Parses the given uri using the route pattern
      */
     public Map<String, String> parse(String uri) {
-        HashMap<String, String> vars = new HashMap<String, String>();
-        Matcher matcher = regexParse.matcher(uri);
-        if (matcher.matches()) {
-            for (int i = 0; i < matcher.groupCount(); i++) {
-                vars.put(var(tokens[i]), matcher.group(i + 1).length() > 0 ? matcher.group(i + 1) : null);
-            }
+      HashMap<String, String> vars = new HashMap<String, String>();
+      Matcher matcher = regexParse.matcher(uri);
+      if (matcher.matches()) {
+        for (int i = 0; i < matcher.groupCount(); i++) {
+          vars.put(var(tokens[i]), matcher.group(i + 1).length() > 0 ? matcher.group(i + 1) : null);
         }
-
-        return vars;
+      }
+      return vars;
     }
 
     /**

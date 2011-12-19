@@ -57,7 +57,7 @@ public class VersionObject
   public static VersionObject makeVersion(Version version) {
     return makeVersion()
       .of(
-        ASObject.makeObject()
+        makeObject()
           .displayName(version.name())
           .url(version.uri())
           .get())

@@ -18,12 +18,12 @@
 package org.apache.abdera2.common.protocol;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 
 public class BasicCollectionInfo 
   implements CollectionInfo, 
@@ -34,11 +34,11 @@ public class BasicCollectionInfo
     }
   
     public static class Generator implements Supplier<CollectionInfo> {
-      private String title;
-      private String href;
-      private final Set<String> accepts = 
-        new LinkedHashSet<String>();
-      public Generator title(String title) {
+      String title;
+      String href;
+      final ImmutableSet.Builder<String> accepts = 
+        ImmutableSet.builder();
+      Generator title(String title) {
         this.title = title;
         return this;
       }
@@ -59,12 +59,12 @@ public class BasicCollectionInfo
 
     private final String title;
     private final String href;
-    private final Set<String> accepts = new LinkedHashSet<String>();
+    private final Set<String> accepts;
 
     protected BasicCollectionInfo(Generator gen) {
-        this.title = gen.title;
-        this.accepts.addAll(gen.accepts);
-        this.href = gen.href;
+      this.title = gen.title;
+      this.accepts = gen.accepts.build();
+      this.href = gen.href;
     }
 
     public Iterable<String> getAccepts(RequestContext request) {

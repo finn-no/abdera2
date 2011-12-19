@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import org.apache.abdera2.common.lang.Subtag.Type;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
-import static org.apache.abdera2.common.misc.MoreFunctions.*;
 import static org.apache.abdera2.common.text.CharUtils.*;
 import static com.google.common.base.Preconditions.checkArgument;
 

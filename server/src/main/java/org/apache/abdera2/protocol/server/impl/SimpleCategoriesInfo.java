@@ -18,9 +18,7 @@
 package org.apache.abdera2.protocol.server.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
 import org.apache.abdera2.common.protocol.RequestContext;
@@ -29,7 +27,7 @@ import org.apache.abdera2.protocol.server.model.AtompubCategoriesInfo;
 import org.apache.abdera2.protocol.server.model.AtompubCategoryInfo;
 
 import com.google.common.base.Supplier;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.ImmutableList;
 
 public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable {
 
@@ -38,11 +36,11 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     }
   
     public static class Generator implements Supplier<AtompubCategoriesInfo> {
-      private String href;
-      private String scheme;
-      private boolean fixed;
-      private final List<AtompubCategoryInfo> list = 
-        new ArrayList<AtompubCategoryInfo>();
+      String href;
+      String scheme;
+      boolean fixed;
+      final ImmutableList.Builder<AtompubCategoryInfo> list = 
+        ImmutableList.builder();
       public Generator href(String href) {
         this.href = href;
         return this;
@@ -70,13 +68,13 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     private final String href;
     private final String scheme;
     private final boolean fixed;
-    private final List<AtompubCategoryInfo> list = new ArrayList<AtompubCategoryInfo>();
+    private final ImmutableList<AtompubCategoryInfo> list;
 
     protected SimpleCategoriesInfo(Generator gen) {
       this.href = gen.href;
       this.scheme = gen.scheme;
       this.fixed = gen.fixed;
-      this.list.addAll(gen.list);
+      this.list = gen.list.build();
     }
     
     public String getHref(RequestContext request) {
@@ -92,7 +90,7 @@ public class SimpleCategoriesInfo implements AtompubCategoriesInfo, Serializable
     }
 
     public Iterator<AtompubCategoryInfo> iterator() {
-        return Iterators.<AtompubCategoryInfo>unmodifiableIterator(list.iterator());
+        return list.iterator();
     }
 
     public int hashCode() {

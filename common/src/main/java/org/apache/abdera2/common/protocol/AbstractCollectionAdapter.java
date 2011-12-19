@@ -53,8 +53,8 @@ public abstract class AbstractCollectionAdapter
 
     private static class HandlerKey implements Serializable {
       private static final long serialVersionUID = -580349554867112812L;
-      private final TargetType type;
-      private final String method;
+      final TargetType type;
+      final String method;
       HandlerKey(TargetType type, String method) {
         this.type = type;
         this.method = method.toUpperCase();

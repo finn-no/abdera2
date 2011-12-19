@@ -85,31 +85,38 @@ public class RegexTargetResolver<R extends RequestContext>
     }
 
     public Target apply(R request) {
-        String uri = request.getTargetPath();
-        for (Pattern pattern : patterns.keySet()) {
-            Matcher matcher = pattern.matcher(uri);
-            if (matcher.matches()) {
-                TargetType type = this.patterns.get(pattern);
-                Iterable<String> fields = this.fields.get(pattern);
-                return getTarget(type, request, matcher, fields);
-            }
-        }
-        return null;
+      String uri = request.getTargetPath();
+      for (Pattern pattern : patterns.keySet()) {
+        Matcher matcher = pattern.matcher(uri);
+        if (matcher.matches()) 
+          return getTarget(
+            this.patterns.get(pattern), 
+            request, 
+            matcher, 
+            this.fields.get(pattern));
+      }
+      return null;
     }
 
-    protected Target getTarget(TargetType type, RequestContext request, Matcher matcher, Iterable<String> fields) {
+    protected Target getTarget(
+      TargetType type, 
+      RequestContext request, 
+      Matcher matcher, 
+      Iterable<String> fields) {
         return new RegexTarget(type, request, matcher, fields);
     }
 
     public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append("Regex Target Resolver:\n");
-        for (Pattern pattern : patterns.keySet()) {
-            TargetType type = this.patterns.get(pattern);
-            Iterable<String> fields = this.fields.get(pattern);
-            buf.append(pattern.toString() + ", Type: " + type + ", Fields: " + fields);
-        }
-        return buf.toString();
+      StringBuilder buf = new StringBuilder();
+      buf.append("Regex Target Resolver:\n");
+      for (Pattern pattern : patterns.keySet())
+        buf.append(
+          String.format(
+            "%s, Type: %s, Fields: %s",
+            pattern,
+            this.patterns.get(pattern),
+            this.fields.get(pattern)));
+      return buf.toString();
     }
 
     public int hashCode() {

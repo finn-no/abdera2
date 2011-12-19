@@ -24,7 +24,6 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.Collection.CollectionBuilder;
-import org.apache.abdera2.activities.model.objects.PersonObject;
 import org.apache.abdera2.activities.model.objects.ServiceObject;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.protocol.AbstractCollectionAdapter;
@@ -35,6 +34,9 @@ import org.apache.abdera2.common.protocol.ResponseContext;
 import org.apache.abdera2.common.protocol.ResponseContextException;
 
 import static org.apache.abdera2.activities.protocol.AbstractActivitiesProvider.*;
+import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
+import static org.apache.abdera2.activities.model.objects.ServiceObject.makeService;
+import static org.apache.abdera2.activities.model.Collection.makeCollection;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -84,15 +86,12 @@ public abstract class AbstractActivitiesCollectionAdapter
     RequestContext request) 
       throws ResponseContextException {
     return 
-      ServiceObject
-        .makeService()
+      makeService()
         .displayName(getTitle(request))
         .id(getId(request))
         .author(
-          PersonObject
-            .makePerson()
-            .displayName(getAuthor(request))
-            .get())
+          makePerson()
+            .displayName(getAuthor(request)))
         .get();
   }
   
@@ -103,15 +102,12 @@ public abstract class AbstractActivitiesCollectionAdapter
     RequestContext request) 
       throws ResponseContextException {
     return 
-      Collection
-        .makeCollection()
+      makeCollection()
         .id(getId(request))
         .updatedNow()
         .author( 
-          PersonObject
-            .makePerson()
-            .displayName(getAuthor(request))
-            .get())
+          makePerson()
+            .displayName(getAuthor(request)))
         .displayName(getTitle(request))
         .get();
   }

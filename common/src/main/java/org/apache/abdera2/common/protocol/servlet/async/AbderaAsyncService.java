@@ -50,7 +50,7 @@ public class AbderaAsyncService
     public static final String QUEUE = "AbderaProcessorQueue";
     public static final String CM = "AbderaChannelManager";
   
-    private final static Log log = LogFactory.getLog(AbderaAsyncService.class);
+    final static Log log = LogFactory.getLog(AbderaAsyncService.class);
     
     private ServletContext context;
     private TaskExecutor exec;
@@ -87,7 +87,7 @@ public class AbderaAsyncService
       return c;
     }
     
-    private static boolean getBooleanProperty(Map<String, Object> properties, String name, boolean def) {
+    static boolean getBooleanProperty(Map<String, Object> properties, String name, boolean def) {
       boolean answer = def;
       if (properties.containsKey(name)) {
         Object v = properties.get(name);

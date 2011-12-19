@@ -18,12 +18,12 @@
 package org.apache.abdera2.common.protocol;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 
@@ -34,21 +34,17 @@ public class BasicWorkspaceInfo
     private static final long serialVersionUID = -8459688584319762878L;
     
     public static class Generator implements Supplier<WorkspaceInfo> {
-
-      private String title;
-      private final Set<CollectionInfo> collections = 
-        new LinkedHashSet<CollectionInfo>();
-      
+      String title;
+      final ImmutableSet.Builder<CollectionInfo> collections = 
+        ImmutableSet.builder();
       public Generator title(String title) {
         this.title = title;
         return this;
       }
-      
       public Generator collection(CollectionInfo info) {
         this.collections.add(info);
         return this;
       }
-      
       public WorkspaceInfo get() {
         return new BasicWorkspaceInfo(this);
       }
@@ -56,16 +52,16 @@ public class BasicWorkspaceInfo
     }
     
     protected final String title;
-    protected final Set<CollectionInfo> collections =
-      new LinkedHashSet<CollectionInfo>();
+    protected final Set<CollectionInfo> collections;
 
     protected BasicWorkspaceInfo(Generator generator) {
       this.title = generator.title;
-      this.collections.addAll(generator.collections);
+      this.collections = generator.collections.build();
     }
 
     public BasicWorkspaceInfo(String title) {
         this.title = title;
+        this.collections = ImmutableSet.of();
     }
 
     public String getTitle() {

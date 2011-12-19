@@ -29,7 +29,7 @@ public class WhiteListParseFilter extends AbstractSetParseFilter {
   }
   
   public static class Builder extends AbstractSetParseFilter.Builder<WhiteListParseFilter> {
-    private boolean listAttributesExplicitly;
+    boolean listAttributesExplicitly;
     public Builder listAttributesExplicitly() {
       this.listAttributesExplicitly = true;
       return this;
