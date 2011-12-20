@@ -155,6 +155,15 @@ public class BinaryObject extends FileObject {
       return super.mimeType(mimeType);
     }
     
+    @Override
+    public M set(String name, Object val) {
+      if ("mimeType".equals(name)) {
+        if (a) return (M)this;
+        else a = true;
+      }
+      return super.set(name, val);
+    }
+    
     public M data(DataHandler data, CompressionCodec... comps) throws IOException {
       return data(data,(Hasher)null,comps);
     }

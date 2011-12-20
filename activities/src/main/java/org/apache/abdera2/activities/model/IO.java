@@ -307,6 +307,10 @@ public abstract class IO {
     }
   }
   
+  public CollectionWriter getCollectionWriter(OutputStream out) {
+    return getCollectionWriter(out, getDefaultCharset());
+  }
+  
   public abstract CollectionWriter getCollectionWriter(Writer out);
   
   

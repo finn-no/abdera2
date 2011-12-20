@@ -78,7 +78,7 @@ public class ASBase
     public ASBuilder() {
       super(ASBase.class,ASBuilder.class);
     }
-    protected ASBuilder(Map<String,Object> map) {
+    public ASBuilder(Map<String,Object> map) {
       super(map,ASBase.class,ASBuilder.class);
     }    
   }

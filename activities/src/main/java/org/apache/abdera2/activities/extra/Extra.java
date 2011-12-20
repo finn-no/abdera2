@@ -538,6 +538,10 @@ public final class Extra {
             "getActor", 
             pred);
   }
+  
+  public static Selector<Activity> actorIs(ASObject obj) {
+    return actorIs(Extra.<Activity>sameIdentity(obj));
+  }
    
   public static Selector<Activity> audienceHasViewer(Audience audience) {
     return audienceHas(audience,isViewer());
@@ -770,15 +774,18 @@ public final class Extra {
     return new Equivalence<X>() {
       protected boolean doEquivalent(X a, X b) {
         Selector<Map.Entry<String,Object>> filter = 
-          ASBase.withFields("id","alias","objectType");
+          ASBase.withFields("id","alias","objectType","displayName");
         Map<String,Object> map1 = Maps.transformEntries(a.toMap(filter),lower_val);
         Map<String,Object> map2 = Maps.transformEntries(b.toMap(filter),lower_val);
         MapDifference<String,Object> diff = 
           Maps.difference(map1, map2);
         return ((diff.entriesInCommon().containsKey("alias") ||
-            diff.entriesInCommon().containsKey("id")) && 
+            diff.entriesInCommon().containsKey("id") || 
+            diff.entriesInCommon().containsKey("displayName")) && 
             !diff.entriesDiffering().containsKey("objectType") && 
-            !diff.entriesDiffering().containsKey("id"));
+            !diff.entriesDiffering().containsKey("id") && 
+            !diff.entriesOnlyOnLeft().containsKey("id") && 
+            !diff.entriesOnlyOnRight().containsKey("id"));
       }
       protected int doHash(ASObject t) {
         return MoreFunctions.genHashCode(

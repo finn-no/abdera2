@@ -55,7 +55,6 @@ public final class Lang
     private Subtag t_extlang, t_script, t_variant, 
                    t_region, t_extension, t_privateuse;
     
-
     public Lang() {
         this(init(Locale.getDefault()));
     }
