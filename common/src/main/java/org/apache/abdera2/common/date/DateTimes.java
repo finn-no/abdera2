@@ -321,8 +321,16 @@ public final class DateTimes {
     }
   }
 
+  public static DateTime utc(String dt) {
+    return dt(dt, DateTimeZone.UTC);
+  }
+  
   public static DateTime dt(String dt) {
     return new DateTime(dt);
+  }
+  
+  public static DateTime dt(String dt, DateTimeZone dtz) {
+    return new DateTime(dt,dtz);
   }
   
   public static DateTime dt(Date date) {
