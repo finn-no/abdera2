@@ -586,11 +586,14 @@ public class Session {
       lf.addListener(
         new Runnable() {
           public void run() {
+            X resp = null;
             try {
-              listener.onResponse(lf.get());
+              resp = lf.get();
+              listener.onResponse(resp);
             } catch (Throwable t) {
-              t.printStackTrace();
               throw ExceptionHelper.propogate(t);
+            } finally { // auto release since by this point we know we're done with it
+              if (resp != null) resp.release();
             }
           }
         }, 
