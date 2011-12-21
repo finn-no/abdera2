@@ -159,6 +159,10 @@ public class Preference implements Serializable {
       return this;
     }
     
+    public Builder param(String key) {
+      return param(key,"");
+    }
+    
     public Builder param(String key, String val) {
       checkNotNull(key);
       key = key.toLowerCase(Locale.US);
@@ -306,7 +310,7 @@ public class Preference implements Serializable {
     StringBuilder buf = new StringBuilder();
     buf.append(token);
     
-    if (value != null) {
+    if (value != null && value.length() > 0) {
       String encval = Codec.encode(value, Codec.STAR);
       if (value.equals(encval)) {
         buf.append('=')
@@ -320,16 +324,18 @@ public class Preference implements Serializable {
 
    for (Map.Entry<String, String> entry : params.entrySet()) {
      String val = entry.getValue();
-     String encval = Codec.encode(val,Codec.STAR);
+     String encval = val != null ? Codec.encode(val,Codec.STAR) : null;
      buf.append(';')
         .append(entry.getKey());
-     if (!val.equals(encval)) {
-       buf.append('*')
-          .append('=')
-          .append(encval);
-     } else {
-       buf.append('=')
-          .append(quotedIfNotToken(val));
+     if (val != null && val.length() > 0) {
+       if (!val.equals(encval)) {
+         buf.append('*')
+            .append('=')
+            .append(encval);
+       } else {
+         buf.append('=')
+            .append(quotedIfNotToken(val));
+       }
      }
    }
     
@@ -337,7 +343,7 @@ public class Preference implements Serializable {
   }
   
   private final static String TOKEN = "[\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\|\\~a-zA-Z0-9]+";
-  private final static String PREF = TOKEN+"(?:\\s*=\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+")))?";
+  private final static String PREF = TOKEN+"(?:\\s*=\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+"))?)?";
   private final static String PARAMS = "(?:\\s*;\\s*" + PREF + ")*";
   private final static String PATTERN = "("+PREF+")(" + PARAMS + ")";
 
@@ -347,33 +353,35 @@ public class Preference implements Serializable {
     Pattern.compile("("+PREF+")");
   
   public static Iterable<Preference> parse(String text) {
-    ImmutableList.Builder<Preference> prefs = ImmutableList.builder();
-    Matcher matcher = pattern.matcher(text);
-    while (matcher.find()) {
-      String pref = matcher.group(1);
-      String params = matcher.group(2);
-      String token = null, tokenval = null;
-      
-      if (pref != null) {
-        String[] ps = pref.split("\\s*=\\s*", 2);
-        token = ps[0].trim();
-        if (ps.length == 2)
-          tokenval = Codec.decode(CharUtils.unquote(ps[1]));
-      }
-      
-      Preference.Builder maker = 
-        Preference.make().token(token).value(tokenval);   
-      if (params != null) {
-        Matcher mparams = param.matcher(params);
-        while(mparams.find()) {
-          String p = mparams.group(1);
-          String[] ps = p.split("\\s*=\\s*", 2);
-          maker.param(ps[0], Codec.decode(CharUtils.unquote(ps[1])));
+      ImmutableList.Builder<Preference> prefs = ImmutableList.builder();
+      Matcher matcher = pattern.matcher(text);
+      while (matcher.find()) {
+        String pref = matcher.group(1);
+        String params = matcher.group(2);
+        String token = null, tokenval = null;
+        
+        if (pref != null) {
+          String[] ps = pref.split("\\s*\\*?=\\s*", 2);
+          token = ps[0].trim();
+          if (ps.length == 2)
+            tokenval = Codec.decode(CharUtils.unquote(ps[1]));
         }
+        
+        Preference.Builder maker = 
+          Preference.make().token(token).value(tokenval);   
+        if (params != null) {
+          Matcher mparams = param.matcher(params);
+          while(mparams.find()) {
+            String p = mparams.group(1);
+            String[] ps = p.split("\\s*\\*?=\\s*", 2);
+            if (ps.length == 2)
+              maker.param(ps[0], Codec.decode(CharUtils.unquote(ps[1])));
+            else maker.param(ps[0]);
+          }
+        }
+        prefs.add(maker.get());
       }
-      prefs.add(maker.get());
-    }
-    return prefs.build();
+      return prefs.build();
   }
   
   public static String toString(

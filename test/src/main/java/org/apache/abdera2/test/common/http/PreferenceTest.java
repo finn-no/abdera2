@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.google.common.collect.Iterables;
+
 public class PreferenceTest {
 
   @Test
@@ -17,9 +19,9 @@ public class PreferenceTest {
         PREF_LENIENT, 
         WAIT(10), 
         PREF_RETURN_ASYNCH,
-        make("A","B").param("B", "c").param("C","foo bar baz").get());
+        make("A","B").param("B", "c").param("C","fo\u00F6 bar baz").get());
 
-    assertEquals("lenient,wait=10,return-asynch,a=B;b=c;c=\"foo bar baz\"",prefs);
+    assertEquals("lenient,wait=10,return-asynch,a=B;b=c;c*=UTF-8''fo%C3%B6%20bar%20baz",prefs);
     
     Iterable<Preference> list = parse(prefs);
     assertTrue(contains(list, WAIT(10)));
@@ -34,9 +36,9 @@ public class PreferenceTest {
     assertEquals("B",a.getValue());
     assertTrue(a.hasParam("b"));
     assertEquals("c",a.getParam("B"));
-    
-    System.out.println(a.getParam("b"));
-    System.out.println(a.getParam("c"));
+    assertEquals("fo\u00F6 bar baz", a.getParam("C"));    
+    list = parse("lenient , wait=;foo=");
+    assertEquals(2,Iterables.size(list));
     
   }
   
