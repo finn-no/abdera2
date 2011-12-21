@@ -59,10 +59,10 @@ public class Authentication implements Iterable<String>, Serializable {
   
   private final static String TOKEN = "[\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\|\\~a-zA-Z0-9]+";
   private final static String B64 = "([a-zA-Z0-9\\-\\.\\_\\~\\+\\/]+\\=*)";
-  private final static String PARAM = TOKEN+"\\s*={1}\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+"))";
-  private final static String PARAMS = "(" + PARAM + "(?:\\s*,\\s*"+PARAM+")*)";
+  private final static String PARAM = TOKEN+"\\s*=\\s*(?:(?:\"(?:(?:\\Q\\\"\\E)|[^\"])*\")|(?:"+TOKEN+"))";
+  private final static String PARAMS = "\\s*,?\\s*(" + PARAM + "(?:\\s*,\\s*(?:"+PARAM+")?)*)";
   private final static String B64orPARAM = "(?:" + PARAMS + "|" + B64 + ")";
-  private final static String PATTERN = "("+TOKEN+")(?:\\s+" + B64orPARAM + ")?";
+  private final static String PATTERN = "("+TOKEN+")(?:\\s*" + B64orPARAM + ")?";
   private final static Pattern pattern = 
     Pattern.compile(PATTERN);
   private final static Pattern param = 
@@ -91,6 +91,13 @@ public class Authentication implements Iterable<String>, Serializable {
       }
   };
   
+  public static String unescape(String quoted) {
+    StringBuilder buf = new StringBuilder();
+    for (char c : quoted.toCharArray())
+      if (c != '\\') buf.append(c);
+    return buf.toString();
+  }
+  
   public static Iterable<Authentication> parse(String challenge) {
     checkNotNull(challenge);
     List<Authentication> challenges = new ArrayList<Authentication>();
@@ -98,6 +105,7 @@ public class Authentication implements Iterable<String>, Serializable {
     while (matcher.find()) {
       String scheme = matcher.group(1);
       String params = matcher.group(2);
+      params = params != null ? params.replaceAll(",\\s*,", ",").replaceAll(",\\s*,", ",") : null;
       String b64token = matcher.group(3); 
       Authentication.Builder auth = 
         make()
@@ -111,7 +119,7 @@ public class Authentication implements Iterable<String>, Serializable {
           String name = ps[0];
           if (name.charAt(name.length()-1)=='*')
             name = name.substring(0,name.length()-1);
-          auth.param(name, Codec.decode(unquote(ps[1])));
+          auth.param(name, Codec.decode(unquote(unescape(ps[1]))));
         }
       }
       challenges.add(auth.get());
