@@ -25,6 +25,7 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.activities.model.CollectionWriter;
 import org.apache.abdera2.activities.model.Verb;
 import org.apache.abdera2.activities.model.ASBase.ASBuilder;
 import org.apache.abdera2.activities.model.IO;
@@ -53,6 +54,7 @@ import org.junit.Test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 public class ActivitiesTest {
@@ -263,6 +265,26 @@ public class ActivitiesTest {
     assertTrue(Extra.isBtoNetwork().select(activity));
     assertFalse(Extra.isTo(PersonObject.makePerson("Joe").id("urn:foo").get()).select(activity));
     
+  }
+  
+  @Test
+  public void testCollectionWriter() {
+    IO io = IO.get();
+    StringWriter sw = new StringWriter();
+    CollectionWriter cw = io.getCollectionWriter(sw);
+    cw.writeHeader(
+      ASBase.make()
+      .set("a","b")
+      .get());
+    cw.writeObject(
+      Activity.makeActivity().verb(Verb.POST).get());
+    cw.writeObjects(
+      Activity.makeActivity().verb(Verb.POST).get(),
+      Activity.makeActivity().verb(Verb.POST).get());
+    cw.complete();
+    Collection<Activity> col = io.read(sw.toString());
+    assertEquals("b",col.getProperty("a"));
+    assertEquals(3, Iterables.size(col.getItems()));
   }
   
   @Test

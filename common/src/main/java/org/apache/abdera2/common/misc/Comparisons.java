@@ -269,4 +269,31 @@ public class Comparisons {
     };
   }
   
+  public static <T>Comparison<T> equals() {
+    return Comparisons.<T>neitherIsNull()
+      .and(new Comparison<T>() {
+        public boolean apply(T r1, T r2) {
+          return r1.equals(r2);
+        }
+      });
+  }
+  
+  public static <T>Comparison<T> identity() {
+    return Comparisons.<T>neitherIsNull()
+      .and(new Comparison<T>() {
+        public boolean apply(T r1, T r2) {
+          return r1 == r2;
+        }
+      });
+  }
+  
+  public static Comparison<String> equalsIgnoreCase() {
+    return Comparisons.<String>neitherIsNull()
+      .and(new Comparison<String>() {
+        public boolean apply(String r1, String r2) {
+          return r1.equalsIgnoreCase(r2);
+        }
+      });
+  }
+  
 }

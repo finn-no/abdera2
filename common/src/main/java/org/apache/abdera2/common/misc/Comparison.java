@@ -17,6 +17,11 @@
  */
 package org.apache.abdera2.common.misc;
 
+import org.apache.abdera2.common.selector.AbstractSelector;
+import org.apache.abdera2.common.selector.Selector;
+
+import com.google.common.base.Predicate;
+
 /**
  * A Comparison is similiar to Comparable in that it compares
  * the equivalence of two Objects based on some specific condition,
@@ -36,7 +41,7 @@ public abstract class Comparison<R> {
 
   public abstract boolean apply(R r1, R r2);
   
-  public Comparison<R> negate() {
+  public final Comparison<R> negate() {
     final Comparison<R> _this = this;
     return new Comparison<R>() {
       public boolean apply(R r1, R r2) {
@@ -45,7 +50,7 @@ public abstract class Comparison<R> {
     };
   }
   
-  public Comparison<R> and(final Comparison<R> other) {
+  public final Comparison<R> and(final Comparison<R> other) {
     final Comparison<R> _this = this;
     return new Comparison<R>() {
       public boolean apply(R r1, R r2) {
@@ -54,7 +59,7 @@ public abstract class Comparison<R> {
     };
   }
   
-  public Comparison<R> or(final Comparison<R> other) {
+  public final Comparison<R> or(final Comparison<R> other) {
     final Comparison<R> _this = this;
     return new Comparison<R>() {
       public boolean apply(R r1, R r2) {
@@ -63,7 +68,7 @@ public abstract class Comparison<R> {
     };
   }
   
-  public Comparison<R> not(final Comparison<R> other) {
+  public final Comparison<R> not(final Comparison<R> other) {
     final Comparison<R> _this = this;
     return new Comparison<R>() {
       public boolean apply(R r1, R r2) {
@@ -72,4 +77,22 @@ public abstract class Comparison<R> {
     };
   } 
 
+  public final Predicate<R> predicateFor(final R first) {
+    final Comparison<R> comp = this;
+    return new Predicate<R>() {
+      public boolean apply(R input) {
+        return comp.apply(first, input);
+      }
+    };
+  }
+  
+  public final Selector<R> selectorFor(final R first) {
+    final Comparison<R> comp = this;
+    return new AbstractSelector<R>() {
+      @SuppressWarnings("unchecked")
+      public boolean select(Object item) {
+        return comp.apply(first,(R)item);
+      }
+    };
+  }
 }
