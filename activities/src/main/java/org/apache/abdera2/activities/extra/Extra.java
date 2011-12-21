@@ -47,6 +47,7 @@ import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.MoreFunctions;
+import org.apache.abdera2.common.misc.Pair;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.PropertySelector;
 import org.apache.abdera2.common.selector.Selector;
@@ -1543,4 +1544,15 @@ public final class Extra {
     }
     return mt;
   }
+  
+  public static <X extends ASObject>Function<Collection<X>,Iterable<Pair<Void, X>>> pairIndexer() { 
+    return new Function<Collection<X>,Iterable<Pair<Void, X>>>() {
+      public Iterable<Pair<Void, X>> apply(Collection<X> input) {
+        return 
+          Pair.<Void,X>make()
+            .index(MoreFunctions.<X>alwaysVoid(), input.getItems());
+      }
+    };
+  }
+  
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.abdera2.activities.extra.Extra;
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
@@ -275,15 +276,6 @@ public class MiscTest {
   private final static ExecutorService exec = 
     MoreExecutors2.getExitingExecutor();
   
-  private static final Function<Collection<Activity>,Iterable<Pair<Void, Activity>>> transform = 
-    new Function<Collection<Activity>,Iterable<Pair<Void, Activity>>>() {
-      public Iterable<Pair<Void, Activity>> apply(Collection<Activity> input) {
-        return 
-          Pair.<Void,Activity>make()
-            .index(MoreFunctions.<Activity>alwaysVoid(), input.getItems());
-      }
-  };
-  
   private final static Function<
     Collection<Activity>, 
     Future<Iterable<Pair<Integer,Iterable<String>>>>> ff = 
@@ -291,7 +283,7 @@ public class MiscTest {
     MoreFunctions.<
       Iterable<Pair<Void, Activity>>, 
       Iterable<Pair<Integer,Iterable<String>>>>futureFunction(f3,exec),
-    transform);
+    Extra.<Activity>pairIndexer());
 
   private Activity getActivity(String name,int n) {
     return Activity.makeActivity()
