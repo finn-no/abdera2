@@ -318,6 +318,7 @@ public class MiscTest {
     // and counts the number of activities per actor
     
     Iterable<Pair<Integer,Iterable<String>>> ret = ff.apply(col).get();
+    
     Pair<Integer,Iterable<String>> first = Iterables.get(ret,0);
     Pair<Integer,Iterable<String>> second = Iterables.get(ret,1);
     assertEquals(Integer.valueOf(2),first.first());
