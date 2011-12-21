@@ -17,9 +17,7 @@
  */
 package org.apache.abdera2.common.http;
 
-
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -94,6 +92,30 @@ public class Preference implements Serializable {
   
   public static Builder make() {
     return new Builder();
+  }
+  
+  public static Builder make(String token) {
+    return make().token(token.toLowerCase(Locale.US));
+  }
+  
+  public static Builder make(String token, String value) {
+    return make(token).value(value);
+  }
+
+  public static Builder make(String token, int value) {
+    return make(token).value(value);
+  }
+  
+  public static Builder make(String token, long value) {
+    return make(token).value(value);
+  }
+  
+  public static Builder make(String token, short value) {
+    return make(token).value(value);
+  }
+  
+  public static Builder make(String token, boolean value) {
+    return make(token).value(value);
   }
   
   public static class Builder implements Supplier<Preference> {
@@ -188,19 +210,19 @@ public class Preference implements Serializable {
   }
   
   public long getLongValue() {
-    return Long.parseLong(value);
+    return value != null ? Long.parseLong(value) : -1;
   }
   
   public int getIntValue() {
-    return Integer.parseInt(value);
+    return value != null ? Integer.parseInt(value) : -1;
   }
   
   public short getShortValue() {
-    return Short.parseShort(value);
+    return value != null ? Short.parseShort(value) : -1;
   }
   
   public boolean getBooleanValue() {
-    return Boolean.parseBoolean(value);
+    return value != null ? Boolean.parseBoolean(value) : false;
   }
   
   static final Set<String> reserved = 
@@ -248,10 +270,35 @@ public class Preference implements Serializable {
     return true;
   }
 
+  public boolean hasParam(String name) {
+    checkNotNull(name);
+    name = name.toLowerCase(Locale.US);
+    return params.containsKey(name);
+  }
+  
+  public int getIntParam(String name) {
+    String val = getParam(name);
+    return val != null ? Integer.parseInt(name) : -1;
+  }
+  
+  public long getLongParam(String name) {
+    String val = getParam(name);
+    return val != null ? Long.parseLong(name) : -1;
+  }
+  
+  public short getShortParam(String name) {
+    String val = getParam(name);
+    return val != null ? Short.parseShort(name) : -1;
+  }
+  
+  public boolean getBooleanParam(String name) {
+    String val = getParam(name);
+    return val != null ? Boolean.parseBoolean(name) : false;
+  }
+  
   public String getParam(String name) {
     checkNotNull(name);
     name = name.toLowerCase(Locale.US);
-    checkArgument(!reserved(name));
     return params.get(name);
   }
   
@@ -290,15 +337,14 @@ public class Preference implements Serializable {
   }
   
   private final static String TOKEN = "[\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\|\\~a-zA-Z0-9]+";
-  private final static String PARAM = TOKEN+"\\s*={1}\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+"))";
-  private final static String PREF = TOKEN+"(?:\\s*={1}\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+"))){0,1}";
-  private final static String PARAMS = "(?:\\s*;\\s*(" + PARAM + "(?:\\s*;\\s*"+PARAM+")))*";
-  private final static String PATTERN = "("+PREF+")" + PARAMS;
+  private final static String PREF = TOKEN+"(?:\\s*=\\s*(?:(?:\"[^\"]+\")|(?:"+TOKEN+")))?";
+  private final static String PARAMS = "(?:\\s*;\\s*" + PREF + ")*";
+  private final static String PATTERN = "("+PREF+")(" + PARAMS + ")";
 
   private final static Pattern pattern = 
     Pattern.compile(PATTERN);
   private final static Pattern param = 
-    Pattern.compile("("+PARAM+")");
+    Pattern.compile("("+PREF+")");
   
   public static Iterable<Preference> parse(String text) {
     ImmutableList.Builder<Preference> prefs = ImmutableList.builder();
@@ -376,14 +422,13 @@ public class Preference implements Serializable {
   
   /**
    * Utility method that checks to see if the given token is included
-   * in the collection of preference
+   * in the collection of preference... this ignores the parameters
+   * and looks only at the preference token
    */
   public static boolean contains(
     Iterable<Preference> preferences, 
     Preference preference) {
-      return preferences instanceof Collection ?
-        ((Collection<Preference>)preferences).contains(preference) :
-        contains(preferences,preference.getToken());
+      return get(preferences,preference.getToken()) != null;
   }
   
   public static Preference get(Iterable<Preference> preferences, String token) {

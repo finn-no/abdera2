@@ -249,7 +249,7 @@ public class ActivitiesTest {
       .to(Objects.ME)
       .cc(PersonObject.makePerson("Jane"))
       .bcc(Objects.ME)
-      .bto(Objects.NETWORK)      
+      .bto(Objects.NETWORK)   
       .get();
     assertNotNull(activity.getActor());
     assertNotNull(activity.getVerb());
