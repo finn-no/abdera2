@@ -282,22 +282,22 @@ public class Preference implements Serializable {
   
   public int getIntParam(String name) {
     String val = getParam(name);
-    return val != null ? Integer.parseInt(name) : -1;
+    return val != null ? Integer.parseInt(val) : -1;
   }
   
   public long getLongParam(String name) {
     String val = getParam(name);
-    return val != null ? Long.parseLong(name) : -1;
+    return val != null ? Long.parseLong(val) : -1;
   }
   
   public short getShortParam(String name) {
     String val = getParam(name);
-    return val != null ? Short.parseShort(name) : -1;
+    return val != null ? Short.parseShort(val) : -1;
   }
   
   public boolean getBooleanParam(String name) {
     String val = getParam(name);
-    return val != null ? Boolean.parseBoolean(name) : false;
+    return val != null ? Boolean.parseBoolean(val) : false;
   }
   
   public String getParam(String name) {
@@ -359,12 +359,11 @@ public class Preference implements Serializable {
         String pref = matcher.group(1);
         String params = matcher.group(2);
         String token = null, tokenval = null;
-        
         if (pref != null) {
           String[] ps = pref.split("\\s*\\*?=\\s*", 2);
           token = ps[0].trim();
           if (ps.length == 2)
-            tokenval = Codec.decode(CharUtils.unquote(CharUtils.unescape(ps[1])));
+            tokenval = Codec.decode(CharUtils.unescape(CharUtils.unquote(ps[1])));
         }
         
         Preference.Builder maker = 
@@ -375,7 +374,7 @@ public class Preference implements Serializable {
             String p = mparams.group(1);
             String[] ps = p.split("\\s*\\*?=\\s*", 2);
             if (ps.length == 2)
-              maker.param(ps[0], Codec.decode(CharUtils.unquote(CharUtils.unescape(ps[1]))));
+              maker.param(ps[0], Codec.decode(CharUtils.unescape(CharUtils.unquote(ps[1]))));
             else maker.param(ps[0]);
           }
         }
