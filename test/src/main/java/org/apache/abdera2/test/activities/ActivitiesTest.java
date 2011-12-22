@@ -184,7 +184,6 @@ public class ActivitiesTest {
       assertNotNull(base);
       assertThat(base, hasItems("a","b","c","d","e","@base","@language"));
     } catch (Throwable t) {}
-    
   }
   
   @Test

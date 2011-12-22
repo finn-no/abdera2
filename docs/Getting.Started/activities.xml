@@ -513,23 +513,518 @@ cw.writeObject(
   </section>
     
   <section title="Custom Type Adapters and Property Mappings">
-    <t>TBD</t>
+    <t>Out of the box, the IO object is capable of working with a broad
+    range of simple and complex object types, including most of the 
+    types typically associated with Atom and Activity Streams implementations
+    (Joda-Time DateTime objects, Entity Tags, URI Templates, Collection
+    objects, Maps, etc). However, there are occasions when an application
+    has to use a custom class object.</t>
+    
+    <t>For instance, suppose we have the following class:</t>
+    
+    <figure><artwork>
+  public static class MyObject {
+    private final String val;
+    public MyObject(String v) {
+      this.val = v;
+    }
+    public String toString() {
+      return val;
+    }
+    public String getVal() {
+      return val;
+    }
+  }
+    </artwork></figure>
+    
+    <t>We want to be able to set an instance of MyObject as the value of 
+    an Activity Objects "foo" property, like so:</t>
+    
+    <figure><artwork>
+  PersonObject person = 
+    makePerson("Joe")
+      .set("foo", new MyObject("bar"));
+    </artwork></figure>
+    
+    <t>When serialized into JSON, we want this is appear as a regular 
+    String field:</t>
+    
+    <figure><artwork>
+  {
+    "objectType":"person",
+    "displayName":"Joe",
+    "foo":"bar"
+  }
+    </artwork></figure>
+    
+    <t>When parsing that JSON, however, we want the "foo" property to 
+    be interpreted as a MyObject instance so that calling object.getProperty("foo")
+    returns MyObject. To achieve that goal, we first need to create a custom 
+    type adapter:</t>
+    
+    <figure><artwork><![CDATA[
+  @AdaptedType(MyObject.class)
+  public static class MyObjectAdapter
+    extends SimpleAdapter<MyObject> {
+    protected MyObject deserialize(String v) {
+      return new MyObject(v);
+    }    
+  }  
+    ]]></artwork></figure>
+    
+    <t>The org.apache.abdera2.activities.io.gson.SimpleAdapter class is an
+    abstract base class that handles most of the difficult work for us. By
+    default, it uses the custom objects toString() method to serialize the 
+    object into a JSON string. If you need a more complex serialization, 
+    you will need to overload the serialize method.</t>
+    
+    <t>Note the use of the @AdaptedType annotation, this is required for
+    custom type adapters. It tells the IO class which type of object this
+    custom adapter is for.</t>
+    
+    <t>Once created, we need to register the type adapter with the IO object
+    and tell it to associate the "foo" property with MyObject instances:</t>
+    
+    <figure><artwork>
+  IO io = IO.make()
+    .adapter(new MyObjectAdapter())
+    .property("foo", MyObject.class)
+    .get();
+    </artwork></figure>
+    
+    <t>Note that we're creating a new instance of the IO object. Since IO
+    objects are immutable, custom type adapters and property assignments 
+    MUST be set up during the construction of the IO object. Once the IO
+    instance is created, we can proceed as usual:</t>
+    
+    <figure><artwork>
+  PersonObject person = 
+    makePerson("Joe")
+      .set("foo", new MyObject("bar"));
+  String str = io.write(base);
+  // now parse it to check..
+  person = io.readObject(new StringReader(str));
+  MyObject obj = person.getProperty("foo");
+  System.out.println(obj.getVal());
+    </artwork></figure>
+    
+    <t>Note that you need to take care when mapping property names to specific
+    kinds of objects because IO will attempt to treat all instances of that 
+    property name as the given object type. This will cause problems if you
+    use the same property name with different types of values within a single
+    document.</t>
+    
+    <t>By default, IO uses the following property mappings -- meaning that 
+    whenever fields with these names are encountered in a document, they 
+    will automatically be interpreted as the given type. You can override
+    the default interpretation by registering your own property mapping during
+    IO construction.</t>
+    
+    <texttable>
+    <ttcol align="left" width="15%">Name</ttcol>
+    <ttcol align="left">Type</ttcol>
+    <c>verb</c><c>org.apache.abdera2.activities.model.Verb</c>
+    <c>url",org.apache.abdera2.common.iri.IRI</c>
+    <c>fileUrl</c><c>org.apache.abdera2.common.iri.IRI</c>
+    <c>gadget</c><c>org.apache.abdera2.common.iri.IRI</c>
+    <c>updated</c><c>org.joda.time.DateTime</c>
+    <c>published</c><c>org.joda.time.DateTime</c>
+    <c>lang</c><c>org.apache.abdera2.common.lang.Lang</c>
+    <c>@language</c><c>org.apache.abdera2.common.lang.Lang</c>
+    <c>@base</c><c>org.apache.abdera2.common.iri.IRI</c>
+    <c>$ref</c><c>org.apache.abdera2.common.iri.IRI</c>
+    <c>icon</c><c>org.apache.abdera2.activities.model.MediaLink</c>
+    <c>image</c><c>org.apache.abdera2.activities.model.MediaLink</c>
+    <c>totalItems</c><c>Integer</c>
+    <c>duration</c><c>Integer</c>
+    <c>height</c><c>Integer</c>
+    <c>location</c><c>org.apache.abdera2.activities.model.objects.PlaceObject</c>
+    <c>reactions</c><c>org.apache.abdera2.activities.model.objects.TaskObject</c>
+    <c>mood</c><c>org.apache.abdera2.activities.model.objects.Mood</c>
+    <c>address</c><c>org.apache.abdera2.activities.model.objects.Address</c>
+    <c>stream</c><c>org.apache.abdera2.activities.model.MediaLink</c>
+    <c>fullImage</c><c>org.apache.abdera2.activities.model.MediaLink</c>
+    <c>endTime</c><c>org.joda.time.DateTime</c>
+    <c>startTime</c><c>org.joda.time.DateTime</c>
+    <c>mimeType</c><c>javax.activation.MimeType</c>
+    <c>rating</c><c>Double</c>
+    <c>position</c><c>org.apache.abdera2.common.geo.IsoPosition</c>
+    <c>etag</c><c>org.apache.abdera2.common.http.EntityTag</c>
+    <c>attending</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>followers</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>following</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>friends</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>friend-requests</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>likes</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>notAttending</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>maybeAttending</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>members</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>replies</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>reviews</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>saves</c><c>org.apache.abdera2.activities.model.Collection</c>
+    <c>shares</c><c>org.apache.abdera2.activities.model.Collection</c>
+    </texttable>
+
+    <t>Note that property mapping applies even if the properties value is
+    an array, for instance, given our custom type mapping using the MyObject
+    class, "foo":["bar","baz"] would be interpreted as collection of MyObject
+    values:</t>
+    
+    <figure><artwork><![CDATA[
+  PersonObject person = io.readObject(new StringReader(str));
+  Iterable<MyObject> list = person.getProperty("foo");
+  for (MyObject obj : list) {...}
+    ]]></artwork></figure>
+    
   </section>
   
   <section title="Object Types">
-    <t>TBD</t>
+    <t>The Activity Streams model is extensible, allowing developers to 
+    describe any type of activity with any type of object. As part of the
+    standard, Activity Streams defines a handful of common basic object
+    types and provides the mechanism for creating more. Abdera2 supports
+    all of the core standard object types and introduces a number of its
+    own. Refer to the API Documentation for details on each of Abdera's 
+    provided object types.</t>
+    
+    <t>To support creation of new object types, Abdera2 gives you the 
+    choice of either using the dynamic org.apache.abdera2.activities.model.ASObject
+    API or the ability to extend the core objects to create a static extension.</t>
+    
+    <t>Creating a new object type using the dynamic API is simple:</t>
+    
+    <figure><artwork>
+  ASObject myObject = 
+    ASObject.makeObject()
+      .objectType("foo")
+      .displayName("My Foo Object")
+      .set("bar","baz")
+      .get();
+    </artwork></figure>
+    
+    <t>When serialized, this will look like:</t>
+    
+    <figure><artwork>
+  {
+    "objectType":"foo",
+    "displayName":"My Foo Object",
+    "bar":"baz"
+  }
+    </artwork></figure>
+    
+    <t>Creating a new static object type requires a few more steps but 
+    is pretty straightforward:</t>
+    
+    <figure><artwork><![CDATA[
+  public class FooObject
+    extends ASObject {
+  
+    public static <T extends FooObject>Builder makeFoo() {
+      return new Builder("foo");
+    }
+  
+    @Name("foo")
+    public static final class Builder extends ASObject.Builder<FooObject,Builder> {
+      public Builder() {
+        super(FooObject,Builder.class);
+      }
+      public Builder(String objectType) {
+        super(objectType,FooObject,Builder.class);
+      }
+      public Builder(Map<String,Object> map) {
+        super(map,FooObject,Builder.class);
+      }
+      public Builder bar(String val) {
+        set("bar","val");
+        return this;
+      }
+    }
+  
+    public FooObject(Map<String,Object> map) {
+      super(map,Builder.class,FooObject.class);
+    }
+  
+    public <X extends FooObject, M extends ASObject.Builder<X,M>>FooObject(Map<String,Object> map, Class<M> _class, Class<X>_obj) {
+      super(map,_class,_obj);
+    }
+    
+    public String getBar() {
+      return getProperty("bar");
+    }
+  }
+    ]]></artwork></figure>
+    
+    <t>Here, we're creating two objects: FooObject and FooObject.Builder. 
+    FooObject.Builder extends from the core ASObject.Builder and provides
+    all the necessary methods for constructing immutable instances of 
+    the FooObject class. FooObject extends from ASObject, inheriting all 
+    of the core Activity object fields and introducing a single extension
+    field called "bar".</t>
+    
+    <t>Once defined, we can use our custom object type:</t>
+    
+    <figure><artwork>
+  FooObject foo = 
+    FooObject.makeFoo()
+      .displayName("My Foo Object")
+      .bar("baz")
+      .get();
+    </artwork></figure>
+    
+    <t>The output is identical to that produced by the dynamic API:</t>
+    
+    <figure><artwork>
+  {
+    "objectType":"foo",
+    "displayName":"My Foo Object",
+    "bar":"baz"
+  }
+    </artwork></figure>
+    
+    <t>The final step is to register your custom object type with IO, in 
+    order to have IO automatically generate instances of your custom
+    object type when encountered within a document:</t>
+    
+    <figure><artwork>
+  IO io = IO.make()
+    .object(FooObject.Builder.class);
+    .get();
+    
+  FooObject foo = io.readObject(...);
+    </artwork></figure>
+    
+  </section>
+  
+  <section title="Custom Verbs">
+    <t>Another key extension point within Activity Streams are the 
+    use of custom verbs. Within the standard, a collection of common
+    verbs are defined and supported by Abdera, along with a handful of
+    additional extension verbs. These include:</t>
+    
+    <t><list>
+ <t>add</t>
+ <t>cancel</t>
+ <t>checkin</t>
+ <t>delete</t>
+ <t>favorite</t>
+ <t>follow</t>
+ <t>give</t>
+ <t>ignore</t>
+ <t>invite</t>
+ <t>join</t>
+ <t>leave</t>
+ <t>like</t>
+ <t>make-friend</t>
+ <t>post</t>
+ <t>play</t>
+ <t>receive</t>
+ <t>remove</t>
+ <t>remove-friend</t>
+ <t>request-friend</t>
+ <t>rsvp-maybe</t>
+ <t>rsvp-no</t>
+ <t>rsvp-yes</t>
+ <t>save</t>
+ <t>share</t>
+ <t>stop-following</t>
+ <t>tag</t>
+ <t>unfavorite</t>
+ <t>unlike</t>
+ <t>unsave</t>
+ <t>update</t>
+ <t>comment</t>
+ <t>purchase</t>  
+ <t>consume</t>
+ <t>host</t>
+ <t>read</t>
+ <t>approve</t>
+ <t>reject</t>
+ <t>archive</t>
+ <t>install</t>
+ <t>close</t>
+ <t>open</t>
+ <t>resolve</t>
+    </list></t>
+    
+      <t>Each of these common verbs correlate to a constant on the 
+  org.apache.abdera2.activities.model.Verb object. Whenever possible,
+  applications should always use an existing verb. However, there are 
+  cases when a new verb must be created.</t>
+  
+  <t>There are a couple points to keep in mind when creating a new verb:
+  1) They are always a single token value, whitespace is not allowed and
+  2) They are always case-insensitive, "Post" is equivalent to "post".</t>
+  
+  <t>To create a new verb within Abdera2, simple call the Verb.get() method,
+  passing in the name of the verb:</t>
+  
+  <figure><artwork>
+  Activity activity = 
+    Activity.makeActivity()
+      .actor(PersonObject.makePerson("Me")))
+      .verb(<b>Verb.get("foo")</b>)
+      .object(NoteObject.makeNote("A Note"))
+      .get();
+  </artwork></figure>
+  </section>
+  
+  <section title="Replies and Responses">
+  
+  <t>The "Responses for Activity Streams" 
+  <eref target="http://activitystrea.ms/specs/json/replies/1.0/">specification</eref> 
+  defines an extensions to Activity Streams that support threaded conversations.
+  Support for the extension has been built into Abdera2.</t>
+  
+  <t>Any Activity Streams object may have an "inReplyTo" property, whose 
+  value is an array of one or more objects for which the containing object
+  is considered a response. The conceptual model is generally identical to
+  that defined by the <eref target="http://www.ietf.org/rfc/rfc4685.txt">Atom Threading Extensions</eref>.</t>
+  
+  <figure><artwork>
+    NoteObject note = NoteObject
+      .makeNote()
+      .id("urn:foo")
+      .content("This is a note")
+      .get();
+    NoteObject comment = NoteObject
+      .makeNote()
+      .id("urn:bar")
+      .content("This is a comment")
+      <b>.inReplyTo(note)</b>
+      .get();
+  </artwork></figure>
+  
+  <t>A common application use case is the ability to show the number of 
+  responses that are known for a given type of object. For that, the 
+  responses specification defines a number of common property names 
+  that are mapped to Activity Collection object values. These include:</t>
+  
+  <t><list>
+  <t>attending</t>
+  <t>followers</t>
+  <t>following</t>
+  <t>friends</t>
+  <t>friend-requests</t>
+  <t>likes</t>
+  <t>notAttending</t>
+  <t>maybeAttending</t>
+  <t>members</t>
+  <t>replies</t>
+  <t>reviews</t>
+  <t>saves</t>
+  <t>shares</t>
+  </list></t>
+  
+  <t>For example, if I have a note object that has received two comments,
+  has been shared by one person, and liked by five people, within the JSON
+  serialization it would look something like:</t>
+  
+  <figure><artwork>
+  {
+    "objectType":"note",
+    "content":"This is a note",
+    "replies":{
+      "totalItems":2,
+      "items":[
+        {"objectType":"note",
+         "content":"This is a comment"},
+        {"objectType":"note",
+         "content":"This is another comment"}
+      ]
+    },
+    "shares":{
+      "totalItems":1,
+      "items":[
+        {"objectType":"person",
+         "displayName":"Joe"}
+      ]
+    },
+    "likes":{
+      "totalItems":5
+    }
+  }
+  </artwork></figure>
+  
+  <t>Within the Abdera2 API, this would be:</t>
+  
+  <figure><artwork><![CDATA[
+  NoteObject note = io.readObject(...);
+  Collection<ASObject> replies = note.getProperty("replies");
+  Collection<ASObject> shares = note.getProperty("shares");
+  Collection<ASObject> likes = note.getProperty("likes");
+  
+  System.out.println(
+    String.format(
+      "%d Comments, %d Shares, %d Likes",
+      replies.getTotalItems(),
+      shares.getTotalItems(),
+      likes.getTotalItems());
+  ]]></artwork></figure>
+  
   </section>
   
   <section title="Audience Targeting">
-    <t>TBD</t>
-  </section>
-  
-  <section title="Converting Activities to and from Atom">
-    <t>TBD</t>
-  </section>
-  
-  <section title="Miscellaneous">
-    <t>TBD</t>
+    <t>The "Audience Targeting for JSON Activities"
+    <eref target="http://activitystrea.ms/specs/json/targeting/1.0/">specification</eref>
+    defines a set of extension properties used to identify the target audience 
+    of the activity. Each of these properties ("to","cc","bto" and "bcc") are
+    defined as arrays of objects. For instance:</t>
+    
+    <figure><artwork>
+  {
+    "to":[{"objectType":"person","displayName":"Joe"},
+          {"objectType":"person","displayName":"Sally"}],
+    "bto":[{"alias":"@network"}]
+  }
+    </artwork></figure>
+    
+    <t>Abdera2 includes built in support for the Audience Targeting extension:</t>
+    
+    <figure><artwork>
+  Activity activity = 
+    Activity.makeActivity()
+      .actor(PersonObject.makePerson("James"))
+      .verb(Verb.POST)
+      .object(NoteObject.makeNote().content("Test").get())
+      .target(ServiceObject.makeService().id("urn:my:wall").get())
+      .to(PersonObject.makePerson("Joe"))
+      .to(PersonObject.makePerson("Sally"))
+      .bto(Objects.NETWORK)   
+      .get();
+    </artwork></figure>
+    
+    <t>Once created, you can use an extensive array of static methods from the
+    org.apache.abdera2.activities.extra.Extra class to determine the audience
+    of an activity, for instance:</t>
+    
+    <figure><artwork>
+    import static org.apache.abdera2.activities.model.objects.PersonObject.*;
+    import static org.apache.abdera2.activities.extra.Extra.*;
+    
+    isToMeOr(makePerson("Joe").get()).select(activity); // true
+    isTo(makePerson("Joe").get()).select(activity); // true
+    isCc(makePerson("Jane").get()).select(activity); // false
+    isBccMe().select(activity); // false
+    isBtoNetwork().select(activity); // true
+    isTo(makePerson("Joe").id("urn:foo").get()).select(activity); // false
+    </artwork></figure>
+    
+    <t>The audience testing methods are integrated with the Abdera2 Selector
+    framework making it possible to filter Activity Streams based on the 
+    audience. For instance, suppose you want to grab only the activities 
+    from a stream that are targeted directly to Joe (using the "to" property):</t>
+    
+    <figure><artwork><![CDATA[
+  import static org.apache.abdera2.activities.model.objects.PersonObject.*;
+  import static org.apache.abdera2.activities.extra.Extra.*;
+    
+  Collection<Activity> stream = io.readCollection(...);
+  Iterable<Activity> items = 
+    stream.getItems(
+      isTo(makePerson("Joe").get());
+  for (Activity activity : items) {...}
+    ]]></artwork></figure>
+    
   </section>
     
   </middle>
