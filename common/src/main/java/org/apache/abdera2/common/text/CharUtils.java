@@ -122,12 +122,20 @@ public final class CharUtils {
     }
     
     public static String unquote(String s) {
-      if (s == null || s.length() == 0)
-        return s;
-      int n = 0, e = s.length();
-      if (s.charAt(0) == '"') n++;
-      if (s.charAt(e-1) == '"' && s.charAt(e-2) != '\\') e--;
-      return s.substring(n,e);
+      StringBuilder buf = new StringBuilder();
+      int i = s.length();
+      boolean quoted = false, escaped = false;
+      for (int n = 0; n < s.length(); n++) {
+        char c = s.charAt(n);
+        if (n == 0 && c == '"') {
+          quoted = true;
+        } else if (!(quoted && n+1==i && !escaped && c == '"')) 
+          buf.append(c);
+        if (escaped) escaped = false;
+        else if (c == '\\' && !escaped) 
+          escaped = true;
+      }
+      return buf.toString();
     }
 
     public static String[] splitAndTrim(
@@ -209,5 +217,19 @@ public final class CharUtils {
   }
   
   public static final Joiner joiner = Joiner.on(',').skipNulls();
+
+  public static String unescape(String quoted) {
+    StringBuilder buf = new StringBuilder();
+    int i = quoted.length();
+    for (int n = 0; n < i; n++) {
+      char c = quoted.charAt(n);
+      if (c != '\\') buf.append(c);
+      else if (n < i-1 && quoted.charAt(n+1) == '\\') {
+        buf.append(c);
+        n++;
+      }
+    }
+    return buf.toString();
+  }
 
 }

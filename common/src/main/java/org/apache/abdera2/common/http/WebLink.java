@@ -426,26 +426,26 @@ public class WebLink implements Serializable {
         String name = text.substring(s+1,text.charAt(e-1)=='*'?e-1:e).trim();
         s = scanFor(';', text,e+1,false);
         String val = s!=-1?text.substring(e+1,s).trim():text.substring(e+1).trim();
-        val = Codec.decode(val).toLowerCase(Locale.US);
+        val = unescape(unquote(Codec.decode(val)));
         if (name.equals("rel"))
-          for (String v : unquote(val).split("\\s+"))
+          for (String v : val.toLowerCase(Locale.US).split("\\s+"))
             maker.rel(v);
         else if (name.equals("anchor"))
           maker.anchor(unwrap(val, '<', '>'));
         else if (name.equals("rev"))
-          for (String v : unquote(val).split("\\s+"))
+          for (String v : val.toLowerCase(Locale.US).split("\\s+"))
             maker.rev(v);
         else if (name.equals("hreflang"))
-          maker.lang(unquote(val));
+          maker.lang(val.toLowerCase(Locale.US));
         else if (name.equals("media"))
-          for (String v : unquote(val).split("\\s+"))
+          for (String v : val.toLowerCase(Locale.US).split("\\s+"))
             maker.media(v);
         else if (name.equals("title"))
-          maker.title(unquote(val));
+          maker.title(val);
         else if (name.equals("type"))
-          maker.mediaType(unquote(val));
+          maker.mediaType(val.toLowerCase(Locale.US));
         else
-          maker.param(name,unquote(val));
+          maker.param(name,val);
       }
       links.add(maker.get());
       if (s == -1) break;

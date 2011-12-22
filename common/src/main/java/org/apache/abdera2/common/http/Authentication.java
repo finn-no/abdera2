@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.abdera2.common.misc.MoreFunctions;
+import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.CharUtils.Profile;
 import org.apache.abdera2.common.text.Codec;
 
@@ -91,13 +92,6 @@ public class Authentication implements Iterable<String>, Serializable {
       }
   };
   
-  public static String unescape(String quoted) {
-    StringBuilder buf = new StringBuilder();
-    for (char c : quoted.toCharArray())
-      if (c != '\\') buf.append(c);
-    return buf.toString();
-  }
-  
   public static Iterable<Authentication> parse(String challenge) {
     checkNotNull(challenge);
     List<Authentication> challenges = new ArrayList<Authentication>();
@@ -119,7 +113,7 @@ public class Authentication implements Iterable<String>, Serializable {
           String name = ps[0];
           if (name.charAt(name.length()-1)=='*')
             name = name.substring(0,name.length()-1);
-          auth.param(name, Codec.decode(unquote(unescape(ps[1]))));
+          auth.param(name, Codec.decode(unquote(CharUtils.unescape(ps[1]))));
         }
       }
       challenges.add(auth.get());

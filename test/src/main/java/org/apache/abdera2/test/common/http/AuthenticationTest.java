@@ -11,7 +11,7 @@ import org.apache.abdera2.common.http.Authentication;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
-
+@SuppressWarnings("unchecked")
 public class AuthenticationTest {
 
   @Test

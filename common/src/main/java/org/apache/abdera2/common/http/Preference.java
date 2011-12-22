@@ -364,7 +364,7 @@ public class Preference implements Serializable {
           String[] ps = pref.split("\\s*\\*?=\\s*", 2);
           token = ps[0].trim();
           if (ps.length == 2)
-            tokenval = Codec.decode(CharUtils.unquote(Authentication.unescape(ps[1])));
+            tokenval = Codec.decode(CharUtils.unquote(CharUtils.unescape(ps[1])));
         }
         
         Preference.Builder maker = 
@@ -375,7 +375,7 @@ public class Preference implements Serializable {
             String p = mparams.group(1);
             String[] ps = p.split("\\s*\\*?=\\s*", 2);
             if (ps.length == 2)
-              maker.param(ps[0], Codec.decode(CharUtils.unquote(Authentication.unescape(ps[1]))));
+              maker.param(ps[0], Codec.decode(CharUtils.unquote(CharUtils.unescape(ps[1]))));
             else maker.param(ps[0]);
           }
         }
