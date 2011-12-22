@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.MoreFunctions;
+import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.UrlEncoding;
 
 import com.google.common.base.Function;
@@ -62,6 +63,7 @@ public class EntityTag
         entity_tag.charAt(pos) == '"' && 
         entity_tag.charAt(l) == '"',"Invalid");
       String tag = entity_tag.substring(pos+1,l);
+      tag = CharUtils.unescape(CharUtils.unquote(tag));
       return new EntityTag(tag, weak, false);
     }
 

@@ -3,11 +3,15 @@ package org.apache.abdera2.test.common.http;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
 
 import java.util.Arrays;
 
 import org.apache.abdera2.common.http.EntityTag;
 import org.junit.Test;
+
+import com.google.common.collect.Iterables;
 
 public class EntityTagTest {
   @Test
@@ -56,4 +60,22 @@ public class EntityTagTest {
       assertEquals("\"e2fc714c4727ee9395f324cd2e7f331f\"", etag.toString().toLowerCase());
   }
 
+  @Test
+  public void simpleetagquoted() {
+    EntityTag etag = new EntityTag("W/\"\\\"foo\\\\\"");
+    assertTrue(etag.isWeak());
+    assertEquals("\"foo\\",etag.getTag());
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void multiple() {
+    Iterable<EntityTag> tags = EntityTag.parseTags("\"foo\", W/\"bar\", \"\\\\whee\\\"\"");
+    assertEquals(3,Iterables.size(tags));
+    for (EntityTag etag : tags) {
+      assertThat(etag.getTag(), anyOf(is("foo"),is("bar"),is("\\whee\"")));
+      if (etag.getTag().equals("bar"))
+        assertTrue(etag.isWeak());
+    }
+  }
 }
