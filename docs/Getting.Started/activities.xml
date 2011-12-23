@@ -1026,6 +1026,92 @@ cw.writeObject(
     ]]></artwork></figure>
     
   </section>
+  
+  <section title="Comparing Activity Objects">
+  
+  <t>One important case is the ability to compare two instances of an object
+  to determine what has changed from one to the other. Abdera2 supports a 
+  coarse-grained mechanism for comparing the differences between objects.</t>
+  
+  <t>For example,</t>
+  
+  <figure><artwork><![CDATA[
+    PersonObject person1 = 
+      PersonObject.makePerson()
+        .displayName("Joe")
+        .set("foo","bar")
+        .set("bar","baz")
+        .get();
+    
+    PersonObject person2 = 
+      person1.<PersonObject,PersonBuilder>template(
+        ASBase.withoutFields("foo","bar"))
+        .set("bar","xyz")
+        .set("baz",123)
+        .get();
+    
+    Difference diff = person1.diff(person2);
+    
+    System.out.println(diff);
+  ]]></artwork></figure>
+  
+  <t>Here, we create one Person object with displayName = "Joe" and 
+  two extension properties named "foo" and "bar". We then use that 
+  object as a template to create a second one. Doing so, we remove 
+  the existing "foo" and "bar" fields and add a different "bar" field
+  and a new "baz" field. Serialized as JSON, these two objects look
+  something like:</t>
+  
+  <figure><artwork>
+  {
+    "objectType":"person",
+    "displayName":"Joe",
+    "foo":"bar",
+    "bar":"baz"
+  }
+  
+  {
+    "objectType":"person",
+    "displayName":"Joe",
+    "bar":"xyz",
+    "baz":123
+  }
+  </artwork></figure>
+  
+  <t>The call to person1.diff(person2) results in the creation of a Difference
+  object that contains a summary of the differences between the two objects:</t>
+  
+  <figure><artwork>
+    Difference diff = person1.diff(person2);
+    System.out.println(diff);
+  </artwork></figure>
+  
+  <t>Which outputs:</t>
+  
+  <figure><artwork>
+  Changes: [[bar,[baz,xyz]]]
+  Added:   [[baz,123]]
+  Removed: [[foo,bar]]
+  </artwork></figure>
+  
+  <t>We can step through the changes using the Difference object:</t>
+  
+  <figure><artwork><![CDATA[
+  for (Pair<String,Pair<Object,Object>> change : diff.changed()) {
+    String field = change.first();
+    Pair<Object,Object> values = change.second();
+    Object origValue = values.first();
+    Object newValue = values.second();
+    System.out.println(
+      String.format(
+        "Field '%s' changed from '%s' to '%s'",
+        field,
+        origValue,
+        newValue));
+  }
+  ]]></artwork></figure>
+  
+  </section>
     
   </middle>
   <back></back>
