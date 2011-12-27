@@ -72,7 +72,233 @@ col.getItems(activityPublished(atOrBetween(before,now)));
     
     <section title="HTTP Headers">
     
-      <t>TBD</t>
+      <t>The Abdera2 Common Library includes support for a handful of 
+      complex HTTP Headers including WWW-Authenticate, Cache-Control,
+      ETag, Link and Preference.</t>
+      
+      <section title="WWW-Authenticate">
+  
+        <t>The Authentication header support makes it easier to support
+        custom authentication mechanisms within Abdera2 applications. 
+        For instance, to use OAuth 2.0 Bearer Tokens, you can use:</t>
+      
+        <figure><artwork>
+  Authentication bearer = 
+    Authentication.make()
+      .scheme("bearer")
+      .param("realm", "example")
+      .get();
+        </artwork></figure>
+      
+        <figure><preamble>Which generates:</preamble><artwork>
+  WWW-Authenticate: bearer realm="example"
+        </artwork></figure>
+        
+        <t>Adding additional parameters is straightforward:</t>
+        
+        <figure><artwork>
+  Authentication bearer = 
+    Authentication.make()
+      .scheme("bearer")
+      .param("realm", "example")
+      .param("error", "invalid_token")
+      .param("error_description", "The access token expired")
+      .get();
+        </artwork></figure>
+      
+        <t>Parsing the header is equally straightforward:</t>
+        
+        <figure><artwork><![CDATA[
+  Iterable<Authentication> auths = 
+    Authentication.parse(
+      "bearer realm=\"example\", error=invalid_token"+
+      ", error_description=\"The access token expired\"");
+  
+  Authentication auth = auths.iterator().next();
+  
+  System.out.println(auth.getScheme());
+  for (String name : auth) {
+    System.out.println(
+      String.format(
+        "%s = %s",
+        name,
+        auth.getParam(name)));
+  }
+        ]]></artwork></figure>
+      
+      </section>
+    
+      <section title="Cache-Control">
+      
+        <t>The CacheControl class makes it simple to generate and parse any 
+        combination of Cache-Control directives:</t>
+        
+        <figure><artwork>
+  CacheControl cc = 
+    CacheControl.make()
+      .isPublic()
+      .maxAge(1000)
+      .mustRevalidate()
+      .get();
+        </artwork></figure>
+      
+        <figure><preamble>Generates:</preamble><artwork>
+  Cache-Control: public, must-revalidate, max-age=1000
+        </artwork></figure>
+       
+        <figure><artwork>
+  CacheControl cc = 
+    CacheControl.make()
+      .noCache()
+      .noStore()
+      .noTransform()
+      .isPrivate()
+      .get();
+        </artwork></figure>
+        
+        <figure><preamble>Generates:</preamble><artwork>
+  Cache-Control: private, no-cache, no-store, no-transform
+        </artwork></figure>
+        
+        <t>Extension directives are also supported:</t>
+        
+        <figure><artwork>
+  CacheControl cc = 
+    CacheControl.make()
+      .isPublic()
+      .extension("foo", "bar")
+      .get();
+        </artwork></figure>
+        
+        <figure><preamble>Generates:</preamble><artwork>
+  Cache-Control: public, foo=bar
+        </artwork></figure>
+       
+      </section>
+      
+      <section title="Entity Tags">
+      
+      <figure><preamble>Create a simple strong EntityTag:</preamble><artwork>
+  EntityTag tag = EntityTag.create("FooBarBaz")
+      </artwork></figure>
+      
+      <figure><preamble>Generates:</preamble><artwork>
+  ETag: "FooBarBaz"
+      </artwork></figure>
+      
+      <figure><preamble>Create a weak EntityTag:</preamble><artwork>
+  EntityTag tag = EntityTag.weak("FooBarBaz");
+      </artwork></figure>
+      
+      <figure><preamble>Generates:</preamble><artwork>
+  ETag: W/"FooBarBaz"
+      </artwork></figure>
+      
+      <figure><preamble>Generating an Entity Tag from source material:</preamble><artwork>
+  EntityTag tag = EntityTag.generate("foo","bar","baz");
+      </artwork></figure>
+      
+      <figure><preamble>Generates:</preamble><artwork>
+  ETag: "6DF23DC03F9B54CC38A0FC1483DF6E21"
+      </artwork></figure>
+      
+      <figure><preamble>Parsing Entity Tags:</preamble><artwork><![CDATA[
+  Iterable<EntityTag> list = 
+    EntityTag.parseTags(
+      "\"FooBarBaz\", W/\"6DF23DC03F9B54CC38A0FC1483DF6E21\"");
+  
+  for (EntityTag tag : list) {
+    System.out.println(
+      String.format(
+        "%s, is weak? %s",
+        tag.getTag(),
+        tag.isWeak()
+        ));
+      ]]></artwork></figure>
+      
+      <figure><preamble>Outputs:</preamble><artwork>
+  FooBarBaz, is weak? false
+  6DF23DC03F9B54CC38A0FC1483DF6E21, is weak? true
+      </artwork></figure>
+      
+      </section>
+    
+      <section title="Links">
+      
+      <figure><artwork>
+  WebLink link = 
+    WebLink.make()
+      .iri("styles.css")
+      .rel("stylesheet")
+      .title("Just an example")
+      .media("print")
+      .get();
+      </artwork></figure>
+      
+      <figure><preamble>Generates:</preamble><artwork><![CDATA[
+  Link: <styles.css>;rel="stylesheet";media="print";title="Just an example"
+      ]]></artwork></figure>
+      
+      <figure><preamble>Parsing:</preamble><artwork><![CDATA[
+  Iterable<WebLink> list =
+    WebLink.parse(
+      "<styles.css>;rel=\"stylesheet\";"+
+      "media=\"print\";title=\"Just an example\"");
+  
+  for (WebLink link : list) {
+    System.out.println(link.getIri());
+    System.out.println(link.getRel());
+    System.out.println(link.getMedia());
+    System.out.println(link.getTitle());
+  }
+      ]]></artwork></figure>
+      
+      <figure><preamble>Outputs:</preamble><artwork>
+  styles.css
+  [stylesheet]
+  [print]
+  Just an example
+      </artwork></figure>
+      
+      </section>
+  
+      <section title="Preference">
+      
+      <t>The <eref target="http://tools.ietf.org/html/draft-snell-http-prefer-10">Prefer header</eref> 
+      is a proposed extension to HTTP.</t>
+      
+      <figure><artwork>
+  import static org.apache.abdera2.common.http.Preference.*;
+      
+  System.out.println(
+    toString(
+      PREF_LENIENT, 
+      PREF_RETURN_ASYNCH,
+      WAIT(1000)));
+      </artwork></figure>
+      
+      <figure><preamble>Generates:</preamble><artwork>
+  Prefer: lenient,return-asynch,wait=1000
+      </artwork></figure>
+      
+      <figure><preamble>Parsing:</preamble><artwork><![CDATA[
+  Iterable<Preference> list = 
+    parse(
+      "lenient,return-asynch,wait=1000");
+  
+  if (contains(list, LENIENT)) {
+    // use lenient processing
+  }
+  
+  if (contains(list, RETURN_ASYNCH)) {
+    // use asynchronous processing
+    Preference wait = get(list, WAIT);
+    long time = wait.getLongValue();
+    // ...
+  }
+      ]]></artwork></figure>
+      
+      </section>
     
     </section>
     

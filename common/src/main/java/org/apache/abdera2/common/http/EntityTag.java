@@ -49,6 +49,14 @@ public class EntityTag
 
     public static final EntityTag WILD = new EntityTag("*");
 
+    public static EntityTag create(String tag) {
+      return new EntityTag(tag);
+    }
+    
+    public static EntityTag weak(String tag) {
+      return new EntityTag(tag,true);
+    }
+    
     public static EntityTag parse(String entity_tag) {
       checkNotNull(entity_tag);
       checkArgument(entity_tag.length() > 0, "Invalid");

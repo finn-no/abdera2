@@ -82,11 +82,11 @@ public class Preference implements Serializable {
   public static final Preference PREF_RETURN_REPRESENTATION =
     new Preference(RETURN_REPRESENTATION);
   
-  public static Preference WAIT(long millis) {
+  public static Preference WAIT(long seconds) {
     return 
       make()
         .token(WAIT)
-        .value(millis)
+        .value(seconds)
      .get();
   }
   
