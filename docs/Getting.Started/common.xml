@@ -304,25 +304,94 @@ col.getItems(activityPublished(atOrBetween(before,now)));
     
     <section title="IO">
     
-      <t>TBD</t>
+      <t>The Abdera2 Common Library contains a handful of specialized
+      InputStream and Reader implementations for performing a variety
+      of tasks including limited character set encoding detection based
+      on byte order marks, character code filtering, Multipart MIME 
+      parsing, peeking ahead in a stream without consuming the bytes, 
+      and rewinding an already read stream. These utilities are 
+      available in the org.apache.abdera2.common.io package.</t>
+      
+      <figure><preamble>Applying content compression to an output stream:</preamble><artwork>
+  ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    
+  OutputStream out = CompressionCodec.DEFLATE.wrap(bytes);
+  
+  byte[] bytes = ... // bytes to output
+  
+  out.write(bytes);
+  out.close();
+      </artwork></figure>
     
     </section>
     
     <section title="IRIs">
     
-      <t>TBD</t>
+      <figure><artwork>
+  IRI iri = new IRI("http://example.org:8080/foo/bar?baz=xyz#123456");
+    
+  System.out.println(iri.getScheme());
+  System.out.println(iri.getHost());
+  System.out.println(iri.getPort());
+  System.out.println(iri.getPath());
+  System.out.println(iri.getQuery());
+  System.out.println(iri.getFragment());
+      </artwork></figure>
+    
+      <figure><artwork>
+  WebLink link = 
+    WebLink.make()
+      .iri("style.css")
+      .get();
+  
+  System.out.println(link.getResolvedIri(iri));
+      </artwork></figure>
     
     </section>
     
     <section title="Language Tags">
     
-      <t>TBD</t>
+      <figure><preamble>A nonsensical example:</preamble><artwork>
+  Lang lang = Lang.parse("en-FR-Cyril");
+  
+  for (Subtag tag : lang) 
+    System.out.println(
+      String.format(
+        "%s\t%s",
+        tag,
+        tag.type()));
+      </artwork></figure>
+      
+      <figure><preamble>Outputs:</preamble><artwork>
+  en LANGUAGE
+  FR  REGION
+  cyril VARIANT
+      </artwork></figure>
+    
+      <figure><preamble>Testing a range:</preamble><artwork>
+  Range range = Range.parse("en-*-Cyril",true);  
+  if (range.matches(lang)) {
+    // language matches!
+  }
+      </artwork></figure>
     
     </section>
     
     <section title="Media Types">
     
       <t>TBD</t>
+      
+      <figure><preamble>Creating a javax.activation.MimeType without
+      having to catch the MimeTypeParseException error:</preamble>
+      <artwork>
+  MimeType mime = MimeTypeHelper.create("text/plain");
+      </artwork></figure>
+      
+      <figure><preamble>Creating an immutable javax.activation.MimeType
+      instance:</preamble><artwork>
+  MimeType mime = 
+    MimeTypeHelper.unmodifiableMimeType("text/plain");
+      </artwork></figure>
     
     </section>
     
@@ -330,17 +399,245 @@ col.getItems(activityPublished(atOrBetween(before,now)));
     
       <t>TBD</t>
     
+      <figure><artwork><![CDATA[
+  final ChannelManager cm = new SimpleChannelManager();
+  ExecutorService exec = getExitingExecutor();
+  final CountDownLatch latch = new CountDownLatch(3);
+  exec.execute(
+    new Runnable() {
+      public void run() {
+        Receiver<Activity> r = cm.getReceiver("foo");
+        r.startListening(
+          new SimpleListener<Activity>() {
+            public void onItem(Activity t) {
+              System.out.println(t.getObject().getDisplayName());
+              latch.countDown();
+            }
+          }
+        );
+      }
+    }
+  );
+  
+  Pusher<Activity> pusher = cm.getPusher("foo");
+  for (int n = 0; n < 3; n++) 
+    pusher.push(
+      gen.template()
+        .set("object",
+          makeNote()
+            .displayName(format("My note #%d",n+1)))
+      );
+  
+  latch.await();
+  cm.shutdown();
+      ]]></artwork></figure>
+    
     </section>
     
     <section title="Security Utilities">
+
+      <section title="Hash Functions">
+      
+        <t>The org.apache.abdera2.common.security.HashHelper class provides
+        a handful of helpful utility methods and Guava Function implementations
+        for generating MD5 hashed, HMACs and simple digital signatures.</t>
+        
+        <figure><preamble>An MD5 generating Function object:</preamble><artwork><![CDATA[
+  Function<byte[],String> md5 = HashHelper.md5();
+  String hash = md5.apply(new byte[] {1,2,3,4,5,6,7,8,9,0});
+  System.out.println(hash);
+        ]]></artwork></figure>
+        
+        <figure><preamble>A SHA-256 generating Function object:</preamble><artwork><![CDATA[
+  byte[] data = new byte[] {1,2,3,4,3,2,1,2,3,4,3,2,1};
+  Key key = new SecretKeySpec(data, "RAW");
+  
+  Function<byte[],String> hmac = HashHelper.sha256(key);
+  String mac = hmac.apply(new byte[] {1,2,3,4,5,6,7,8,9,0});
+  
+  System.out.println(mac);
+        ]]></artwork></figure>
+      
+        <figure><preamble>A Digital Signature generating Function object:</preamble><artwork><![CDATA[
+  KeyPair pair = KeyHelper.generateKeyPair("DSA", 512);
+  Function<byte[],String> sig = HashHelper.sig(pair.getPrivate(), "DSA");
+  
+  String s = sig.apply(new byte[] {1,2,3,4,5,6,7,8,9,0});
+ 
+  System.out.println(s);
+        ]]></artwork></figure>
+      
+        <figure><preamble>A Digital Signature verifying Predicate object:</preamble><artwork><![CDATA[
+  Predicate<String> verify = 
+    HashHelper.stringSignatureValid(
+      pair.getPublic(), 
+      "DSA", 
+      new byte[] {1,2,3,4,5,6,7,8,9,0}); // the source material the verify
+  
+  System.out.println(verify.apply(s));
+        ]]></artwork></figure>
+      
+      </section>
     
-      <t>TBD</t>
+      <section title="API Keys">
+      
+        <figure><preamble>Generating an API Key:</preamble><artwork>
+  byte[] key = new byte[] {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0};
+
+  ApiKey apikey = ApiKey.STRONG(key);
+  
+  System.out.println(apikey.generateNext());
+        </artwork></figure>
+        
+      </section>
     
+      <section title="One-Time-Passwords">
+      
+      <figure><preamble>A Time-based One-time Password:</preamble><artwork>
+  byte[] key = new byte[] {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0};
+
+  Otp.Totp totp = new Otp.Totp(30, key);
+
+  System.out.println(totp.generateNext());
+      </artwork></figure>
+      
+      <figure><preamble>Implementing a custom One-Time Password Implementation:</preamble><artwork><![CDATA[
+  public static class MyOtp extends Otp {
+
+    public MyOtp(byte[] key, int size) {
+      super(key, size);
+    }
+
+    public MyOtp(byte[] key, String alg, int size) {
+      super(key, alg, size);
+    }
+
+    public MyOtp(byte[] key) {
+      super(key);
+    }
+
+    public MyOtp(Key key, int size) {
+      super(key, size);
+    }
+
+    public MyOtp(Key key, String alg, int size) {
+      super(key, alg, size);
+    }
+
+    public MyOtp(Key key) {
+      super(key);
+    }
+
+    public MyOtp(String key, int size) {
+      super(key, size);
+    }
+
+    public MyOtp(String key, String alg, int size) {
+      super(key, alg, size);
+    }
+
+    public MyOtp(String key) {
+      super(key);
+    }
+
+    private final AtomicInteger counter = new AtomicInteger();
+    
+    @Override
+    protected byte[] getMovingFactor() {
+      int val = counter.incrementAndGet();
+      return new byte[] {
+          (byte)(val >>> 24),
+          (byte)(val >>> 16),
+          (byte)(val >>> 8),
+          (byte)val};
+    }
+    
+  }
+      ]]></artwork></figure>
+      
+      <figure><preamble>Using the custom OTP provider:</preamble><artwork>
+  Otp otp = new MyOtp();
+  System.out.println(otp.generateNext());
+      </artwork></figure>
+      
+      </section>
+
     </section>
     
     <section title="Selector Framework">
     
-      <t>TBD</t>
+      <t>The Abdera2 Selector Framework is an extension to the Guava 
+      Libraries <eref target="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/base/Predicate.html">
+      Predicate</eref> interface and is used extensively throughout 
+      the Abdera2 API. A single Selector instance can be used to perform
+      a broad range of tests and conditions operations.</t>
+      
+      <figure><preamble>Creating a simple selector:</preamble><artwork><![CDATA[
+  AbstractSelector<String> selector = 
+    new AbstractSelector<String>() {
+      public boolean select(Object item) {
+        return item.equals("Foo");
+      }      
+  };
+      ]]></artwork></figure>
+      
+      <figure><preamble>First, let's create a simple set:</preamble><artwork><![CDATA[
+  ImmutableSet<String> set = of("Foo","Bar");]]></artwork></figure>
+  
+      <figure><preamble>We can test every item in the set...</preamble><artwork><![CDATA[
+  System.out.println(selector.all(set)); // false
+  System.out.println(selector.any(set)); // true 
+  System.out.println(selector.none(set)); // false
+      ]]></artwork></figure>
+  
+      <figure><preamble>Or perform filtering operations on the set...</preamble><artwork><![CDATA[
+  System.out.println(selector.filter(set)); // outputs ["Foo"]
+  System.out.println(selector.filterOut(set)); // outputs ["Bar"]
+      ]]></artwork></figure>
+
+      <figure><preamble>Or pick matching items out of the set...</preamble><artwork><[!CDATA[
+  System.out.println(selector.choose(set)); // selects "Foo"
+  System.out.println(selector.chooseNot(set)); // selects "Bar"
+      ]]></artwork></figure>
+ 
+      <figure><preamble>Or use the selector as a Predicate object:</preamble><artwork><![CDATA[
+  System.out.println(selector.apply("Foo")); // true
+  System.out.println(selector.apply("Bar")); // false
+      ]]></artwork></figure>
+
+      <figure><preamble>Or as a constraint:</preamble><artwork><![CDATA[
+  System.out.println(selector.checkElement("Foo")); // Passes
+  
+  try {
+    System.out.println(selector.checkElement("Bar"));
+  } catch (IllegalArgumentException e) {
+    // error is thrown
+  }
+      ]]></artwork></figure>
+      
+      <figure><preamble>Or as a test...</preamble><artwork><![CDATA[
+  System.out.println(selector.test("Foo")); // outputs "Foo"
+  System.out.println(selector.test("Bar")); // outputs null
+  
+  System.out.println(selector.test("Foo", "Bar")); // outputs "Foo"
+  System.out.println(selector.test("Baz", "Bar")); // outputs "Bar"
+      ]]></artwork></figure>
+    
+      <figure><preamble>Selectors can be composed together with others 
+      to perform more complex matching operations. For instance, the 
+      follow will select no more than 5 Strings matching either "Foo" 
+      or "Bar":</preamble><artwork><![CDATA[
+  Selector<String> selector = 
+    Selectors.of("Foo")
+      .or(Selectors.of("Bar"))
+        .limit(5);
+      ]]></artwork></figure>
+      
+      <t>Most Selector implementations are threadsafe and immutable, maintaining
+      no internal state. However, Selectors returned by the limit() method, illustrated
+      above, maintain an internal counter and are not considered to be threadsafe. 
+      Such Selectors should implement the org.apache.abdera2.common.selector.StatefulSelector
+      interface to indicate that they are not threadsafe.</t>
     
     </section>
     

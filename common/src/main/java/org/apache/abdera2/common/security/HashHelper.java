@@ -29,6 +29,7 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 
 import org.apache.abdera2.common.misc.ExceptionHelper;
+import org.apache.abdera2.common.misc.Pair;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -60,6 +61,17 @@ public final class HashHelper {
       };
   }
   
+  public static Predicate<String> stringSignatureValid(
+      final PublicKey key, 
+      final String alg, 
+      final byte[] source) {
+      return new Predicate<String>() {
+        public boolean apply(String mat) {
+          return sigval(key,alg,source,Base64.decodeBase64(mat));
+        }
+      };
+    }
+  
   public static Predicate<byte[]> signatureValid(
     final PublicKey key, 
     final String alg, 
@@ -70,6 +82,37 @@ public final class HashHelper {
       }
     };
   }
+  
+  public static Predicate<Pair<byte[],byte[]>> signatureValid(
+      final PublicKey key, 
+      final String alg) {
+      return new Predicate<Pair<byte[],byte[]>>() {
+        public boolean apply(Pair<byte[],byte[]> mat) {
+          return sigval(key,alg,mat.first(),mat.second());
+        }
+      };
+    }
+
+  public static Predicate<Pair<byte[],byte[]>> hmacValid(
+      final Key key, 
+      final String alg) {
+      return new Predicate<Pair<byte[],byte[]>>() {
+        public boolean apply(Pair<byte[],byte[]> mat) {
+          return hmacval(key,alg,mat.first(),mat.second());
+        }
+      };
+    }
+ 
+  public static Predicate<String> stringHmacValid(
+      final Key key, 
+      final String alg, 
+      final byte[] source) {
+      return new Predicate<String>() {
+        public boolean apply(String mat) {
+          return hmacval(key,alg,source,Base64.decodeBase64(mat));
+        }
+      };
+    }
   
   public static Predicate<byte[]> hmacValid(
       final Key key, 

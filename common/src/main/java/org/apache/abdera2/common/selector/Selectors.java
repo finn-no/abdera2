@@ -86,7 +86,8 @@ public final class Selectors {
   }
   
   private static class CountingSelector<X> 
-    extends AbstractSelector<X> {
+    extends AbstractSelector<X>
+    implements StatefulSelector<X> {
       private final AtomicInteger counter = 
         new AtomicInteger();
       private final int limit;

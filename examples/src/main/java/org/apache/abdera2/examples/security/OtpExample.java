@@ -35,8 +35,7 @@ public class OtpExample {
     Supplier<String> otp = Otp.totpSupplier(key, 30);
     System.out.println(otp.get());
     
-    // Use your own OTP if you'd like...
-    
+    // Use your own OTP if you'd like...    
     otp = Otp.supplier(new MyOtp(key));
     System.out.println(otp.get()); // with this one,
     System.out.println(otp.get()); // the otp changes

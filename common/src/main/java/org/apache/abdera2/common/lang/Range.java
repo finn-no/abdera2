@@ -107,13 +107,13 @@ public final class Range
     }
 
     private boolean checkBasic() {
-        Subtag current = root.next();
-        while (current != null) {
-            if (current.type() == Subtag.Type.WILDCARD)
-                return false;
-            current = current.next();
-        }
-        return true;
+      Subtag current = root.next();
+      while (current != null) {
+        if (current.type() == Subtag.Type.WILDCARD)
+          return false;
+        current = current.next();
+      }
+      return true;
     }
 
     public Predicate<Lang> matches() {
@@ -161,7 +161,7 @@ public final class Range
     }
 
     public boolean matches(Lang lang) {
-        return matches(lang, false);
+        return matches(lang, extended);
     }
 
     public boolean matches(Lang lang, boolean extended) {
