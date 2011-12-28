@@ -36,6 +36,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -235,7 +236,9 @@ public final class Template
           (Context)obj : 
          obj instanceof Map ? 
            new MapContext((Map)obj, isiri) : 
-           new ObjectContext(obj, isiri);
+           obj instanceof Multimap ?
+             new MapContext(((Multimap)obj).asMap()) :
+             new ObjectContext(obj, isiri);
     }
     
     /**

@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 
 
 import com.ibm.icu.text.UCharacterIterator;
+import com.ibm.icu.text.UForwardCharacterIterator;
 
 public abstract class CodepointIterator 
   implements Iterator<Integer> {
@@ -154,14 +155,14 @@ public abstract class CodepointIterator
           current = i.next();
       }
       protected int get() {
-        if (current != UCharacterIterator.DONE) {
+        if (current != UForwardCharacterIterator.DONE) {
           int v = current;
           current = i.nextCodePoint();
           return v;
         } else throw new NoSuchElementException();
       }
       public boolean hasNext() {
-        return current != UCharacterIterator.DONE;
+        return current != UForwardCharacterIterator.DONE;
       }
 
   }
