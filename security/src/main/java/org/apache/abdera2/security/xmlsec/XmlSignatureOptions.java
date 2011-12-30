@@ -20,89 +20,78 @@ package org.apache.abdera2.security.xmlsec;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.security.SignatureOptions;
+public final class XmlSignatureOptions extends XmlSecurityOptions implements SignatureOptions {
 
-public class XmlSignatureOptions extends XmlSecurityOptions implements SignatureOptions {
+  public static SignatureOptionsBuilder make() {
+    return new XmlSignatureOptionsBuilder();
+  }
+  
+  protected static final class XmlSignatureOptionsBuilder 
+    extends SignatureOptionsBuilder {
+  
+    public SignatureOptions get() {
+      return new XmlSignatureOptions(
+        abdera,salg,skey,pkey,cert,refs.build(),signlinks,linkRels.build());
+    }
+    
+  }
+  
+    private final PrivateKey signingKey;
+    private final PublicKey publickey;
+    private final X509Certificate cert;
+    private final Iterable<String> linkrels;
+    private final boolean signlinks;
+    private final Iterable<String> references;
+    private final String algo;
 
-    private PrivateKey signingKey = null;
-    private PublicKey publickey = null;
-    private X509Certificate cert = null;
-    private String[] linkrels = null;
-    private boolean signlinks = false;
-    private List<String> references = null;
-    private String algo = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
-
+    protected XmlSignatureOptions(
+      Abdera abdera, 
+      String salg, 
+      PrivateKey skey, 
+      PublicKey pkey, 
+      X509Certificate cert, 
+      Iterable<String> refs, 
+      boolean signlinks, 
+      Iterable<String> rels) {
+      super(abdera);
+      this.signingKey = skey;
+      this.publickey = pkey;
+      this.cert = cert;
+      this.linkrels = rels;
+      this.signlinks = signlinks;
+      this.references = refs;
+      this.algo = salg;
+    }
+    
     public String getSigningAlgorithm() {
         return algo;
-    }
-
-    public SignatureOptions setSigningAlgorithm(String algorithm) {
-        this.algo = algorithm;
-        return this;
-    }
-
-    protected XmlSignatureOptions(Abdera abdera) {
-        super(abdera);
-        references = new ArrayList<String>();
     }
 
     public PrivateKey getSigningKey() {
         return signingKey;
     }
 
-    public SignatureOptions setSigningKey(PrivateKey privateKey) {
-        this.signingKey = privateKey;
-        return this;
-    }
-
     public X509Certificate getCertificate() {
         return cert;
     }
 
-    public SignatureOptions setCertificate(X509Certificate cert) {
-        this.cert = cert;
-        return this;
-    }
-
-    public SignatureOptions addReference(String href) {
-        if (!references.contains(href))
-            references.add(href);
-        return this;
-    }
-
-    public String[] getReferences() {
-        return references.toArray(new String[references.size()]);
+    public Iterable<String> getReferences() {
+        return references;
     }
 
     public PublicKey getPublicKey() {
         return publickey;
     }
 
-    public SignatureOptions setPublicKey(PublicKey publickey) {
-        this.publickey = publickey;
-        return this;
-    }
-
     public boolean isSignLinks() {
         return signlinks;
     }
 
-    public SignatureOptions setSignLinks(boolean signlinks) {
-        this.signlinks = signlinks;
-        return this;
-    }
-
-    public String[] getSignLinkRels() {
+    public Iterable<String> getSignLinkRels() {
         return this.linkrels;
-    }
-
-    public SignatureOptions setSignedLinkRels(String... rel) {
-        this.linkrels = rel;
-        return this;
     }
 
 }

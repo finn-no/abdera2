@@ -22,60 +22,59 @@ import java.security.Key;
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.security.EncryptionOptions;
 
-public class XmlEncryptionOptions extends XmlSecurityOptions implements EncryptionOptions {
+public final class XmlEncryptionOptions extends XmlSecurityOptions implements EncryptionOptions {
+  
+  public static EncryptionOptionsBuilder make() {
+    return new XmlEncryptionOptionsBuilder();
+  }
+  
+  protected static final class XmlEncryptionOptionsBuilder 
+    extends EncryptionOptionsBuilder {
 
-    private Key dek = null;
-    private Key kek = null;
-    private String kca = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
-    private String dca = "http://www.w3.org/2001/04/xmlenc#aes128-cbc";
-    private boolean setki = false;
+    public EncryptionOptions get() {
+      return new XmlEncryptionOptions(abdera,dek,kek,kca,dca,includeKeyInfo);
+    }
+    
+  }
+  
+    private final Key dek;
+    private final Key kek;
+    private final String kca;
+    private final String dca;
+    private final boolean setki;
 
-    protected XmlEncryptionOptions(Abdera abdera) {
+    protected XmlEncryptionOptions(
+      Abdera abdera,
+      Key dek, 
+      Key kek, 
+      String kca, 
+      String dca, 
+      boolean setki) {
         super(abdera);
+        this.dek = dek;
+        this.kek = kek;
+        this.kca = kca;
+        this.dca = dca;
+        this.setki = setki;
     }
 
     public Key getDataEncryptionKey() {
         return dek;
     }
 
-    public EncryptionOptions setDataEncryptionKey(Key key) {
-        this.dek = key;
-        return this;
-    }
-
     public Key getKeyEncryptionKey() {
         return kek;
-    }
-
-    public EncryptionOptions setKeyEncryptionKey(Key key) {
-        this.kek = key;
-        return this;
     }
 
     public String getKeyCipherAlgorithm() {
         return kca;
     }
 
-    public EncryptionOptions setKeyCipherAlgorithm(String alg) {
-        this.kca = alg;
-        return this;
-    }
-
     public String getDataCipherAlgorithm() {
         return dca;
     }
 
-    public EncryptionOptions setDataCipherAlgorithm(String alg) {
-        this.dca = alg;
-        return this;
-    }
-
     public boolean includeKeyInfo() {
         return setki;
-    }
-
-    public EncryptionOptions setIncludeKeyInfo(boolean includeKeyInfo) {
-        this.setki = includeKeyInfo;
-        return this;
     }
 }

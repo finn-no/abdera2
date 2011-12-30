@@ -23,6 +23,7 @@ import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.security.EncryptionOptions;
+import org.apache.abdera2.security.EncryptionOptions.EncryptionOptionsBuilder;
 import org.apache.abdera2.security.SecurityException;
 import org.apache.abdera2.security.util.EncryptionBase;
 import org.apache.xml.security.encryption.EncryptedData;
@@ -92,8 +93,8 @@ public class XmlEncryption extends EncryptionBase {
         }
     }
 
-    public EncryptionOptions getDefaultEncryptionOptions() {
-        return new XmlEncryptionOptions(getAbdera());
+    public EncryptionOptionsBuilder getDefaultEncryptionOptions() {
+        return XmlEncryptionOptions.make().abdera(getAbdera());
     }
 
 }

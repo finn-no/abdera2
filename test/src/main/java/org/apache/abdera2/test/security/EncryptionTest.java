@@ -77,8 +77,9 @@ public class EncryptionTest {
 
         // Prepare the encryption options
         Encryption enc = absec.getEncryption();
-        EncryptionOptions options = enc.getDefaultEncryptionOptions();
-        options.setDataEncryptionKey(key);
+        EncryptionOptions options = 
+          enc.getDefaultEncryptionOptions()
+            .dataEncryptionKey(key).get();
 
         // Encrypt the document using the generated key
         Document<?> enc_doc = enc.encrypt(entry.getDocument(), options);

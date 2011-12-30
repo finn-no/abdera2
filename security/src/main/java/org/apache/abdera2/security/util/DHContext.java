@@ -49,10 +49,10 @@ public class DHContext extends DHBase {
     
     public EncryptionOptions getEncryptionOptions(Encryption enc, String alg) 
       throws InvalidKeyException, NoSuchAlgorithmException {
-        EncryptionOptions options = enc.getDefaultEncryptionOptions();
-        options.setDataEncryptionKey(generateSecret());
-        options.setDataCipherAlgorithm(alg);
-        return options;
+        return enc.getDefaultEncryptionOptions()
+          .dataEncryptionKey(generateSecret())
+          .dataCipherAlgorithm(alg)
+          .get();
   }
 
 }

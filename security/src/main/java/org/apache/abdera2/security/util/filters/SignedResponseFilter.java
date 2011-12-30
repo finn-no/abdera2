@@ -39,7 +39,7 @@ import org.apache.abdera2.protocol.server.impl.AbstractAtompubProvider;
 import org.apache.abdera2.security.Security;
 import org.apache.abdera2.security.SecurityException;
 import org.apache.abdera2.security.Signature;
-import org.apache.abdera2.security.SignatureOptions;
+import org.apache.abdera2.security.SignatureOptions.SignatureOptionsBuilder;
 import org.apache.abdera2.writer.Writer;
 
 /**
@@ -127,13 +127,14 @@ public class SignedResponseFilter implements Task<RequestContext,ResponseContext
         if (signingKey == null || cert == null)
             return doc; // pass through
         Signature sig = security.getSignature();
-        SignatureOptions options = sig.getDefaultSignatureOptions();
-        options.setCertificate(cert);
-        options.setSigningKey(signingKey);
+        SignatureOptionsBuilder options = 
+          sig.getDefaultSignatureOptions()
+            .certificate(cert)
+            .signingKey(signingKey);
         if (algorithm != null)
-            options.setSigningAlgorithm(algorithm);
+            options.signingAlgorithm(algorithm);
         Element element = doc.getRoot();
-        element = sig.sign(element, options);
+        element = sig.sign(element, options.get());
         return element.getDocument();
     }
 

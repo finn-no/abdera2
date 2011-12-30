@@ -75,12 +75,12 @@ public class AESEncryptedResponseFilter extends AbstractEncryptedResponseFilter 
                                                       Encryption enc,
                                                       Object arg) {
         try {
-            EncryptionOptions options = enc.getDefaultEncryptionOptions();
-            options.setDataEncryptionKey(KeyHelper.generateKey("AES"));
-            options.setKeyEncryptionKey((PublicKey)arg);
-            options.setKeyCipherAlgorithm(XMLCipher.RSA_v1dot5);
-            options.setIncludeKeyInfo(true);
-            return options;
+          return enc.getDefaultEncryptionOptions()
+            .dataEncryptionKey(KeyHelper.generateKey("AES"))
+            .keyEncryptionKey((PublicKey)arg)
+            .keyCipherAlgorithm(XMLCipher.RSA_v1dot5)
+            .includeKeyInfo()
+            .get();
         } catch (Exception e) {
             return null;
         }

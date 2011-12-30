@@ -81,9 +81,11 @@ public class DigitalSignatureTest {
 
         // Prepare the digital signature options
         Signature sig = absec.getSignature();
-        SignatureOptions options = sig.getDefaultSignatureOptions();
-        options.setCertificate(cert);
-        options.setSigningKey(signingKey);
+        SignatureOptions options = 
+          sig.getDefaultSignatureOptions()
+            .certificate(cert)
+            .signingKey(signingKey)
+            .get();
 
         // Sign the entry
         entry = sig.sign(entry, options);

@@ -21,14 +21,81 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
+import org.apache.abdera2.Abdera;
+
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Provides access to the information necessary to signed an Abdera element
  */
 public interface SignatureOptions extends SecurityOptions {
 
+  public static abstract class SignatureOptionsBuilder
+    extends SecurityOptions.Builder<SignatureOptions,SignatureOptionsBuilder> {
+    
+    protected Abdera abdera;
+    protected String salg;
+    protected PrivateKey skey;   
+    protected X509Certificate cert;
+    protected PublicKey pkey;
+    protected ImmutableSet.Builder<String> refs = 
+      ImmutableSet.builder();
+    protected boolean signlinks;
+    protected ImmutableSet.Builder<String> linkRels = 
+      ImmutableSet.builder();
+    
+    public SignatureOptionsBuilder() {
+      signingAlgorithm("http://www.w3.org/2000/09/xmldsig#dsa-sha1");
+    }
+    
+    public SignatureOptionsBuilder abdera(Abdera abdera) {
+      this.abdera = abdera;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder signingAlgorithm(String alg) {
+      this.salg = alg;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder signingKey(PrivateKey key) {
+      this.skey = key;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder certificate(X509Certificate cert) {
+      this.cert = cert;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder publicKey(PublicKey key) {
+      this.pkey = key;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder ref(String ref) {
+      refs.add(ref);
+      return this;
+    }
+    
+    public SignatureOptionsBuilder signLinks() {
+      this.signlinks = true;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder doNotSignLinks() {
+      this.signlinks = false;
+      return this;
+    }
+    
+    public SignatureOptionsBuilder signLinkRel(String rel) {
+      this.linkRels.add(rel);
+      return this;
+    }
+    
+  }
+  
     String getSigningAlgorithm();
-
-    SignatureOptions setSigningAlgorithm(String algorithm);
 
     /**
      * Return the private key with which to sign the element
@@ -36,38 +103,16 @@ public interface SignatureOptions extends SecurityOptions {
     PrivateKey getSigningKey();
 
     /**
-     * Set the private key with which to sign the element
-     */
-    SignatureOptions setSigningKey(PrivateKey privateKey);
-
-    /**
      * Return the X.509 cert to associated with the signature
      */
     X509Certificate getCertificate();
-
-    /**
-     * Set the X.509 cert to associate with the signature
-     */
-    SignatureOptions setCertificate(X509Certificate cert);
 
     /**
      * Get the public key associated with the signature
      */
     PublicKey getPublicKey();
 
-    /**
-     * Set the public key to associate with the signature
-     */
-    SignatureOptions setPublicKey(PublicKey publickey);
-
-    SignatureOptions addReference(String href);
-
-    String[] getReferences();
-
-    /**
-     * True if atom:link/@href and atom:content/@src targets should be included in the signature
-     */
-    SignatureOptions setSignLinks(boolean signlinks);
+    Iterable<String> getReferences();
 
     /**
      * True if atom:link/@href and atom:content/@src targets should be included in the signature
@@ -75,12 +120,7 @@ public interface SignatureOptions extends SecurityOptions {
     boolean isSignLinks();
 
     /**
-     * Only sign links whose link rels match those provided in the list
-     */
-    SignatureOptions setSignedLinkRels(String... rel);
-
-    /**
      * Get the list of link relations to sign
      */
-    String[] getSignLinkRels();
+    Iterable<String> getSignLinkRels();
 }

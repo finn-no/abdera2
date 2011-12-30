@@ -19,30 +19,75 @@ package org.apache.abdera2.security;
 
 import java.security.Key;
 
+import org.apache.abdera2.Abdera;
+
 /**
  * Provides access to the information necessary to encrypt or decrypt a document
  */
 public interface EncryptionOptions extends SecurityOptions {
 
+  public static abstract class EncryptionOptionsBuilder
+    extends SecurityOptions.Builder<EncryptionOptions,EncryptionOptionsBuilder> {
+    
+    protected Abdera abdera;
+    protected boolean includeKeyInfo;
+    protected Key dek;
+    protected Key kek;
+    protected String kca;
+    protected String dca;
+    
+    protected EncryptionOptionsBuilder() {
+      keyCipherAlgorithm("http://www.w3.org/2001/04/xmlenc#kw-aes128");
+      dataCipherAlgorithm("http://www.w3.org/2001/04/xmlenc#aes128-cbc");
+      doNotIncludeKeyInfo();
+    }
+    
+    public EncryptionOptionsBuilder abdera(Abdera abdera) {
+      this.abdera = abdera;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder includeKeyInfo() {
+      this.includeKeyInfo = true;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder doNotIncludeKeyInfo() {
+      this.includeKeyInfo = false;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder dataEncryptionKey(Key key) {
+      this.dek = key;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder keyEncryptionKey(Key key) {
+      this.kek = key;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder keyCipherAlgorithm(String alg) {
+      this.kca = alg;
+      return this;
+    }
+    
+    public EncryptionOptionsBuilder dataCipherAlgorithm(String alg) {
+      this.dca = alg;
+      return this;
+    }
+    
+  }
+  
     /**
      * Return the secret key used to encrypt/decrypt the document content
      */
     Key getDataEncryptionKey();
 
     /**
-     * Set the secret key used to encrypt/decrypt the document content
-     */
-    EncryptionOptions setDataEncryptionKey(Key key);
-
-    /**
      * Return the secret key used to encrypt/decrypt the data encryption key
      */
     Key getKeyEncryptionKey();
-
-    /**
-     * Set the secret key used to encrypt/decrypt the data encryption key
-     */
-    EncryptionOptions setKeyEncryptionKey(Key key);
 
     /**
      * Return the cipher algorithm used to decrypt/encrypt the data encryption key The default is
@@ -51,31 +96,14 @@ public interface EncryptionOptions extends SecurityOptions {
     String getKeyCipherAlgorithm();
 
     /**
-     * Set the cipher algorithm used to decrypt/encrypt the data encryption key The default is
-     * "http://www.w3.org/2001/04/xmlenc#kw-aes128"
-     */
-    EncryptionOptions setKeyCipherAlgorithm(String alg);
-
-    /**
      * Return the cipher algorithm used to decrypt/encrypt the document content The default is
      * "http://www.w3.org/2001/04/xmlenc#aes128-cbc"
      */
     String getDataCipherAlgorithm();
 
     /**
-     * Set the cipher algorithm used to decyrpt/encrypt the document content The default is
-     * "http://www.w3.org/2001/04/xmlenc#aes128-cbc"
-     */
-    EncryptionOptions setDataCipherAlgorithm(String alg);
-
-    /**
      * Return true if the encryption should include information about the key The default is false
      */
     boolean includeKeyInfo();
-
-    /**
-     * Set whether the encryption should include information about the key The default is false
-     */
-    EncryptionOptions setIncludeKeyInfo(boolean includeKeyInfo);
 
 }

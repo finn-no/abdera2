@@ -19,13 +19,27 @@ package org.apache.abdera2.security;
 
 import org.apache.abdera2.parser.Parser;
 
+import com.google.common.base.Supplier;
+
 /**
  * Base interface for EncryptionOptions and SignatureOptions
  */
 public interface SecurityOptions {
-
+  
     Parser getParser();
 
     <T extends SecurityOptions> T setParser(Parser parser);
 
+  public static abstract class Builder<X extends SecurityOptions, M extends Builder<X,M>> 
+    implements Supplier<X> {
+    
+    protected Parser parser;
+    
+    @SuppressWarnings("unchecked")
+    public M parser(Parser parser) {
+      this.parser = parser;
+      return (M)this;
+    }
+    
+  }
 }

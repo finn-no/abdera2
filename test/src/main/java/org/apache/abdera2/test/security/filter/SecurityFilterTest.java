@@ -72,7 +72,7 @@ public class SecurityFilterTest {
         Security security = new Security(abdera);
         Signature sig = security.getSignature();
         assertTrue(sig.isSigned(root));
-        assertTrue(sig.verify(root, sig.getDefaultSignatureOptions()));
+        assertTrue(sig.verify(root, sig.getDefaultSignatureOptions().get()));
     }
 
     private static final String keystoreFile = "/key.jks";
@@ -111,9 +111,11 @@ public class SecurityFilterTest {
         assertNotNull(cert);
 
         Signature sig = security.getSignature();
-        SignatureOptions options = sig.getDefaultSignatureOptions();
-        options.setCertificate(cert);
-        options.setSigningKey(signingKey);
+        SignatureOptions options = 
+          sig.getDefaultSignatureOptions()
+            .certificate(cert)
+            .signingKey(signingKey)
+            .get();
 
         // Sign the entry
         entry = sig.sign(entry, options);

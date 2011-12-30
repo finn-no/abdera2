@@ -31,6 +31,7 @@ import org.apache.abdera2.model.Link;
 import org.apache.abdera2.model.Source;
 import org.apache.abdera2.security.SecurityException;
 import org.apache.abdera2.security.SignatureOptions;
+import org.apache.abdera2.security.SignatureOptions.SignatureOptionsBuilder;
 import org.apache.abdera2.security.util.Constants;
 import org.apache.abdera2.security.util.SignatureBase;
 import org.apache.abdera2.common.iri.IRI;
@@ -41,6 +42,8 @@ import org.apache.xml.security.signature.XMLSignatureException;
 import org.apache.xml.security.transforms.Transforms;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.google.common.collect.Iterables;
 
 public class XmlSignature extends SignatureBase {
 
@@ -73,12 +76,11 @@ public class XmlSignature extends SignatureBase {
         transforms.addTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE);
         transforms.addTransform(Transforms.TRANSFORM_C14N_EXCL_OMIT_COMMENTS);
         sig.addDocument("", transforms, org.apache.xml.security.utils.Constants.ALGO_ID_DIGEST_SHA1);
-        String[] refs = options.getReferences();
-        for (String ref : refs)
+        for (String ref : options.getReferences())
             sig.addDocument(ref);
 
         if (options.isSignLinks()) {
-            String[] rels = options.getSignLinkRels();
+            String[] rels = Iterables.toArray(options.getSignLinkRels(),String.class);
             List<Link> links = null;
             Content content = null;
             if (element instanceof Source) {
@@ -227,8 +229,8 @@ public class XmlSignature extends SignatureBase {
         }
     }
 
-    public SignatureOptions getDefaultSignatureOptions() throws SecurityException {
-        return new XmlSignatureOptions(getAbdera());
+    public SignatureOptionsBuilder getDefaultSignatureOptions() throws SecurityException {
+        return XmlSignatureOptions.make().abdera(getAbdera());
     }
 
     @SuppressWarnings("unchecked")

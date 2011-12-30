@@ -20,6 +20,7 @@ package org.apache.abdera2.security;
 import java.security.cert.X509Certificate;
 
 import org.apache.abdera2.model.Element;
+import org.apache.abdera2.security.SignatureOptions.SignatureOptionsBuilder;
 import org.apache.xml.security.keys.KeyInfo;
 
 /**
@@ -55,7 +56,7 @@ public interface Signature {
      * 
      * @see org.apache.abdera.security.SignatureOptions
      */
-    SignatureOptions getDefaultSignatureOptions() throws SecurityException;
+    SignatureOptionsBuilder getDefaultSignatureOptions() throws SecurityException;
 
     <T extends Element> T removeInvalidSignatures(T element, SignatureOptions options) throws SecurityException;
 

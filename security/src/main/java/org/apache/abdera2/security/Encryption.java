@@ -19,6 +19,7 @@ package org.apache.abdera2.security;
 
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
+import org.apache.abdera2.security.EncryptionOptions.EncryptionOptionsBuilder;
 
 /**
  * Interface used for encrypting/decrypting Abdera documents.
@@ -55,6 +56,6 @@ public interface Encryption {
      * 
      * @see org.apache.abdera.security.EncryptionOptions
      */
-    EncryptionOptions getDefaultEncryptionOptions();
+    EncryptionOptionsBuilder getDefaultEncryptionOptions();
 
 }
