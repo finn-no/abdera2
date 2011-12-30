@@ -131,6 +131,50 @@ public interface ExtensibleElement extends Element {
     Element addSimpleExtension(String namespace, String localPart, String prefix, String value);
 
     /**
+     * Adds a simple date extension (date content only)
+     * 
+     * @param qname An XML QName
+     * @param value The DateTime value of the element
+     * @return the newly created extension element
+     */
+    Element addDateExtension(QName qname, org.joda.time.DateTime value);
+    
+    /**
+     * Adds a simple extension (text content only)
+     * 
+     * @param namespace An XML namespace
+     * @param localPart A local name
+     * @param prefix A namespace prefix
+     * @param value The DateTime value
+     * @return The newly created extension element
+     */
+    Element addDateExtension(String namespace, String localPart, String prefix, org.joda.time.DateTime value);   
+    
+    /**
+     * Adds a simple date extension (date content only)
+     * 
+     * @param qname An XML QName
+     * @param value The DateTime value of the element
+     * @return the newly created extension element
+     */
+    Element addDateExtensionNow(QName qname);
+    
+    /**
+     * Adds a simple extension (text content only)
+     * 
+     * @param namespace An XML namespace
+     * @param localPart A local name
+     * @param prefix A namespace prefix
+     * @param value The DateTime value
+     * @return The newly created extension element
+     */
+    Element addDateExtensionNow(String namespace, String localPart, String prefix);  
+    
+    org.joda.time.DateTime getDateExtension(QName qname);
+    
+    org.joda.time.DateTime getDateExtension(String namespace, String localpart, String prefix);
+    
+    /**
      * Gets the value of a simple extension
      * 
      * @param qname An XML QName

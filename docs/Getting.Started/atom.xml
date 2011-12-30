@@ -547,7 +547,7 @@ foo.MyListExtensionFactory
    
   </section>
   
-  <section title="Atom Date Constructs">
+  <section title="Date Constructs">
   
    <t>The Atom format requires that all dates and times be formatted to match 
    the date-time construct from RFC 3339. The basic format is 
@@ -568,6 +568,280 @@ foo.MyListExtensionFactory
   // you can use the shortcut setUpdatedNow() method
   entry.setUpdatedNow();
    </artwork></figure>
+   
+   <t>The Joda-Time DateTime class provides a host of additional benefits and 
+   features relative to the old Abdera 1.x AtomDate class, including Date
+   Arithmetic operations.</t>
+   
+   <figure><preamble>For instance, to indicate that an entry was updated 
+   five minutes prior to the current date and time, you can use the following:</preamble>
+   <artwork>
+  entry.setUpdated(DateTimes.now().minusMinutes(5));
+   </artwork></figure>
+  
+   <t>The DateTime class has also been integrated with the Abdera2 Selector 
+   Framework and Guava Libraries Predicate API to enable powerful filtering 
+   options.</t>
+   
+   <figure><preamble>For instance, if you have an Atom feed and want to retrieve
+   a listing of only the Entry objects whose updated timestamps fall within a 
+   given range, you can call:</preamble><artwork><![CDATA[
+  import static org.apache.abdera2.model.selector.Selectors.updated;
+  import static org.apache.abdera2.common.date.DateTimes.between;
+   
+  Feed feed = ...
+  DateTime date1 = ...
+  DateTime date2 = ...
+    
+  feed.getEntries(
+    updated(
+      between(
+        date1,date2)));
+    
+   ]]></artwork></figure>
+  
+   <section title="Date Construct Extensions">
+   
+   <t>The Atom format explicitly allows the Atom Date Construct to be reused 
+   by extensions. This means you can create your own extension elements that 
+   use the same syntax rules as the atom:updated, atom:published and 
+   app:edited elements. Such extensions can use the dynamic and static 
+   extension APIs:</t>
+   
+   <figure><preamble>Adding a Date Construct Extension using the dynamic API:</preamble>
+   <artwork><![CDATA[
+  Entry entry = ...
+  QName qname = new QName("foo");  
+  entry.addDateExtension(qname, DateTimes.now());
+   ]]></artwork></figure>
+   
+   <t>Note that the addDateExtension on the Abdera Entry class is new in Abdera2.</t>
+   
+   <figure><preamble>More complex extensions of the Date Construct can be implemented
+   statically by extending the DateTimeWrapper abstract class:</preamble>
+   <artwork><![CDATA[
+  import javax.xml.namespace.QName;
+
+  import org.apache.abdera2.factory.Factory;
+  import org.apache.abdera2.model.DateTimeWrapper;
+  import org.apache.abdera2.model.Element;
+
+  public class MyDateElement 
+    extends DateTimeWrapper {
+
+    public MyDateElement(Element internal) {
+      super(internal);
+    }
+
+    public MyDateElement(Factory factory, QName qname) {
+      super(factory, qname);
+    }
+  
+    ...
+  }
+   ]]></artwork></figure>
+   
+   </section>
+  
+  </section>
+  
+  <section title="Person Constructs">
+  
+    <t>Atom defines the notion of a Person Construct to represent people 
+    and entities. A Person Construct consists minimally of a name, an 
+    optional email address and an optional URI.</t>
+    
+    <figure><artwork><![CDATA[
+  Person person = entry.addAuthor(
+    "John Doe", 
+    "john.doe@example.org", 
+    "http://example.org/~jdoe");
+
+  System.out.println(person.getName());
+  System.out.println(person.getEmail());
+  System.out.println(person.getUri());
+    ]]></artwork></figure>
+  
+    <section title="Person Construct Extensions">
+    
+    <t>The Atom format explicitly allows the Atom Person Construct to be 
+    reused by extensions. This means you can create your own extension elements 
+    that use the same syntax rules as the atom:author and atom:contributor 
+    elements. Such extensions can use the dynamic and static extension APIs:</t>
+    
+    <figure><artwork><![CDATA[
+  Entry entry = ...
+  QName qname = new QName("urn:foo","foo","x");
+  Person person = abdera.getFactory().newPerson(qname, entry);
+  person.setName("John Doe");
+  person.setEmail("john.doe@example.org");
+  person.setUri("http://example.org/~jdoe");
+    ]]></artwork></figure>
+    
+    <figure><preamble>The resulting extension element:</preamble>
+    <artwork><![CDATA[
+  <x:foo xmlns:x="urn:foo">
+    <name>John Doe</name>
+    <email>john.doe@example.org</email>
+    <uri>http://example.org/~jdoe</uri>
+  </x:foo>
+    ]]></artwork></figure>
+  
+      <t>Static Person Construct extensions can be implemented by extending
+      the org.apache.abdera2.model.PersonWrapper abstract class.</t>
+    
+    </section>
+  
+  </section>
+  
+  <section title="Atom Links">
+  
+  <t>Atom link elements are similar in design to the link tag used in HTML 
+  and XHTML. They can be added to feed, entry and source objects.</t>
+  
+  <figure><preamble>Adding a link to an Atom Entry:</preamble>
+  <artwork><![CDATA[
+  entry.addLink(
+    "http://example.org/foo",  // href
+    Link.REL_ALTERNATE,        // rel
+    "text/html",               // type
+    "Link Title",              // title
+    "en-US",                   // hreflang
+    12345);                    // length
+  ]]></artwork></figure>
+  
+  <t>The rel attribute specifies the meaning of the link. The value of rel can 
+  either be a simple name or an IRI. Simple names MUST be registered with 
+  <eref="http://www.iana.org/assignments/link-relations/link-relations.xml">IANA</eref>. 
+  Note that each of the values in the IANA registry have a full IRI 
+  equivalent value, e.g., the value "http://www.iana.org/assignments/relation/alternate" 
+  is equivalent to the simple name "alternate". Any rel attribute value that 
+  is not registered MUST be an IRI.</t>
+  
+  <figure><artwork><![CDATA[
+  entry.addLink(
+    "http://example.org/foo",  // href
+    "http://example.com/custom/link/rel"); // rel
+  ]]></artwork></figure>
+  
+  </section>
+  
+  <section title="Signatures and Encryption">
+  
+  <t>Abdera supports digital signatures and encryption of Atom documents.</t>
+  
+  <section title="Signing an Atom Document">
+  
+    <figure><preamble>Initialize the Signing Key:</preamble>
+    <artwork><![CDATA[
+  KeyStore ks = KeyStore.getInstance(keystoreType);
+  InputStream in = DSig.class.getResourceAsStream(keystoreFile);    
+  ks.load(in, keystorePass.toCharArray());
+  PrivateKey signingKey = 
+    (PrivateKey) ks.getKey(
+      privateKeyAlias,
+      privateKeyPass.toCharArray());
+  X509Certificate cert = 
+    (X509Certificate) ks.getCertificate(
+      certificateAlias);
+    ]]></artwork></figure>
+    
+    <figure><preamble>Prepare the entry to sign:</preamble>
+    <artwork><![CDATA[
+  Entry entry = abdera.newEntry();
+      
+  entry.setId("http://example.org/foo/entry");  
+  entry.setUpdatedNow();
+  entry.setTitle("This is an entry");
+  entry.setContentAsXhtml("This <b>is</b> <i>markup</i>");
+  entry.addAuthor("James");
+  entry.addLink("http://www.example.org");
+    ]]></artwork></figure>
+    
+    <figure><preamble>Prepare the signing options:</preamble>
+    <artwork><![CDATA[
+  Security absec = new Security(abdera);
+  SignatureOptions options = 
+    absec.getSignature()
+      .getDefaultSignatureOptions();    
+  options.setCertificate(cert);
+  options.setSigningKey(signingKey); 
+    ]]></artwork></figure>
+    
+    <figure><preamble>Sign the entry:</preamble>
+    <artwork><![CDATA[
+  entry = (Entry)security.signer(options).apply(entry);
+    ]]></artwork></figure>
+  
+    <figure><preamble>Verifying the signed entry:</preamble>
+    <artwork><![CDATA[
+  boolean verified = security.verifier().apply(entry);
+  System.out.println(verified);
+    ]]></artwork></figure>
+
+    <t>Note that the signer() and verifier() methods on the 
+    org.apache.abdera2.security.Security class are new within Abdera2 and 
+    return Guava Function objects that wrap the signing and verification
+    logic.</t>
+  
+  </section>
+  
+  <section title="Encrypting an Atom Document">
+  
+   <t>Any valid Java crypto provider can be used. In these examples, we are 
+   using the <eref target="http://www.bouncycastle.org/">Bouncy Castle</eref> provider.</t>
+   
+   <figure><preamble>Prepare the provider and the encryption key:</preamble>
+   <artwork><![CDATA[
+  KeyHelper.prepareDefaultJceProvider();
+  
+  String jceAlgorithmName = "AES";
+  KeyGenerator keyGenerator =
+      KeyGenerator.getInstance(jceAlgorithmName);
+  keyGenerator.init(128);
+  SecretKey key = keyGenerator.generateKey();
+   ]]></artwork></figure>
+   
+   <figure><preamble>Prepare the entry to encrypt:</preamble>
+   <artwork><![CDATA[
+  Entry entry = abdera.newEntry();
+  entry.setId("http://example.org/foo/entry");
+  entry.setUpdatedNow();
+  entry.setTitle("This is an entry");
+  entry.setContentAsXhtml("This <b>is</b> <i>markup</i>");
+  entry.addAuthor("James");
+  entry.addLink("http://www.example.org");
+   ]]></artwork></figure>
+   
+   <figure><preamble>Prepare the encryption options:</preamble>
+   <artwork><![CDATA[
+  Security absec = new Security(abdera);
+  EncryptionOptions options =
+   absec.getEncryption()
+     .getDefaultEncryptionOptions();
+  options.setDataEncryptionKey(key);
+   ]]></artwork></figure>
+   
+   <figure><preamble>Encrypt the document:</preamble>
+   <artwork<![CDATA[
+  Document<Element> enc = 
+    absec.encryptor(options)
+      .apply(entry.getDocument());
+   ]]></figure>
+  
+   <figure><preamble>Decrypting the document:</preamble>
+   <artwork><![CDATA[
+  Document<Element> ent = 
+    absec.decryptor(options)
+      .apply(enc);
+   ]]></artwork></figure>
+   
+   <t>Note that the encryptor() and decryptor() methods on the 
+   org.apache.abdera2.security.Security class are new in Abdera2
+   are return Guava Function objects that wrap the encryption and
+   decryption logic.</t>
+  
+  </section>
   
   </section>
   

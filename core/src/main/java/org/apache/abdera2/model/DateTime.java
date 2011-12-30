@@ -70,6 +70,8 @@ public interface DateTime extends Element {
      */
     DateTime setValue(org.joda.time.DateTime dateTime);
 
+    DateTime setValueNow();
+    
     /**
      * Sets the content value of the element
      * 

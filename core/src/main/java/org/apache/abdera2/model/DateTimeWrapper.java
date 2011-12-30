@@ -55,6 +55,10 @@ public abstract class DateTimeWrapper extends ElementWrapper implements DateTime
             setText("");
         return this;
     }
+    
+    public DateTime setValueNow() {
+      return this.setValue(DateTimes.now());
+    }
 
     public DateTime setDate(Date date) {
         if (date != null)

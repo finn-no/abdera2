@@ -22,6 +22,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.anno.AnnoUtil;
+import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ElementIteratorWrapper;
@@ -35,6 +36,7 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMXMLParserWrapper;
+import org.joda.time.DateTime;
 
 @SuppressWarnings({"unchecked","rawtypes"})
 public class FOMExtensibleElement extends FOMElement implements ExtensibleElement {
@@ -228,5 +230,61 @@ public class FOMExtensibleElement extends FOMElement implements ExtensibleElemen
       if (qname == null)
         throw new IllegalArgumentException();
       return (T)addExtension(qname,before);
+    }
+
+    public Element addDateExtension(QName qname, DateTime value) {
+      complete();
+      FOMFactory fomfactory = (FOMFactory)factory;
+      org.apache.abdera2.model.DateTime el = 
+        fomfactory.newDateTime(qname, this);
+      el.setValue(value);
+      String prefix = qname.getPrefix();
+      declareIfNecessary(qname.getNamespaceURI(), prefix);
+      return el;
+    }
+
+    public Element addDateExtension(
+      String namespace, 
+      String localPart,
+      String prefix, 
+      DateTime value) {
+        complete();
+        declareIfNecessary(namespace, prefix);
+        return addDateExtension(
+          prefix != null ? 
+            new QName(namespace, localPart, prefix) : 
+            new QName(namespace, localPart),
+          value);
+    }
+
+    public Element addDateExtensionNow(QName qname) {
+      return addDateExtension(qname, DateTimes.now());
+    }
+
+    public Element addDateExtensionNow(
+      String namespace, 
+      String localPart,
+      String prefix) {
+        return addDateExtension(
+          namespace,
+          localPart,
+          prefix,
+          DateTimes.now());
+    }
+
+    public DateTime getDateExtension(QName qname) {
+      Element el = getExtension(qname);
+      if (el instanceof org.apache.abdera2.model.DateTime) {
+        org.apache.abdera2.model.DateTime dt = 
+          (org.apache.abdera2.model.DateTime) el;
+        return dt.getValue();
+      } else return null;
+    }
+
+    public DateTime getDateExtension(
+      String namespace, 
+      String localpart,
+      String prefix) {
+        return getDateExtension(new QName(namespace,localpart,prefix));
     }
 }

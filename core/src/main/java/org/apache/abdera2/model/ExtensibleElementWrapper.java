@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.factory.Factory;
+import org.joda.time.DateTime;
 
 /**
  * ElementWrapper implementation that implements the ExtensibleElement interface. This should be used to create static
@@ -134,6 +135,44 @@ public abstract class ExtensibleElementWrapper extends ElementWrapper implements
     public <T extends Element> T addExtension(Class<T> _class, QName before) {
       return getExtInternal().addExtension(_class,before);
     }
+
+    public Element addDateExtension(QName qname, DateTime value) {
+      return getExtInternal().addDateExtension(qname, value);
+    }
+
+    public Element addDateExtension(
+      String namespace, 
+      String localPart,
+      String prefix, 
+      DateTime value) {
+        return getExtInternal().addDateExtension(
+          namespace,localPart,prefix, value);
+    }
+
+    public Element addDateExtensionNow(QName qname) {
+      return getExtInternal().addDateExtensionNow(qname);
+    }
+
+    public Element addDateExtensionNow(
+      String namespace, 
+      String localPart,
+      String prefix) {
+        return getExtInternal().addDateExtensionNow(
+          namespace, localPart, prefix);
+    }
+
+    public DateTime getDateExtension(QName qname) {
+      return getExtInternal().getDateExtension(qname);
+    }
+
+    public DateTime getDateExtension(
+      String namespace, 
+      String localpart,
+      String prefix) {
+        return getExtInternal().getDateExtension(
+          namespace, localpart, prefix);
+    }
+    
     
     
 }

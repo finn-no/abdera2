@@ -88,6 +88,10 @@ public class FOMDateTime extends FOMElement implements DateTime {
         return value;
     }
 
+    public DateTime setValueNow() {
+      return setValue(DateTimes.now());
+    }
+    
     public DateTime setValue(org.joda.time.DateTime dateTime) {
         complete();
         value = null;

@@ -113,6 +113,10 @@ public class Security {
       };
     }
     
+    public <T extends Element>Function<T,Boolean> verifier() {
+      return verifier(null);
+    }
+    
     public <T extends Element>Function<T,Boolean> verifier(final SignatureOptions options) {
       return new Function<T,Boolean>() {
         public Boolean apply(T input) {
