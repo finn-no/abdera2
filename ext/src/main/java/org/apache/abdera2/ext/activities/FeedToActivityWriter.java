@@ -14,9 +14,11 @@ import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.writer.AbstractWriter;
-import org.apache.abdera2.writer.AbstractWriterOptions;
 import org.apache.abdera2.writer.Writer;
 import org.apache.abdera2.writer.WriterOptions;
+
+import com.google.common.collect.Iterables;
+
 import static com.google.common.base.Preconditions.*;
 
 @Name("activity")
@@ -49,8 +51,7 @@ public class FeedToActivityWriter
       checkNotNull(base);
     }
     checkArgument(base instanceof Feed || base instanceof Entry);
-    if (options.getCompressionCodecs() != null && 
-        options.getCompressionCodecs().length > 0) 
+    if (!Iterables.isEmpty(options.getCompressionCodecs())) 
       out = Compression.wrap(out, options.getCompressionCodecs());
     if (base instanceof Entry) {
        f2ac.convert((Entry)base).writeTo(out,options.getCharset());
@@ -96,9 +97,8 @@ public class FeedToActivityWriter
     }
   }
 
-  protected WriterOptions initDefaultWriterOptions() {
-    return new AbstractWriterOptions() {
-    };
+  protected WriterOptions.Builder initDefaultWriterOptions() {
+    return WriterOptions.make();
   }
 
 }

@@ -136,7 +136,7 @@ public abstract class AbstractParser implements Parser {
     protected abstract ParserOptions.Builder initDefaultParserOptions();
 
     public synchronized Parser setDefaultParserOptions(ParserOptions options) {
-      this.options = options;
+      this.options = options != null ? options : initDefaultParserOptions().get();
       return this;
     }
 

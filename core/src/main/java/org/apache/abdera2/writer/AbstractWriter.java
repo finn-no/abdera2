@@ -46,35 +46,19 @@ public abstract class AbstractWriter implements Writer {
     }
 
     public synchronized WriterOptions getDefaultWriterOptions() {
-        if (options == null)
-            options = initDefaultWriterOptions();
-
-        // Make a copy of the options, so that changes to it don't result in
-        // changes to the Parser's defaults. Also, this allows us to remain
-        // thread safe without having to make ParseOptions implementations
-        // synchronized.
-
-        try {
-            return (WriterOptions)options.clone();
-        } catch (CloneNotSupportedException cnse) {
-            // This shouldn't actually happen
-            throw new RuntimeException(cnse);
-        }
+      if (options == null)
+          options = initDefaultWriterOptions().get();
+      return options;
+    }
+    
+    public WriterOptions.Builder makeDefaultWriterOptions() {
+      return initDefaultWriterOptions();
     }
 
-    protected abstract WriterOptions initDefaultWriterOptions();
+    protected abstract WriterOptions.Builder initDefaultWriterOptions();
 
     public synchronized Writer setDefaultWriterOptions(WriterOptions options) {
-        // Ok, we need to make a defensive copy of the options, since otherwise
-        // the caller still has access to the object, which means our access to
-        // it isn't certain to be thread safe.
-
-        try {
-            this.options = (options != null) ? (WriterOptions)options.clone() : initDefaultWriterOptions();
-        } catch (CloneNotSupportedException cnse) {
-            // This shouldn't actually happen
-            throw new RuntimeException(cnse);
-        }
+        this.options = options != null ? options : initDefaultWriterOptions().get();
         return this;
     }
 

@@ -79,6 +79,10 @@ public class Compression {
       checkArgument(exp, "At least one codec must be specified");
     }
     
+    public static OutputStream wrap(OutputStream out, Iterable<CompressionCodec> codecs) throws IOException {
+      return wrap(out,Iterables.toArray(codecs,CompressionCodec.class));
+    }
+    
     public static OutputStream wrap(
         OutputStream out, 
         CompressionCodec... codecs)

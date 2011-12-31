@@ -34,7 +34,6 @@ import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ElementWrapper;
 import org.apache.abdera2.writer.AbstractWriter;
-import org.apache.abdera2.writer.AbstractWriterOptions;
 import org.apache.abdera2.writer.WriterOptions;
 import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
@@ -284,9 +283,8 @@ public class PrettyWriter extends AbstractWriter {
     }
 
     @Override
-    protected WriterOptions initDefaultWriterOptions() {
-        return new AbstractWriterOptions() {
-        };
+    protected WriterOptions.Builder initDefaultWriterOptions() {
+        return WriterOptions.make();
     }
 
 }

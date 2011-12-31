@@ -142,8 +142,8 @@ public class AppTest {
 
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/atomsvc+xml; charset=utf-8");
-            WriterOptions options = service.getDefaultWriterOptions();
-            options.setCharset("UTF-8");
+            WriterOptions options = service.makeDefaultWriterOptions()
+              .charset("UTF-8").get();
             service.writeTo(response.getOutputStream(), options);
         }
     }
@@ -184,8 +184,8 @@ public class AppTest {
                 case COLLECTION:
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.setContentType("application/atom+xml; charset=utf-8");
-                    WriterOptions options = feed.getDefaultWriterOptions();
-                    options.setCharset("UTF-8");
+                    WriterOptions options = feed.makeDefaultWriterOptions()
+                    .charset("UTF-8").get();
                     feed.writeTo(response.getOutputStream(), options);
                     break;
                 case ENTRY:
@@ -193,8 +193,8 @@ public class AppTest {
                         Entry entry = feed.getRoot().getEntries().get(getTarget());
                         response.setStatus(HttpServletResponse.SC_OK);
                         response.setContentType("application/atom+xml; charset=utf-8");
-                        options = entry.getDefaultWriterOptions();
-                        options.setCharset("UTF-8");
+                        options = entry.makeDefaultWriterOptions()
+                        .charset("UTF-8").get();
                         entry.writeTo(response.getOutputStream(), options);
                     } catch (Exception e) {
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -245,8 +245,8 @@ public class AppTest {
                                 response.setStatus(HttpServletResponse.SC_CREATED);
                                 response.setHeader("Location", entry.getId().toString());
                                 response.setHeader("Content-Location", entry.getId().toString());
-                                WriterOptions woptions = entry.getDefaultWriterOptions();
-                                woptions.setCharset("UTF-8");
+                                WriterOptions woptions = entry.makeDefaultWriterOptions()
+                                .charset("UTF-8").get();
                                 entry.writeTo(response.getOutputStream(), woptions);
                                 return;
                             }
@@ -272,8 +272,8 @@ public class AppTest {
                             response.setStatus(HttpServletResponse.SC_CREATED);
                             response.setHeader("Location", entry.getId().toString());
                             response.setHeader("Content-Location", entry.getId().toString());
-                            WriterOptions woptions = entry.getDefaultWriterOptions();
-                            woptions.setCharset("UTF-8");
+                            WriterOptions woptions = entry.makeDefaultWriterOptions()
+                              .charset("UTF-8").get();
                             entry.writeTo(response.getOutputStream(), woptions);
                             return;
                         }

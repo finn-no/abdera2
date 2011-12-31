@@ -293,6 +293,10 @@ public abstract class ElementWrapper implements Element {
         internal.writeTo(out, options);
     }
 
+    public WriterOptions.Builder makeDefaultWriterOptions() {
+      return internal.makeDefaultWriterOptions();
+    }
+    
     public WriterOptions getDefaultWriterOptions() {
         return internal.getDefaultWriterOptions();
     }

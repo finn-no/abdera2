@@ -118,10 +118,12 @@ public class EncodingTest {
         entry.setTitle("1");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        WriterOptions writeoptions = entry.getDefaultWriterOptions();
-        writeoptions.setCompressionCodecs(CompressionCodec.DEFLATE);
-        writeoptions.setCharset("UTF-16");
-        writeoptions.setAutoClose(true);
+        WriterOptions writeoptions = 
+          entry.makeDefaultWriterOptions()
+            .compression(CompressionCodec.DEFLATE)
+            .charset("UTF-16")
+            .autoclose()
+            .get();
         entry.getDocument().writeTo(out, writeoptions);
         out.close();
 

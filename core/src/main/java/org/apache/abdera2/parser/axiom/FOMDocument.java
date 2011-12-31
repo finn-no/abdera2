@@ -325,6 +325,10 @@ public class FOMDocument<T extends Element> extends OMDocumentImpl implements Do
     public WriterOptions getDefaultWriterOptions() {
         return new FOMWriter().getDefaultWriterOptions();
     }
+    
+    public WriterOptions.Builder makeDefaultWriterOptions() {
+      return new FOMWriter().makeDefaultWriterOptions();
+    }
 
     /**
      * Ensure that the underlying streams are fully parsed. We might eventually need to find a more efficient way of

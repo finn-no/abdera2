@@ -27,7 +27,6 @@ import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.model.Base;
 import org.apache.abdera2.writer.AbstractWriter;
-import org.apache.abdera2.writer.AbstractWriterOptions;
 import org.apache.abdera2.writer.WriterOptions;
 
 @Name("json")
@@ -43,9 +42,8 @@ public class JSONWriter extends AbstractWriter {
     }
 
     @Override
-    protected WriterOptions initDefaultWriterOptions() {
-        return new AbstractWriterOptions() {
-        };
+    protected WriterOptions.Builder initDefaultWriterOptions() {
+        return WriterOptions.make();
     }
 
     public Object write(Base base, WriterOptions options) throws IOException {

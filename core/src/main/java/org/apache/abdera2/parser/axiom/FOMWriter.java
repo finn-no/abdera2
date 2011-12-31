@@ -92,8 +92,8 @@ public class FOMWriter extends AbstractWriter {
     }
 
     @Override
-    protected WriterOptions initDefaultWriterOptions() {
-        return new FOMWriterOptions();
+    protected WriterOptions.Builder initDefaultWriterOptions() {
+        return WriterOptions.make();
     }
 
 }

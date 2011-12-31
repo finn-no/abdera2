@@ -35,6 +35,8 @@ public interface Base extends Cloneable {
      * Get the default WriterOptions for this object
      */
     WriterOptions getDefaultWriterOptions();
+    
+    WriterOptions.Builder makeDefaultWriterOptions();
 
     /**
      * Serializes the model component out to the specified stream

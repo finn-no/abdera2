@@ -19,37 +19,87 @@ package org.apache.abdera2.writer;
 
 import org.apache.abdera2.common.io.Compression.CompressionCodec;
 
-public interface WriterOptions extends Cloneable {
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableSet;
 
+public class WriterOptions {
+
+  public static Builder make() {
+    return new Builder();
+  }
+  
+  public static Builder from(WriterOptions options) {
+    Builder builder = new Builder();
+    builder.charset = options.charset;
+    builder.autoclose = options.autoclose;
+    builder.codecs.addAll(options.codecs);
+    return builder;
+  }
+  
+  public static class Builder implements Supplier<WriterOptions> {
+    
+    protected String charset = "UTF-8";
+    protected ImmutableSet.Builder<CompressionCodec> codecs = 
+      ImmutableSet.builder();
+    protected boolean autoclose = false;
+    
+    public Builder charset(String charset) {
+      this.charset = charset;
+      return this;
+    }
+    
+    public Builder compression(CompressionCodec codec) {
+      this.codecs.add(codec);
+      return this;
+    }
+    
+    public Builder autoclose() {
+      this.autoclose = true;
+      return this;
+    }
+    
+    public Builder doNotAutoclose() {
+      this.autoclose = false;
+      return this;
+    }
+    
+    public WriterOptions get() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
+    
+  }
+  
+  private final String charset;
+  private final ImmutableSet<CompressionCodec> codecs;
+  private final boolean autoclose;
+  
+  WriterOptions(Builder builder) {
+    this.charset = builder.charset;
+    this.codecs = builder.codecs.build();
+    this.autoclose = builder.autoclose;
+  }
+  
     /**
      * When writing, use the specified compression codecs
      */
-    CompressionCodec[] getCompressionCodecs();
-
-    /**
-     * When writing, use the specified compression codecs
-     */
-    WriterOptions setCompressionCodecs(CompressionCodec... codecs);
-
-    Object clone() throws CloneNotSupportedException;
+    public Iterable<CompressionCodec> getCompressionCodecs() {
+      return codecs;
+    }
 
     /**
      * The character encoding to use for the output
      */
-    String getCharset();
-
-    /**
-     * The character encoding to use for the output
-     */
-    WriterOptions setCharset(String charset);
+    public String getCharset() {
+      return charset;
+    }
 
     /**
      * True if the writer should close the output stream or writer when finished
      */
-    boolean getAutoClose();
+    public boolean getAutoClose() {
+      return autoclose;
+    }
 
-    /**
-     * True if the writer should close the output stream or writer when finished
-     */
-    WriterOptions setAutoClose(boolean autoclose);
 }
