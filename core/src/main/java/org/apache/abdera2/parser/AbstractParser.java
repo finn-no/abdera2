@@ -122,38 +122,22 @@ public abstract class AbstractParser implements Parser {
     public <T extends Element> Document<T> parse(ReadableByteChannel buf) throws ParseException {
         return parse(buf, null, getDefaultParserOptions());
     }
-
-    public synchronized ParserOptions getDefaultParserOptions() {
-        if (options == null)
-            options = initDefaultParserOptions();
-
-        // Make a copy of the options, so that changes to it don't result in
-        // changes to the Parser's defaults. Also, this allows us to remain
-        // thread safe without having to make ParseOptions implementations
-        // synchronized.
-
-        try {
-            return (ParserOptions)options.clone();
-        } catch (CloneNotSupportedException cnse) {
-            // This shouldn't actually happen
-            throw new RuntimeException(cnse);
-        }
+    
+    public ParserOptions.Builder makeDefaultParserOptions() {
+      return initDefaultParserOptions();
     }
 
-    protected abstract ParserOptions initDefaultParserOptions();
+    public synchronized ParserOptions getDefaultParserOptions() {
+      if (options == null)
+        options = initDefaultParserOptions().get();
+      return options;
+    }
+
+    protected abstract ParserOptions.Builder initDefaultParserOptions();
 
     public synchronized Parser setDefaultParserOptions(ParserOptions options) {
-        // Ok, we need to make a defensive copy of the options, since otherwise
-        // the caller still has access to the object, which means our access to
-        // it isn't certain to be thread safe.
-
-        try {
-            this.options = (options != null) ? (ParserOptions)options.clone() : initDefaultParserOptions();
-            return this;
-        } catch (CloneNotSupportedException cnse) {
-            // This shouldn't actually happen
-            throw new RuntimeException(cnse);
-        }
+      this.options = options;
+      return this;
     }
 
     public Iterable<String> getInputFormats() {

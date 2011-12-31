@@ -29,6 +29,7 @@ import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.AbstractParser;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.ParserOptions;
+import org.apache.abdera2.parser.ParserOptions.Builder;
 
 @Name("html")
 public class HtmlParser extends AbstractParser {
@@ -42,13 +43,13 @@ public class HtmlParser extends AbstractParser {
     }
 
     @Override
-    protected ParserOptions initDefaultParserOptions() {
-        return new HtmlParserOptions();
+    protected Builder initDefaultParserOptions() {
+        return ParserOptions.make();
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Element> Document<T> parse(Reader in, String base, ParserOptions options) throws ParseException {
-        boolean fragment = options instanceof HtmlParserOptions ? ((HtmlParserOptions)options).isHtmlFragment() : false;
+        boolean fragment = options.isFragment();
         Document<T> doc = null;
         if (fragment) {
             Div div = HtmlHelper.parse(abdera, in);

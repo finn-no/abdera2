@@ -19,26 +19,14 @@ package org.apache.abdera2.test.util;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.abdera2.factory.Factory;
-import org.apache.abdera2.parser.AbstractParserOptions;
+import org.apache.abdera2.parser.ParserOptions;
 import org.junit.Test;
 
 public class AbstractParserOptionsTest {
 
-    private static final class TestParserOptions extends AbstractParserOptions {
-
-        @Override
-        protected void checkFactory(Factory factory) {
-        }
-
-        @Override
-        protected void initFactory() {
-        }
-    }
-
     @Test
     public void checkAllEntities() throws Exception {
-        TestParserOptions fomParserOptions = new TestParserOptions();
+        ParserOptions fomParserOptions = ParserOptions.make().get();
 
         assertEquals("00A1", getHexValue("iexcl", fomParserOptions));
         assertEquals("00A2", getHexValue("cent", fomParserOptions));
@@ -291,7 +279,7 @@ public class AbstractParserOptionsTest {
         assertEquals("20AC", getHexValue("euro", fomParserOptions));
     }
 
-    private String getHexValue(String entity, AbstractParserOptions fomParserOptions) {
+    private String getHexValue(String entity, ParserOptions fomParserOptions) {
         String hexValue = fomParserOptions.resolveEntity(entity);
         char hexChar = hexValue.charAt(0);
         StringBuilder result = new StringBuilder(Integer.toHexString(hexChar));

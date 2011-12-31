@@ -26,7 +26,6 @@ import org.apache.abdera2.model.Entry;
 import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
-import org.apache.abdera2.parser.filter.ParseFilter;
 import org.apache.abdera2.parser.filter.WhiteListParseFilter;
 import org.apache.abdera2.common.Constants;
 
@@ -43,16 +42,15 @@ public class PrintTitles {
 
         InputStream in = Parse.class.getResourceAsStream("/simple.xml");
 
-        ParserOptions opts = parser.getDefaultParserOptions();
-
-        ParseFilter filter = 
-          WhiteListParseFilter
-            .make()
-            .add(Constants.FEED)
-            .add(Constants.ENTRY)
-            .add(Constants.TITLE)
-            .get();
-        opts.setParseFilter(filter);
+        ParserOptions opts = 
+          parser.makeDefaultParserOptions()
+            .filter(
+              WhiteListParseFilter
+                .make()
+                .add(Constants.FEED)
+                .add(Constants.ENTRY)
+                .add(Constants.TITLE)
+                .get()).get();
 
         Document<Feed> doc;
 

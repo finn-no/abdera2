@@ -54,15 +54,16 @@ class AbderaClientResponseImpl
       return getDocument(parser,null);
   }
 
-  public <T extends Element> Document<T> getDocument(Parser parser,
-      ParserOptions options) throws ParseException {
+  public <T extends Element> Document<T> getDocument(
+    Parser parser,
+    ParserOptions options) throws ParseException {
     try {
       if (options == null) 
       options = parser.getDefaultParserOptions();
       
       String charset = getCharacterEncoding();
       if (charset != null)
-          options.setCharset(charset);
+        options = options.usingCharset(charset);
       IRI cl = getContentLocation();
       if (cl != null && !cl.isAbsolute()) {
           IRI r = new IRI(getUri());

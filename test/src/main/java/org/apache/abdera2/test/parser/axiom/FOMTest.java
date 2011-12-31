@@ -180,8 +180,9 @@ public class FOMTest {
             .add(Constants.TITLE)
             .add(Constants.ID)
             .get();
-        ParserOptions options = getParser().getDefaultParserOptions();
-        options.setParseFilter(filter);
+        ParserOptions options = 
+          getParser().makeDefaultParserOptions()
+            .filter(filter).get();
 
         URL url = FOMTest.class.getResource("/simple.xml");
         InputStream in = url.openStream();
@@ -215,8 +216,9 @@ public class FOMTest {
             .make()
             .add(Constants.UPDATED)
             .get();
-        ParserOptions options = getParser().getDefaultParserOptions();
-        options.setParseFilter(filter);
+        ParserOptions options = 
+          getParser().makeDefaultParserOptions()
+            .filter(filter).get();
 
         URL url = FOMTest.class.getResource("/simple.xml");
         InputStream in = url.openStream();

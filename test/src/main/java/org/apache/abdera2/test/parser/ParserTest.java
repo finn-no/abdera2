@@ -24,8 +24,9 @@ public class ParserTest {
     Abdera abdera = Abdera.getInstance();
     Parser parser = abdera.getParser();
     assertNotNull(parser);
-    ParserOptions options = parser.getDefaultParserOptions();
-    options.setFilterRestrictedCharacters(true);// invalid xml char will be filtered 
+    ParserOptions options = 
+      parser.makeDefaultParserOptions()
+       .filterRestrictedCharacters().get();// invalid xml char will be filtered 
     assertNotNull(options);
     Document<Element> doc = parser.parse(new StringReader(s),options);
     assertNotNull(doc);
@@ -42,7 +43,10 @@ public class ParserTest {
         .make()
         .add(new QName("b"))
         .get();
-    options.setParseFilter(filter);
+    options = ParserOptions
+      .from(options)
+      .filter(filter)
+      .get();
     
     doc = parser.parse(new StringReader(s),options);
     root = doc.getRoot();

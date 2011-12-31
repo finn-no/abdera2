@@ -25,6 +25,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import com.google.common.collect.Iterables;
+
 import static org.apache.abdera2.common.text.CharUtils.splitAndTrim;
 import static com.google.common.base.Preconditions.*;
 
@@ -98,6 +100,13 @@ public class Compression {
         return codec.wrap(wrap(out,codecs));
     }
 
+    public static InputStream wrap(
+      InputStream in, 
+      Iterable<CompressionCodec> codecs) 
+        throws IOException {
+      return wrap(in, Iterables.toArray(codecs, CompressionCodec.class));
+    }
+    
     public static InputStream wrap(
       InputStream in, 
       CompressionCodec... codecs)

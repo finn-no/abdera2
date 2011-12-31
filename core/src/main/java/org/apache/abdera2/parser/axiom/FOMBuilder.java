@@ -17,8 +17,6 @@
  */
 package org.apache.abdera2.parser.axiom;
 
-import java.util.Map;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -247,11 +245,7 @@ public class FOMBuilder extends StAXOMBuilder implements Constants {
     }
 
     private QName getAlias(QName qname) {
-        Map<QName, QName> map = parserOptions.getQNameAliasMap();
-        if (map == null)
-            return qname;
-        QName alias = map.get(qname);
-        return alias != null ? alias : qname;
+      return parserOptions.getAlias(qname);
     }
 
     protected OMElement constructNode(OMContainer parent, String name) {

@@ -530,9 +530,11 @@ public class FOMElement extends OMElementImpl implements Element, OMElement, Con
         charset = charset != null ? charset : "UTF-8";
         ByteArrayInputStream bais =
             new ByteArrayInputStream(value.getBytes(charset));
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setCharset(getXMLStreamReader().getCharacterEncodingScheme());
-        options.setFactory(fomfactory);
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+           .charset(getXMLStreamReader().getCharacterEncodingScheme())
+           .factory(fomfactory)
+           .get();
         Document<?> doc = parser.parse(bais, (baseUri != null) ? baseUri.toString() : null, options);
         return doc.getRoot();
     }

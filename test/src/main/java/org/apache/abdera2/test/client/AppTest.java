@@ -228,8 +228,9 @@ public class AppTest {
                             MimeType type = new MimeType(request.getContentType());
                             String charset = type.getParameter("charset");
                             String uri = AppTest.INSTANCE.getBase() + "/collections/entries";
-                            ParserOptions options = getParser().getDefaultParserOptions();
-                            options.setCharset(charset);
+                            ParserOptions options = 
+                              getParser().makeDefaultParserOptions()
+                               .charset(charset).get();
                             Document<?> doc = getParser().parse(request.getInputStream(), uri, options);
                             if (doc.getRoot() instanceof Entry) {
                                 Entry entry = (Entry)doc.getRoot().clone();
@@ -297,8 +298,9 @@ public class AppTest {
                             MimeType type = new MimeType(request.getContentType());
                             String charset = type.getParameter("charset");
                             String uri = AppTest.INSTANCE.getBase() + "/collections/entries/" + target;
-                            ParserOptions options = getParser().getDefaultParserOptions();
-                            options.setCharset(charset);
+                            ParserOptions options = 
+                              getParser().makeDefaultParserOptions()
+                                .charset(charset).get();
                             Document<?> doc = getParser().parse(request.getInputStream(), uri, options);
                             if (doc.getRoot() instanceof Entry) {
                                 Entry newentry = (Entry)doc.getRoot().clone();

@@ -195,6 +195,8 @@ public interface Parser {
      * @return The default ParserOptions
      */
     ParserOptions getDefaultParserOptions();
+    
+    ParserOptions.Builder makeDefaultParserOptions();
 
     /**
      * Set the default parser options for this Parser. This method copies the specified options.

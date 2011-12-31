@@ -70,8 +70,9 @@ public class EncodingTest {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         Parser parser = abdera.getParser();
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setCompressionCodecs(CompressionCodec.GZIP);
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+            .compression(CompressionCodec.GZIP).get();
         Document<Entry> doc = abdera.getParser().parse(in, null, options);
         entry = doc.getRoot();
     }
@@ -84,8 +85,9 @@ public class EncodingTest {
         String s = "<?xml version='1.1'?><t t='\u007f' />";
         Abdera abdera = Abdera.getInstance();
         Parser parser = abdera.getParser();
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setFilterRestrictedCharacters(true);
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+           .filterRestrictedCharacters().get();
         Document<Element> doc = parser.parse(new StringReader(s), null, options);
         doc.getRoot().toString();
     }
@@ -98,9 +100,10 @@ public class EncodingTest {
         String s = "<?xml version='1.0'?><t t='\u0002' />";
         Abdera abdera = Abdera.getInstance();
         Parser parser = abdera.getParser();
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setFilterRestrictedCharacters(true);
-        options.setCharset("UTF-8");
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+           .charset("UTF-8")
+           .filterRestrictedCharacters().get();
         Document<Element> doc = parser.parse(new ByteArrayInputStream(s.getBytes("UTF-8")), null, options);
         doc.getRoot().toString();
     }
@@ -126,8 +129,9 @@ public class EncodingTest {
 
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         Parser parser = abdera.getParser();
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setCompressionCodecs(CompressionCodec.DEFLATE);
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+            .compression(CompressionCodec.DEFLATE).get();
         Document<Entry> doc = abdera.getParser().parse(in, null, options);
 
         doc.getRoot().toString();

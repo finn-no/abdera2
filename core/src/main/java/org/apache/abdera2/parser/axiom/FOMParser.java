@@ -81,12 +81,12 @@ public class FOMParser extends AbstractParser implements Parser {
         throws ParseException {
         Document<T> document = builder.getFomDocument();
         try {
-            if (base != null)
-                document.setBaseUri(base.toString());
-            if (options != null && options.getCharset() != null)
-                document.setCharset(options.getCharset());
-            if (options != null)
-                document.setMustPreserveWhitespace(options.getMustPreserveWhitespace());
+          if (base != null)
+              document.setBaseUri(base.toString());
+          if (options != null && options.getCharset() != null)
+              document.setCharset(options.getCharset());
+          if (options != null)
+              document.setMustPreserveWhitespace(options.getMustPreserveWhitespace());
         } catch (Exception e) {
             if (!(e instanceof ParseException))
                 e = new ParseException(e);
@@ -101,18 +101,18 @@ public class FOMParser extends AbstractParser implements Parser {
             throw new IllegalArgumentException(Localizer.get("INPUTSTREAM.NOT.NULL"));
         try {
             if (options == null)
-                options = getDefaultParserOptions();
-            if (options.getCompressionCodecs() != null) {
-                in = Compression.wrap(in, options.getCompressionCodecs());
-            }
+              options = getDefaultParserOptions();
+            if (options.getCompressionCodecs() != null)
+              in = Compression.wrap(in, options.getCompressionCodecs());
             String charset = options.getCharset();
             if (charset == null && options.getAutodetectCharset()) {
                 XMLStreamSniffingInputStream sin =
-                    (in instanceof XMLStreamSniffingInputStream) ? (XMLStreamSniffingInputStream)in
-                        : new XMLStreamSniffingInputStream(in);
+                    (in instanceof XMLStreamSniffingInputStream) ? 
+                      (XMLStreamSniffingInputStream)in : 
+                      new XMLStreamSniffingInputStream(in);
                 charset = sin.getEncoding();
                 if (charset != null)
-                    options.setCharset(charset);
+                  options = options.usingCharset(charset);
                 in = sin;
             }
             if (options.getFilterRestrictedCharacters()) {
@@ -184,8 +184,8 @@ public class FOMParser extends AbstractParser implements Parser {
     }
 
     @Override
-    protected ParserOptions initDefaultParserOptions() {
-        return new FOMParserOptions(getFactory());
+    protected ParserOptions.Builder initDefaultParserOptions() {
+        return ParserOptions.make().factory(getFactory());
     }
 
 }

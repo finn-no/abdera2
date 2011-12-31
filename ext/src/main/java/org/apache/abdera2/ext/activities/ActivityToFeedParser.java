@@ -12,11 +12,9 @@ import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.common.anno.Name;
-import org.apache.abdera2.factory.Factory;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.AbstractParser;
-import org.apache.abdera2.parser.AbstractParserOptions;
 import org.apache.abdera2.parser.ParseException;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.writer.StreamWriter;
@@ -40,11 +38,8 @@ public class ActivityToFeedParser
     io = IO.get();
   }
 
-  protected ParserOptions initDefaultParserOptions() {
-    return new AbstractParserOptions() {
-      protected void initFactory() {}
-      protected void checkFactory(Factory factory) {}
-    };
+  protected ParserOptions.Builder initDefaultParserOptions() {
+    return ParserOptions.make();
   }
   
   @SuppressWarnings("unchecked")

@@ -92,8 +92,8 @@ public class MapRedExample {
     Abdera abdera = Abdera.getInstance();
     URL url = new URL("http://planet.intertwingly.net/atom.xml");
     Parser parser = abdera.getParser();
-    ParserOptions options = parser.getDefaultParserOptions();
-    options.setCharset("UTF-8");
+    ParserOptions options = 
+      parser.makeDefaultParserOptions().charset("UTF-8").get();
     Document<Feed> doc = abdera.getParser().parse(url.openStream(),url.toString(),options);
     Feed feed = doc.getRoot();    
     ByteArrayOutputStream out = new ByteArrayOutputStream();

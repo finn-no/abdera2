@@ -25,23 +25,21 @@ import org.apache.abdera2.model.Feed;
 import org.apache.abdera2.parser.Parser;
 import org.apache.abdera2.parser.ParserOptions;
 import org.apache.abdera2.parser.filter.BlackListParseFilter;
-import org.apache.abdera2.parser.filter.ParseFilter;
 
 public class UnacceptableElementsExample {
 
     public static void main(String[] args) throws Exception {
 
         Parser parser = Abdera.getInstance().getParser();
-
-        ParseFilter exceptionFilter =
-          BlackListParseFilter
+        ParserOptions options = 
+          parser.makeDefaultParserOptions()
+            .filter(BlackListParseFilter
             .make()
             .add(new QName("http://example.org", "a"))
             .throwOnUnacceptable()
+            .get())
             .get();
         
-        ParserOptions options = parser.getDefaultParserOptions();
-        options.setParseFilter(exceptionFilter);
         Document<Feed> doc =
             parser.parse(
               UnacceptableElementsExample.class.getResourceAsStream("/xmlcontent.xml"), 
