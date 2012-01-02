@@ -213,17 +213,18 @@ foo.MyListExtensionFactory
     <figure><artwork><![CDATA[
   Abdera abdera = Abdera.getInstance();
   Parser parser = abdera.getParser();
-  ParserOptions options = parser.getDefaultParserOptions();
-      
-  options.setAutodetectCharset(true);
-  options.setCharset("UTF-8");
-  options.setCompressionCodecs(CompressionCodec.GZIP);
-  options.setFilterRestrictedCharacterReplacement('_');
-  options.setFilterRestrictedCharacters(true);
-  options.setMustPreserveWhitespace(false);
-  options.setParseFilter(null);
-  options.setResolveEntities(true);
-  options.registerEntity("foo", "bar");
+  ParserOptions options = 
+    parser.makeDefaultParserOptions()
+      .autodetectCharset()
+      .charset("UTF-8")
+      .compression(CompressionCodec.GZIP)
+      .filterRestrictedCharacterReplacement('_')
+      .filterRestrictedCharacters()
+      .preserveWhitespace()
+      .filter(null)
+      .resolveEntities()
+      .entity("foo", "bar")
+      .get();
       
   InputStream in = ...;
   String base = "http://example.org";
@@ -277,13 +278,15 @@ foo.MyListExtensionFactory
   
   <figure><preamble>Using a ParseFilter:</preamble>
   <artwork><![CDATA[
-  ParseFilter filter = 
-    WhiteListParseFilter.make()
-      .add(Constants.FEED)
-      .add(Constants.ENTRY)
-      .add(Constants.TITLE)
+  ParseOptions options = 
+    parse.makeDefaultParserOptions()
+      .filter( 
+        WhiteListParseFilter.make()
+          .add(Constants.FEED)
+          .add(Constants.ENTRY)
+          .add(Constants.TITLE)
+          .get())
       .get();
-  options.setParseFilter(filter);
   Document<Feed> doc = parser.parse(in,base,options);
   ]]></artwork></figure>
   
@@ -761,11 +764,12 @@ foo.MyListExtensionFactory
     <figure><preamble>Prepare the signing options:</preamble>
     <artwork><![CDATA[
   Security absec = new Security(abdera);
-  SignatureOptions options = 
-    absec.getSignature()
-      .getDefaultSignatureOptions();    
-  options.setCertificate(cert);
-  options.setSigningKey(signingKey); 
+    SignatureOptions options = 
+      absec.getSignature()
+        .getDefaultSignatureOptions()
+        .signingKey(signingKey)
+        .certificate(cert)
+        .get();  
     ]]></artwork></figure>
     
     <figure><preamble>Sign the entry:</preamble>
@@ -818,8 +822,9 @@ foo.MyListExtensionFactory
   Security absec = new Security(abdera);
   EncryptionOptions options =
    absec.getEncryption()
-     .getDefaultEncryptionOptions();
-  options.setDataEncryptionKey(key);
+     .getDefaultEncryptionOptions()
+     .dataEncryptionKey(key)
+     .get();
    ]]></artwork></figure>
    
    <figure><preamble>Encrypt the document:</preamble>

@@ -139,6 +139,16 @@ public class ParserOptions {
       return this;
     }
     
+    public Builder resolveEntities() {
+      this.resolveentities = true;
+      return this;
+    }
+    
+    public Builder doNotResolveEntities() {
+      this.resolveentities = false;
+      return this;
+    }
+    
     public Builder entity(String name, String value) {
       this.entities.put(name,value);
       return this;
