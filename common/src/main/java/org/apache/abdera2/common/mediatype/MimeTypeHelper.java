@@ -413,18 +413,52 @@ public final class MimeTypeHelper {
     }
   }
   
+  public static class UnmodifiableMimeTypeParameterList 
+    extends MimeTypeParameterList {
+  
+    public UnmodifiableMimeTypeParameterList() {
+      super();
+    }
+  
+    public UnmodifiableMimeTypeParameterList(String arg0)
+      throws javax.activation.MimeTypeParseException {
+        super(arg0);
+    }
+  
+    @Override
+    public void remove(String arg0) {
+      throw new UnsupportedOperationException();
+    }
+  
+    @Override
+    public void set(String arg0, String arg1) {
+      throw new UnsupportedOperationException();
+    }
+  }
     
   public static class UnmodifiableMimeType extends MimeType {
+    private final MimeTypeParameterList list;
     public UnmodifiableMimeType() {
       super();
+      this.list = getList();
     }
     public UnmodifiableMimeType(String primary, String sub)
         throws javax.activation.MimeTypeParseException {
       super(primary, sub);
+      this.list = getList();
     }
     public UnmodifiableMimeType(String rawdata)
         throws javax.activation.MimeTypeParseException {
       super(rawdata);
+      this.list = getList();
+    }
+    private MimeTypeParameterList getList() {
+      try {
+        return new UnmodifiableMimeTypeParameterList(
+          super.getParameters().toString());
+      } catch (javax.activation.MimeTypeParseException e) {
+        throw new MimeTypeParseException(e);
+      }
     }
     public void setPrimaryType(String primary)
         throws javax.activation.MimeTypeParseException {
@@ -440,6 +474,8 @@ public final class MimeTypeHelper {
     public void removeParameter(String name) {
       throw new UnsupportedOperationException();
     }
-    
+    public MimeTypeParameterList getParameters() {
+      return list;
+    }
   }
 }
