@@ -18,7 +18,7 @@
 package org.apache.abdera2.common.misc;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +30,7 @@ import java.util.concurrent.FutureTask;
 import org.apache.abdera2.common.Discover;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -41,6 +42,17 @@ import com.google.common.util.concurrent.ListenableFutureTask;
 public final class MoreFunctions {
   
   private MoreFunctions() {}
+  
+  public static <X>Iterable<X> iterableOver(
+    final Iterator<X> iterator) {
+    return new Iterable<X>() {
+      private final ImmutableList<X> list =
+        ImmutableList.copyOf(iterator);
+      public Iterator<X> iterator() {
+        return list.iterator();
+      }
+    };
+  }
   
   public static <K>Function<K,Void> alwaysVoid() {
     return MoreFunctions.<K,Void>alwaysNull();
@@ -62,58 +74,8 @@ public final class MoreFunctions {
     return ImmutableList.<S>copyOf(each(items, transform, _class));
   }
   
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static int _hash(Object obj ) {
-    if (obj != null) {
-      Class<?> type = obj.getClass();
-      if (type.isArray()) {
-        if (type.equals(long[].class))
-          return Arrays.hashCode((long[])obj);
-        else if (type.equals(int[].class))
-          return Arrays.hashCode((int[])obj);
-        else if (type.equals(short[].class))
-          return Arrays.hashCode((short[])obj);
-        else if (type.equals(byte[].class))
-          return Arrays.hashCode((byte[])obj);
-        else if (type.equals(boolean[].class))
-          return Arrays.hashCode((boolean[])obj);
-        else if (type.equals(char[].class))
-          return Arrays.hashCode((char[])obj);
-        else if (type.equals(double[].class))
-          return Arrays.hashCode((double[])obj);
-        else if (type.equals(float[].class))
-          return Arrays.hashCode((float[])obj);
-        else return Arrays.hashCode((Object[])obj);
-      } else {
-        if (obj instanceof Iterable) {
-          return genHashCode(obj.hashCode(), Iterables.toArray((Iterable)obj, Object.class));
-        } else {
-          if (obj instanceof Long) {
-            long f = (Long)obj;
-            return (int)(f ^ (f >>> 32));
-          } else if (obj instanceof Double) {
-              long f = Double.doubleToLongBits((Double)obj);
-              return (int)(f ^ (f >>> 32));
-            } else if (obj instanceof Float) {
-              return Float.floatToIntBits((Float)obj);
-            } else if (obj instanceof Boolean) {
-              return (Boolean)obj ? 1231 : 1237;
-            } else if (obj instanceof Integer) {
-              return (Integer)obj;
-            } else return obj.hashCode();
-          }
-        }
-      }
-    return 0;
-  }
-  
   public static int genHashCode(int sup, Object... fields) {
-    final int prime = 31;
-    int result = sup;
-    for (Object field : fields)
-      result = prime * result + 
-        (field != null ? _hash(field) : 0);
-    return result;
+    return Objects.hashCode(fields);
   }
   
   public static <T>T createInstance(Class<T> _class, Object... args) {

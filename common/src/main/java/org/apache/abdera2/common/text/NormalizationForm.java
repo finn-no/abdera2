@@ -17,13 +17,20 @@
  */
 package org.apache.abdera2.common.text;
 
+import java.util.Iterator;
+
+import org.apache.abdera2.common.misc.MoreFunctions;
+
 import com.google.common.base.Equivalence;
 import com.google.common.base.Equivalences;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.Normalizer2.Mode;
 
-public enum NormalizationForm {
+public enum NormalizationForm
+  implements Function<CharSequence,CharSequence> {
+  
     D(Mode.DECOMPOSE,  "nfc"), 
     C(Mode.COMPOSE,    "nfc"), 
     KD(Mode.DECOMPOSE, "nfkc"), 
@@ -57,6 +64,10 @@ public enum NormalizationForm {
       return ne;
     }
     
+    public Predicate<CharSequence> equivalentTo(CharSequence seq) {
+      return equivalence().equivalentTo(seq);
+    }
+    
     public static class NormalizedEquivalence
       extends Equivalence<CharSequence> {
       private final NormalizationForm form;
@@ -82,30 +93,18 @@ public enum NormalizationForm {
       
     }
     
-  private static class NormalFunction 
-    implements Function<CharSequence,CharSequence> {
-    private final NormalizationForm form;
-    NormalFunction(NormalizationForm form) {
-      this.form = form;
-    }
-    public CharSequence apply(CharSequence input) {
-      return form.normalize(input);
-    }
+  public CharSequence apply(CharSequence input) {
+    return normalize(input);
   }
   
-  public static Function<CharSequence,CharSequence> D() {
-    return new NormalFunction(NormalizationForm.D);
+  /**
+   * Returns an Iterator over the normalized codepoints in the input string
+   */
+  public Iterator<Integer> iterator(CharSequence input) {
+    return CodepointIterator.getInstance(normalize(input));
   }
   
-  public static Function<CharSequence,CharSequence> C() {
-    return new NormalFunction(NormalizationForm.C);
-  }
-  
-  public static Function<CharSequence,CharSequence> KD() {
-    return new NormalFunction(NormalizationForm.KD);
-  }
-  
-  public static Function<CharSequence,CharSequence> KC() {
-    return new NormalFunction(NormalizationForm.KC);
+  public Iterable<Integer> iterable(CharSequence input) {
+    return MoreFunctions.iterableOver(iterator(input));
   }
 }

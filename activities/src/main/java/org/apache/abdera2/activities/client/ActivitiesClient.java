@@ -38,6 +38,14 @@ import org.apache.abdera2.protocol.client.Session;
 public class ActivitiesClient 
   extends ClientWrapper {
 
+  public static ActivitiesSession createSession() {
+    return new ActivitiesClient().newSession();
+  }
+  
+  public static ActivitiesSession createSession(IO io) {
+    return new ActivitiesClient().newSession(io);
+  }
+  
   /**
    * Creates a new Activity Client that wraps a new BasicClient
    */

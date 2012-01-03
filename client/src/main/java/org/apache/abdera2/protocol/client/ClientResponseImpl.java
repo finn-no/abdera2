@@ -169,7 +169,7 @@ class ClientResponseImpl
   }
 
   public String getSlug() {
-    return getHeader("Slug");
+    return getDecodedHeader("Slug");
   }
 
   public MimeType getContentType() {
