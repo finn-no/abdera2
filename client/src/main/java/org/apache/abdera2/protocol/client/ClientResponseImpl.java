@@ -24,11 +24,13 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.activation.MimeType;
+import javax.activation.MimeTypeParameterList;
 
 import org.apache.abdera2.common.http.Authentication;
 import org.apache.abdera2.common.http.CacheControl;
@@ -266,8 +268,17 @@ class ClientResponseImpl
     return getDateHeader("Date");
   }
 
+  @SuppressWarnings("rawtypes")
   public String getCharacterEncoding() {
-    return getHeader("Content-Encoding");
+    MimeType mt = this.getContentType();
+    MimeTypeParameterList list = mt.getParameters();
+    Enumeration names = list.getNames();
+    while (names.hasMoreElements()) {
+      String name = (String) names.nextElement();
+      if (name.equalsIgnoreCase("charset"))
+        return list.get(name);
+    }
+    return "UTF-8";
   }
 
   public void writeTo(OutputStream out) throws IOException {
