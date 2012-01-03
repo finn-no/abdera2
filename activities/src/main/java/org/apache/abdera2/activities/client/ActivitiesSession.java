@@ -154,7 +154,7 @@ public class ActivitiesSession
     return ActivitiesSession.<M,T>getCollectionFromResp(io,get(uri, options));
   }
   
-  static <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollectionFromResp(IO io, ClientResponse cr) {
+  public static <M extends ASObject, T extends Collection<M>>ASDocument<T> getCollectionFromResp(IO io, ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -193,7 +193,7 @@ public class ActivitiesSession
       }
     };
   }
-  
+
   public <T extends Activity>ASDocument<T> getActivity(String uri) {
     return this.<T>getActivity(uri,this.getDefaultRequestOptions().get());
   }
@@ -202,7 +202,7 @@ public class ActivitiesSession
     return getActivityFromResponse(io,get(uri, options));
   }
   
-  static <T extends Activity>ASDocument<T> getActivityFromResponse(IO io,ClientResponse cr) {
+  public static <T extends Activity>ASDocument<T> getActivityFromResponse(IO io,ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
@@ -250,7 +250,7 @@ public class ActivitiesSession
     return getObjectFromResponse(io,get(uri, options));
   }
   
-  static <T extends ASObject>ASDocument<T> getObjectFromResponse(IO io,ClientResponse cr) {
+  public static <T extends ASObject>ASDocument<T> getObjectFromResponse(IO io,ClientResponse cr) {
     try {
       if (cr != null) {
         switch(cr.getType()) {
