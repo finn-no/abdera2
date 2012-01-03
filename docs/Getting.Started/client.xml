@@ -182,6 +182,48 @@
       ]]></artwork></figure>
     
     </section>
+    
+    <section title="Conditional Requests">
+    
+      <t>The Abdera2 Client fully supports conditional HTTP Requests using
+      EntityTags. Conditional request options can be set using the 
+      RequestOptions class:</t>
+      
+      <figure><preamble>An example conditional request using If-None-Match:</preamble>
+      <artwork><![CDATA[
+  RequestOptions options =
+    RequestOptions.make()
+      .ifNoneMatch(
+        EntityTag.create("FooBarBaz"))
+      .get();
+      ]]></artwork></figure>
+      
+      <figiure><preamble>A conditional request using If-Modified-Since:</preamble>
+      <artwork><![CDATA[
+  RequestOptions options =
+    RequestOptions.make()
+      .ifModifiedSince(DateTimes.now().minusSeconds(10))
+      .get();
+      ]]></artwork></figiure>
+    
+    </section>
+
+    <section title="Preferences">
+    
+    <t>The HTTP Prefer Header is a proposed new HTTP header that may be
+    used to request that a server apply optional processing behaviors to
+    a request.</t>
+    
+    <figure><preamble>Adding Preferences to a request:</preamble>
+    <artwork><![CDATA[
+  RequestOptions options =
+    RequestOptions.make()
+      .prefer(Preference.PREF_LENIENT)
+      .prefer(Preference.PREF_RETURN_MINIMAL)
+      .get();
+    ]]></artwork></figure>
+    
+    </section>
 
   </middle>
   <back></back>
