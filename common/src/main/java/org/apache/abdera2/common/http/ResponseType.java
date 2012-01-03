@@ -18,6 +18,7 @@
 package org.apache.abdera2.common.http;
 
 public enum ResponseType {
+  
   INFORMATIONAL,
   SUCCESSFUL, 
   REDIRECTION, 

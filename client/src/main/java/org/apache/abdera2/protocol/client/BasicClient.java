@@ -34,6 +34,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
@@ -190,6 +191,21 @@ public class BasicClient implements Client {
   public DefaultHttpClient getDefaultHttpClient() {
     return (DefaultHttpClient)client;
   }
+  
+  public <T extends Client>T addCredentials(
+      String target, 
+      String realm,
+      String scheme,
+      String user,
+      String password) 
+        throws URISyntaxException {
+    return addCredentials(
+      target,
+      realm,
+      scheme,
+      new UsernamePasswordCredentials(user,password));
+  }
+  
   
   /**
    * Add authentication credentials

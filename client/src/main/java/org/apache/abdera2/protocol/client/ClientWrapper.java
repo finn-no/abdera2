@@ -74,6 +74,13 @@ public abstract class ClientWrapper
     return internal.getDefaultHttpClient();
   }
 
+  public <T extends Client>T addCredentials(
+    String target, String realm, String scheme, String user, 
+    String password) throws URISyntaxException {
+    internal.addCredentials(target, realm, scheme, user, password);
+    return (T)this;
+  }
+  
   public <T extends Client>T  addCredentials(String target, String realm, String scheme,
       Credentials credentials) throws URISyntaxException {
     internal.addCredentials(target, realm, scheme, credentials);

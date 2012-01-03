@@ -66,6 +66,17 @@ public interface Client {
       String scheme, Credentials credentials) throws URISyntaxException;
 
   /**
+   * Add username/password credentials
+   * @throws URISyntaxException 
+   */
+  <T extends Client>T addCredentials(
+    String target, 
+    String realm,
+    String scheme,
+    String user,
+    String password) throws URISyntaxException;
+  
+  /**
    * When multiple authentication schemes are supported by a server, the client will automatically select a scheme
    * based on the configured priority. For instance, to tell the client to prefer "digest" over "basic", set the
    * priority by calling setAuthenticationSchemePriority("digest","basic")

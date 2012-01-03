@@ -161,6 +161,18 @@ public class Authentication implements Iterable<String>, Serializable {
       this.b64token = token;
       return this;
     }
+    
+    public Builder basicCredentials(
+      String user, 
+      String password) {
+        return b64token(
+          Base64.encodeBase64String(
+            CharUtils.utf8bytes(
+              String.format(
+                "%s:%s",
+                user,
+                password))));
+    }
    
   }
   

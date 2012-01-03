@@ -19,6 +19,7 @@ package org.apache.abdera2.common.text;
 
 import static java.lang.String.format;
 
+import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.xml.XMLVersion;
 
 import com.google.common.base.Joiner;
@@ -232,4 +233,11 @@ public final class CharUtils {
     return buf.toString();
   }
 
+  public static byte[] utf8bytes(String s) {
+    try {
+      return s.getBytes("UTF-8");
+    } catch (Throwable t) {
+      throw ExceptionHelper.propogate(t);
+    }
+  }
 }
