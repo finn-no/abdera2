@@ -147,6 +147,7 @@ public class RequestOptions extends AbstractRequest implements Request {
     boolean useConditional = true;
     boolean followRedirects = true;
     CacheControl cacheControl = null;
+    int waitForContinue = -1;
     
     final Map<String, ImmutableSet.Builder<String>> headers = 
       Maps.newHashMap();
@@ -167,6 +168,7 @@ public class RequestOptions extends AbstractRequest implements Request {
       this.requestException5xx = template.requestException5xx;
       this.useExpectContinue = template.useExpectContinue;
       this.useConditional = template.useConditional;
+      this.waitForContinue = template.waitForContinue;
       for (Map.Entry<String, Set<String>> header : template.headers.entrySet()) {
         if (filter == null || filter.apply(header)) {
           ImmutableSet.Builder<String> builder = ImmutableSet.builder();
@@ -203,6 +205,11 @@ public class RequestOptions extends AbstractRequest implements Request {
     
     public Builder doNotUseExpectContinue() {
       this.useExpectContinue = false;
+      return this;
+    }
+    
+    public Builder waitForContinue(int millis) {
+      this.waitForContinue = millis;
       return this;
     }
     
@@ -469,6 +476,7 @@ public class RequestOptions extends AbstractRequest implements Request {
     final boolean followRedirects;
     final CacheControl cacheControl;
     final ImmutableMap<String, Set<String>> headers;
+    final int waitForContinue;
 
     RequestOptions(Builder builder,ImmutableMap<String,Set<String>> headers) {
       this.revalidateAuth = builder.revalidateAuth;
@@ -481,6 +489,7 @@ public class RequestOptions extends AbstractRequest implements Request {
       this.followRedirects = builder.followRedirects;
       this.cacheControl = builder.cacheControl;
       this.headers = headers;
+      this.waitForContinue = builder.waitForContinue;
     }
 
     private Map<String, Set<String>> getHeaders() {
@@ -587,5 +596,9 @@ public class RequestOptions extends AbstractRequest implements Request {
     
     public boolean has(String header) {
       return headers.containsKey(header);
+    }
+    
+    public int getWaitForContinue() {
+      return waitForContinue;
     }
 }

@@ -98,11 +98,16 @@ public final class RequestHelper {
             httpMethod.addHeader("X-HTTP-Method-Override", actual.name());
         }
         initHeaders(options, httpMethod);
-
         HttpParams params = httpMethod.getParams();
-        if (!options.isUseExpectContinue())
+        if (!options.isUseExpectContinue()) {
           params.setBooleanParameter(
             CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
+        } else {
+          if (options.getWaitForContinue() > -1)
+            params.setIntParameter(
+              CoreProtocolPNames.WAIT_FOR_CONTINUE, 
+              options.getWaitForContinue());
+        }
         if (!(httpMethod instanceof HttpEntityEnclosingRequest))
             params.setBooleanParameter(
               ClientPNames.HANDLE_REDIRECTS, 
