@@ -1113,6 +1113,164 @@ cw.writeObject(
   
   </section>
     
+  <section title="Geotagging Activity Objects">
+  
+    <t>The <eref target="http://activitystrea.ms/head/activity-schema.html">Activity
+    Streams Base Schema</eref> specification defines a number of standard common
+    extensions to the base Activity Streams format, including the ability to 
+    associate geographical location information with any Activity Streams object.</t>
+    
+    <figure><preamble>To adding location data to an Activity Streams object,
+    set the "location" property:</preamble>
+    <artwork><![CDATA[
+  import org.apache.abdera2.activities.model.IO;
+  import org.apache.abdera2.activities.model.objects.PersonObject;
+  import static org.apache.abdera2.activities.model.objects.PersonObject.makePerson;
+  import static org.apache.abdera2.activities.model.objects.PlaceObject.makePlace;
+  import static org.apache.abdera2.activities.model.objects.Address.makeAddress;  
+  //...
+  
+  PersonObject person = 
+    makePerson()
+      .location(
+        makePlace()
+          .position(37.0, 122.0)
+          .displayName("San Francisco, CA")
+          .address(
+            makeAddress()
+              .locality("San Francisco")
+              .region("California")
+              .country("United States"))
+          .set("radius", 10)
+          .set("elevation", 10)
+      ).get();
+    ]]></artwork></figure>
+    
+    <figure><preamble>The JSON produced looks like:</preamble>
+    <artwork><![CDATA[
+  {
+    "objectType": "person",
+    "location": {
+      "objectType": "place",
+      "position": "+37.000000+122.000000/",
+      "displayName": "San Francisco, CA",
+      "address": {
+        "objectType": "address",
+        "locality": "San Francisco",
+        "region": "California",
+        "country": "United States"
+      },
+      "radius": 10,
+      "elevation": 10
+    }
+  }
+    ]]></artwork></figure>
+  
+    <t>The "position" and "address" properties on the Place Object are 
+    optional, as are the extension "radius" and "elevation" fields. This 
+    design is intended to make the format as flexible as possible for 
+    a broad range of geolocation scenarios.</t>
+  
+  </section>
+  
+  <section title="Object Tags">
+  
+    <t>Activity Streams objects can be "tagged" with objects associated
+    with the object. For instance, in the following example, the Person 
+    object is associated with another Person object and two hypothetical
+    "hashtag" object types:</t>
+    
+    <figure><artwork><![CDATA[
+  PersonObject person = 
+    makePerson()
+      .tag(makePerson().displayName("Joe"))
+      .tag(makeObject("hashtag").displayName("foo"))
+      .tag(makeObject("hashtag").displayName("bar"))
+      .get();
+    ]]></artwork></figure>
+  
+    <figure><preamble>The JSON generated:</preamble>
+    <artwork><![CDATA[
+  {
+    "objectType": "person",
+    "tags": [
+      {
+        "objectType": "person",
+        "displayName": "Joe"
+      },
+      {
+        "objectType": "hashtag",
+        "displayName": "foo"
+      },
+      {
+        "objectType": "hashtag",
+        "displayName": "bar"
+      }
+    ]
+  }
+    ]]></artwork></figure>
+  
+  </section>
+    
+  <section title="Attachments">
+  
+    <t>The Activity Streams format may have any arbitrary number of 
+    attachments associated with an object:</t>
+    
+    <figure><artwork><![CDATA[
+  FileInputStream fis = 
+    new FileInputStream(
+      "/some/file/path.jpg");
+  
+  NoteObject note = 
+    makeNote()
+      .attachment(
+        makeBinary()
+          .data(
+            fis, 
+            new HashHelper.Md5(), 
+            CompressionCodec.GZIP)
+          .mimeType("image/jpeg"))
+      .get();
+    ]]></artwork></figure>
+    
+    <t>The "binary" object type is an extension object type introduced 
+    by Abdera2 that allows Base64-encoded binary data to be included
+    within an Activity Stream. The binary data can be optionally 
+    compressed using GZip or Deflate and may include a hash code.</t>
+  
+    <figure><preamble>Example JSON for a Binary object:</preamble>
+    <artwork><![CDATA[
+  {
+    "objectType": "note",
+    "attachments": [
+      {
+        "objectType": "binary",
+        "compression": "gzip",
+        "length": 123,
+        "data": "{Base64 Encoded}",
+        "md5": "{MD5 Hash}",
+        "mimeType": "image/jpeg"
+      }
+    ]
+  }
+    ]]></artwork></figure>
+    
+    <t>When reading data from the binary object, calling the getInputStream()
+    method will automatically decompress and decode the Base64 data:</t>
+    
+    <figure><artwork><![CDATA[
+  BinaryObject binary = ...
+  
+  InputStream in = binary.getInputStream();
+  byte[] data = new byte[1024];
+  int r = -1;
+  while((r = in.read(data)) > -1)
+    System.out.write(data,0,r);
+    ]]></artwork></figure>
+  
+  </section>
+    
   </middle>
   <back></back>
 </rfc>
