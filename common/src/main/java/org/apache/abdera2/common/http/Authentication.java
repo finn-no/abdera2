@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,9 +42,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -135,6 +138,18 @@ public class Authentication implements Iterable<String>, Serializable {
       return new Authentication(this);
     }
    
+    public Builder params(Map<String,String> map) {
+      params.putAll(map);
+      return this;
+    }
+    
+    public Builder params(
+      Map<String,String> map, 
+      Predicate<Map.Entry<String,String>> predicate) {
+      params.putAll(Maps.filterEntries(map, predicate));
+      return this;
+    }
+    
     public Builder param(String name, String val) {
       params.put(name, val);
       return this;

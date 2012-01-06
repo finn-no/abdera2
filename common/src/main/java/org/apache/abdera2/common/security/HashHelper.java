@@ -141,7 +141,8 @@ public final class HashHelper {
     try {
       Mac mac = Mac.getInstance(alg);
       mac.init(key);
-      byte[] sig = mac.doFinal(mat);
+      mac.update(mat,0,mat.length);
+      byte[] sig = mac.doFinal();
       return Base64.encodeBase64URLSafeString(sig);
     } catch (Throwable t) {
       throw ExceptionHelper.propogate(t);
@@ -245,6 +246,13 @@ public final class HashHelper {
     }
   }
   
+  public static Function<byte[],String> sha1(final Key key) {
+    return new Function<byte[],String>() {
+      public String apply(byte[] input) {
+        return new SHA1(key).update(input).get();
+      }
+    };
+  }
   
   public static Function<byte[],String> sha256(final Key key) {
     return new Function<byte[],String>() {
@@ -268,6 +276,12 @@ public final class HashHelper {
         return new SHA512(key).update(input).get();
       }
     };
+  }
+  
+  public static class SHA1 extends SHA {
+    public SHA1(Key key) {
+      super(key, "HmacSHA1");
+    }
   }
   
   public static class SHA256 extends SHA {

@@ -70,6 +70,10 @@ public final class ClientSecrets extends ASBase {
     }
   }
   
+  public boolean has(Type type) {
+    return has(type.label());
+  }
+  
   public ASBase getType(Type type) {
     return has(type.label()) ? this.<ASBase>getProperty(type.label()) : null;
   }

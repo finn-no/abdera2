@@ -499,6 +499,25 @@ public final class IRI implements Serializable, Cloneable {
         return resolve(this, new IRI(iri));
     }
 
+    /** 
+     * Returns the IRI without any query or fragment
+     */
+    public IRI base() {
+      String path = getPath();
+      return resolve(path!=null&&path.length()>0?path:"/");
+    }
+    
+    public IRI relative() {
+      return new IRI(
+        null, 
+        null, 
+        null, 
+        -1, 
+        path, 
+        query, 
+        fragment);
+    }
+    
     public String toString() {
         StringBuilder buf = new StringBuilder();
         String scheme = getScheme();
