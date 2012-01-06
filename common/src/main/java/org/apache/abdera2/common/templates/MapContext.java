@@ -44,6 +44,18 @@ public class MapContext
 
   private final boolean isiri;
 
+  public static MapContext with(Map<? extends String,? extends Object> map) {
+    MapContext ctx = new MapContext();
+    ctx.putAll(map);
+    return ctx;
+  }
+  
+  public static MapContext with(Map<? extends String,? extends Object> map, boolean isiri) {
+    MapContext ctx = new MapContext(isiri);
+    ctx.putAll(map);
+    return ctx;
+  }
+  
   public MapContext() {
     this.isiri = false;
   }

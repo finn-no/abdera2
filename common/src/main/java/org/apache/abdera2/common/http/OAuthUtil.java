@@ -15,6 +15,8 @@ import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.security.HashHelper;
+import org.apache.abdera2.common.templates.MapContext;
+import org.apache.abdera2.common.templates.Template;
 import org.apache.abdera2.common.text.CharUtils;
 import org.apache.abdera2.common.text.UrlEncoding;
 import org.apache.commons.codec.binary.Base64;
@@ -222,9 +224,7 @@ public final class OAuthUtil {
       return rsaSha1(key).get();
     }
 
-    public Authentication get() {
-      ImmutableMap<String,String> map = 
-        this.builder.build();
+    private String getSignature(ImmutableMap<String,String> map) {
       String signature = null;
       if (method != null) {
         switch(method) {
@@ -241,6 +241,12 @@ public final class OAuthUtil {
           break;
         }
       }
+      return signature;
+    }
+    
+    public Authentication get() {
+      ImmutableMap<String,String> map = 
+        this.builder.build();
       Authentication.Builder builder = 
         Authentication.make()
           .scheme("OAuth");
@@ -248,9 +254,41 @@ public final class OAuthUtil {
         if (include_additional || is_oauth_param.apply(entry))
           builder.param(entry.getKey(), escaped(entry.getValue()));
       }
+      String signature = getSignature(map);
       if (signature != null)
         builder.param("oauth_signature", signature);
       return builder.get();
+    }
+    
+    public String getAsQuery() {
+      return get_query(false);
+    }
+    
+    public String getAsQueryFragment() {
+      return get_query(true);
+    }
+    
+    private String get_query(boolean fragment) {
+      ImmutableMap<String,String> map = 
+        this.builder.build();
+      Template template = buildTemplate(fragment,map);
+      String signature = getSignature(map);
+      MapContext ctx = new MapContext();
+      ctx.putAll(map);
+      if (signature != null) 
+        ctx.put("oauth_signature", signature);
+      return template.expand(ctx);
+    }
+    
+    private static final Joiner comma_joiner = Joiner.on(',');
+    
+    private Template buildTemplate(boolean fragment, ImmutableMap<String,String> map) {
+      StringBuilder buf = new StringBuilder("{");
+      buf.append(fragment?'&':'?');
+      buf.append(comma_joiner.join(map.keySet()));
+      if (map.size() > 0) buf.append(',');
+      buf.append("oauth_signature");
+      return new Template(buf.append("}").toString());
     }
    
     private String hmac(Key key, byte[] mat) {
