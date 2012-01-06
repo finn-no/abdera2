@@ -244,10 +244,10 @@ public final class OAuthUtil {
       Authentication.Builder builder = 
         Authentication.make()
           .scheme("OAuth");
-      if (include_additional)
-        builder.params(map);
-      else
-        builder.params(map, is_oauth_param);
+      for (Map.Entry<String, String> entry : map.entrySet()) {
+        if (include_additional || is_oauth_param.apply(entry))
+          builder.param(entry.getKey(), escaped(entry.getValue()));
+      }
       if (signature != null)
         builder.param("oauth_signature", signature);
       return builder.get();
