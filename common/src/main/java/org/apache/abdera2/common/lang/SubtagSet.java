@@ -144,8 +144,8 @@ public abstract class SubtagSet
     }
 
     public Subtag[] toArray() {
-      return ArrayBuilder.list(Subtag.class)
-        .addAll(this).build();
+      ArrayBuilder<Subtag> b = ArrayBuilder.list(Subtag.class);
+      return b.addAll(this).build();
     }
 
     public List<Subtag> asList() {
