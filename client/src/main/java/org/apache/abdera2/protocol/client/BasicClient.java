@@ -199,7 +199,7 @@ public class BasicClient implements Client {
       String user,
       String password) 
         throws URISyntaxException {
-    return addCredentials(
+    return (T) addCredentials(
       target,
       realm,
       scheme,
