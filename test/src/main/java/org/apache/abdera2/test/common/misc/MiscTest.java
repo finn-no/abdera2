@@ -72,8 +72,9 @@ public class MiscTest {
   @Test
   public void arrayBuilderTest() {
     //Set array builder (no duplicates)
+	ArrayBuilder<String> ab = ArrayBuilder.set(String.class);
     String[] array = 
-      ArrayBuilder.set(String.class)
+    	ab      
         .add("a")
         .add("a")
         .add("b")
@@ -85,8 +86,9 @@ public class MiscTest {
     assertEquals("c", array[2]);
     
     //List array (duplicates)
+    ab = ArrayBuilder.list(String.class);
     array = 
-      ArrayBuilder.list(String.class)
+    	ab
         .add("a")
         .add("a")
         .add("b")
