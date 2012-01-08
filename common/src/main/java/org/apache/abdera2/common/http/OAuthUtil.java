@@ -1,4 +1,7 @@
 package org.apache.abdera2.common.http;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -10,7 +13,6 @@ import java.util.TreeMap;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.abdera2.activities.extra.ClientSecrets;
 import org.apache.abdera2.common.date.DateTimes;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.misc.ExceptionHelper;
@@ -30,9 +32,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * This is largely experimental... it implements a number of 
@@ -102,16 +101,16 @@ public final class OAuthUtil {
       return this;
     }
     
-    public OAuth1HeaderBuilder consumerDetails(
-      ClientSecrets secrets, 
-      ClientSecrets.Type type) {
-      checkNotNull(secrets);
-      if (secrets.has(type)) {
-        consumerKey(secrets.getClientId(type));
-        consumerSecret(secrets.getClientSecret(type));
-      }
-      return this;
-    }
+//    public OAuth1HeaderBuilder consumerDetails(
+//      ClientSecrets secrets, 
+//      ClientSecrets.Type type) {
+//      checkNotNull(secrets);
+//      if (secrets.has(type)) {
+//        consumerKey(secrets.getClientId(type));
+//        consumerSecret(secrets.getClientSecret(type));
+//      }
+//      return this;
+//    }
     
     public OAuth1HeaderBuilder consumerSecret(String secret) {
       this.consumer_secret = secret;
