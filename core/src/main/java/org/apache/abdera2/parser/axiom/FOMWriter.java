@@ -81,7 +81,7 @@ public class FOMWriter extends AbstractWriter {
 
     public void writeTo(Base base, Writer out, WriterOptions options) throws IOException {
         base.writeTo(out);
-        if (options.getAutoClose())
+        if (options != null && options.getAutoClose())
             out.close();
     }
 

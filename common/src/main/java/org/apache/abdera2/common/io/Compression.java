@@ -116,7 +116,7 @@ public class Compression {
       CompressionCodec... codecs)
       throws IOException {
       checkNotNull(in);
-      checkCodecs(codecs.length > 0);
+      if (codecs == null || codecs.length == 0) return in;
       for (int n = codecs.length - 1; n >= 0; n--)
         in = codecs[n].wrap(in);
       return in;

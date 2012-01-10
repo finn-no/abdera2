@@ -172,6 +172,15 @@ public final class OAuthUtil {
       return this;
     }
     
+    public OAuth1HeaderBuilder callback(String uri) {
+      return callback(new IRI(uri));
+    }
+    
+    public OAuth1HeaderBuilder callback(IRI iri) {
+      builder.put("oauth_callback", iri.toASCIIString());
+      return this;
+    }
+    
     public OAuth1HeaderBuilder plainText() {
       this.method = OAuth1SignatureMethod.PLAINTEXT;
       return signatureMethod(this.method.label());
