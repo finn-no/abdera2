@@ -20,6 +20,7 @@ package org.apache.abdera2.protocol.client;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -48,6 +49,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -538,14 +540,37 @@ public class Session {
     }
     
     public boolean doFormLogin(String uri, String userfield, String userid, String passfield, String password) {
+      return doFormLogin(uri, userfield, userid, passfield, password, (ImmutableMap<String,String>)null);
+    }
+ 
+    public boolean doFormLogin(
+        String uri, 
+        String userfield, 
+        String userid, 
+        String passfield, 
+        String password,
+        ImmutableMap.Builder<String,String> additional) {
+      return doFormLogin(uri,userfield,userid,passfield,password,additional.build());
+    }
+    
+    public boolean doFormLogin(
+      String uri, 
+      String userfield, 
+      String userid, 
+      String passfield, 
+      String password,
+      ImmutableMap<String,String> additional) {
       try {
         HttpPost httpost = new HttpPost(uri);
+        ImmutableList.Builder<BasicNameValuePair> pairs = 
+          ImmutableList.<BasicNameValuePair>builder()
+           .add(new BasicNameValuePair(userfield,userid))
+           .add(new BasicNameValuePair(passfield,password));
+        for (Map.Entry<String, String> entry : additional.entrySet())
+          pairs.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
         httpost.setEntity(
           new UrlEncodedFormEntity(
-            ImmutableList.of(
-              new BasicNameValuePair(userfield,userid),
-              new BasicNameValuePair(passfield,password)
-            ),
+            pairs.build(),
             HTTP.UTF_8));
         HttpResponse response = getClient().execute(httpost,localContext);
         HttpEntity entity = response.getEntity();
