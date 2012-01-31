@@ -271,12 +271,14 @@ class ClientResponseImpl
   @SuppressWarnings("rawtypes")
   public String getCharacterEncoding() {
     MimeType mt = this.getContentType();
-    MimeTypeParameterList list = mt.getParameters();
-    Enumeration names = list.getNames();
-    while (names.hasMoreElements()) {
-      String name = (String) names.nextElement();
-      if (name.equalsIgnoreCase("charset"))
-        return list.get(name);
+    if (mt != null) {
+      MimeTypeParameterList list = mt.getParameters();
+      Enumeration names = list.getNames();
+      while (names.hasMoreElements()) {
+        String name = (String) names.nextElement();
+        if (name.equalsIgnoreCase("charset"))
+          return list.get(name);
+      }
     }
     return "UTF-8";
   }
