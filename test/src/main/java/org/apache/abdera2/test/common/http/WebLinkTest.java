@@ -144,9 +144,9 @@ public class WebLinkTest {
     Iterable<WebLink> il = WebLink.parse("<simple.xslt>; rel=stylesheet; type=\"application/xslt+xml\"");
     assertEquals(1,Iterables.size(il));
     WebLink link = il.iterator().next();
-    assertEquals("simple.xslt.asis",link.getIri().toString());
+    assertEquals("simple.xslt",link.getIri().toString());
     assertThat(link.getRel(),hasItem("stylesheet"));
-    assertTrue(MimeTypeHelper.isMatch(link.getMediaType(), MimeTypeHelper.create("text/xsl")));
+    assertTrue(MimeTypeHelper.isMatch(link.getMediaType(), MimeTypeHelper.create("application/xslt+xml")));
   }
   
   @Test

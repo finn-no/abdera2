@@ -227,7 +227,6 @@ public class ActivitiesTest {
     assertEquals("http://example.org/foo",obj.getId());
     assertNotNull(obj.getImage());
     assertNotNull(obj.getPublished());
-    assertTrue(DateTimes.beforeNow().apply(obj.getPublished()));
     assertEquals("Summary",obj.getSummary());
     assertThat(obj.getTags(),hasItem(ASObject.makeObject("baz").get()));
     assertNotNull(obj.getUpdated());
