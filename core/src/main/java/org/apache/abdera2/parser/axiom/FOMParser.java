@@ -44,6 +44,8 @@ import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.apache.axiom.om.util.StAXUtils;
 import org.apache.axiom.util.stax.dialect.StAXDialect;
 
+import com.google.common.collect.Iterables;
+
 @Name("default")
 public class FOMParser extends AbstractParser implements Parser {
     private static final StAXParserConfiguration ABDERA_PARSER_CONFIGURATION = new StAXParserConfiguration() {
@@ -102,7 +104,7 @@ public class FOMParser extends AbstractParser implements Parser {
         try {
             if (options == null)
               options = getDefaultParserOptions();
-            if (options.getCompressionCodecs() != null)
+            if (!Iterables.isEmpty(options.getCompressionCodecs()))
               in = Compression.wrap(in, options.getCompressionCodecs());
             String charset = options.getCharset();
             if (charset == null && options.getAutodetectCharset()) {
