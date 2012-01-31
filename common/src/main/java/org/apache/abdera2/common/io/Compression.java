@@ -88,7 +88,6 @@ public class Compression {
         CompressionCodec... codecs)
         throws IOException {
       checkNotNull(out);
-      checkCodecs(codecs.length > 0);
       for (int n = codecs.length - 1; n >= 0; n--)
         out = codecs[n].wrap(out);
       return out;      

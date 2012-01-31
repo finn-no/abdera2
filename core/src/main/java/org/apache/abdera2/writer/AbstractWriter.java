@@ -31,6 +31,8 @@ import org.apache.abdera2.model.Base;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 
+import com.google.common.collect.Iterables;
+
 public abstract class AbstractWriter implements Writer {
 
     protected WriterOptions options;
@@ -75,16 +77,14 @@ public abstract class AbstractWriter implements Writer {
     }
 
     protected OutputStream getCompressedOutputStream(OutputStream out, WriterOptions options) throws IOException {
-        if (options.getCompressionCodecs() != null) {
-            out = Compression.wrap(out, options.getCompressionCodecs());
-        }
-        return out;
+      if (options.getCompressionCodecs() != null)
+        out = Compression.wrap(out, options.getCompressionCodecs());
+      return out;
     }
 
     protected void finishCompressedOutputStream(OutputStream out, WriterOptions options) throws IOException {
-        if (options.getCompressionCodecs() != null) {
-            ((DeflaterOutputStream)out).finish();
-        }
+      if (!Iterables.isEmpty(options.getCompressionCodecs()))
+        ((DeflaterOutputStream)out).finish();
     }
 
     public void writeTo(Base base, WritableByteChannel out, WriterOptions options) throws IOException {

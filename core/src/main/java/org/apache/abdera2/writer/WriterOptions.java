@@ -64,8 +64,7 @@ public class WriterOptions {
     }
     
     public WriterOptions get() {
-      // TODO Auto-generated method stub
-      return null;
+      return new WriterOptions(this);
     }
     
     
