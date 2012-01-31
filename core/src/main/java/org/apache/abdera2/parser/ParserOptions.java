@@ -41,7 +41,7 @@ public class ParserOptions {
   }
   
   public static Builder from(ParserOptions options) {
-    Builder builder = new Builder();
+    Builder builder = new Builder(true);
     builder.factory = options.factory;
     builder.charset = options.charset;
     builder.parseFilter = options.parseFilter;
@@ -62,9 +62,9 @@ public class ParserOptions {
     implements Supplier<ParserOptions> {
 
     protected Factory factory = null;
-    protected String charset = "UTF-8";
+    protected String charset;
     protected ParseFilter parseFilter = null;
-    protected boolean detect = false;
+    protected boolean detect = true;
     protected boolean preserve = true;
     protected boolean filterreserved = false;
     protected char replacement = 0;
@@ -82,6 +82,10 @@ public class ParserOptions {
     
     public Builder() {
       initDefaultEntities();
+    }
+    
+    Builder(boolean se) {
+      // skip the default entities
     }
     
     public Builder factory(Factory factory) {
