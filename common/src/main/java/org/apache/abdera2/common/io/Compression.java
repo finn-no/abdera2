@@ -30,7 +30,12 @@ import com.google.common.collect.Iterables;
 import static org.apache.abdera2.common.text.CharUtils.splitAndTrim;
 import static com.google.common.base.Preconditions.*;
 
-public class Compression {
+/**
+ * Appropriately wraps inputstream and outputstream instances for 
+ * transparent data (de)compression using either the gzip or deflate
+ * methods.
+ */
+public final class Compression {
 
     public enum CompressionCodec {
         GZIP, XGZIP, DEFLATE;
@@ -66,23 +71,36 @@ public class Compression {
     }
 
     public static CompressionCodec getCodec(String name) {
-        CompressionCodec codec = null;
-        if (name == null)
-            return null;
-        try {
-            codec = CompressionCodec.valueOf(name.toUpperCase().trim());
-        } catch (Exception e) {}
-        return codec;
+      CompressionCodec codec = null;
+      if (name == null)
+          return null;
+      try {
+          codec = CompressionCodec.valueOf(name.toUpperCase().trim());
+      } catch (Exception e) {}
+      return codec;
     }
 
     private static void checkCodecs(boolean exp) {
       checkArgument(exp, "At least one codec must be specified");
     }
     
-    public static OutputStream wrap(OutputStream out, Iterable<CompressionCodec> codecs) throws IOException {
+    /**
+     * Wrap an OutputStream of data so it can be automatically
+     * compressed as it is written. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
+    public static OutputStream wrap(
+      OutputStream out, 
+      Iterable<CompressionCodec> codecs) 
+        throws IOException {
       return wrap(out,Iterables.toArray(codecs,CompressionCodec.class));
     }
     
+    /**
+     * Wrap an OutputStream of data so it can be automatically
+     * compressed as it is written. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static OutputStream wrap(
         OutputStream out, 
         CompressionCodec... codecs)
@@ -92,7 +110,12 @@ public class Compression {
         out = codecs[n].wrap(out);
       return out;      
     }
-    
+
+    /**
+     * Wrap an OutputStream of data so it can be automatically
+     * compressed as it is written. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static OutputStream wrap(
         OutputStream out, 
         CompressionCodec codec,
@@ -103,6 +126,11 @@ public class Compression {
         return codec.wrap(wrap(out,codecs));
     }
 
+    /**
+     * Wrap an InputStream of compressed data so it can be automatically
+     * decompressed as it is read. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static InputStream wrap(
       InputStream in, 
       Iterable<CompressionCodec> codecs) 
@@ -110,6 +138,11 @@ public class Compression {
       return wrap(in, Iterables.toArray(codecs, CompressionCodec.class));
     }
     
+    /**
+     * Wrap an InputStream of compressed data so it can be automatically
+     * decompressed as it is read. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static InputStream wrap(
       InputStream in, 
       CompressionCodec... codecs)
@@ -120,7 +153,12 @@ public class Compression {
         in = codecs[n].wrap(in);
       return in;
     }
-    
+
+    /**
+     * Wrap an InputStream of compressed data so it can be automatically
+     * decompressed as it is read. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static InputStream wrap(
         InputStream in, 
         CompressionCodec codec,
@@ -131,6 +169,11 @@ public class Compression {
         return codec.wrap(wrap(in,codecs));
     }
 
+    /**
+     * Wrap an InputStream of compressed data so it can be automatically
+     * decompressed as it is read. If multiple compression codecs have
+     * been applied, they will be layered accordingly
+     */
     public static InputStream wrap(
         InputStream in, 
         String ce) 
@@ -147,6 +190,12 @@ public class Compression {
         return in;
     }
 
+    /**
+     * Generates a description of the compression codecs used in a manner
+     * that conforms with the HTTP Content-Encoding and Transfer-Encoding
+     * mechanisms, that is, the codecs are listed in the order they will 
+     * be applied to the data
+     */
     public static String describe(
         CompressionCodec codec, 
         CompressionCodec... codecs) {

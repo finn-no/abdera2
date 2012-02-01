@@ -116,7 +116,7 @@ public final class Discover {
         }
     }
 
-    private static ClassLoader getLoader() {
+    static ClassLoader getLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 
@@ -324,7 +324,7 @@ public final class Discover {
       }
     }
 
-    private static <T> T load(
+    static <T> T load(
       ClassLoader loader,
       String spec, 
       boolean classesonly, 

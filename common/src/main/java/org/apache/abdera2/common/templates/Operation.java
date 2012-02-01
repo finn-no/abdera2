@@ -418,7 +418,7 @@ public abstract class Operation implements Serializable {
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
             for (VarSpec varspec : exp) {
-              String val = eval(varspec, context, false, ";", null);
+              String val = eval(varspec, context, false, ";", String.format("%s=",varspec.getName()));
               if (val != null)
                 buf.append(';');
               if (!varspec.isExplode()) {
@@ -443,7 +443,7 @@ public abstract class Operation implements Serializable {
             boolean first = true;
             buf.append("?");
             for (VarSpec varspec : exp) {
-              String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
+              String val = eval(varspec, context, false, "&",  String.format("%s=",varspec.getName())); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
                 if (!first && val != null) buf.append('&');
                 if ((val != null && !varspec.isExplode()) || varspec.isNoval()) {
@@ -468,7 +468,7 @@ public abstract class Operation implements Serializable {
         public String evaluate(Expression exp, Context context) {
             StringBuilder buf = new StringBuilder();
             for (VarSpec varspec : exp) {
-              String val = eval(varspec, context, false, "&", ""); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
+              String val = eval(varspec, context, false, "&",  String.format("%s=",varspec.getName())); // Per Draft Seven (http://tools.ietf.org/html/draft-gregorio-uritemplate-07)
               if (context.contains(varspec.getName())) {
                 if (varspec.isExplode()) buf.append('&');
                 if ((val != null && !varspec.isExplode()) || varspec.isNoval())
