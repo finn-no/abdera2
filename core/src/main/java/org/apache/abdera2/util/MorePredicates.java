@@ -23,9 +23,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.abdera2.common.Constants;
-import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.iri.IRI;
-import org.apache.abdera2.common.protocol.ProviderHelper;
 import org.apache.abdera2.model.Content;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.Entry;
@@ -74,10 +72,8 @@ public class MorePredicates {
             if (is_media(content) && !entry.has(Constants.SUMMARY))
               return false;
         } catch (Exception e) {
-          ProviderHelper.log.debug(Localizer.sprintf("CHECKING.VALID.ENTRY", false));
           return false;
         }
-        ProviderHelper.log.debug(Localizer.sprintf("CHECKING.VALID.ENTRY", true));
         return true;
       }
   }; 
