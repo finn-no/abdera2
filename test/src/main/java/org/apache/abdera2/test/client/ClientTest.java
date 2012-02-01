@@ -32,11 +32,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.abdera2.common.misc.MoreExecutors2;
-import org.apache.abdera2.protocol.client.BasicClient;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.Session;
-import org.apache.abdera2.protocol.client.Session.Listener;
+import org.apache.abdera2.common.protocol.BasicClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.Session;
+import org.apache.abdera2.common.protocol.Session.Listener;
 import org.apache.abdera2.test.JettyUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

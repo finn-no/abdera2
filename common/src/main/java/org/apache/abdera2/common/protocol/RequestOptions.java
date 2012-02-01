@@ -15,7 +15,7 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.protocol.client;
+package org.apache.abdera2.common.protocol;
 
 import java.util.Locale;
 import java.util.Map;
@@ -28,8 +28,6 @@ import org.apache.abdera2.common.Localizer;
 import org.apache.abdera2.common.lang.Lang;
 import org.apache.abdera2.common.misc.ExceptionHelper;
 import org.apache.abdera2.common.misc.MoreFunctions;
-import org.apache.abdera2.common.protocol.AbstractRequest;
-import org.apache.abdera2.common.protocol.Request;
 import org.apache.abdera2.common.selector.AbstractSelector;
 import org.apache.abdera2.common.selector.Selector;
 import org.apache.abdera2.common.text.Codec;

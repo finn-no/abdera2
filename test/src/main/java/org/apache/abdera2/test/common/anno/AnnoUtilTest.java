@@ -11,7 +11,7 @@ import org.apache.abdera2.common.anno.Name;
 import org.apache.abdera2.common.anno.Namespace;
 import org.apache.abdera2.common.anno.QName;
 import org.apache.abdera2.common.anno.Version;
-import org.apache.abdera2.protocol.client.BasicClient;
+import org.apache.abdera2.common.protocol.BasicClient;
 import org.junit.Test;
 
 @DefaultImplementation("FooBarBaz")

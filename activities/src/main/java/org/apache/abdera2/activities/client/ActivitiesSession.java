@@ -30,12 +30,12 @@ import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.common.http.EntityTag;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientResponse;
 import org.apache.abdera2.common.protocol.ProtocolException;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.RequestHelper;
-import org.apache.abdera2.protocol.client.RequestOptions;
-import org.apache.abdera2.protocol.client.Session;
+import org.apache.abdera2.common.protocol.RequestHelper;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 import org.joda.time.DateTime;
 
 /**

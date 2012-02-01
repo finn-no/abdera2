@@ -30,6 +30,7 @@ import static org.apache.abdera2.model.Link.REL_PREV_ARCHIVE;
 
 import org.apache.abdera2.Abdera;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.protocol.RequestOptions;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.model.ExtensibleElement;
@@ -38,7 +39,6 @@ import org.apache.abdera2.model.Source;
 import org.apache.abdera2.protocol.client.AbderaClient;
 import org.apache.abdera2.protocol.client.AbderaClientResponse;
 import org.apache.abdera2.protocol.client.AbderaSession;
-import org.apache.abdera2.protocol.client.RequestOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;

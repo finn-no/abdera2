@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.abdera2.common.http.CacheControl;
-import org.apache.abdera2.protocol.client.BasicCachingClient;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.RequestOptions;
-import org.apache.abdera2.protocol.client.Session;
+import org.apache.abdera2.common.protocol.BasicCachingClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 import org.apache.abdera2.test.JettyUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

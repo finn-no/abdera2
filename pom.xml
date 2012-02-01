@@ -690,7 +690,6 @@
     <module>common</module>
     <module>core</module>
     <module>activities</module>
-    <module>client</module>
     <module>ext</module>
     <module>security</module>
     <module>test</module>

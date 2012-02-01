@@ -22,13 +22,13 @@ import org.apache.abdera2.activities.model.ASBase;
 import org.apache.abdera2.activities.model.IO;
 import org.apache.abdera2.common.iri.IRI;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.protocol.BasicClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 import org.apache.abdera2.common.templates.MapContext;
 import org.apache.abdera2.common.templates.QueryContext;
-import org.apache.abdera2.protocol.client.BasicClient;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.RequestOptions;
-import org.apache.abdera2.protocol.client.Session;
 import org.apache.http.entity.StringEntity;
 
 /**

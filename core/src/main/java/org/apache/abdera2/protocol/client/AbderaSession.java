@@ -28,6 +28,9 @@ import org.apache.abdera2.protocol.error.AbderaProtocolException;
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.http.Method;
 import org.apache.abdera2.common.http.ResponseType;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.joda.time.DateTime;
 

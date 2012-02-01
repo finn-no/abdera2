@@ -29,8 +29,8 @@ import org.apache.abdera2.model.Service;
 import org.apache.abdera2.protocol.client.AbderaClient;
 import org.apache.abdera2.protocol.client.AbderaClientResponse;
 import org.apache.abdera2.protocol.client.AbderaSession;
-import org.apache.abdera2.protocol.client.Client;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.protocol.Client;
 import org.joda.time.DateTime;
 
 public class Main {

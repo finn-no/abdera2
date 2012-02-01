@@ -17,6 +17,7 @@
  */
 package org.apache.abdera2.protocol.client;
 
+import org.apache.abdera2.common.protocol.ClientResponse;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParseException;

@@ -21,6 +21,8 @@ import javax.activation.MimeType;
 
 import org.apache.abdera2.common.http.EntityTag;
 import org.apache.abdera2.common.iri.IRI;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.ClientResponseWrapper;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParseException;

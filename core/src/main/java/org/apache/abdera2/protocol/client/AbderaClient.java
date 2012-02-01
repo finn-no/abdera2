@@ -19,6 +19,12 @@ package org.apache.abdera2.protocol.client;
 
 import java.io.IOException;
 import org.apache.abdera2.Abdera;
+import org.apache.abdera2.common.protocol.BasicClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientWrapper;
+import org.apache.abdera2.common.protocol.RequestHelper;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
 import org.apache.abdera2.parser.ParserOptions;

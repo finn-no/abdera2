@@ -22,12 +22,12 @@ import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Activity;
 import org.apache.abdera2.activities.model.Collection;
 import org.apache.abdera2.activities.model.IO;
-import org.apache.abdera2.protocol.client.BasicCachingClient;
-import org.apache.abdera2.protocol.client.BasicClient;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientWrapper;
-import org.apache.abdera2.protocol.client.RequestOptions;
-import org.apache.abdera2.protocol.client.Session;
+import org.apache.abdera2.common.protocol.BasicCachingClient;
+import org.apache.abdera2.common.protocol.BasicClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientWrapper;
+import org.apache.abdera2.common.protocol.RequestOptions;
+import org.apache.abdera2.common.protocol.Session;
 
 /**
  * Extension of the base Abdera Client that provides methods

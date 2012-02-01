@@ -15,7 +15,7 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.protocol.client;
+package org.apache.abdera2.common.protocol;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
 import org.apache.abdera2.common.http.Method;
 import org.apache.abdera2.common.http.ResponseType;
 import org.apache.abdera2.common.misc.ExceptionHelper;
-import org.apache.abdera2.common.protocol.ProtocolException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;

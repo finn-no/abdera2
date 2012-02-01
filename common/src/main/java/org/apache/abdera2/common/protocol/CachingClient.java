@@ -15,7 +15,7 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.protocol.client;
+package org.apache.abdera2.common.protocol;
 
 public interface CachingClient extends Client {
 

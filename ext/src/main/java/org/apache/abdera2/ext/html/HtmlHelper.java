@@ -30,11 +30,11 @@ import org.apache.abdera2.Abdera;
 import org.apache.abdera2.model.Div;
 import org.apache.abdera2.model.Document;
 import org.apache.abdera2.model.Element;
-import org.apache.abdera2.protocol.client.BasicClient;
-import org.apache.abdera2.protocol.client.Client;
-import org.apache.abdera2.protocol.client.ClientResponse;
-import org.apache.abdera2.protocol.client.Session;
 import org.apache.abdera2.common.mediatype.MimeTypeHelper;
+import org.apache.abdera2.common.protocol.BasicClient;
+import org.apache.abdera2.common.protocol.Client;
+import org.apache.abdera2.common.protocol.ClientResponse;
+import org.apache.abdera2.common.protocol.Session;
 import org.apache.abdera2.common.xml.XmlRestrictedCharReader;
 
 public class HtmlHelper {

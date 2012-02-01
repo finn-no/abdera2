@@ -19,8 +19,8 @@ package org.apache.abdera2.activities.client;
 
 import org.apache.abdera2.activities.model.ASObject;
 import org.apache.abdera2.activities.model.Collection;
+import org.apache.abdera2.common.protocol.RequestOptions;
 import org.apache.abdera2.common.pusher.Pusher;
-import org.apache.abdera2.protocol.client.RequestOptions;
 
 /**
  * Identical to ActivitiesClientPusher with the exception that the 

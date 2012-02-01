@@ -15,7 +15,7 @@
  * copyright in this work, please see the NOTICE file in the top level
  * directory of this distribution.
  */
-package org.apache.abdera2.protocol.client;
+package org.apache.abdera2.common.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 
 import org.apache.abdera2.common.http.Method;
-import org.apache.abdera2.common.protocol.Response;
 import org.joda.time.DateTime;
 
 public interface ClientResponse extends Response {
