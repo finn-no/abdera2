@@ -28,6 +28,9 @@ import com.google.common.base.Predicate;
 import com.ibm.icu.text.Normalizer2;
 import com.ibm.icu.text.Normalizer2.Mode;
 
+/**
+ * Utility that wraps Unicode Normalization functions
+ */
 public enum NormalizationForm
   implements Function<CharSequence,CharSequence> {
   

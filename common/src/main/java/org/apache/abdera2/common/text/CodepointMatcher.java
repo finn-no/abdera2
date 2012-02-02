@@ -29,6 +29,12 @@ public abstract class CodepointMatcher
   public static final CodepointMatcher MATCH_ALL = matchAll();
   public static final CodepointMatcher MATCH_NONE = matchNone();
   
+  /**
+   * Verify that each of the unicode codepoints in the specified
+   * iterator match this matchers criteria. If successful, the
+   * method will return, If unsuccessful, an InvalidCharacterException
+   * will be thrown.
+   */
   public void verify(CodepointIterator iterator) {
     while(iterator.hasNext()) {
       int cp = iterator.next();
@@ -37,6 +43,12 @@ public abstract class CodepointMatcher
     }
   }
   
+  /**
+   * Verify that each of the unicode codepoints in the specified
+   * iterator do not match this matchers criteria. If successful, the
+   * method will return, If unsuccessful, an InvalidCharacterException
+   * will be thrown.
+   */
   public void verifyNot(CodepointIterator iterator) {
     while(iterator.hasNext()) {
       int cp = iterator.next();
@@ -45,14 +57,26 @@ public abstract class CodepointMatcher
     }
   }
   
+  /**
+   * True if all of the charsequence's unicode codepoints match
+   * the criteria
+   */
   public boolean all(CharSequence seq) {
     return all(CodepointIterator.getInstance(seq));
   }
   
+  /**
+   * True if any of the charsequence's unicode codepoints match
+   * the criteria
+   */
   public boolean any(CharSequence seq) {
     return any(CodepointIterator.getInstance(seq));
   }
   
+  /**
+   * True if all of the iterator's unicode codepoints match
+   * the criteria
+   */
   public boolean all(CodepointIterator iterator) {
     while (iterator.hasNext())
       if (!apply(iterator.next()))
@@ -60,6 +84,10 @@ public abstract class CodepointMatcher
     return true;
   }
   
+  /**
+   * True if any of the iterator's unicode codepoints match
+   * the criteria
+   */
   public boolean any(CodepointIterator iterator) {
     while (iterator.hasNext())
       if (apply(iterator.next()))
@@ -67,58 +95,110 @@ public abstract class CodepointMatcher
     return false;    
   }
   
+  /**
+   * True if the codepoint matches the criteria
+   */
   public boolean matches(int codepoint) {
     return apply(codepoint);
   }
   
+  /**
+   * True if the codepoint matches the criteria
+   */
   public boolean apply(int codepoint) {
     return this.apply(Integer.valueOf(codepoint));
   }
   
+  /**
+   * Returns a CodepointMatcher that matches the opposite of this one
+   */
   public CodepointMatcher negate() {
     return new NegatingCodepointMatcher(this);
   }
   
+  /**
+   * Returns a CodepointMatcher that matches the opposite of the specified matcher
+   */
   public static CodepointMatcher negate(CodepointMatcher matcher) {
     return matcher.negate();
   }
 
+  /**
+   * Creates a new CodepointMatcher that matches either this Codepoint Matcher
+   * or the specified matcher.
+   */
   public CodepointMatcher or(CodepointMatcher that) {
     return new OrCodepointMatcher(this,that);
   }
   
+  /**
+   * Creates a new CodepointMatcher that matches either this Codepoint Matcher
+   * or the specified matchers.
+   */
   public static CodepointMatcher or(CodepointMatcher... matchers) {
     return new OrCodepointMatcher(matchers);
   }
   
+  /**
+   * Creates a new CodepointMatcher that matches this Codepoint Matcher and 
+   * the specified matcher
+   */
   public CodepointMatcher and(CodepointMatcher that) {
     return new AndCodepointMatcher(this,that);
   }
   
+  /**
+   * Creates a ne CodepointMatcher that matches this Codepoint Matcher and
+   * the specified matchers
+   */
   public static CodepointMatcher and(CodepointMatcher... matchers) {
     return new AndCodepointMatcher(matchers);
   }
   
+  /**
+   * Returns a Codepoint Matcher that tests to ensure a codepoint is
+   * within a given range
+   */
   public static CodepointMatcher inRange(int low, int high) {
     return new RangeCodepointMatcher(low,high);
   }
   
+  /**
+   * Returns a Codepoint Matcher that tests to ensure a codepoint is 
+   * outside a given range
+   */
   public static CodepointMatcher notInRange(int low, int high) {
     return new NegatingCodepointMatcher(inRange(low,high));
   }
   
+  /**
+   * Returns a Codepoint Matcher that ensures a codepoint is one of a 
+   * specific set of codepoints
+   */
   public static CodepointMatcher is(int... cp) {
     return new IsCodepointMatcher(cp);
   }
   
+  /**
+   * Returns a Codepoint Matcher that ensures a codepoint is NOT one of a
+   * specific set of codepoints
+   */
   public static CodepointMatcher isNot(int cp) {
     return new NegatingCodepointMatcher(is(cp));
   }
   
+  /**
+   * Returns a Codepoint Matcher that ensures a codepoint is within a given
+   * set as described by the input inversion set.
+   */
   public static CodepointMatcher inInversionSet(int[] set) {
     return new InversionSetCodepointMatcher(set);
   }
   
+  /**
+   * Returns a Codepoint Matcher that ensures a codepoint is NOT within a 
+   * given set as described by the input inversion set
+   */
   public static CodepointMatcher notInInversionSet(int[] set) {
     return new NegatingCodepointMatcher(inInversionSet(set));
   }

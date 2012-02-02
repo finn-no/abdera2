@@ -30,6 +30,16 @@ import org.apache.commons.codec.net.QCodec;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * Provides utility classes for the legacy B and Q Encodings (RFC 2047)
+ * historically used to encoded non-ascii characters within the headers of HTTP messages.
+ * Also provides an implementation of the newer, easier to understand and implement
+ * mechanism for encoding Header parameters defined by RFC 5987 (what I call 
+ * the "Star Encoding" here due to the use of the * character within the encoding.
+ * 
+ * The Star Encoding is assumed to be the default when encoding data, but 
+ * all codecs will be tried transparently when decoding. 
+ */
 public enum Codec {
     B, 
     Q,

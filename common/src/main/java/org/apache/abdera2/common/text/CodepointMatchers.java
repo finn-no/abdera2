@@ -21,7 +21,11 @@ import static org.apache.abdera2.common.text.CodepointMatcher.*;
 
 import org.apache.abdera2.common.xml.XMLVersion;
 
-public class CodepointMatchers {
+/**
+ * Variety of Codepoint Matcher implementations... most deal with 
+ * URI/IRI validation requirements
+ */
+public final class CodepointMatchers {
 
   public static CodepointMatcher isAlpha() {
     return new OrCodepointMatcher(

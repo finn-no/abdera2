@@ -33,6 +33,10 @@ import java.util.NoSuchElementException;
 import com.ibm.icu.text.UCharacterIterator;
 import com.ibm.icu.text.UForwardCharacterIterator;
 
+/**
+ * Utility for iterating over the unicode codepoints in a char array,
+ * charsequence, byte array, etc. 
+ */
 public abstract class CodepointIterator 
   implements Iterator<Integer> {
   
