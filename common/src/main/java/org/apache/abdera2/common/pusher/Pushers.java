@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.util.concurrent.AbstractFuture;
 
-public class Pushers {
+public final class Pushers {
 
   public static <T>Function<T,Void> pushAsFunction(
     final Pusher<T> pusher) {

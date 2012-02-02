@@ -40,6 +40,30 @@ import com.google.common.collect.Multimap;
 
 import static com.google.common.base.Preconditions.*;
 
+/**
+ * A URI Template as defined by (http://datatracker.ietf.org/doc/draft-gregorio-uritemplate/) 
+ * 
+ * URI Templates are special strings that can be expanded into either 
+ * URI's or IRI's given an input context. For example, 
+ * 
+ *   http://{user}.example.org{/path}{?a,b}{#c}
+ * 
+ * Given the values:
+ * 
+ *   user = john
+ *   path = [x,y,z]
+ *   a    = 1
+ *   b    = 2
+ *   c    = abc
+ *   
+ * This URI Template expands to:
+ * 
+ *   http://john.example.org/x/y/z?a=1&b=2#abc
+ * 
+ * Template objects are threadsafe and immutable once created, and can be 
+ * safely initialized as final static variables and used throughout an 
+ * application
+ */
 @SuppressWarnings("unchecked")
 public final class Template 
   implements Iterable<Expression>, 
