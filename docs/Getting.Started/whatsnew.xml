@@ -60,7 +60,6 @@
       <t>Simplified the Named Writer and Named Parser mechanism in the Atom implementation</t>
       <t>Completely refactored HTTP Client API based around the Apache HTTP Client Components 4.x.</t>
       <t>Support for Asynchronous, non-blocking HTTP Client operations leveraging the java.util.concurrent.Executor framework and java.util.concurrent.Future</t>
-      <t>Refactored Publishing Server Provider framework, simplifying the overall architecture and tying in new capabilities from the new Common Code library.</t>
       <t>Improved Atom Parsing Performance (my informal testing has demonstrated about a 20-25% improvement on average)</t>
       <t>Complete JSON Activity Streams implementation:
         <list>      
@@ -76,12 +75,12 @@
           <t>Support for primary Activity Streams extensions such as Replies and Audience Targeting</t>
           <t>Experimental mode that allows playing around with new experimental extensions</t>
           <t>JSON Web Token Support</t>
-          <t>Client and Server side Activity Streams based API support</t>
           <t>Type-safe dynamic extensibility API</t>
           <t>Merge/Diff API</t>
           <t>Filter API based on Selectors</t>
           <t>Conversion of JSON Activity Stream to and from Atom</t>
         </list></t>
+        <t>Server-side Publishing Server implementation has been extracted into a separate, independent project.</t>
     </list></t>
 
     <t>It is important to point out that Abdera2 is NOT binary compatible with 
@@ -91,19 +90,6 @@
     Accordingly, the Abdera2 Java Package has been changed to 
     org.apache.abdera2.*.</t>
     
-    <t>Also, it must be noted that the Server and Client frameworks have 
-    been completely refactored as well. Custom Provider implementations based 
-    on the BasicProvider API should require fairly little modification to work 
-    under Abdera2, but in general, Adapters and Providers written to the 1.x 
-    code will need to be migrated to the new refactored design. Detailed 
-    documentation on the new design will be provided.</t>
-    
-  </section>
-    
-  <section title="Package Changes">
-  
-  <t>TBD</t>
-  
   </section>
     
   </middle>
