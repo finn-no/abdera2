@@ -415,42 +415,52 @@ public final class MimeTypeHelper {
   
   public static class UnmodifiableMimeTypeParameterList 
     extends MimeTypeParameterList {
-  
+    private boolean inited = false;
     public UnmodifiableMimeTypeParameterList() {
       super();
+      inited = true;
     }
   
     public UnmodifiableMimeTypeParameterList(String arg0)
       throws javax.activation.MimeTypeParseException {
         super(arg0);
+        inited = true;
     }
   
     @Override
     public void remove(String arg0) {
-      throw new UnsupportedOperationException();
+      if (inited)
+        throw new UnsupportedOperationException();
+      else super.remove(arg0);
     }
   
     @Override
     public void set(String arg0, String arg1) {
-      throw new UnsupportedOperationException();
+      if (inited)
+        throw new UnsupportedOperationException();
+      else super.set(arg0, arg1);
     }
   }
     
   public static class UnmodifiableMimeType extends MimeType {
     private final MimeTypeParameterList list;
+    private boolean inited = false;
     public UnmodifiableMimeType() {
       super();
       this.list = getList();
+      inited = true;
     }
     public UnmodifiableMimeType(String primary, String sub)
         throws javax.activation.MimeTypeParseException {
       super(primary, sub);
       this.list = getList();
+      inited = true;
     }
     public UnmodifiableMimeType(String rawdata)
         throws javax.activation.MimeTypeParseException {
       super(rawdata);
       this.list = getList();
+      inited = true;
     }
     private MimeTypeParameterList getList() {
       try {
@@ -462,17 +472,25 @@ public final class MimeTypeHelper {
     }
     public void setPrimaryType(String primary)
         throws javax.activation.MimeTypeParseException {
-      throw new UnsupportedOperationException();
+      if (inited)
+        throw new UnsupportedOperationException();
+      else super.setPrimaryType(primary);
     }
     public void setSubType(String sub)
         throws javax.activation.MimeTypeParseException {
-      throw new UnsupportedOperationException();
+      if (inited)
+        throw new UnsupportedOperationException();
+      else super.setSubType(sub);
     }
     public void setParameter(String name, String value) {
-      throw new UnsupportedOperationException();
+      if (inited) 
+        throw new UnsupportedOperationException();
+      else super.setParameter(name, value);
     }
     public void removeParameter(String name) {
-      throw new UnsupportedOperationException();
+      if (inited)
+        throw new UnsupportedOperationException();
+      else super.removeParameter(name);
     }
     public MimeTypeParameterList getParameters() {
       return list;
