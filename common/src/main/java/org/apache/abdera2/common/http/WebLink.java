@@ -60,6 +60,10 @@ public class WebLink implements Serializable {
     return new Builder();
   }
   
+  public static Builder make(String rel) {
+    return make().rel(rel);
+  }
+  
   public static Builder make(WebLink from) {
     return new Builder(from);
   }
