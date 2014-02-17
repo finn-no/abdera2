@@ -109,6 +109,7 @@ final class BaseAdapter
     map.put("totalItems", Integer.class);
     map.put("duration", Integer.class);
     map.put("height", Integer.class);
+    map.put("width", Integer.class);
     map.put("location", PlaceObject.class);
     map.put("reactions", TaskObject.class);
     map.put("mood", Mood.class);
