@@ -23,7 +23,6 @@ import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Constraint;
 import com.google.common.collect.ImmutableSet;
 
 public final class Selectors {
@@ -157,14 +156,6 @@ public final class Selectors {
   public static <X>Selector<X> forPredicate(
     Predicate<X> predicate) {
       return new Selector.PredicateSelector<X>(predicate);
-  }
-  
-  /**
-   * Returns a Selector<X> that wraps a Constraint<X>
-   */
-  public static <X>Selector<X> forConstraint(
-    Constraint<X> constraint) {
-      return new Selector.ConstraintSelector<X>(constraint);
   }
   
   public static <X>Selector<X> not(Selector<X>...selectors) {

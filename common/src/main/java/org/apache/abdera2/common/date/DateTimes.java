@@ -38,7 +38,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 
 public final class DateTimes {
 
@@ -370,7 +369,7 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> all() {
-    return Ranges.<DateTime>all();
+    return Range.<DateTime>all();
   }
   
   public static Range<DateTime> atOrAfterNow() {
@@ -378,15 +377,15 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> atOrAfter(DateTime dateTime) {
-    return Ranges.<DateTime>atLeast(dateTime);
+    return Range.<DateTime>atLeast(dateTime);
   }
   
   public static Range<DateTime> atOrBefore(DateTime dateTime) {
-    return Ranges.<DateTime>atMost(dateTime);
+    return Range.<DateTime>atMost(dateTime);
   }
   
   public static Range<DateTime> atOrBetween(DateTime low, DateTime high) {
-    return Ranges.<DateTime>closed(low,high);
+    return Range.<DateTime>closed(low,high);
   }
   
   public static Range<DateTime> atOrBetween(DateTime low, Duration duration) {
@@ -402,7 +401,7 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> atBetweenOrBefore(DateTime low, DateTime high) {
-    return Ranges.<DateTime>closedOpen(low,high);
+    return Range.<DateTime>closedOpen(low,high);
   }
   
   public static Range<DateTime> atBetweenOrBefore(DateTime low, Duration duration) {
@@ -422,7 +421,7 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> after(DateTime dateTime) {
-    return Ranges.<DateTime>greaterThan(dateTime);
+    return Range.<DateTime>greaterThan(dateTime);
   }
   
   public static Range<DateTime> beforeNow() {
@@ -430,11 +429,11 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> before(DateTime dateTime) {
-    return Ranges.<DateTime>lessThan(dateTime);
+    return Range.<DateTime>lessThan(dateTime);
   }
   
   public static Range<DateTime> between(DateTime low, DateTime high) {
-    return Ranges.<DateTime>open(low,high);
+    return Range.<DateTime>open(low,high);
   }
   
   public static Range<DateTime> between(DateTime low, Duration duration) {
@@ -450,7 +449,7 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> afterBetweenOrAt(DateTime low, DateTime high) {
-    return Ranges.<DateTime>openClosed(low,high);
+    return Range.<DateTime>openClosed(low,high);
   }
   
   public static Range<DateTime> afterBetweenOrAt(DateTime low, Duration duration) {
@@ -466,7 +465,7 @@ public final class DateTimes {
   }
   
   public static Range<DateTime> exactly(DateTime dateTime) {
-    return Ranges.<DateTime>singleton(dateTime);
+    return Range.<DateTime>singleton(dateTime);
   }
   
   public static Range<DateTime> exactlyBefore(DateTime date, Duration duration) {

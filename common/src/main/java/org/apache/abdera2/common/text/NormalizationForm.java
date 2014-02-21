@@ -22,7 +22,6 @@ import java.util.Iterator;
 import org.apache.abdera2.common.misc.MoreFunctions;
 
 import com.google.common.base.Equivalence;
-import com.google.common.base.Equivalences;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.ibm.icu.text.Normalizer2;
@@ -84,7 +83,7 @@ public enum NormalizationForm
           if (a != null && b == null) return false;
           String s1 = form.normalize(a);
           String s2 = form.normalize(b);
-          return Equivalences.equals().equivalent(s1, s2);
+          return Equivalence.equals().equivalent(s1, s2);
       }
 
       protected int doHash(CharSequence t) {

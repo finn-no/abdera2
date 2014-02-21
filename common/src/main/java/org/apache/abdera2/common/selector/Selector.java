@@ -18,15 +18,15 @@
 package org.apache.abdera2.common.selector;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Constraint;
 
 /**
  * Utility interface that is used as a Filter in several places 
  * throughout the Abdera API.
  */
 public interface Selector<X>
-  extends Predicate<X>, Constraint<X> {
+  extends Predicate<X> {
 
     /** Returns true the item is to be selected **/
     boolean select(Object item);
@@ -73,8 +73,7 @@ public interface Selector<X>
     
     Function<X,Boolean> asFunction();
     Predicate<X> asPredicate();
-    Constraint<X> asConstraint();
-    
+
     
     /**
      * Returns a Selector that matches this selector up to a specific number of times
@@ -109,22 +108,7 @@ public interface Selector<X>
      */
     Selector<X> orNot(Selector<X> selector);
     
-    public static class ConstraintSelector<X>
-      extends AbstractSelector<X> {
-      private final Constraint<X> internal;
-      ConstraintSelector(Constraint<X> internal) {
-        this.internal = internal;
-      }
-      @SuppressWarnings("unchecked")
-      public boolean select(Object item) {
-        return internal.checkElement((X)item) == item;
-      }
-      public X checkElement(X element) {
-        return internal.checkElement(element);
-      }
-    }
-    
-    public static class PredicateSelector<X> 
+    public static class PredicateSelector<X>
       extends AbstractSelector<X> {
       private final Predicate<X> internal;
       PredicateSelector(Predicate<X> internal) {

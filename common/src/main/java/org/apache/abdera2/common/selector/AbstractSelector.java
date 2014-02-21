@@ -19,7 +19,6 @@ package org.apache.abdera2.common.selector;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Constraint;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
@@ -92,10 +91,7 @@ public abstract class AbstractSelector<X>
   public Predicate<X> asPredicate() {
     return this;
   }
-  public Constraint<X> asConstraint() {
-    return this;
-  }
-  
+
   public Selector<X> limit(int limit) {
     return (Selector<X>)and(Selectors.<X>limit(limit));
   }
